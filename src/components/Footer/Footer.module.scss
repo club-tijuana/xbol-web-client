@@ -1,0 +1,30 @@
+@use "../../styles/variables" as vars;
+
+.footer {
+    background-color: vars.$bgFooter;
+}
+
+.logoContainer {
+    position: relative;
+    width: 110px;
+    height: 48px;
+    justify-self: right;
+}
+
+.logo {
+    object-fit: contain;
+}
+
+.iconContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.iconContainer > img {
+    cursor: pointer;
+}
+
+.linkButton {
+    font-size: 12px!important;
+}

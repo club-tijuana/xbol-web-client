@@ -1,0 +1,77 @@
+@use "./variables" as vars;
+
+h1 { font-size: vars.$xxxl; }
+h2 { font-size: vars.$xxl; }
+h3 { font-size: vars.$xl2; }
+h4 { font-size: vars.$xl; }
+h5 { font-size: vars.$lg2; }
+h6 { font-size: vars.$lg; }
+p  { font-size: vars.$md; }
+label { font-size: vars.$sm2; }
+small { font-size: vars.$xs; }
+
+body {
+    margin: 0;
+}
+
+.textBold {
+    font-weight: 600!important;
+}
+
+.textPrimary {
+    color: vars.$textPrimary;
+}
+
+.textMuted {
+    color: vars.$textMuted;
+}
+
+.textWhite {
+    color: white!important;
+}
+
+.input {
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-width: 1px;
+    height: 42px;
+    font-size: 16px;
+}
+
+.btnLink {
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-width: 1px;
+}
+
+.btn {
+    border: none;
+    border-radius: 6px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    padding-left: 35px;
+    padding-right: 35px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    opacity: 0.8;
+}
+
+.btn:active {
+    opacity: 0.6;
+}
+
+.btnPrimary {
+    background-color: vars.$textPrimary;
+    color: white;
+}
+
+.btnPrimaryDark {
+    background-color: vars.$textPrimaryDark;
+    color: white;
+}

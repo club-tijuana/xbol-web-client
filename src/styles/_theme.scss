@@ -1,0 +1,19 @@
+$primary: #C89A3A;
+$primary-light: #E2C27A;
+$primary-dark: #9E7424;
+
+$secondary: #3A3A3A;
+$secondary-light: #6B6B6B;
+$secondary-dark: #1F1F1F;
+
+$accent: #F2B705;
+
+:root {
+  --color-primary: #{$primary};
+  --color-primary-light: #{$primary-light};
+  --color-primary-dark: #{$primary-dark};
+  --color-secondary: #{$secondary};
+  --color-secondary-light: #{$secondary-light};
+  --color-secondary-dark: #{$secondary-dark};
+  --color-accent: #{$accent};
+}

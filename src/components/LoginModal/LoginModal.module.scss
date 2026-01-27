@@ -1,0 +1,84 @@
+@use "../../styles/variables" as vars;
+
+.modal {
+    background-color: vars.$modalBg!important;
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    border-radius: 29px!important;
+    width: 449px;
+    padding-top: 32px;
+    padding-bottom: 54px;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.topImage {
+    position: relative;
+    width: 100%;
+    height: 184px;
+}
+
+.bottomImage {
+    position: relative;
+    width: 100%;
+    height: 55px;
+    margin-top: 38.5px;
+}
+
+.image {
+    object-fit: cover;
+}
+
+.logo {
+    object-fit: contain;
+}
+
+.title {
+    font-size: 29px;
+    margin-bottom: 8px;
+}
+
+.label {
+    font-size: 18px;
+    margin-bottom: 11px;
+}
+
+.inputContainer {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+    text-align: center;
+    width: 60%;
+}
+
+.inputContainer > input {
+    text-align: center;
+    width: 100%;
+}
+
+.actionContainer {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+}
+
+.actionLink {
+    font-size: 18px;
+    margin-bottom: 37px;
+}
+
+.action {
+    font-size: 16px;
+    margin-bottom: 9px;
+    margin-left: 18px;
+    margin-right: 18px;
+}

@@ -1,0 +1,49 @@
+@use "../../styles/variables" as vars;
+
+.header {
+    background-color: vars.$bgHeader;
+    opacity: 0.98;
+    display: block;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    padding-top: 11px;
+    padding-bottom: 11px;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+}
+
+.hader > div {
+    width: '100%'
+}
+
+.logoContainer {
+    position: relative;
+    width: 143px;
+    height: 62px;
+    justify-self: right;
+}
+
+.logo {
+    object-fit: contain;
+}
+
+.nav {
+    justify-self: center;
+}
+
+.nav > a {
+    color: white;
+    font-size: 20px;
+    margin-left: 28px;
+    margin-right: 28px;
+    cursor: pointer;
+}
+
+.btnLogin {
+    background-color: vars.$bgHeader;
+    border: none;
+    cursor: pointer;
+}

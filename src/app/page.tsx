@@ -1,65 +1,105 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
+import EventCrousel from "@/components/EventCarousel/EventCarousel";
+import { getEventsByCategory, getOutstandingEvents } from "@/services/eventService";
+import { Box, Grid } from "@mui/material";
 
-export default function Home() {
+export default async function Home() {
+  const outstandingEvents = await getOutstandingEvents();
+  const futbolEvents = await getEventsByCategory(2, 4);
+  const musicEvents = await getEventsByCategory(1, 3);
+  const theaterEvents = await getEventsByCategory(3, 2);
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <div>
+      <main>
+        <Box
+          sx={{
+            width: "100vw",
+            ml: "calc(50% - 50vw)",
+            backgroundImage: "url('/assets/images/separators/soccer-separator.png')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            overflowX: "hidden",
+          }}
+        >
+          <EventCrousel />
+        </Box>
+
+        <Grid container columns={12} mt={6}>
+          <Grid size={9} offset={2}>
+            <EventCardGrid
+              title="Eventos destacados"
+              titleAlign="center"
+              eventCards={outstandingEvents} 
+              columns={6} 
+              itemSize={1} 
+              spacing={5}
+              size="sm" 
             />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+          </Grid>
+        </Grid>
+
+        <Box
+          sx={{
+            width: "100vw",
+            ml: "calc(50% - 50vw)",
+            backgroundImage: "url('/assets/images/separators/soccer-separator.png')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            overflowX: "hidden",
+          }}
+          mt={4}
+        >
+          <Box sx={{ maxWidth: "1800px", mx: "auto", px: 4, paddingBottom: 5, paddingTop: 5 }}>
+            <EventCardGrid
+              title="Fútbol"
+              eventCards={futbolEvents}
+              columns={4}
+              itemSize={1}
+              spacing={4}
+              cardDescriptionClass="textWhite"
+              cardDescriptionAlign="left"
+              cardTitleAlign="left"
+            />
+          </Box>
+          
+        </Box>
+
+        <Box mt={8}>
+          <EventCardGrid 
+            title="Música"
+            eventCards={musicEvents}
+            columns={4}
+            itemSize={1}
+            spacing={4}
+            cardDescriptionClass="textMuted"
+            cardDescriptionAlign="left"
+            cardTitleAlign="left"
+          />
+        </Box>
+
+        <Box
+          sx={{
+            width: "100vw",
+            ml: "calc(50% - 50vw)",
+            backgroundColor: 'var(--color-bg-muted)',
+            overflowX: "hidden",
+          }}
+          mt={8}
+        >
+          <Box sx={{ maxWidth: "1800px", mx: "auto", px: 4, paddingBottom: 5, paddingTop: 5 }}>
+            <EventCardGrid 
+              title="Teatro"
+              eventCards={theaterEvents}
+              columns={4}
+              itemSize={1}
+              spacing={4}
+              cardDescriptionClass="textMuted"
+              cardDescriptionAlign="left"
+              cardTitleAlign="left"
+            />
+          </Box>
+        </Box>
       </main>
     </div>
   );
