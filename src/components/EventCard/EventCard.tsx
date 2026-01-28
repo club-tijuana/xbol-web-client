@@ -16,7 +16,7 @@ export default function EventCard({ eventCard, size, titleAlign, descriptionClas
                     alt={title}
                 />
                 <CardContent>
-                    <Typography variant="h5" className={`textPrimary textBold ${styles.title}`} textAlign={titleAlign}>
+                    <Typography variant="xl2" className={`textPrimary ${styles.title}`} textAlign={titleAlign}>
                         { title }
                     </Typography>
                     { size === "lg" &&

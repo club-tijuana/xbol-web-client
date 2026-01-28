@@ -25,16 +25,16 @@ export default function Footer() {
                 </Grid>
                 <Grid size={2} display="flex" justifyContent="flex-end">
                     <Stack spacing={1} mr={9}>
-                        <Typography variant="subtitle1" className="textWhite">Eventos</Typography>
-                        <Typography variant="subtitle1" className="textWhite">Teatro</Typography>
-                        <Typography variant="subtitle1" className="textWhite">Música</Typography>
+                        <Typography variant="subtitle2" className="textWhite">Eventos</Typography>
+                        <Typography variant="subtitle2" className="textWhite">Teatro</Typography>
+                        <Typography variant="subtitle2" className="textWhite">Música</Typography>
                     </Stack>
                 </Grid>
                 <Grid size={2} display="flex" justifyContent="flex-start">
                     <Stack spacing={1} ml={9}>
-                        <Typography variant="subtitle1" className="textWhite">Deporte</Typography>
-                        <Typography variant="subtitle1" className="textWhite">Centro de ayuda</Typography>
-                        <Typography variant="subtitle1" className="textWhite">Quienes somos</Typography>
+                        <Typography variant="subtitle2" className="textWhite">Deporte</Typography>
+                        <Typography variant="subtitle2" className="textWhite">Centro de ayuda</Typography>
+                        <Typography variant="subtitle2" className="textWhite">Quienes somos</Typography>
                     </Stack>
                 </Grid>
                 <Grid size={2} px={6}>

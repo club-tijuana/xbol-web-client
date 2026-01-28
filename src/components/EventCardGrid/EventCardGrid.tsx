@@ -17,9 +17,8 @@ export default function EventCardGrid({
     return (
         <>
             <Typography 
-                variant="h5" 
-                className={`textPrimary textBold`} 
-                fontSize={29} 
+                variant="h4" 
+                className={`textPrimary`}
                 textAlign={titleAlign}
             >
                 {title}

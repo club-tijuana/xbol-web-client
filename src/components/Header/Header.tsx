@@ -4,23 +4,24 @@ import styles from "./Header.module.scss";
 import { useDispatch } from "react-redux";
 import { openLoginModal } from "@/store/slices/uiSlice";
 import Image from "next/image";
-import { Grid } from "@mui/material";
+import { Box, Grid, IconButton, Tooltip } from "@mui/material";
 
 export default function Header() {
     const dispatch = useDispatch();
 
+    //TODO: Reemplazar por mui App Bar
     return (
         <header className={styles.header}>
             <Grid container columns={12} spacing={2} alignItems="center">
                 <Grid size={3}>
-                    <div className={styles.logoContainer}>
+                    <Box className={styles.logoContainer}>
                         <Image
                             src="/assets/logo.png"
                             alt="Logo"
                             fill
                             className={styles.logo}
                         />
-                    </div>
+                    </Box>
                 </Grid>
 
                 <Grid size={1}>
@@ -39,17 +40,16 @@ export default function Header() {
                 </Grid>
 
                 <Grid size={3}>
-                    <button
-                        className={styles.btnLogin}
-                        onClick={() => dispatch(openLoginModal())}
-                    >
-                        <img
-                        src="/assets/icons/login.svg"
-                        alt="Login"
-                        width={28.32}
-                        height={31.56}
-                        />
-                    </button>
+                    <Tooltip title="Iniciar sesión">
+                        <IconButton onClick={() => dispatch(openLoginModal())}>
+                            <Image
+                                src="/assets/icons/login.svg"
+                                alt="Login"
+                                width={28.32}
+                                height={31.56}
+                            />
+                        </IconButton>
+                    </Tooltip>
                 </Grid>
             </Grid>
         </header>

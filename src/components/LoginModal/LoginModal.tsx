@@ -93,7 +93,7 @@ export default function LoginModal() {
                 </Typography>
                 
                 <Box className={styles.inputContainer}>
-                    <Typography variant="h6" mb={1} sx={{ color: 'var(--color-text-tertiary)' }}>
+                    <Typography variant="subtitle1" mb={1} sx={{ color: 'var(--color-text-tertiary)' }}>
                         Correo o número de teléfono
                     </Typography>
                     <FormControl fullWidth variant="filled">
@@ -103,7 +103,8 @@ export default function LoginModal() {
                             className={styles.inputCustom}
                             inputProps={{
                                 style: {
-                                    textAlign: 'center'
+                                    textAlign: 'center',
+                                    fontSize: 16
                                 }
                             }}
                             placeholder="alanaschr@gmail.com"
@@ -117,7 +118,7 @@ export default function LoginModal() {
                 </Box>
 
                 <Box mt={1} className={styles.inputContainer}>
-                    <Typography variant="h6" mb={1} sx={{ color: 'var(--color-text-tertiary)' }}>
+                    <Typography variant="subtitle1" mb={1} sx={{ color: 'var(--color-text-tertiary)' }}>
                         Contraseña
                     </Typography>
                     <FormControl fullWidth variant="filled">
@@ -127,7 +128,8 @@ export default function LoginModal() {
                             className={styles.inputCustom}
                             inputProps={{
                                 style: {
-                                    textAlign: 'center'
+                                    textAlign: 'center',
+                                    fontSize: 16
                                 }
                             }}
                             sx={{

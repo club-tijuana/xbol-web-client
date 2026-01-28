@@ -42,16 +42,6 @@
     object-fit: contain;
 }
 
-.title {
-    font-size: 29px;
-    margin-bottom: 8px;
-}
-
-.label {
-    font-size: 18px;
-    margin-bottom: 11px;
-}
-
 .inputContainer {
     display: flex;
     flex-direction: column;
@@ -73,6 +63,7 @@
 
 .actionLink {
     font-size: 18px!important;
+    font-weight: 400!important;
     margin-bottom: 25px!important;
     text-transform: none!important;
     color: vars.$textTertiary!important;
@@ -81,6 +72,7 @@
 .action {
     font-size: 16px!important;
     margin-bottom: 9px!important;
+    font-weight: 400!important;
 }
 
 .inputCustom {
