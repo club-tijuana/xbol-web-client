@@ -1,12 +1,16 @@
 "use client";
 
-import { Dialog } from "@mui/material";
+import { Alert, AlertColor, Backdrop, Box, Button, CircularProgress, Dialog, FormControl, IconButton, Input, InputAdornment, Snackbar, Typography } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store";
 import { closeLoginModal } from "@/store/slices/uiSlice";
 import styles from "./LoginModal.module.scss";
 import Image from "next/image";
 import { useState } from "react";
+import { login as loginAction } from "@/store/slices/authSlice";
+import { login as loginService } from "@/services/authService";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+
 
 export default function LoginModal() {
     const dispatch = useDispatch();
@@ -14,79 +18,183 @@ export default function LoginModal() {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertOpen, setAlertOpen] = useState(false);
+    const [alertSeverity, setAlertSeverity] = useState<AlertColor>('success')
+
+    const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+    const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+    };
+
+    const handleMouseUpPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+    };
+
+    const handleLogin = async () => {
+        setLoading(true);
+
+        try {
+            const user = await loginService(email, password);
+
+            if (user) {
+                dispatch(loginAction(user));
+                dispatch(closeLoginModal());
+
+                setAlertSeverity("success");
+                setAlertMessage("Sesión iniciada");
+                setAlertOpen(true);
+            }
+            else {
+                setAlertSeverity('warning');
+                setAlertMessage("Credenciales incorrectas");
+                setAlertOpen(true);
+            }
+        }
+        catch (error) {
+            setAlertSeverity('error');
+            setAlertMessage("Error al iniciar sesión");
+            setAlertOpen(true);
+        }
+        finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <Dialog 
             open={open} 
             onClose={() => dispatch(closeLoginModal())} 
             slotProps={{ paper: { className: styles.modal } }}>
-            <div className={styles.content}>
-                <div className={styles.topImage}>
+            <Box className={styles.content}>
+                <Box className={styles.topImage}>
                     <Image
                         src="/assets/login-modal.png"
                         alt="Evento"
                         fill
                         className={styles.image}
                     />
-                </div>
+                </Box>
 
-                <div className={styles.bottomImage}>
+                <Box className={styles.bottomImage}>
                     <Image
                         src="/assets/logo.png"
                         alt="Logo"
                         fill
                         className={styles.logo}
                     />
-                </div>
+                </Box>
 
-                <h1 className={`textPrimary ${styles.title}`}>
+                <Typography variant="h4" mt={2} className="textPrimary textBold">
                     Inicia sesión
-                </h1>
+                </Typography>
                 
-                <div className={styles.inputContainer}>
-                    <label className={styles.label} htmlFor="email">
+                <Box className={styles.inputContainer}>
+                    <Typography variant="h6" mb={1} sx={{ color: 'var(--color-text-tertiary)' }}>
                         Correo o número de teléfono
-                    </label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={email}
-                        required 
-                        placeholder="alanaschr@gmail.com"
-                        className={`input`}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
-                </div>
-                
-                <div className={styles.inputContainer}>
-                    <label className={styles.label} htmlFor="password">
-                        Contraseña
-                    </label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        value={password}
-                        required
-                        placeholder="**************"
-                        className={`input`}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                </div>
+                    </Typography>
+                    <FormControl fullWidth variant="filled">
+                        <Input
+                            id="email"
+                            type={'text'}
+                            className={styles.inputCustom}
+                            inputProps={{
+                                style: {
+                                    textAlign: 'center'
+                                }
+                            }}
+                            placeholder="alanaschr@gmail.com"
+                            sx={{
+                                backgroundColor: 'white',
+                                '&:after': { borderBottom: '2px solid var(--color-text-primary)' },
+                            }}
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
+                    </FormControl>
+                </Box>
 
-                <div className={styles.actionContainer}>
-                    <button className={`btnLink ${styles.actionLink}`}>
-                        ¿Olvidaste tu contraseña?
-                    </button>
-                    <button className={`btn btnPrimary ${styles.action}`}>
+                <Box mt={1} className={styles.inputContainer}>
+                    <Typography variant="h6" mb={1} sx={{ color: 'var(--color-text-tertiary)' }}>
+                        Contraseña
+                    </Typography>
+                    <FormControl fullWidth variant="filled">
+                        <Input
+                            id="password"
+                            type={showPassword ? 'text' : 'password'}
+                            className={styles.inputCustom}
+                            inputProps={{
+                                style: {
+                                    textAlign: 'center'
+                                }
+                            }}
+                            sx={{
+                                backgroundColor: 'white',
+                                '&:after': { borderBottom: '2px solid var(--color-text-primary)' },
+                            }}
+                            onChange={(e) => setPassword(e.target.value)}
+                            endAdornment={
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        aria-label={
+                                            showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
+                                        }
+                                        onClick={handleClickShowPassword}
+                                        onMouseDown={handleMouseDownPassword}
+                                        onMouseUp={handleMouseUpPassword}
+                                        edge="start"
+                                    >
+                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                    </IconButton>
+                                </InputAdornment>
+                            } 
+                        />
+                    </FormControl>
+                </Box>
+
+                <Button 
+                    variant="text" 
+                    className={styles.actionLink}
+                >
+                    ¿Olvidaste tu contraseña?
+                </Button>
+                <Box className={styles.actionContainer}>
+                    <Button 
+                        className={`btn btnPrimary ${styles.action}`} 
+                        onClick={handleLogin}
+                    >
                         Iniciar sesión
-                    </button>
-                    <button className={`btn btnPrimaryDark ${styles.action}`}>
+                    </Button>
+                    <Button 
+                        className={`btn btnPrimaryDark ${styles.action}`}
+                    >
                         Crea una cuenta
-                    </button>
-                </div>
-            </div>
+                    </Button>
+                </Box>
+            </Box>
+
+            <Snackbar
+                open={alertOpen}
+                autoHideDuration={3000}
+                onClose={() => setAlertOpen(false)}
+            >
+                 <Alert
+                    onClose={() => setAlertOpen(false)}
+                    severity={alertSeverity}
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    {alertMessage}
+                </Alert>
+            </Snackbar>
+            <Backdrop
+                sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+                open={loading}
+            >
+                <CircularProgress color="inherit" /> 
+            </Backdrop>
         </Dialog>
     );
 }

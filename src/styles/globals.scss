@@ -22,6 +22,14 @@ body {
     color: vars.$textPrimary;
 }
 
+.textSecondary {
+    color: vars.$textSecondary;
+}
+
+.textTertiary {
+    color: vars.$textTertiary!important;
+}
+
 .textMuted {
     color: vars.$textMuted;
 }
@@ -67,11 +75,13 @@ body {
 }
 
 .btnPrimary {
-    background-color: vars.$textPrimary;
-    color: white;
+    background-color: vars.$textPrimary!important;
+    color: white!important;
+    text-transform: none!important;
 }
 
 .btnPrimaryDark {
-    background-color: vars.$textPrimaryDark;
-    color: white;
+    background-color: vars.$textPrimaryDark!important;
+    color: white!important;
+    text-transform: none!important;
 }

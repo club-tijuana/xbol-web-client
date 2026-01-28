@@ -20,6 +20,7 @@ $border: #E0E0E0;
 $textPrimary: #FF001D;
 $textPrimaryDark: #CF142E;
 $textSecondary: #5F5F5F;
+$textTertiary: #262626;
 $textMuted: #9E9E9E;
 $modalBg: #F5F5F5;
 
@@ -51,6 +52,7 @@ $info: #0288D1;
   --color-text-primary: #{$textPrimary};
   --color-text-primary-dark: #{textPrimaryDark};
   --color-text-secondary: #{$textSecondary};
+  --color-text-tertiary: #{$textTertiary};
   --color-text-muted: #{$textMuted};
   --color-modal-bg: #{$modalBg};
   --color-success: #{$success};
