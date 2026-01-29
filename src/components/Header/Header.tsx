@@ -5,9 +5,15 @@ import { useDispatch } from "react-redux";
 import { openLoginModal } from "@/store/slices/uiSlice";
 import Image from "next/image";
 import { Box, Grid, IconButton, Tooltip } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
     const dispatch = useDispatch();
+    const router = useRouter();
+
+    const handleGoHome = () => {
+        router.push("/");
+    }
 
     //TODO: Reemplazar por mui App Bar
     return (
@@ -20,6 +26,7 @@ export default function Header() {
                             alt="Logo"
                             fill
                             className={styles.logo}
+                            onClick={handleGoHome}
                         />
                     </Box>
                 </Grid>

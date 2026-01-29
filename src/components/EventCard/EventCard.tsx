@@ -4,7 +4,7 @@ import { Card, CardActionArea, CardContent, CardMedia, Typography } from "@mui/m
 import { EventCardProps } from "./EventCard.type";
 import styles from "./EventCard.module.scss";
 
-export default function EventCard({ eventCard, size, titleAlign, descriptionClass, descriptionAlign = "left" }: EventCardProps) {
+export default function EventCard({ eventCard, size, titleClass, titleAlign, descriptionClass, descriptionAlign = "left" }: EventCardProps) {
     const { image, title, dateStr, location } = eventCard;
     
     return (
@@ -16,7 +16,7 @@ export default function EventCard({ eventCard, size, titleAlign, descriptionClas
                     alt={title}
                 />
                 <CardContent>
-                    <Typography variant="xl2" className={`textPrimary ${styles.title}`} textAlign={titleAlign}>
+                    <Typography variant="xl2" className={`${titleClass} ${styles.title}`} textAlign={titleAlign}>
                         { title }
                     </Typography>
                     { size === "lg" &&

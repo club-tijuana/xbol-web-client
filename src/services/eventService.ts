@@ -1,8 +1,8 @@
 import events from "@/data/events.mock.json";
 import { EventCardDto } from "@/models/event-card.dto";
 
-export function getOutstandingEvents(): EventCardDto[] {
-    return events.slice(0, 6);
+export function getOutstandingEvents(limit: number = 6): EventCardDto[] {
+    return events.slice(0, limit);
 }
 
 export function getEventsByCategory(category: number, limit: number): EventCardDto[] {

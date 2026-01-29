@@ -10,6 +10,7 @@ export interface EventCardGridProps {
 
     size?: "sm" | "lg";
     cardTitleAlign?: CanvasTextAlign;
+    cardTitleClass?: string;
     cardDescriptionAlign?: CanvasTextAlign;
     cardDescriptionClass?: string;
 }

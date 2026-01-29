@@ -1,3 +1,5 @@
+"use client";
+
 import { Grid, Typography } from "@mui/material";
 import EventCard from "../EventCard/EventCard";
 import { EventCardGridProps } from "./EventCardGrid.type";
@@ -11,6 +13,7 @@ export default function EventCardGrid({
     eventCards, 
     size = "lg",
     cardTitleAlign = "center",
+    cardTitleClass,
     cardDescriptionAlign = "left",
     cardDescriptionClass
 }: EventCardGridProps) {
@@ -33,10 +36,11 @@ export default function EventCardGrid({
                     <Grid key={event.id} size={itemSize}>
                         <EventCard 
                             eventCard={event} 
-                            size={size} 
-                            descriptionClass={cardDescriptionClass} 
+                            size={size}  
                             titleAlign={cardTitleAlign} 
-                            descriptionAlign={cardDescriptionAlign} 
+                            titleClass={cardTitleClass}
+                            descriptionAlign={cardDescriptionAlign}
+                            descriptionClass={cardDescriptionClass} 
                         />
                     </Grid>
                 ))}

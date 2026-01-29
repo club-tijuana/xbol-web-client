@@ -1,3 +1,4 @@
+import Advertisement from "@/components/Advertisement/Advertisement";
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import EventCrousel from "@/components/EventCarousel/EventCarousel";
 import { getEventsByCategory, getOutstandingEvents } from "@/services/eventService";
@@ -57,6 +58,7 @@ export default async function Home() {
               columns={4}
               itemSize={1}
               spacing={4}
+              cardTitleClass="textPrimary"
               cardDescriptionClass="textWhite"
               cardDescriptionAlign="left"
               cardTitleAlign="left"
@@ -78,28 +80,23 @@ export default async function Home() {
           />
         </Box>
 
-        <Box
-          sx={{
-            width: "100vw",
-            ml: "calc(50% - 50vw)",
-            backgroundColor: 'var(--color-bg-muted)',
-            overflowX: "hidden",
-          }}
-          mt={8}
-        >
-          <Box sx={{ maxWidth: "1800px", mx: "auto", px: 4, paddingBottom: 5, paddingTop: 5 }}>
+        <Grid container columns={2} mt={6} mb={8} spacing={10}>
+          <Grid size={1}>
             <EventCardGrid 
               title="Teatro"
               eventCards={theaterEvents}
               columns={4}
-              itemSize={1}
+              itemSize={2}
               spacing={4}
               cardDescriptionClass="textMuted"
               cardDescriptionAlign="left"
               cardTitleAlign="left"
             />
-          </Box>
-        </Box>
+          </Grid>
+          <Grid size={1}>
+            <Advertisement image="/assets/images/advertisement/advertisement.png" />
+          </Grid>
+        </Grid>
       </main>
     </div>
   );
