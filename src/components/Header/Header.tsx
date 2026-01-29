@@ -1,11 +1,13 @@
 "use client";
 
-import styles from "./Header.module.scss";
-import { useDispatch } from "react-redux";
-import { openLoginModal } from "@/store/slices/uiSlice";
-import Image from "next/image";
 import { Box, Grid, IconButton, Tooltip } from "@mui/material";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+
+import { openLoginModal } from "@/store/slices/uiSlice";
+
+import styles from "./Header.module.scss";
 
 export default function Header() {
     const dispatch = useDispatch();

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+
 import styles from "./EventCarousel.module.scss";
 
 export default function EventCrousel() {
@@ -22,7 +23,7 @@ export default function EventCrousel() {
     const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
     useEffect(() => {
-        let interval: any;
+        let interval: ReturnType<typeof setInterval> | undefined;;
         if (isAutoPlaying) {
             interval = setInterval(() => {
                 setCurrentIndex((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
@@ -40,7 +41,7 @@ export default function EventCrousel() {
             className={styles.carouselContainer}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            >
+        >
             <div
                 className={styles.carouselSlide}
             >

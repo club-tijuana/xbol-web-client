@@ -1,15 +1,18 @@
 "use client";
 
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Alert, AlertColor, Backdrop, Box, Button, CircularProgress, Dialog, FormControl, IconButton, Input, InputAdornment, Snackbar, Typography } from "@mui/material";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "@/store";
-import { closeLoginModal } from "@/store/slices/uiSlice";
-import styles from "./LoginModal.module.scss";
 import Image from "next/image";
 import { useState } from "react";
-import { login as loginAction } from "@/store/slices/authSlice";
+import { useSelector, useDispatch } from "react-redux";
+
 import { login as loginService } from "@/services/authService";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { RootState } from "@/store";
+import { login as loginAction } from "@/store/slices/authSlice";
+import { closeLoginModal } from "@/store/slices/uiSlice";
+
+import styles from "./LoginModal.module.scss";
+
 
 
 export default function LoginModal() {
@@ -54,7 +57,7 @@ export default function LoginModal() {
                 setAlertOpen(true);
             }
         }
-        catch (error) {
+        catch {
             setAlertSeverity('error');
             setAlertMessage("Error al iniciar sesión");
             setAlertOpen(true);
@@ -65,9 +68,9 @@ export default function LoginModal() {
     };
 
     return (
-        <Dialog 
-            open={open} 
-            onClose={() => dispatch(closeLoginModal())} 
+        <Dialog
+            open={open}
+            onClose={() => dispatch(closeLoginModal())}
             slotProps={{ paper: { className: styles.modal } }}>
             <Box className={styles.content}>
                 <Box className={styles.topImage}>
@@ -91,7 +94,7 @@ export default function LoginModal() {
                 <Typography variant="h4" mt={2} className="textPrimary textBold">
                     Inicia sesión
                 </Typography>
-                
+
                 <Box className={styles.inputContainer}>
                     <Typography variant="subtitle1" mb={1} sx={{ color: 'var(--color-text-tertiary)' }}>
                         Correo o número de teléfono
@@ -151,25 +154,25 @@ export default function LoginModal() {
                                         {showPassword ? <VisibilityOff /> : <Visibility />}
                                     </IconButton>
                                 </InputAdornment>
-                            } 
+                            }
                         />
                     </FormControl>
                 </Box>
 
-                <Button 
-                    variant="text" 
+                <Button
+                    variant="text"
                     className={styles.actionLink}
                 >
                     ¿Olvidaste tu contraseña?
                 </Button>
                 <Box className={styles.actionContainer}>
-                    <Button 
-                        className={`btn btnPrimary ${styles.action}`} 
+                    <Button
+                        className={`btn btnPrimary ${styles.action}`}
                         onClick={handleLogin}
                     >
                         Iniciar sesión
                     </Button>
-                    <Button 
+                    <Button
                         className={`btn btnPrimaryDark ${styles.action}`}
                     >
                         Crea una cuenta
@@ -182,7 +185,7 @@ export default function LoginModal() {
                 autoHideDuration={3000}
                 onClose={() => setAlertOpen(false)}
             >
-                 <Alert
+                <Alert
                     onClose={() => setAlertOpen(false)}
                     severity={alertSeverity}
                     variant="filled"
@@ -195,7 +198,7 @@ export default function LoginModal() {
                 sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
                 open={loading}
             >
-                <CircularProgress color="inherit" /> 
+                <CircularProgress color="inherit" />
             </Backdrop>
         </Dialog>
     );

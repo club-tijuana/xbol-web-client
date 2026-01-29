@@ -1,5 +1,6 @@
 import { Box } from "@mui/material";
 import Image from "next/image";
+
 import { AdvertisementProps } from "./Advertisement.types";
 
 export default function Advertisement({ image }: AdvertisementProps) {
@@ -10,7 +11,7 @@ export default function Advertisement({ image }: AdvertisementProps) {
                 width: "100%",
                 height: 300,
             }}
-            >
+        >
             <Image
                 src={image}
                 alt="Advertisement"

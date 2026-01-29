@@ -7,7 +7,7 @@ import styles from "./TicketCard.module.scss";
 
 export default function TicketCard({ ticket, onOpen, onSell, onTransfer }: TicketCardProps) {
     const { ticketCode, image, title, dateStr, location } = ticket;
-    
+
     return (
         <Box>
             <Card variant="outlined" sx={{ border: 'none' }}>

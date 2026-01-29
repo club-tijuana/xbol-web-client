@@ -1,6 +1,7 @@
 "use client";
 
 import { SeatsioSeatingChart, SelectableObject } from "@seatsio/seatsio-react";
+
 import { SeatsMapProps } from "./SeatsMap.type";
 
 export default function SeatsMap({ eventKey, pricing, onSelected, onDeselected }: SeatsMapProps) {

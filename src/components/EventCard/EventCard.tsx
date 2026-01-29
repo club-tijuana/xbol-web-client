@@ -1,12 +1,13 @@
 "use client";
 
 import { Card, CardActionArea, CardContent, CardMedia, Typography } from "@mui/material";
-import { EventCardProps } from "./EventCard.type";
+
 import styles from "./EventCard.module.scss";
+import { EventCardProps } from "./EventCard.type";
 
 export default function EventCard({ eventCard, size, titleClass, titleAlign, descriptionClass, descriptionAlign = "left" }: EventCardProps) {
     const { image, title, dateStr, location } = eventCard;
-    
+
     return (
         <Card className={styles.card}>
             <CardActionArea>
@@ -17,16 +18,16 @@ export default function EventCard({ eventCard, size, titleClass, titleAlign, des
                 />
                 <CardContent>
                     <Typography variant="xl2" className={`${titleClass} ${styles.title}`} textAlign={titleAlign}>
-                        { title }
+                        {title}
                     </Typography>
-                    { size === "lg" &&
+                    {size === "lg" &&
                         <Typography variant="h5" className={`${descriptionClass}`} textAlign={descriptionAlign}>
-                            { dateStr }
+                            {dateStr}
                         </Typography>
                     }
-                    { size === "lg" &&
+                    {size === "lg" &&
                         <Typography variant="h5" className={`${descriptionClass}`} textAlign={descriptionAlign}>
-                            { location }
+                            {location}
                         </Typography>
                     }
                 </CardContent>

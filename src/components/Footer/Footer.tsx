@@ -1,6 +1,7 @@
 import { Box, Button, Grid, Stack, Typography } from "@mui/material";
-import styles from "./Footer.module.scss";
 import Image from "next/image";
+
+import styles from "./Footer.module.scss";
 
 export default function Footer() {
     const links = [
@@ -93,16 +94,16 @@ export default function Footer() {
                     pt: 3,
                     pb: 2
                 }}
-                >
+            >
                 <Stack
                     direction="row"
                     spacing={1}
                     alignItems={'center'}
                     justifyContent="center"
-                    divider={<span className={`textWhite ${ styles.linkButton }`}>|</span>}
+                    divider={<span className={`textWhite ${styles.linkButton}`}>|</span>}
                 >
                     {links.map((text) => (
-                        <Button key={text} variant="text" sx={{ textTransform: 'none' }} className={`textWhite ${ styles.linkButton }`}>
+                        <Button key={text} variant="text" sx={{ textTransform: 'none' }} className={`textWhite ${styles.linkButton}`}>
                             {text}
                         </Button>
                     ))}

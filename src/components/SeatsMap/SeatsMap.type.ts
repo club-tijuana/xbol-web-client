@@ -1,5 +1,6 @@
-import { SeatsioPricing } from "@/context/BookingContext";
 import { SelectableObject } from "@seatsio/seatsio-react";
+
+import { SeatsioPricing } from "@/context/BookingContext";
 
 export interface SeatsMapProps {
     eventKey: string;

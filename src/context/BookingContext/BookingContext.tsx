@@ -1,8 +1,9 @@
 "use client";
 
-import { createContext, ReactNode, useMemo, useState } from "react";
-import { BookingContextValue, SeatsioPricing } from "./BookingContext.types";
 import { SelectableObject } from "@seatsio/seatsio-react";
+import { createContext, ReactNode, useMemo, useState } from "react";
+
+import { BookingContextValue, SeatsioPricing } from "./BookingContext.types";
 
 export const BookingContext = createContext<BookingContextValue | null>(null);
 

@@ -20,7 +20,7 @@ export default async function TicketsPage() {
             </Box>
             <Box mt={5}>
                 <TicketList
-                    title="Xolopass" 
+                    title="Xolopass"
                     tickets={mySeasonTickets}
                 />
             </Box>
@@ -29,13 +29,13 @@ export default async function TicketsPage() {
                     <Advertisement image="/assets/images/advertisement/advertisement.png" />
                 </Grid>
                 <Grid size={1}>
-                    <EventCardGrid 
+                    <EventCardGrid
                         columns={4}
                         itemSize={1}
                         spacing={7}
                         title="Otros eventos"
                         size="sm"
-                        eventCards={otherEvents} 
+                        eventCards={otherEvents}
                     />
                 </Grid>
             </Grid>
