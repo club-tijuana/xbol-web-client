@@ -1,17 +1,17 @@
 import { Box } from "@mui/material";
 
+import styles from "./FullWidthSection.module.scss";
 import { FullWidthSectionProps } from "./FullWidthSection.type";
 
-export default function FullWidthSection({ children, backgroundColor, backgroundImage }: FullWidthSectionProps) {
+export default function FullWidthSection({ children, backgroundColor, backgroundImage, backgroundImageFull = true, ignoreParentPadding = true }: FullWidthSectionProps) {
     return (
-        <Box sx={{
-            width: "100vw",
-            ml: "calc(50% - 50vw)",
+        <Box className={styles.section} sx={{
             backgroundImage: `url('${backgroundImage}')`,
             backgroundColor: backgroundColor,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            overflowX: "hidden",
+            px: ignoreParentPadding ? undefined : { xs: 2, md: 4, lg: 4, xl: 38 },
+            backgroundSize: backgroundImageFull ? "cover" : "contain",
+            backgroundPosition: backgroundImageFull ? "center" : "top",
+            backgroundRepeat: backgroundImageFull ? "repeat" : "no-repeat"
         }}>
             {children}
         </Box>

@@ -5,13 +5,7 @@ import Image from "next/image";
 
 export default function TicketSeats() {
     return (
-        <Paper elevation={3} sx={{
-            paddingTop: '27px',
-            paddingBottom: '27px',
-            paddingLeft: '44px',
-            paddingRight: '44px',
-            borderRadius: '29px',
-        }}
+        <Paper elevation={3} className="paperCard"
         >
             <Typography variant="xl2" className="textPrimary">
                 Tus asientos

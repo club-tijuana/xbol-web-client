@@ -34,8 +34,8 @@ export default async function Home() {
           </Grid>
         </Grid>
 
-        <FullWidthSection backgroundImage="/assets/images/separators/soccer-separator.png">
-          <Box sx={{ maxWidth: "1500px", mx: "auto", px: { xs: 2, md: 4, lg: 4, xl: 12 }, paddingBottom: 5, paddingTop: 5 }}>
+        <FullWidthSection backgroundImage="/assets/images/separators/soccer-separator.png" ignoreParentPadding={false}>
+          <Box sx={{ paddingBottom: 5, paddingTop: 5 }}>
             <EventCardGrid
               title="Fútbol"
               eventCards={futbolEvents}

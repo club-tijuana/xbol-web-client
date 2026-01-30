@@ -84,7 +84,7 @@ body {
 
 .btn {
     border: none;
-    border-radius: 6px;
+    border-radius: 6px !important;
     padding-top: 12px;
     padding-bottom: 12px;
     padding-left: 35px;
@@ -116,4 +116,12 @@ body {
     border-color: vars.$textPrimary !important;
     color: vars.$textPrimary !important;
     text-transform: none !important;
+}
+
+.paperCard {
+    padding-top: 27px;
+    padding-bottom: 27px;
+    padding-left: 44px;
+    padding-right: 44px;
+    border-radius: 29px !important;
 }

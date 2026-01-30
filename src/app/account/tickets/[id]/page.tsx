@@ -94,8 +94,8 @@ export default async function TicketPage() {
                 </Grid>
             </Grid>
 
-            <FullWidthSection backgroundColor="#EDEDED">
-                <Box sx={{ px: { xs: 0, sm: 0, md: 10, lg: 20, xl: 77 } }} my={5}>
+            <FullWidthSection backgroundColor="#EDEDED" ignoreParentPadding={false}>
+                <Box sx={{ px: { xs: 4, sm: 10, md: 10, lg: 20, xl: 39 } }} my={5}>
                     <FAQ />
                 </Box>
             </FullWidthSection>
