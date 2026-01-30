@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Box, Grid, IconButton, Typography } from "@mui/material";
 import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
+import { Box, Grid, IconButton, Typography } from "@mui/material";
+import { useEffect, useMemo, useState } from "react";
+
 import TicketCard from "../TicketCard/TicketCard";
+
 import { TicketListProps } from "./TicketList.type";
-import { MyTicketDto } from "@/models/my-ticket.dto";
 
 export default function TicketList({ title, tickets }: TicketListProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [visibleCount, setVisibleCount] = useState(1);
-    const [visibleTickets, setVisibleTickets] = useState<MyTicketDto[]>([]);
 
     useEffect(() => {
         const calculateVisibleCount = () => {
@@ -31,15 +31,10 @@ export default function TicketList({ title, tickets }: TicketListProps) {
         return () => window.removeEventListener("resize", update);
     }, []);
 
-    useEffect(() => {
-        if (!tickets) {
-            setVisibleTickets([]);
-            return;
-        }
+    const visibleTickets = useMemo(() => {
+        if (!tickets) return [];
 
-        setVisibleTickets(
-            tickets.slice(currentIndex, currentIndex + visibleCount)
-        );
+        return tickets.slice(currentIndex, currentIndex + visibleCount);
     }, [tickets, currentIndex, visibleCount]);
 
     const handlePrevious = () => {

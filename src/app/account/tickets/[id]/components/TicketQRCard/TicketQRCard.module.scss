@@ -1,0 +1,29 @@
+.card {
+    border: none;
+    cursor: pointer;
+}
+
+.cardContent {
+    padding: 0 !important;
+    position: relative !important;
+    border-radius: 10px !important;
+    height: 268px;
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(129, 10, 27, 0.6) 10%, rgba(0, 0, 0, 1) 100%);
+    pointer-events: none;
+    border-radius: 10;
+}
+
+.cardInfo {
+    position: absolute;
+    text-align: center;
+    padding-bottom: 2;
+    z-index: 2;
+    justify-self: center;
+    align-self: flex-end;
+    bottom: 30;
+}

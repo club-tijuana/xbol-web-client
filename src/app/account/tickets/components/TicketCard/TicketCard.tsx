@@ -1,12 +1,13 @@
 "use client";
 
-import { Box, Card, CardActions, CardContent, CardMedia, IconButton, Typography } from "@mui/material";
-import { TicketCardProps } from "./TicketCard.type";
 import { Circle } from "@mui/icons-material";
-import styles from "./TicketCard.module.scss";
+import { Box, Card, CardActions, CardContent, CardMedia, IconButton, Typography } from "@mui/material";
 
-export default function TicketCard({ ticket, onOpen, onSell, onTransfer }: TicketCardProps) {
-    const { ticketCode, image, title, dateStr, location } = ticket;
+import styles from "./TicketCard.module.scss";
+import { TicketCardProps } from "./TicketCard.type";
+
+export default function TicketCard({ ticket }: TicketCardProps) {
+    const { image, title, dateStr, location } = ticket;
 
     return (
         <Box>
@@ -53,7 +54,6 @@ export default function TicketCard({ ticket, onOpen, onSell, onTransfer }: Ticke
                                 <IconButton
                                     aria-label="Ver"
                                     className="textWhite"
-                                    onClick={() => onOpen?.(ticketCode)}
                                 >
                                     <Circle sx={{ fontSize: 50 }} />
                                 </IconButton>
@@ -66,7 +66,6 @@ export default function TicketCard({ ticket, onOpen, onSell, onTransfer }: Ticke
                                 <IconButton
                                     aria-label="Vender"
                                     className="textWhite"
-                                    onClick={() => onSell?.(ticketCode)}
                                 >
                                     <Circle sx={{ fontSize: 50 }} />
                                 </IconButton>
@@ -79,7 +78,6 @@ export default function TicketCard({ ticket, onOpen, onSell, onTransfer }: Ticke
                                 <IconButton
                                     aria-label="Transferir"
                                     className="textWhite"
-                                    onClick={() => onTransfer?.(ticketCode)}
                                 >
                                     <Circle sx={{ fontSize: 50 }} />
                                 </IconButton>

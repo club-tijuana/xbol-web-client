@@ -13,8 +13,6 @@ import { closeLoginModal } from "@/store/slices/uiSlice";
 
 import styles from "./LoginModal.module.scss";
 
-
-
 export default function LoginModal() {
     const dispatch = useDispatch();
     const open = useSelector((state: RootState) => state.ui.loginModalOpen);

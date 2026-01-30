@@ -1,9 +1,11 @@
-import { getMySeasonTickets, getMyTickets } from "@/services/accountService";
-import TicketList from "./components/TicketList/TicketList";
 import { Box, Grid } from "@mui/material";
-import { getOutstandingEvents } from "@/services/eventService";
-import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
+
 import Advertisement from "@/components/Advertisement/Advertisement";
+import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
+import { getMySeasonTickets, getMyTickets } from "@/services/accountService";
+import { getOutstandingEvents } from "@/services/eventService";
+
+import TicketList from "./components/TicketList/TicketList";
 
 export default async function TicketsPage() {
     const myTickets = await getMyTickets();
@@ -24,7 +26,7 @@ export default async function TicketsPage() {
                     tickets={mySeasonTickets}
                 />
             </Box>
-            <Grid container columns={2} mt={6} mb={8} spacing={10}>
+            <Grid container columns={2} mt={6} mb={8} spacing={6}>
                 <Grid size={1}>
                     <Advertisement image="/assets/images/advertisement/advertisement.png" />
                 </Grid>
@@ -32,10 +34,11 @@ export default async function TicketsPage() {
                     <EventCardGrid
                         columns={4}
                         itemSize={1}
-                        spacing={7}
+                        spacing={5}
                         title="Otros eventos"
                         size="sm"
                         eventCards={otherEvents}
+                        cardTitleClass="textSecondary"
                     />
                 </Grid>
             </Grid>

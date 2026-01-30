@@ -15,6 +15,7 @@ $bg: #FFFFFF;
 $bgHeader: #141414;
 $bgFooter: #262626;
 $bgMuted: #F0F0F0;
+$bgGray: #EDEDED;
 $surface: #F7F7F7;
 $border: #E0E0E0;
 $textPrimary: #FF001D;
@@ -42,11 +43,12 @@ $info: #0288D1;
   --text-xl2: #{$xl2};
   --text-xxl: #{$xxl};
   --text-xxxl: #{$xxxl};
-  
+
   --color-bg: #{$bg};
   --color-bg-header: #{$bgHeader};
   --color-bg-footer: #{bgFooter};
   --color-bg-muted: #{$bgMuted};
+  --color-bg-gray: #{$bgGray};
   --color-surface: #{$surface};
   --color-border: #{$border};
   --color-text-primary: #{$textPrimary};

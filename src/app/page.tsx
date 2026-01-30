@@ -1,8 +1,10 @@
+import { Box, Grid } from "@mui/material";
+
 import Advertisement from "@/components/Advertisement/Advertisement";
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import EventCrousel from "@/components/EventCarousel/EventCarousel";
+import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
 import { getEventsByCategory, getOutstandingEvents } from "@/services/eventService";
-import { Box, Grid } from "@mui/material";
 
 export default async function Home() {
   const outstandingEvents = await getOutstandingEvents();
@@ -13,45 +15,27 @@ export default async function Home() {
   return (
     <div>
       <main>
-        <Box
-          sx={{
-            width: "100vw",
-            ml: "calc(50% - 50vw)",
-            backgroundImage: "url('/assets/images/separators/soccer-separator.png')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            overflowX: "hidden",
-          }}
-        >
+        <FullWidthSection>
           <EventCrousel />
-        </Box>
+        </FullWidthSection>
 
         <Grid container columns={12} mt={6}>
           <Grid size={9} offset={2}>
             <EventCardGrid
               title="Eventos destacados"
               titleAlign="center"
-              eventCards={outstandingEvents} 
-              columns={6} 
-              itemSize={1} 
-              spacing={5}
-              size="sm" 
+              eventCards={outstandingEvents}
+              columns={6}
+              itemSize={1}
+              spacing={4}
+              size="sm"
+              cardTitleClass="textSecondary"
             />
           </Grid>
         </Grid>
 
-        <Box
-          sx={{
-            width: "100vw",
-            ml: "calc(50% - 50vw)",
-            backgroundImage: "url('/assets/images/separators/soccer-separator.png')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            overflowX: "hidden",
-          }}
-          mt={4}
-        >
-          <Box sx={{ maxWidth: "1800px", mx: "auto", px: 4, paddingBottom: 5, paddingTop: 5 }}>
+        <FullWidthSection backgroundImage="/assets/images/separators/soccer-separator.png">
+          <Box sx={{ maxWidth: "1500px", mx: "auto", px: { xs: 2, md: 4, lg: 4, xl: 12 }, paddingBottom: 5, paddingTop: 5 }}>
             <EventCardGrid
               title="Fútbol"
               eventCards={futbolEvents}
@@ -64,11 +48,10 @@ export default async function Home() {
               cardTitleAlign="left"
             />
           </Box>
-          
-        </Box>
+        </FullWidthSection>
 
         <Box mt={8}>
-          <EventCardGrid 
+          <EventCardGrid
             title="Música"
             eventCards={musicEvents}
             columns={4}
@@ -82,7 +65,7 @@ export default async function Home() {
 
         <Grid container columns={2} mt={6} mb={8} spacing={10}>
           <Grid size={1}>
-            <EventCardGrid 
+            <EventCardGrid
               title="Teatro"
               eventCards={theaterEvents}
               columns={4}
