@@ -4,23 +4,22 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Alert, AlertColor, Backdrop, Box, Button, CircularProgress, Dialog, FormControl, IconButton, Input, InputAdornment, Snackbar, Typography } from "@mui/material";
 import Image from "next/image";
 import { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
 
-import { login as loginService } from "@/services/authService";
 import { RootState } from "@/store";
-import { login as loginAction } from "@/store/slices/authSlice";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { login } from "@/store/slices/authSlice";
 import { closeLoginModal } from "@/store/slices/uiSlice";
 
 import styles from "./LoginModal.module.scss";
 
 export default function LoginModal() {
-    const dispatch = useDispatch();
-    const open = useSelector((state: RootState) => state.ui.loginModalOpen);
+    const dispatch = useAppDispatch();
+    const open = useAppSelector((state: RootState) => state.ui.loginModalOpen);
 
-    const [email, setEmail] = useState("");
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const status = useAppSelector(state => state.auth.status);
     const [alertMessage, setAlertMessage] = useState('');
     const [alertOpen, setAlertOpen] = useState(false);
     const [alertSeverity, setAlertSeverity] = useState<AlertColor>('success')
@@ -36,32 +35,22 @@ export default function LoginModal() {
     };
 
     const handleLogin = async () => {
-        setLoading(true);
+        const result = await dispatch(login({ username, password }));
 
-        try {
-            const user = await loginService(email, password);
+        if (login.fulfilled.match(result)) {
+            dispatch(closeLoginModal());
 
-            if (user) {
-                dispatch(loginAction(user));
-                dispatch(closeLoginModal());
-
-                setAlertSeverity("success");
-                setAlertMessage("Sesión iniciada");
-                setAlertOpen(true);
-            }
-            else {
-                setAlertSeverity('warning');
-                setAlertMessage("Credenciales incorrectas");
-                setAlertOpen(true);
-            }
-        }
-        catch {
-            setAlertSeverity('error');
-            setAlertMessage("Error al iniciar sesión");
+            setAlertSeverity("success");
+            setAlertMessage("Sesión iniciada");
             setAlertOpen(true);
         }
-        finally {
-            setLoading(false);
+        else if (login.rejected.match(result)) {
+            const message =
+                result.payload || result.error.message || "Error al iniciar sesión";
+
+            setAlertSeverity("error");
+            setAlertMessage(message);
+            setAlertOpen(true);
         }
     };
 
@@ -113,7 +102,7 @@ export default function LoginModal() {
                                 backgroundColor: 'white',
                                 '&:after': { borderBottom: '2px solid var(--color-text-primary)' },
                             }}
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={(e) => setUsername(e.target.value)}
                         />
                     </FormControl>
                 </Box>
@@ -167,6 +156,7 @@ export default function LoginModal() {
                     <Button
                         className={`btn btnPrimary ${styles.action}`}
                         onClick={handleLogin}
+                        disabled={status === "loading"}
                     >
                         Iniciar sesión
                     </Button>
@@ -194,7 +184,7 @@ export default function LoginModal() {
             </Snackbar>
             <Backdrop
                 sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
-                open={loading}
+                open={status === "loading"}
             >
                 <CircularProgress color="inherit" />
             </Backdrop>

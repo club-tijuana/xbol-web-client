@@ -1,4 +1,4 @@
-import { EventCardDto } from "@/models/event-card.dto";
+import { EventItemDTO } from "@/models/event-item.dto";
 
 export interface EventCardGridProps {
     title: string;
@@ -6,7 +6,7 @@ export interface EventCardGridProps {
     columns: number;
     spacing: number;
     itemSize: number;
-    eventCards: EventCardDto[];
+    eventCards: readonly EventItemDTO[];
 
     size?: "sm" | "lg";
     cardTitleAlign?: CanvasTextAlign;

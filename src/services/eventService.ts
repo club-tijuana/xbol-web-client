@@ -1,16 +1,52 @@
-import events from "@/data/events.mock.json";
-import { EventCardDto } from "@/models/event-card.dto";
+import { EventDetailDTO } from "@/models/event-detail.dto";
+import { EventItemDTO } from "@/models/event-item.dto";
+import { EventsFilters } from "@/models/filters/events-filters.dto";
+import { PagedResponse } from "@/models/pagination/paged-response.dto";
 
-export function getOutstandingEvents(limit: number = 6): EventCardDto[] {
-    return events.slice(0, limit);
-}
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-export function getEventsByCategory(category: number, limit: number): EventCardDto[] {
-    const filtered = events.filter(e => e.category === category);
+export async function getMainEvents(): Promise<PagedResponse<EventItemDTO>> {
+    const response = await fetch(`${BASE_URL}events`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
 
-    if (category === 1) {
-        return filtered.slice(6, 6 + limit);
+    if (!response.ok) {
+        throw new Error("Get main events error");
     }
 
-    return filtered.slice(0, limit);
+    return response.json();
+}
+
+export async function getEvents(filters: EventsFilters): Promise<PagedResponse<EventItemDTO>> {
+    const response = await fetch(`${BASE_URL}events`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(filters)
+    });
+
+    if (!response.ok) {
+        throw new Error("Get events error");
+    }
+
+    return response.json();
+}
+
+export async function getEventDetail(id: number): Promise<EventDetailDTO> {
+    const response = await fetch(`${BASE_URL}events\\${id}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error("Get event error");
+    }
+
+    return response.json();
 }

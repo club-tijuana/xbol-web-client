@@ -1,7 +1,7 @@
-import { EventCardDto } from "@/models/event-card.dto";
+import { EventItemDTO } from "@/models/event-item.dto";
 
 export interface EventCardProps {
-    eventCard: EventCardDto;
+    eventCard: EventItemDTO;
     size: "sm" | "lg";
 
     titleClass?: string;

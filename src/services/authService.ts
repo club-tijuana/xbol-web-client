@@ -1,13 +1,19 @@
-import authMock from "@/data/auth.mock.json";
-import { LoginResponseDto } from "@/models/login-response.dto";
+import { AuthDto } from "@/models/auth.dto";
 
-export function login(email: string, inputPassword: string): LoginResponseDto | null {
-    const user = authMock.users.find(
-        u => u.email === email && u.password === inputPassword
-    );
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-    if (!user) return null;
+export async function login(username: string, password: string): Promise<AuthDto> {
+    const response = await fetch(`${BASE_URL}account/sign-in`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username, password })
+    });
 
-    const { password, ...rest } = user;
-    return rest;
+    if (!response.ok) {
+        throw new Error("Login error");
+    }
+
+    return response.json();
 }
