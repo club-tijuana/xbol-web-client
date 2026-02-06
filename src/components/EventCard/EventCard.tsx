@@ -11,9 +11,18 @@ export default function EventCard({ eventCard, size, titleClass, titleAlign, des
     const { posterImageUrl, name, startDate, location } = eventCard;
     const date = new Date(startDate);
 
+    const handleClick = () => {
+        const id = eventCard.id;
+        if (!id) {
+            return;
+        }
+
+        router.push(`/event/${id}`)
+    }
+
     return (
         <Card className={styles.card}>
-            <CardActionArea onClick={() => router.push(`/event/${eventCard.id}`)}>
+            <CardActionArea onClick={handleClick}>
                 <CardMedia
                     component="img"
                     image={posterImageUrl}

@@ -1,15 +1,17 @@
 "use client";
 
-import { Box, Grid, IconButton, Tooltip } from "@mui/material";
+import { Box, Grid, IconButton, Tooltip, Typography } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 
+import { useAppSelector } from "@/store/hooks";
 import { openLoginModal } from "@/store/slices/uiSlice";
 
 import styles from "./Header.module.scss";
 
 export default function Header() {
+    const client = useAppSelector(store => store.auth.user);
     const dispatch = useDispatch();
     const router = useRouter();
 
@@ -49,16 +51,21 @@ export default function Header() {
                 </Grid>
 
                 <Grid size={3}>
-                    <Tooltip title="Iniciar sesión">
-                        <IconButton onClick={() => dispatch(openLoginModal())}>
-                            <Image
-                                src="/assets/icons/login.svg"
-                                alt="Login"
-                                width={28.32}
-                                height={31.56}
-                            />
-                        </IconButton>
-                    </Tooltip>
+                    <>
+                        <Typography>
+                            {client?.firstName}
+                        </Typography>
+                        <Tooltip title="Iniciar sesión">
+                            <IconButton onClick={() => dispatch(openLoginModal())}>
+                                <Image
+                                    src="/assets/icons/login.svg"
+                                    alt="Login"
+                                    width={28.32}
+                                    height={31.56}
+                                />
+                            </IconButton>
+                        </Tooltip>
+                    </>
                 </Grid>
             </Grid>
         </header>
