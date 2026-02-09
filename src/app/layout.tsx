@@ -1,14 +1,15 @@
 import { Box } from "@mui/material";
 import type { Metadata } from "next";
 import "../styles/globals.scss";
-import { Inter } from "next/font/google";
+import "@/styles/_variables.scss";
+import { Open_Sans } from "next/font/google";
 
 import Footer from "@/components/Footer/Footer";
 import Header from "@/components/Header/Header";
 import LoginModal from "@/components/LoginModal/LoginModal";
 import Providers from "@/store/Providers";
 import MuiProvider from "@/theme/MuiProvider";
-const inter = Inter({
+const openSans = Open_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"]
 });
@@ -24,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.className} style={{ overflowX: "hidden" }}>
+    <html lang="en" className={openSans.className} style={{ overflowX: "hidden" }}>
       <body>
         <MuiProvider>
           <Providers>

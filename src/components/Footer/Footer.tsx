@@ -43,25 +43,25 @@ export default function Footer() {
                         <Grid size={4}>
                             <div className={styles.iconContainer}>
                                 <Image
-                                    src="/assets/icons/facebook-icon.png"
+                                    src="/assets/icons/facebook-icon.svg"
                                     alt="Facebook"
                                     width={23}
                                     height={23}
                                 />
                                 <Image
-                                    src="/assets/icons/x-icon.png"
+                                    src="/assets/icons/x-icon.svg"
                                     alt="X"
                                     width={23}
                                     height={23}
                                 />
                                 <Image
-                                    src="/assets/icons/instagram-icon.png"
+                                    src="/assets/icons/instagram-icon.svg"
                                     alt="Instagram"
                                     width={23}
                                     height={23}
                                 />
                                 <Image
-                                    src="/assets/icons/youtube-icon.png"
+                                    src="/assets/icons/youtube-icon.svg"
                                     alt="YouTube"
                                     width={23}
                                     height={23}

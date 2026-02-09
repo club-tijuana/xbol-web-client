@@ -1,7 +1,4 @@
-@use "../../styles/variables" as vars;
-
 .header {
-    background-color: vars.$bgHeader;
     opacity: 0.98;
     display: block;
     justify-content: space-between;
@@ -15,30 +12,10 @@
     z-index: 1000;
 }
 
-.hader > div {
-    width: '100%'
-}
-
 .logoContainer {
     position: relative;
-    width: 143px;
-    height: 62px;
+    width: 195px;
+    height: 46px;
     justify-self: right;
-}
-
-.logo {
-    object-fit: contain;
-    cursor: pointer;
-}
-
-.nav {
-    justify-self: center;
-}
-
-.nav > a {
-    color: white;
-    font-size: 20px;
-    margin-left: 28px;
-    margin-right: 28px;
     cursor: pointer;
 }

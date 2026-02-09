@@ -1,11 +1,9 @@
-@use "../../styles/variables" as vars;
-
 .modal {
-    background-color: vars.$modalBg!important;
+    background-color: var(--color-modal-bg) !important;
     position: relative;
     display: inline-block;
     overflow: hidden;
-    border-radius: 29px!important;
+    border-radius: 29px !important;
     width: 480px;
     padding-top: 32px;
     padding-bottom: 54px;
@@ -50,7 +48,7 @@
     width: 60%;
 }
 
-.inputContainer > input {
+.inputContainer>input {
     text-align: center;
     width: 100%;
 }
@@ -62,20 +60,20 @@
 }
 
 .actionLink {
-    font-size: 18px!important;
-    font-weight: 400!important;
-    margin-bottom: 25px!important;
-    text-transform: none!important;
-    color: vars.$textTertiary!important;
+    font-size: 18px !important;
+    font-weight: 400 !important;
+    margin-bottom: 25px !important;
+    text-transform: none !important;
+    color: var(--color-text-tertiary) !important;
 }
 
 .action {
-    font-size: 16px!important;
-    margin-bottom: 9px!important;
-    font-weight: 400!important;
+    font-size: 16px !important;
+    margin-bottom: 9px !important;
+    font-weight: 400 !important;
 }
 
 .inputCustom {
-    height: 42px; 
+    height: 42px;
     border-radius: 6;
 }

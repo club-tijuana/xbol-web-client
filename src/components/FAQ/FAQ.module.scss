@@ -1,11 +1,9 @@
-@use "../../styles/variables" as vars;
-
 .question {
     position: static;
     box-shadow: none !important;
     border-bottom-width: 2;
     border-style: none none solid none;
-    border-bottom-color: vars.$textPrimary;
+    border-bottom-color: var(--color-text-primary);
     border-radius: 0 !important;
     background-color: transparent !important;
 }
@@ -13,5 +11,5 @@
 .question:first-of-type {
     border-top: solid;
     border-top-width: 2;
-    border-top-color: vars.$textPrimary;
+    border-top-color: var(--color-text-primary);
 }

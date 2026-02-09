@@ -1,67 +1,5 @@
-@use "./variables" as vars;
-
-h1 {
-    font-size: vars.$xxxl;
-}
-
-h2 {
-    font-size: vars.$xxl;
-}
-
-h3 {
-    font-size: vars.$xl2;
-}
-
-h4 {
-    font-size: vars.$xl;
-}
-
-h5 {
-    font-size: vars.$lg2;
-}
-
-h6 {
-    font-size: vars.$lg;
-}
-
-p {
-    font-size: vars.$md;
-}
-
-label {
-    font-size: vars.$sm2;
-}
-
-small {
-    font-size: vars.$xs;
-}
-
 body {
     margin: 0;
-}
-
-.textBold {
-    font-weight: 600 !important;
-}
-
-.textPrimary {
-    color: vars.$textPrimary;
-}
-
-.textSecondary {
-    color: vars.$textSecondary;
-}
-
-.textTertiary {
-    color: vars.$textTertiary !important;
-}
-
-.textMuted {
-    color: vars.$textMuted;
-}
-
-.textWhite {
-    color: white !important;
 }
 
 .input {
@@ -101,20 +39,20 @@ body {
 }
 
 .btnPrimary {
-    background-color: vars.$textPrimary !important;
+    background-color: var(--color-text-primary) !important;
     color: white !important;
     text-transform: none !important;
 }
 
 .btnPrimaryDark {
-    background-color: vars.$textPrimaryDark !important;
+    background-color: var(--color-text-primary) !important;
     color: white !important;
     text-transform: none !important;
 }
 
 .btnPrimaryOutlined {
-    border-color: vars.$textPrimary !important;
-    color: vars.$textPrimary !important;
+    border-color: var(--color-text-primary) !important;
+    color: var(--color-text-primary) !important;
     text-transform: none !important;
 }
 

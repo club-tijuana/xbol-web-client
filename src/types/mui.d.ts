@@ -1,30 +1,37 @@
-import { CSSProperties } from "react";
 import "@mui/material/styles";
 
 declare module "@mui/material/styles" {
+    interface Palette {
+        layout: {
+            header: string;
+            footer: string;
+        }
+    }
+
+    interface PaletteOptions {
+        layout?: {
+            header: string;
+            footer: string;
+        }
+    }
+
     interface TypographyVariants {
-        body0: CSSProperties;
-        body3: CSSProperties;
-        md3: CSSProperties;
-        xl: CSSProperties;
-        xl2: CSSProperties;
+        bodyXs: React.CSSProperties;
+        captionLg: React.CSSProperties;
+        labelSm: React.CSSProperties;
+        bodyLg: React.CSSProperties;
+        titleMd: React.CSSProperties;
+        titleXl: React.CSSProperties;
+        hero: React.CSSProperties;
     }
 
     interface TypographyVariantsOptions {
-        body0?: CSSProperties;
-        body3?: CSSProperties;
-        md3?: CSSProperties;
-        xl?: CSSProperties;
-        xl2?: CSSProperties;
-    }
-}
-
-declare module "@mui/material/Typography" {
-    interface TypographyPropsVariantOverrides {
-        body0: true;
-        body3: true;
-        md3: true;
-        xl: true;
-        xl2: true;
+        bodyXs?: React.CSSProperties;
+        captionLg?: React.CSSProperties;
+        labelSm?: React.CSSProperties;
+        bodyLg?: React.CSSProperties;
+        titleMd?: React.CSSProperties;
+        titleXl?: React.CSSProperties;
+        hero?: React.CSSProperties;
     }
 }

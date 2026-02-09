@@ -20,6 +20,11 @@ const nextConfig: NextConfig = {
         hostname: "st1.uvnimg.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "dev.zorbek.software",
+        pathname: "/**",
+      },
     ],
   },
 };
