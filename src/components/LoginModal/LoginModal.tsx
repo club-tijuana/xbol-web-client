@@ -9,6 +9,7 @@ import { RootState } from "@/store";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { login } from "@/store/slices/authSlice";
 import { closeLoginModal } from "@/store/slices/uiSlice";
+import { colors } from "@/theme/colors";
 
 import styles from "./LoginModal.module.scss";
 
@@ -69,21 +70,12 @@ export default function LoginModal() {
                     />
                 </Box>
 
-                <Box className={styles.bottomImage}>
-                    <Image
-                        src="/assets/logo.png"
-                        alt="Logo"
-                        fill
-                        className={styles.logo}
-                    />
-                </Box>
-
-                <Typography variant="h4" mt={2} className="textPrimary textBold">
+                <Typography variant="h2" fontWeight={600} color="primary" mt={7}>
                     Inicia sesión
                 </Typography>
 
                 <Box className={styles.inputContainer}>
-                    <Typography variant="subtitle1" mb={1} sx={{ color: 'var(--color-text-tertiary)' }}>
+                    <Typography variant="bodyLg" mb={2.4} color={'text'}>
                         Correo o número de teléfono
                     </Typography>
                     <FormControl fullWidth variant="filled">
@@ -108,7 +100,7 @@ export default function LoginModal() {
                 </Box>
 
                 <Box mt={1} className={styles.inputContainer}>
-                    <Typography variant="subtitle1" mb={1} sx={{ color: 'var(--color-text-tertiary)' }}>
+                    <Typography variant="bodyLg" mb={2.4} color={'text'}>
                         Contraseña
                     </Typography>
                     <FormControl fullWidth variant="filled">
@@ -146,24 +138,30 @@ export default function LoginModal() {
                     </FormControl>
                 </Box>
 
-                <Button
-                    variant="text"
-                    className={styles.actionLink}
-                >
-                    ¿Olvidaste tu contraseña?
+                <Button variant="text" color={'secondary'}>
+                    <Typography variant={'bodyLg'} color={'text'} sx={{ textDecoration: 'underline' }}>
+                        ¿Olvidaste tu contraseña?
+                    </Typography>
                 </Button>
-                <Box className={styles.actionContainer}>
+                <Box className={styles.actionContainer} mt={5}>
                     <Button
-                        className={`btn btnPrimary ${styles.action}`}
+                        variant="contained"
                         onClick={handleLogin}
                         disabled={status === "loading"}
+                        sx={{ paddingTop: 1.2, paddingBottom: 1.2 }}
                     >
-                        Iniciar sesión
+                        <Typography variant="body1" color={colors.light.neutral}>
+                            Iniciar sesión
+                        </Typography>
                     </Button>
                     <Button
-                        className={`btn btnPrimaryDark ${styles.action}`}
+                        variant="contained"
+                        color="secondary"
+                        sx={{ marginTop: 1.5, paddingTop: 1.2, paddingBottom: 1.2 }}
                     >
-                        Crea una cuenta
+                        <Typography variant="body1" color={colors.light.neutral}>
+                            Crea una cuenta
+                        </Typography>
                     </Button>
                 </Box>
             </Box>

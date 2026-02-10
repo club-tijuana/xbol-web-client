@@ -7,7 +7,7 @@ export default function TicketSeats() {
     return (
         <Paper elevation={3} className="paperCard"
         >
-            <Typography variant="xl2" className="textPrimary">
+            <Typography variant="h3" color="primary">
                 Tus asientos
             </Typography>
             <Grid container columns={12} mt={2}>
@@ -32,10 +32,10 @@ export default function TicketSeats() {
                 </Grid>
                 <Grid size={8}>
                     <Box ml={8} display="flex" flexDirection="column" justifyContent="center" height="100%">
-                        <Typography variant="subtitle2" className="textSecondary">
+                        <Typography variant="body1" color="muted">
                             Sección A Fila 10 x2
                         </Typography>
-                        <Typography variant="body1" className="textSecondary">
+                        <Typography variant="body2" color="muted">
                             Asientos: 10A, 11 A
                         </Typography>
                     </Box>
@@ -46,32 +46,32 @@ export default function TicketSeats() {
 
             <Grid container columns={4}>
                 <Grid size={1} offset={2}>
-                    <Typography variant="subtitle2" className="textPrimary" textAlign="right">
+                    <Typography variant="subtitle1" fontWeight={400} color="primary" textAlign="right">
                         Subtotal
                     </Typography>
                 </Grid>
                 <Grid size={1}>
-                    <Typography variant="subtitle2" className="textSecondary" textAlign="right">
+                    <Typography variant="subtitle1" fontWeight={400} color="muted" textAlign="right">
                         $0,000.00
                     </Typography>
                 </Grid>
                 <Grid size={1} offset={2}>
-                    <Typography variant="subtitle2" className="textPrimary" textAlign="right">
+                    <Typography variant="subtitle1" fontWeight={400} color="primary" textAlign="right">
                         Impuestos
                     </Typography>
                 </Grid>
                 <Grid size={1}>
-                    <Typography variant="subtitle2" className="textSecondary" textAlign="right">
+                    <Typography variant="subtitle1" fontWeight={400} color="muted" textAlign="right">
                         $0,000.00
                     </Typography>
                 </Grid>
                 <Grid size={1} offset={2}>
-                    <Typography variant="subtitle2" className="textPrimary" textAlign="right">
+                    <Typography variant="subtitle1" fontWeight={400} color="primary" textAlign="right">
                         Total
                     </Typography>
                 </Grid>
                 <Grid size={1}>
-                    <Typography variant="subtitle2" className="textSecondary" textAlign="right">
+                    <Typography variant="subtitle1" fontWeight={400} color="muted" textAlign="right">
                         $0,000.00
                     </Typography>
                 </Grid>
@@ -79,13 +79,13 @@ export default function TicketSeats() {
 
             <Divider sx={{ my: 4, borderWidth: 1, borderColor: 'var(--color-text-primary)' }} />
 
-            <Typography variant="h5" mb={1} className="textSecondary">
+            <Typography variant="h4" fontWeight={400} color="muted" mb={1}>
                 Acceso a tus boletos
             </Typography>
-            <Typography variant="subtitle1" mb={2}>
+            <Typography variant="h6" fontWeight={400} color="text" mb={2}>
                 Tus boletos electrónicos han sido enviados a tu correo electrónico registrado.
             </Typography>
-            <Typography variant="subtitle1">
+            <Typography variant="h6" fontWeight={400} color="text">
                 También puedes descargarlos desde tu cuenta en la sección “Mis Tickets”
             </Typography>
         </Paper>

@@ -1,6 +1,8 @@
 import { Box, Button, Grid, Stack, Typography } from "@mui/material";
 import Image from "next/image";
 
+import { colors } from "@/theme/colors";
+
 import styles from "./Footer.module.scss";
 
 export default function Footer() {
@@ -19,26 +21,27 @@ export default function Footer() {
                         <Image
                             src="/assets/logo.png"
                             alt="Logo"
-                            fill
-                            className={styles.logo}
+                            objectFit="contain"
+                            width={231}
+                            height={54}
                         />
                     </div>
                 </Grid>
                 <Grid size={2} display="flex" justifyContent="flex-end">
                     <Stack spacing={1} mr={9}>
-                        <Typography variant="subtitle2" className="textWhite">Eventos</Typography>
-                        <Typography variant="subtitle2" className="textWhite">Teatro</Typography>
-                        <Typography variant="subtitle2" className="textWhite">Música</Typography>
+                        <Typography variant="body1" color={colors.light.neutral}>Eventos</Typography>
+                        <Typography variant="body1" color={colors.light.neutral}>Teatro</Typography>
+                        <Typography variant="body1" color={colors.light.neutral}>Música</Typography>
                     </Stack>
                 </Grid>
                 <Grid size={2} display="flex" justifyContent="flex-start">
                     <Stack spacing={1} ml={9}>
-                        <Typography variant="subtitle2" className="textWhite">Deporte</Typography>
-                        <Typography variant="subtitle2" className="textWhite">Centro de ayuda</Typography>
-                        <Typography variant="subtitle2" className="textWhite">Quienes somos</Typography>
+                        <Typography variant="body1" color={colors.light.neutral}>Deporte</Typography>
+                        <Typography variant="body1" color={colors.light.neutral}>Centro de ayuda</Typography>
+                        <Typography variant="body1" color={colors.light.neutral}>Quienes somos</Typography>
                     </Stack>
                 </Grid>
-                <Grid size={2} px={6}>
+                <Grid size={3} px={6}>
                     <Grid container columns={4}>
                         <Grid size={4}>
                             <div className={styles.iconContainer}>
@@ -69,7 +72,7 @@ export default function Footer() {
                             </div>
                         </Grid>
                         <Grid size={4} mt={4}>
-                            <div className={styles.iconContainer}>
+                            <div className={styles.downloadContainer}>
                                 <Image
                                     src="/assets/icons/google-play.svg"
                                     alt="YouTube"
@@ -89,22 +92,24 @@ export default function Footer() {
             </Grid>
             <Box
                 sx={{
-                    backgroundColor: "var(--color-text-primary)",
+                    backgroundColor: "var(--color-bg-footer-badge)",
                     textAlign: "center",
-                    pt: 3,
-                    pb: 2
+                    pt: 1.1,
+                    pb: 0.7
                 }}
             >
                 <Stack
                     direction="row"
-                    spacing={1}
                     alignItems={'center'}
                     justifyContent="center"
-                    divider={<span className={`textWhite ${styles.linkButton}`}>|</span>}
+                    color={colors.light.neutral}
+                    divider={<Typography variant="caption">|</Typography>}
                 >
                     {links.map((text) => (
-                        <Button key={text} variant="text" sx={{ textTransform: 'none' }} className={`textWhite ${styles.linkButton}`}>
-                            {text}
+                        <Button key={text} sx={{ textTransform: 'none' }}>
+                            <Typography variant="caption" color={colors.light.neutral}>
+                                {text}
+                            </Typography>
                         </Button>
                     ))}
                 </Stack>

@@ -53,7 +53,7 @@ export default function TicketList({ title, tickets }: TicketListProps) {
         <Box sx={{ position: "relative", width: "100%" }}>
             <Grid container columns={2}>
                 <Grid size={1}>
-                    <Typography variant="h2" className="textPrimary" mb={3}>
+                    <Typography variant="hero" color="primary" mb={3}>
                         {title}
                     </Typography>
                 </Grid>
@@ -85,7 +85,7 @@ export default function TicketList({ title, tickets }: TicketListProps) {
                 }
             </Grid>
 
-            <Box sx={{ position: "relative" }}>
+            <Box sx={{ position: "relative" }} mt={2}>
                 <Box
                     sx={{
                         display: "grid",

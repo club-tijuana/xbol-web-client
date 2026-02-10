@@ -15,15 +15,19 @@ export default function EventCardGrid({
     eventCards,
     size = "lg",
     cardTitleAlign = "center",
-    cardTitleClass,
+    cardTitleColor,
     cardDescriptionAlign = "left",
-    cardDescriptionClass
+    cardDescriptionColor,
+    showCardBadge = false,
+    cardBadgeType = "light",
+    showCardActions = true,
+    cardImageHeight
 }: EventCardGridProps) {
     return (
         <>
             <Typography
-                variant="h4"
-                className={`textPrimary`}
+                variant="h2"
+                color="primary"
                 textAlign={titleAlign}
             >
                 {title}
@@ -40,9 +44,13 @@ export default function EventCardGrid({
                             eventCard={event}
                             size={size}
                             titleAlign={cardTitleAlign}
-                            titleClass={cardTitleClass}
+                            titleColor={cardTitleColor}
                             descriptionAlign={cardDescriptionAlign}
-                            descriptionClass={cardDescriptionClass}
+                            descriptionColor={cardDescriptionColor}
+                            showBadge={showCardBadge}
+                            badgeType={cardBadgeType}
+                            showActions={showCardActions}
+                            imageHeight={cardImageHeight}
                         />
                     </Grid>
                 ))}

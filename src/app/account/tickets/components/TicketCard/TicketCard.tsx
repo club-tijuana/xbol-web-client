@@ -2,12 +2,18 @@
 
 import { Circle } from "@mui/icons-material";
 import { Box, Card, CardActions, CardContent, CardMedia, IconButton, Typography } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 import styles from "./TicketCard.module.scss";
 import { TicketCardProps } from "./TicketCard.type";
 
 export default function TicketCard({ ticket }: TicketCardProps) {
+    const router = useRouter();
     const { image, title, dateStr, location } = ticket;
+
+    const handleOpenTicket = () => {
+        router.push(`/account/tickets/${ticket.id}`);
+    }
 
     return (
         <Box>
@@ -24,7 +30,7 @@ export default function TicketCard({ ticket }: TicketCardProps) {
                         sx={{
                             position: 'absolute',
                             inset: 0,
-                            background: "linear-gradient(180deg,rgba(129, 10, 27, 0.6) 10%, rgba(0, 0, 0, 1) 100%)",
+                            background: "linear-gradient(180deg,rgba(204, 153, 51, 0.44) 10%, rgba(0, 0, 0, 1) 100%)",
                             pointerEvents: 'none',
                             borderRadius: 3
                         }}
@@ -39,13 +45,13 @@ export default function TicketCard({ ticket }: TicketCardProps) {
                         justifySelf: 'center',
                         alignSelf: 'flex-end',
                     }}>
-                        <Typography variant="subtitle2" className="textPrimary textBold">
+                        <Typography variant="subtitle1" color="primary">
                             {title}
                         </Typography>
-                        <Typography variant="body3" className="textWhite textBold">
+                        <Typography variant="subtitle2" color="neutral">
                             {dateStr}
                         </Typography>
-                        <Typography variant="subtitle2" className="textWhite">
+                        <Typography variant="subtitle2" fontWeight={400} color="neutral">
                             {location}
                         </Typography>
 
@@ -53,11 +59,12 @@ export default function TicketCard({ ticket }: TicketCardProps) {
                             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                                 <IconButton
                                     aria-label="Ver"
-                                    className="textWhite"
+                                    color="neutral"
+                                    onClick={handleOpenTicket}
                                 >
                                     <Circle sx={{ fontSize: 50 }} />
                                 </IconButton>
-                                <Typography variant="body0" className="textWhite">
+                                <Typography variant="bodyXs" color="neutral">
                                     Ver
                                 </Typography>
                             </Box>
@@ -65,11 +72,11 @@ export default function TicketCard({ ticket }: TicketCardProps) {
                             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                                 <IconButton
                                     aria-label="Vender"
-                                    className="textWhite"
+                                    color="neutral"
                                 >
                                     <Circle sx={{ fontSize: 50 }} />
                                 </IconButton>
-                                <Typography variant="body0" className="textWhite">
+                                <Typography variant="bodyXs" color="neutral">
                                     Vender
                                 </Typography>
                             </Box>
@@ -77,11 +84,11 @@ export default function TicketCard({ ticket }: TicketCardProps) {
                             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                                 <IconButton
                                     aria-label="Transferir"
-                                    className="textWhite"
+                                    color="neutral"
                                 >
                                     <Circle sx={{ fontSize: 50 }} />
                                 </IconButton>
-                                <Typography variant="body0" className="textWhite">
+                                <Typography variant="bodyXs" color="neutral">
                                     Transferir
                                 </Typography>
                             </Box>

@@ -9,13 +9,15 @@
     justify-self: right;
 }
 
-.logo {
-    object-fit: contain;
-}
-
 .iconContainer {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.downloadContainer {
+    display: flex;
+    justify-content: space-evenly;
     align-items: center;
 }
 
@@ -23,6 +25,6 @@
     cursor: pointer;
 }
 
-.linkButton {
-    font-size: 12px !important;
+.downloadContainer>img {
+    cursor: pointer;
 }

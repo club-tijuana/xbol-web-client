@@ -20,7 +20,9 @@ export const theme = createTheme({
         },
         text: {
             primary: colors.light.text,
-            secondary: colors.light.mutedText,
+            secondary: colors.light.secondary,
+            muted: colors.light.muted,
+            neutral: colors.light.neutral,
         },
         error: {
             main: colors.semantic.error,
@@ -33,6 +35,12 @@ export const theme = createTheme({
         },
         info: {
             main: colors.semantic.info,
+        },
+        neutral: {
+            main: colors.light.neutral
+        },
+        muted: {
+            main: colors.light.muted,
         },
     },
 
@@ -79,6 +87,14 @@ export const theme = createTheme({
             styleOverrides: {
                 root: {
                     textTransform: 'none',
+                    borderRadius: 6
+                }
+            }
+        },
+        MuiTab: {
+            styleOverrides: {
+                root: {
+                    textTransform: 'none'
                 }
             }
         }

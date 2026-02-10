@@ -22,13 +22,14 @@ export const colors = {
         info: "#0288D1"
     },
     light: {
-        primary: "#E2C27A",
+        primary: "#CC9933",
         secondary: "#6B6B6B",
         background: '#FFFFFF',
         surface: '#F5F5F5',
-        text: '#111827',
-        mutedText: '#6B7280',
+        text: '#313131',
+        muted: '#6B7280',
         border: '#E5E7EB',
+        neutral: '#ffff',
     },
     dark: {
         primary: "#9E7424",
@@ -38,5 +39,6 @@ export const colors = {
         text: '#F9FAFB',
         mutedText: '#9CA3AF',
         border: '#243041',
+        neutral: '#ffff',
     },
 } as const;

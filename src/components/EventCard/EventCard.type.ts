@@ -4,8 +4,12 @@ export interface EventCardProps {
     eventCard: EventItemDTO;
     size: "sm" | "lg";
 
-    titleClass?: string;
+    titleColor?: string;
     titleAlign?: CanvasTextAlign,
-    descriptionClass?: string;
+    descriptionColor?: string;
     descriptionAlign?: CanvasTextAlign;
+    showBadge?: boolean;
+    badgeType?: "light" | "dark";
+    showActions?: boolean;
+    imageHeight?: number;
 }

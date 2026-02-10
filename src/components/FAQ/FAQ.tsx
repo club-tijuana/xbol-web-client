@@ -6,7 +6,7 @@ import styles from "./FAQ.module.scss";
 export default function FAQ() {
     return (
         <Box>
-            <Typography variant="xl2" className="textPrimary">
+            <Typography variant="h3" fontWeight={400} color="primary">
                 Preguntas frecuentes
             </Typography>
             <Box mt={2}>
@@ -15,7 +15,7 @@ export default function FAQ() {
                         expandIcon={<AddIcon sx={{ color: "var(--color-text-primary)" }} />}
                         sx={{ padding: 0 }}
                     >
-                        <Typography variant="subtitle1" className="textSecondary">
+                        <Typography variant="h6" fontWeight={400} color="text">
                             ¿Mis tickets están potegidos?
                         </Typography>
                     </AccordionSummary>
@@ -31,7 +31,7 @@ export default function FAQ() {
                         expandIcon={<AddIcon sx={{ color: "var(--color-text-primary)" }} />}
                         sx={{ padding: 0 }}
                     >
-                        <Typography variant="subtitle1" className="textSecondary">
+                        <Typography variant="h6" fontWeight={400} color="text">
                             ¿Qué pasa si ya no puedo ir a mi evento?
                         </Typography>
                     </AccordionSummary>
@@ -47,7 +47,7 @@ export default function FAQ() {
                         expandIcon={<AddIcon sx={{ color: "var(--color-text-primary)" }} />}
                         sx={{ padding: 0 }}
                     >
-                        <Typography variant="subtitle1" className="textSecondary">
+                        <Typography variant="h6" fontWeight={400} color="text">
                             ¿Cómo pedir un reembolso?
                         </Typography>
                     </AccordionSummary>
@@ -59,8 +59,8 @@ export default function FAQ() {
                 </Accordion>
             </Box>
             <Box textAlign="center" mt={5}>
-                <Button variant="outlined" className="btnPrimaryOutlined">
-                    <Typography variant="subtitle2">
+                <Button variant="outlined" sx={{ py: 1, px: 3 }}>
+                    <Typography variant="body1">
                         Consultar todas las preguntas frecuentes
                     </Typography>
                 </Button>

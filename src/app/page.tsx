@@ -5,6 +5,7 @@ import EventCrousel from "@/components/EventCarousel/EventCarousel";
 import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
 import { EventCategory } from "@/models/enums/event-category.enum";
 import { getEvents, getMainEvents } from "@/services/eventService";
+import { colors } from "@/theme/colors";
 
 export default async function Home() {
   const mainEvents = await getMainEvents();
@@ -19,7 +20,7 @@ export default async function Home() {
           <EventCrousel />
         </FullWidthSection>
 
-        <Grid container columns={12} mt={6}>
+        <Grid container columns={12} mt={6} mb={5}>
           <Grid size={12}>
             <EventCardGrid
               title="Eventos destacados"
@@ -27,54 +28,63 @@ export default async function Home() {
               eventCards={mainEvents.items}
               columns={6}
               itemSize={1}
-              spacing={4}
+              spacing={3}
               size="sm"
-              cardTitleClass="textSecondary"
+              cardTitleColor={colors.light.text}
+              showCardBadge={true}
+              cardBadgeType="dark"
             />
           </Grid>
         </Grid>
 
-        <FullWidthSection backgroundImage="/assets/images/separators/soccer-separator.png" ignoreParentPadding={false}>
-          <Box sx={{ paddingBottom: 5, paddingTop: 5 }}>
+        <FullWidthSection backgroundImage="/assets/images/separators/soccer-separator-light.png" ignoreParentPadding={false}>
+          <Box sx={{ paddingBottom: 6, paddingTop: 6 }}>
             <EventCardGrid
               title="Fútbol"
               eventCards={futbolEvents.items}
               columns={3}
               itemSize={1}
               spacing={4}
-              cardTitleClass="textPrimary"
-              cardDescriptionClass="textWhite"
               cardDescriptionAlign="left"
               cardTitleAlign="left"
+              cardTitleColor={colors.light.primary}
+              showCardBadge={true}
             />
           </Box>
         </FullWidthSection>
 
-        <Box mt={8}>
+        <Box mt={6} mb={3}>
           <EventCardGrid
             title="Música"
             eventCards={musicEvents.items}
             columns={3}
             itemSize={1}
             spacing={4}
-            cardDescriptionClass="textMuted"
             cardDescriptionAlign="left"
             cardTitleAlign="left"
+            cardTitleColor={colors.light.secondary}
+            cardDescriptionColor={colors.light.muted}
           />
         </Box>
 
-        <Box mt={8}>
-          <EventCardGrid
-            title="Otros eventos"
-            eventCards={theaterEvents.items}
-            columns={4}
-            itemSize={2}
-            spacing={4}
-            cardDescriptionClass="textMuted"
-            cardDescriptionAlign="left"
-            cardTitleAlign="left"
-          />
-        </Box>
+
+        <FullWidthSection backgroundColor={colors.brand.background} ignoreParentPadding={false}>
+          <Box mt={8} mb={6.5}>
+            <EventCardGrid
+              title="Otros eventos"
+              eventCards={theaterEvents.items}
+              columns={4}
+              itemSize={1}
+              spacing={4}
+              cardDescriptionAlign="left"
+              cardTitleAlign="left"
+              cardTitleColor={colors.light.secondary}
+              cardDescriptionColor={colors.light.muted}
+              showCardBadge={true}
+              cardBadgeType="dark"
+            />
+          </Box>
+        </FullWidthSection>
       </main>
     </div>
   );

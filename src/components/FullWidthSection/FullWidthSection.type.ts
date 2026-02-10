@@ -6,5 +6,6 @@ export interface FullWidthSectionProps {
     backgroundColor?: string;
     backgroundImage?: string;
     backgroundImageFull?: boolean;
+    backgroundSize?: number;
     ignoreParentPadding?: boolean;
 }

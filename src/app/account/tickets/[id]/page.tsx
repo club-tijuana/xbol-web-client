@@ -5,14 +5,16 @@ import Advertisement from "@/components/Advertisement/Advertisement";
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import FAQ from "@/components/FAQ/FAQ";
 import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
+import { EventCategory } from "@/models/enums/event-category.enum";
 import { MyTicketDto } from "@/models/my-ticket.dto";
-import { getOutstandingEvents } from "@/services/eventService";
+import { getEvents } from "@/services/eventService";
+import { colors } from "@/theme/colors";
 
 import TicketQRGrid from "./components/TicketQRGrid/TicketQRGrid";
 import TicketSeats from "./components/TicketSeats/TicketSeats";
 
 export default async function TicketPage() {
-    const outstandingEvents = await getOutstandingEvents();
+    const otherEvents = await getEvents({ page: 1, eventCategory: EventCategory.Concert, pageSize: 4 });
 
     const tickets: MyTicketDto[] = [
         {
@@ -35,22 +37,22 @@ export default async function TicketPage() {
 
     return (
         <Box mt={15}>
-            <Typography variant="subtitle1" className="textPrimary" mb={1} textAlign='right'>
+            <Typography variant="h6" fontWeight={400} color="primary" mb={1} textAlign='right'>
                 Folio 162918-23197
             </Typography>
             <Grid container columns={12} spacing={6}>
                 <Grid size={5}>
-                    <Typography variant="h2" className="textPrimary" mb={4}>
+                    <Typography variant="hero" color="primary" mb={4}>
                         {"Detalles > Bad Bunny"}
                     </Typography>
                     <Box mb={3}>
-                        <Typography variant="h4" className="textPrimary" mb={1}>
+                        <Typography variant="h2" fontWeight={600} color="primary" mb={1}>
                             Bad Bunny
                         </Typography>
-                        <Typography variant="subtitle1" className="textSecondary textBold">
+                        <Typography variant="h6" fontWeight={700} color="muted">
                             28/10/2026
                         </Typography>
-                        <Typography variant="subtitle1">
+                        <Typography variant="h6" fontWeight={400}>
                             Estadio Caliente
                         </Typography>
                     </Box>
@@ -58,10 +60,10 @@ export default async function TicketPage() {
                     <TicketSeats />
 
                     <Box mt={6}>
-                        <Typography variant="xl2" className="textPrimary">
+                        <Typography variant="h3" color="primary">
                             ¡Haz feliz a otro fan!
                         </Typography>
-                        <Typography variant="subtitle1">
+                        <Typography variant="h6" fontWeight={400} color="text" mt={2.5}>
                             ¿Un amigo no puede acompañarte? ¿Hubo cambio de planes? ¡Conoce nuestro mercado secundario para esos tickets que no podrán ser usados!
                         </Typography>
                         <Advertisement image="/assets/images/advertisement/advertisement.png" />
@@ -72,7 +74,7 @@ export default async function TicketPage() {
                         position: "relative",
                         height: 539
                     }}
-                        mb={3}
+                        mb={2.5}
                     >
                         <Image
                             src="/assets/images/events/bad_bunny_lg.png"
@@ -85,16 +87,16 @@ export default async function TicketPage() {
                         columnsXs={1}
                         columnsSm={2}
                         columnsMd={3}
-                        columnsLg={4}
-                        columnsXl={4}
-                        spacing={2}
+                        columnsLg={3}
+                        columnsXl={3}
+                        spacing={1.5}
                         title="Tus boletos"
                         tickets={tickets}
                     />
                 </Grid>
             </Grid>
 
-            <FullWidthSection backgroundColor="#EDEDED" ignoreParentPadding={false}>
+            <FullWidthSection backgroundColor={colors.brand.background} ignoreParentPadding={false}>
                 <Box sx={{ px: { xs: 4, sm: 10, md: 10, lg: 20, xl: 39 } }} my={5}>
                     <FAQ />
                 </Box>
@@ -102,15 +104,18 @@ export default async function TicketPage() {
 
             <Grid container columns={12} mt={6}>
                 <Grid size={9} offset={2}>
+                    <Typography variant="h2" fontWeight={600} color="primary" align="center">
+                        Eventos destacados
+                    </Typography>
                     <EventCardGrid
-                        title="Eventos destacados"
-                        titleAlign="center"
-                        eventCards={outstandingEvents}
+                        eventCards={otherEvents.items}
                         columns={6}
                         itemSize={1}
-                        spacing={4}
+                        spacing={2.5}
                         size="sm"
-                        cardTitleClass="textSecondary"
+                        cardTitleColor="text"
+                        showCardActions={false}
+                        cardImageHeight={148}
                     />
                 </Grid>
             </Grid>

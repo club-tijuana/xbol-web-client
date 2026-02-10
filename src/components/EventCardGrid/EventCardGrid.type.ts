@@ -1,7 +1,7 @@
 import { EventItemDTO } from "@/models/event-item.dto";
 
 export interface EventCardGridProps {
-    title: string;
+    title?: string;
     titleAlign?: CanvasTextAlign;
     columns: number;
     spacing: number;
@@ -10,7 +10,11 @@ export interface EventCardGridProps {
 
     size?: "sm" | "lg";
     cardTitleAlign?: CanvasTextAlign;
-    cardTitleClass?: string;
+    cardTitleColor?: string;
     cardDescriptionAlign?: CanvasTextAlign;
-    cardDescriptionClass?: string;
+    cardDescriptionColor?: string;
+    showCardBadge?: boolean;
+    cardBadgeType?: "light" | "dark";
+    showCardActions?: boolean;
+    cardImageHeight?: number;
 }

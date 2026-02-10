@@ -1,4 +1,5 @@
-import { Box, Card, CardContent, CardMedia, Typography } from "@mui/material";
+import { Circle } from "@mui/icons-material";
+import { Box, Card, CardActions, CardContent, CardMedia, IconButton, Typography } from "@mui/material";
 
 import styles from "./TicketQRCard.module.scss";
 import { TicketQRCardProps } from "./TicketQRCard.type";
@@ -17,21 +18,52 @@ export default function TicketQRCard({ ticket }: TicketQRCardProps) {
                 <Box className={styles.overlay} />
 
                 <Box className={styles.cardInfo}>
-                    <Typography variant="body3" className="textPrimary textBold">
+                    <Typography variant="subtitle1" fontWeight={700} color="primary">
                         {ticket.title}
                     </Typography>
-                    <Typography variant="body1" className="textWhite">
+                    <Typography variant="subtitle2" fontWeight={700} color="neutral">
                         {ticket.dateStr}
                     </Typography>
-                    <Typography variant="body1" className="textWhite">
+                    <Typography variant="subtitle2" fontWeight={400} color="neutral">
                         {ticket.location}
                     </Typography>
-                    <Typography variant="body1" className="textWhite">
-                        {'section'}
-                    </Typography>
-                    <Typography variant="body1" className="textWhite">
-                        {'row - seat'}
-                    </Typography>
+                    <CardActions sx={{ justifyContent: "space-around" }}>
+                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                            <IconButton
+                                aria-label="Ver"
+                                color="neutral"
+                            >
+                                <Circle sx={{ fontSize: 43 }} />
+                            </IconButton>
+                            <Typography variant="bodyXs" color="neutral">
+                                Ver
+                            </Typography>
+                        </Box>
+
+                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                            <IconButton
+                                aria-label="Vender"
+                                color="neutral"
+                            >
+                                <Circle sx={{ fontSize: 43 }} />
+                            </IconButton>
+                            <Typography variant="bodyXs" color="neutral">
+                                Vender
+                            </Typography>
+                        </Box>
+
+                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                            <IconButton
+                                aria-label="Transferir"
+                                color="neutral"
+                            >
+                                <Circle sx={{ fontSize: 43 }} />
+                            </IconButton>
+                            <Typography variant="bodyXs" color="neutral">
+                                Transferir
+                            </Typography>
+                        </Box>
+                    </CardActions>
                 </Box>
             </CardContent>
         </Card>
