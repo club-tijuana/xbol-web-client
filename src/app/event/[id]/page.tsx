@@ -85,7 +85,7 @@ export default async function EventPage(props: EventPageProps) {
                     </Grid>
                     <Grid size={10} mb={4}>
                         <Box sx={{ position: "relative", height: 539 }} mb={3}>
-                            <Image src={event.gallery[0]} alt="Evento" fill />
+                            <Image src={event.gallery[0]} alt="Evento" fill style={{ objectFit: 'cover', borderRadius: 10 }} />
                         </Box>
                         <Typography variant="h3" fontWeight={600} color="primary">
                             Galería

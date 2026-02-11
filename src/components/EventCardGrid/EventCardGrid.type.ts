@@ -17,4 +17,5 @@ export interface EventCardGridProps {
     cardBadgeType?: "light" | "dark";
     showCardActions?: boolean;
     cardImageHeight?: number;
+    showAllButton?: boolean;
 }

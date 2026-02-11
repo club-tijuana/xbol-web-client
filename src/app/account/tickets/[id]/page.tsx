@@ -80,6 +80,7 @@ export default async function TicketPage() {
                             src="/assets/images/events/bad_bunny_lg.png"
                             alt="Evento"
                             fill
+                            style={{ objectFit: 'cover', borderRadius: 10 }}
                         />
                     </Box>
 

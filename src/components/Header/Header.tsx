@@ -4,7 +4,7 @@ import { ConfirmationNumberOutlined, CreditCardOutlined, ShieldOutlined } from '
 import MenuIcon from '@mui/icons-material/Menu';
 import { AppBar, Box, Button, CssBaseline, Divider, Drawer, Grid, IconButton, List, ListItem, ListItemButton, ListItemText, Popover, TextField, Toolbar, Tooltip, Typography } from "@mui/material";
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useState } from "react";
 import { useDispatch } from 'react-redux';
 
@@ -23,6 +23,7 @@ const navItems = ['Home', 'Boletos', 'Vender', 'Cuenta'];
 
 export default function Header(props: Props) {
     const { window } = props;
+    const pathname = usePathname();
     const [mobileOpen, setMobileOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const client = useAppSelector(store => store.auth.user);
@@ -62,6 +63,7 @@ export default function Header(props: Props) {
 
     const openAccount = Boolean(anchorEl);
     const idAccount = openAccount ? 'simple-popover' : undefined;
+    const isTransparent = pathname === "/" || pathname.startsWith("/event");
 
     const textInput = (
         <TextField
@@ -130,7 +132,7 @@ export default function Header(props: Props) {
     return (
         <Box>
             <CssBaseline />
-            <AppBar component="nav" sx={{ backgroundColor: theme => theme.palette.layout.header }}>
+            <AppBar component="nav" sx={{ backgroundColor: theme => isTransparent ? theme.palette.layout.header : theme.palette.layout.header }}>
                 <Toolbar sx={{ display: 'flex', alignItems: 'center', px: { xs: 5, lg: 10, xl: 40 } }}>
                     <Grid container columns={12} spacing={2} alignItems="center" sx={{ width: "100%" }}>
                         <Grid size={{ xs: 7, md: 3 }} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

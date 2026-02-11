@@ -4,11 +4,11 @@ import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import EventCrousel from "@/components/EventCarousel/EventCarousel";
 import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
 import { EventCategory } from "@/models/enums/event-category.enum";
-import { getEvents, getMainEvents } from "@/services/eventService";
+import { getEvents } from "@/services/eventService";
 import { colors } from "@/theme/colors";
 
 export default async function Home() {
-  const mainEvents = await getMainEvents();
+  const mainEvents = await getEvents({ page: 1, eventCategory: EventCategory.Concert, pageSize: 6 });
   const futbolEvents = await getEvents({ page: 1, eventCategory: EventCategory.Sports, pageSize: 3 });
   const musicEvents = await getEvents({ page: 1, eventCategory: EventCategory.Concert, pageSize: 3 });
   const theaterEvents = await getEvents({ page: 1, eventCategory: EventCategory.Theater, pageSize: 3 });
@@ -49,6 +49,7 @@ export default async function Home() {
               cardTitleAlign="left"
               cardTitleColor={colors.light.primary}
               showCardBadge={true}
+              showAllButton={true}
             />
           </Box>
         </FullWidthSection>
@@ -64,6 +65,7 @@ export default async function Home() {
             cardTitleAlign="left"
             cardTitleColor={colors.light.secondary}
             cardDescriptionColor={colors.light.muted}
+            showAllButton={true}
           />
         </Box>
 
@@ -82,6 +84,8 @@ export default async function Home() {
               cardDescriptionColor={colors.light.muted}
               showCardBadge={true}
               cardBadgeType="dark"
+              cardImageHeight={145}
+              showAllButton={true}
             />
           </Box>
         </FullWidthSection>
