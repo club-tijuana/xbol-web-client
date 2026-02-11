@@ -2,13 +2,12 @@
 
 import { ConfirmationNumberOutlined, CreditCardOutlined, ShieldOutlined } from '@mui/icons-material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { AppBar, Box, Button, CssBaseline, Divider, Drawer, Grid, IconButton, List, ListItem, ListItemButton, ListItemText, Popover, TextField, Toolbar, Tooltip, Typography } from "@mui/material";
+import { AppBar, Box, Button, CssBaseline, Divider, Drawer, Grid, IconButton, List, ListItem, ListItemButton, ListItemText, Popover, TextField, Toolbar, Typography } from "@mui/material";
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState } from "react";
-import { useDispatch } from 'react-redux';
 
-import { useAppSelector } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { openLoginModal } from "@/store/slices/uiSlice";
 import { colors } from '@/theme/colors';
 
@@ -27,7 +26,7 @@ export default function Header(props: Props) {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const client = useAppSelector(store => store.auth.user);
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const router = useRouter();
     const date = new Date();
     const formattedDate = Intl.DateTimeFormat("es-MX", {
@@ -127,7 +126,7 @@ export default function Header(props: Props) {
         </Box>
     );
 
-    const container = window !== undefined ? () => window().document.body : undefined;
+    const containerW = window !== undefined ? () => window().document.body : undefined;
 
     return (
         <Box>
@@ -177,88 +176,86 @@ export default function Header(props: Props) {
                         </Grid>
                         <Grid size={{ xs: 5, md: 1, lg: 1 }} justifyItems='right'>
                             <Box>
-                                <Tooltip title={client === null ? "Iniciar sesión" : ""}>
-                                    <Box>
-                                        <IconButton onClick={handleAccountClick} color="primary">
-                                            <Image
-                                                src="/assets/icons/login.svg"
-                                                alt="Login"
-                                                width={28.32}
-                                                height={31.56}
-                                            />
-                                        </IconButton>
-                                        <Popover
-                                            id={idAccount}
-                                            open={openAccount}
-                                            anchorEl={anchorEl}
-                                            onClose={handleCloseAccount}
-                                            anchorOrigin={{
-                                                vertical: 'top',
-                                                horizontal: 'right'
-                                            }}
-                                            transformOrigin={{
-                                                vertical: 'top',
-                                                horizontal: 'right'
-                                            }}
-                                            sx={{
-                                                "& .MuiPaper-root": {
-                                                    borderRadius: 4,
-                                                },
-                                            }}
-                                        >
-                                            <Box sx={{
-                                                backgroundColor: colors.brand.primary,
-                                                display: 'grid',
-                                                px: 5,
-                                                pb: 4,
-                                                pt: 0,
-                                                borderRadius: 4
-                                            }}
-                                                width={287}
-                                                justifyItems={'start'}>
-                                                <Box justifySelf={'end'}>
-                                                    <IconButton onClick={handleCloseAccount} sx={{ position: 'relative', right: -20, top: 15 }}>
-                                                        <Image
-                                                            src="/assets/icons/login-light.svg"
-                                                            alt="Login"
-                                                            width={28.32}
-                                                            height={31.56}
-                                                        />
-                                                    </IconButton>
-                                                </Box>
-                                                <Typography variant='titleMd' color='neutral' mb={3}>
-                                                    Mi cuenta
-                                                </Typography>
-                                                <Typography variant='bodyLg' color='neutral'>
-                                                    {client?.firstName} {client?.lastName}
-                                                </Typography>
-                                                <Typography variant='subtitle2' color='neutral'>
-                                                    {client?.username}
-                                                </Typography>
-                                                <Typography variant='subtitle2' fontWeight={400} color='neutral' sx={{ textTransform: 'capitalize' }}>
-                                                    {formattedDate}
-                                                </Typography>
-                                                <Box mt={3}>
-                                                    <Button variant="text" startIcon={<ConfirmationNumberOutlined color='neutral' />} onClick={handleMyTicketsRedirect}>
-                                                        <Typography variant='body1' fontWeight={400} color='neutral'>
-                                                            Mis tickets
-                                                        </Typography>
-                                                    </Button>
-                                                    <Button variant="text" startIcon={<CreditCardOutlined color='neutral' />}>
-                                                        <Typography variant='body1' fontWeight={400} color='neutral'>
-                                                            Métodos de pago
-                                                        </Typography>
-                                                    </Button>
-                                                    <Button variant="text" startIcon={<ShieldOutlined color='neutral' />}>
-                                                        <Typography variant='body1' fontWeight={400} color='neutral'>
-                                                            Privacidad
-                                                        </Typography>
-                                                    </Button>
-                                                </Box>
+                                <Box>
+                                    <IconButton onClick={handleAccountClick} color="primary">
+                                        <Image
+                                            src="/assets/icons/login.svg"
+                                            alt="Login"
+                                            width={28.32}
+                                            height={31.56}
+                                        />
+                                    </IconButton>
+                                    <Popover
+                                        id={idAccount}
+                                        open={openAccount}
+                                        anchorEl={anchorEl}
+                                        onClose={handleCloseAccount}
+                                        anchorOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'right'
+                                        }}
+                                        transformOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'right'
+                                        }}
+                                        sx={{
+                                            "& .MuiPaper-root": {
+                                                borderRadius: 4,
+                                            },
+                                        }}
+                                    >
+                                        <Box sx={{
+                                            backgroundColor: colors.brand.primary,
+                                            display: 'grid',
+                                            px: 5,
+                                            pb: 4,
+                                            pt: 0,
+                                            borderRadius: 4
+                                        }}
+                                            width={287}
+                                            justifyItems={'start'}>
+                                            <Box justifySelf={'end'}>
+                                                <IconButton onClick={handleCloseAccount} sx={{ position: 'relative', right: -20, top: 15 }}>
+                                                    <Image
+                                                        src="/assets/icons/login-light.svg"
+                                                        alt="Login"
+                                                        width={28.32}
+                                                        height={31.56}
+                                                    />
+                                                </IconButton>
                                             </Box>
-                                        </Popover>
-                                    </Box>
-                                </Tooltip>
+                                            <Typography variant='titleMd' color='neutral' mb={3}>
+                                                Mi cuenta
+                                            </Typography>
+                                            <Typography variant='bodyLg' color='neutral'>
+                                                {client?.firstName} {client?.lastName}
+                                            </Typography>
+                                            <Typography variant='subtitle2' color='neutral'>
+                                                {client?.username}
+                                            </Typography>
+                                            <Typography variant='subtitle2' fontWeight={400} color='neutral' sx={{ textTransform: 'capitalize' }}>
+                                                {formattedDate}
+                                            </Typography>
+                                            <Box mt={3}>
+                                                <Button variant="text" startIcon={<ConfirmationNumberOutlined color='neutral' />} onClick={handleMyTicketsRedirect}>
+                                                    <Typography variant='body1' fontWeight={400} color='neutral'>
+                                                        Mis tickets
+                                                    </Typography>
+                                                </Button>
+                                                <Button variant="text" startIcon={<CreditCardOutlined color='neutral' />}>
+                                                    <Typography variant='body1' fontWeight={400} color='neutral'>
+                                                        Métodos de pago
+                                                    </Typography>
+                                                </Button>
+                                                <Button variant="text" startIcon={<ShieldOutlined color='neutral' />}>
+                                                    <Typography variant='body1' fontWeight={400} color='neutral'>
+                                                        Privacidad
+                                                    </Typography>
+                                                </Button>
+                                            </Box>
+                                        </Box>
+                                    </Popover>
+                                </Box>
                             </Box>
                         </Grid>
                     </Grid>
@@ -266,7 +263,7 @@ export default function Header(props: Props) {
             </AppBar>
             <nav>
                 <Drawer
-                    container={container}
+                    container={containerW}
                     variant='temporary'
                     open={mobileOpen}
                     onClose={handleDrawerToggle}

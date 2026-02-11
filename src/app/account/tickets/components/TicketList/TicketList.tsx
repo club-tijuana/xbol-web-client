@@ -2,34 +2,17 @@
 
 import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
 import { Box, Grid, IconButton, Typography } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import TicketCard from "../TicketCard/TicketCard";
 
 import { TicketListProps } from "./TicketList.type";
 
-export default function TicketList({ title, tickets }: TicketListProps) {
+export default function TicketList({ listKey, title, tickets }: TicketListProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [visibleCount, setVisibleCount] = useState(1);
+    const [visibleCount] = useState(1);
 
-    useEffect(() => {
-        const calculateVisibleCount = () => {
-            const width = window.innerWidth;
 
-            if (width >= 1024) return 3;
-            if (width >= 768) return 2;
-            return 1;
-        };
-
-        const update = () => {
-            setVisibleCount(calculateVisibleCount());
-        };
-
-        update();
-        window.addEventListener("resize", update);
-
-        return () => window.removeEventListener("resize", update);
-    }, []);
 
     const visibleTickets = useMemo(() => {
         if (!tickets) return [];
@@ -58,7 +41,7 @@ export default function TicketList({ title, tickets }: TicketListProps) {
                     </Typography>
                 </Grid>
                 {
-                    (tickets !== null && tickets.length > 3) &&
+                    (tickets && tickets.length > 3) &&
                     <Grid size={1}>
                         <Box sx={{ display: "flex", justifyContent: 'end' }}>
                             <IconButton
@@ -93,8 +76,8 @@ export default function TicketList({ title, tickets }: TicketListProps) {
                         gap: 2,
                     }}
                 >
-                    {visibleTickets.map(ticket => (
-                        <TicketCard key={ticket.id} ticket={ticket} />
+                    {visibleTickets.map((ticket, index) => (
+                        <TicketCard key={listKey + "-" + ticket.orderId + "-" + ticket.eventId + "-" + index} ticket={ticket} />
                     ))}
                 </Box>
 

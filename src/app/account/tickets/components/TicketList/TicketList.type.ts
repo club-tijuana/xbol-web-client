@@ -1,6 +1,7 @@
-import { MyTicketDto } from "@/models/my-ticket.dto";
+import { MyEventDTO } from "@/models/my-event.dto";
 
 export interface TicketListProps {
+    listKey?: string;
     title: string;
-    tickets: MyTicketDto[] | null;
+    tickets?: MyEventDTO[] | null;
 }

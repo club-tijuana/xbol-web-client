@@ -3,19 +3,25 @@ import { Box, Grid, Typography } from "@mui/material";
 import Advertisement from "@/components/Advertisement/Advertisement";
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import { EventCategory } from "@/models/enums/event-category.enum";
-import { getMySeasonTickets, getMyTickets } from "@/services/accountService";
+import { OrderType } from "@/models/enums/order-type.enum";
+import { getMyEvents } from "@/services/accountService";
 import { getEvents } from "@/services/eventService";
 
 import TicketTabs from "./components/TicketTabs/TicketTabs";
 
+console.log("TicketTabs:", TicketTabs);
+
 export default async function TicketsPage() {
-    const myTickets = await getMyTickets();
-    const mySeasonTickets = await getMySeasonTickets();
+    const myTickets = await getMyEvents({ page: 1, pageSize: 10, orderType: OrderType.Ticket });
+    const mySeasonTickets = await getMyEvents({ page: 1, pageSize: 10, orderType: OrderType.SeasonPass });
     const otherEvents = await getEvents({ page: 1, eventCategory: EventCategory.Concert, pageSize: 4 });
 
+    console.log("myTickets", myTickets?.items);
+    console.log("mySeasonTickets", mySeasonTickets?.items);
     return (
         <Box mt={13}>
-            <TicketTabs myTickets={myTickets} seasonTickets={mySeasonTickets} />
+            <TicketTabs myEvents={myTickets?.items} mySeasons={mySeasonTickets?.items} />
+
             <Grid container columns={2} mt={6} mb={8} spacing={6}>
                 <Grid size={1}>
                     <Advertisement image="/assets/images/advertisement/advertisement.png" />

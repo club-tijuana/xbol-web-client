@@ -1,5 +1,5 @@
-import { MyTicketDto } from "@/models/my-ticket.dto";
+import { MyEventDTO } from "@/models/my-event.dto";
 
 export interface TicketCardProps {
-    ticket: MyTicketDto;
+    ticket: MyEventDTO;
 }

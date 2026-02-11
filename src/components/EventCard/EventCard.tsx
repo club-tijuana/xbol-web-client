@@ -4,7 +4,7 @@ import { Box, Button, Card, CardActions, CardContent, CardMedia, Chip, Typograph
 import { useRouter } from "next/navigation";
 
 import { colors } from "@/theme/colors";
-import { EventCategoryLabel } from "@/utils/eventCategory.mapper";
+import { EventCategoryLabel } from "@/utils/mappers/eventCategory.mapper";
 
 import styles from "./EventCard.module.scss";
 import { EventCardProps } from "./EventCard.type";

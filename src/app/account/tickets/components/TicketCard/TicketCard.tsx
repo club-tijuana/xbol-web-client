@@ -9,21 +9,27 @@ import { TicketCardProps } from "./TicketCard.type";
 
 export default function TicketCard({ ticket }: TicketCardProps) {
     const router = useRouter();
-    const { image, title, dateStr, location } = ticket;
+    const { name, eventImage, startDate, location } = ticket;
+
+    const date = new Date(startDate);
+    const formattedDate = Intl.DateTimeFormat("es-MX", {
+        month: 'long',
+        year: 'numeric'
+    }).format(date);
 
     const handleOpenTicket = () => {
-        router.push(`/account/tickets/${ticket.id}`);
+        router.push(`/account/tickets/${ticket.eventId}`);
     }
 
     return (
         <Box>
-            <Card variant="outlined" sx={{ border: 'none' }}>
+            <Card variant="outlined" sx={{ border: 'none', height: 357, width: 431 }}>
                 <CardContent className={styles.cardContent}>
                     <CardMedia
                         component="img"
-                        image={image}
-                        alt={title}
-                        sx={{ display: 'block' }}
+                        image={eventImage}
+                        alt={name}
+                        sx={{ display: 'block', borderRadius: 2.5, height: '100%', width: '100%' }}
                     />
 
                     <Box
@@ -46,10 +52,10 @@ export default function TicketCard({ ticket }: TicketCardProps) {
                         alignSelf: 'flex-end',
                     }}>
                         <Typography variant="subtitle1" color="primary">
-                            {title}
+                            {name}
                         </Typography>
                         <Typography variant="subtitle2" color="neutral">
-                            {dateStr}
+                            {formattedDate}
                         </Typography>
                         <Typography variant="subtitle2" fontWeight={400} color="neutral">
                             {location}

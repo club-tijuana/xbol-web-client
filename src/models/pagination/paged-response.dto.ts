@@ -1,5 +1,5 @@
 export interface PagedResponse<T> {
-    items: readonly T[];
+    items: T[];
     currentPage: number;
     pageSize: number;
     totalItems: number;
