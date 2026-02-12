@@ -5,7 +5,7 @@ import "@/styles/_variables.scss";
 import { Open_Sans } from "next/font/google";
 
 import Footer from "@/components/Footer/Footer";
-import Header from "@/components/Header/Header";
+import HeaderWrapper from "@/components/Header/HeaderWrapper";
 import LoginModal from "@/components/LoginModal/LoginModal";
 import Providers from "@/store/Providers";
 import MuiProvider from "@/theme/MuiProvider";
@@ -29,7 +29,7 @@ export default function RootLayout({
       <body>
         <MuiProvider>
           <Providers>
-            <Header />
+            <HeaderWrapper />
 
             <Box
               component="main"

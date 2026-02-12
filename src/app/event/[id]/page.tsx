@@ -26,10 +26,9 @@ export default async function EventPage(props: EventPageProps) {
     return (
         <Box>
             <FullWidthSection
-                backgroundImage="/assets/images/separators/soccer-separator.png"
-                ignoreParentPadding={false}
-                backgroundImageFull={false}
-                backgroundSize={3000}>
+                variant="imageFixedHeight"
+                image="/assets/images/separators/soccer-separator.png"
+                height={3000}>
                 <Grid container columns={{ xs: 1, sm: 1, md: 2, lg: 2, xl: 18 }} mt={15} spacing={7}>
                     <Grid size={8}>
                         <Typography variant="hero" color='primary'>
@@ -106,7 +105,7 @@ export default async function EventPage(props: EventPageProps) {
                     </Grid>
                 </Grid>
             </FullWidthSection>
-            <FullWidthSection backgroundColor={colors.brand.background} ignoreParentPadding={false}>
+            <FullWidthSection variant="color" backgroundColor={colors.brand.background}>
                 <Box sx={{ px: { xs: 4, sm: 10, md: 10, lg: 20, xl: 39 } }} my={5}>
                     <FAQ />
                 </Box>
@@ -127,7 +126,6 @@ export default async function EventPage(props: EventPageProps) {
                         size="sm"
                         cardTitleColor="text"
                         showCardActions={false}
-                        cardImageHeight={148}
                     />
                 </Grid>
             </Grid>

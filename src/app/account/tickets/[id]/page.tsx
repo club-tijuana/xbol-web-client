@@ -85,11 +85,7 @@ export default async function TicketPage() {
                     </Box>
 
                     <TicketQRGrid
-                        columnsXs={1}
-                        columnsSm={2}
-                        columnsMd={3}
-                        columnsLg={3}
-                        columnsXl={3}
+                        columns={{ sx: 1, sm: 2, md: 3, lg: 3, xl: 3 }}
                         spacing={1.5}
                         title="Tus boletos"
                         tickets={tickets}
@@ -97,7 +93,7 @@ export default async function TicketPage() {
                 </Grid>
             </Grid>
 
-            <FullWidthSection backgroundColor={colors.brand.background} ignoreParentPadding={false}>
+            <FullWidthSection variant="color" backgroundColor={colors.brand.background}>
                 <Box sx={{ px: { xs: 4, sm: 10, md: 10, lg: 20, xl: 39 } }} my={5}>
                     <FAQ />
                 </Box>
@@ -116,7 +112,6 @@ export default async function TicketPage() {
                         size="sm"
                         cardTitleColor="text"
                         showCardActions={false}
-                        cardImageHeight={148}
                     />
                 </Grid>
             </Grid>

@@ -16,7 +16,7 @@ export default async function Home() {
   return (
     <div>
       <main>
-        <FullWidthSection>
+        <FullWidthSection fullBleed={true}>
           <EventCrousel />
         </FullWidthSection>
 
@@ -26,23 +26,24 @@ export default async function Home() {
               title="Eventos destacados"
               titleAlign="center"
               eventCards={mainEvents.items}
-              columns={6}
+              columns={{ xs: 2, sm: 3, md: 4, lg: 6, xl: 6 }}
               itemSize={1}
               spacing={3}
               size="sm"
               cardTitleColor={colors.light.text}
               showCardBadge={true}
               cardBadgeType="dark"
+              cardImageHeights={{ xs: 180, sm: 210, md: 220, lg: 190, xl: 200 }}
             />
           </Grid>
         </Grid>
 
-        <FullWidthSection backgroundImage="/assets/images/separators/soccer-separator-light.png" ignoreParentPadding={false}>
+        <FullWidthSection variant="imageFull" image="/assets/images/separators/soccer-separator-light.png">
           <Box sx={{ paddingBottom: 6, paddingTop: 6 }}>
             <EventCardGrid
               title="Fútbol"
               eventCards={futbolEvents.items}
-              columns={3}
+              columns={{ xs: 1, sm: 2, md: 3, lg: 3, xl: 3 }}
               itemSize={1}
               spacing={4}
               cardDescriptionAlign="left"
@@ -50,6 +51,7 @@ export default async function Home() {
               cardTitleColor={colors.light.primary}
               showCardBadge={true}
               showAllButton={true}
+              cardImageHeights={{ xs: 240, sm: 170, md: 170, lg: 210, xl: 200 }}
             />
           </Box>
         </FullWidthSection>
@@ -58,7 +60,7 @@ export default async function Home() {
           <EventCardGrid
             title="Música"
             eventCards={musicEvents.items}
-            columns={3}
+            columns={{ xs: 1, sm: 2, md: 3, lg: 3, xl: 3 }}
             itemSize={1}
             spacing={4}
             cardDescriptionAlign="left"
@@ -66,16 +68,17 @@ export default async function Home() {
             cardTitleColor={colors.light.secondary}
             cardDescriptionColor={colors.light.muted}
             showAllButton={true}
+            cardImageHeights={{ xs: 240, sm: 170, md: 170, lg: 210, xl: 200 }}
           />
         </Box>
 
 
-        <FullWidthSection backgroundColor={colors.brand.background} ignoreParentPadding={false}>
+        <FullWidthSection variant="color" backgroundColor={colors.brand.background} fullBleed={false}>
           <Box mt={8} mb={6.5}>
             <EventCardGrid
               title="Otros eventos"
               eventCards={theaterEvents.items}
-              columns={4}
+              columns={{ xs: 1, sm: 2, md: 3, lg: 4, xl: 4 }}
               itemSize={1}
               spacing={4}
               cardDescriptionAlign="left"
@@ -84,7 +87,7 @@ export default async function Home() {
               cardDescriptionColor={colors.light.muted}
               showCardBadge={true}
               cardBadgeType="dark"
-              cardImageHeight={145}
+              cardImageHeights={{ xs: 200, sm: 200, md: 170, lg: 145, xl: 145 }}
               showAllButton={true}
             />
           </Box>

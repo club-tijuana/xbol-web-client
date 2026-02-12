@@ -5,11 +5,7 @@ import TicketQRCard from "../TicketQRCard/TicketQRCard";
 import { TicketQRGridProps } from "./TicketQRGrid.type";
 
 export default function TicketQRGrid({
-    columnsXs,
-    columnsSm,
-    columnsMd,
-    columnsLg,
-    columnsXl,
+    columns,
     spacing = 1,
     title,
     tickets
@@ -22,13 +18,7 @@ export default function TicketQRGrid({
             <Grid
                 container
                 mb={2.5}
-                columns={{
-                    xs: columnsXs,
-                    sm: columnsSm,
-                    md: columnsMd,
-                    lg: columnsLg,
-                    xl: columnsXl
-                }}
+                columns={columns}
                 spacing={spacing}>
                 {tickets.map((ticket) => (
                     <Grid key={ticket.id} size={1}>

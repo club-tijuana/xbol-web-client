@@ -19,7 +19,7 @@ export default function EventCard({
     showBadge = false,
     badgeType = "light",
     showActions = true,
-    imageHeight
+    imageHeights
 }: EventCardProps) {
     const router = useRouter();
     const { posterImageUrl, name, startDate, location, category } = eventCard;
@@ -41,8 +41,8 @@ export default function EventCard({
                     component="img"
                     image={posterImageUrl}
                     alt={name}
-                    height={imageHeight === undefined ? 200 : imageHeight}
                     sx={{
+                        height: imageHeights,
                         borderRadius: 1
                     }}
                 />

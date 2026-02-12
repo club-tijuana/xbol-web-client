@@ -2,7 +2,7 @@
 
 import { ConfirmationNumberOutlined, CreditCardOutlined, ShieldOutlined } from '@mui/icons-material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { AppBar, Box, Button, CssBaseline, Divider, Drawer, Grid, IconButton, List, ListItem, ListItemButton, ListItemText, Popover, TextField, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, Button, CssBaseline, Divider, Drawer, Grid, IconButton, List, ListItem, ListItemButton, ListItemText, Popover, Toolbar, Typography } from "@mui/material";
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState } from "react";
@@ -12,13 +12,19 @@ import { openLoginModal } from "@/store/slices/uiSlice";
 import { colors } from '@/theme/colors';
 
 import styles from "./Header.module.scss";
+import SearchInput from './SearchInput/SearchInput';
 
 interface Props {
     window?: () => Window;
 }
 
 const drawerWidth = 240;
-const navItems = ['Home', 'Boletos', 'Vender', 'Cuenta'];
+const navItems = [
+    { title: 'Home', redirectUrl: "/" },
+    { title: 'Boletos', redirectUrl: "/account/tickets" },
+    { title: 'Vender', redirectUrl: "" },
+    { title: 'Cuenta', redirectUrl: "" }
+];
 
 export default function Header(props: Props) {
     const { window } = props;
@@ -55,70 +61,36 @@ export default function Header(props: Props) {
         setAnchorEl(null);
     };
 
-    const handleMyTicketsRedirect = () => {
-        router.push("/account/tickets");
+    const handleRedirect = (redirectUrl?: string) => {
+        let url: string = "/";
+
+        if (redirectUrl) {
+            url = redirectUrl;
+        }
+
+        router.push(url);
         handleCloseAccount();
     }
 
     const openAccount = Boolean(anchorEl);
     const idAccount = openAccount ? 'simple-popover' : undefined;
     const isTransparent = pathname === "/" || pathname.startsWith("/event");
-
-    const textInput = (
-        <TextField
-            variant="outlined"
-            placeholder="Buscar"
-            sx={{
-                backgroundColor: "black",
-
-                width: '100%',
-
-                "& .MuiOutlinedInput-root": {
-                    borderRadius: 0,
-
-                    "& fieldset": {
-                        borderTop: "none",
-                        borderLeft: "none",
-                        borderRight: "none",
-                    },
-
-                    "&:hover fieldset": {
-                        borderTop: "none",
-                        borderLeft: "none",
-                        borderRight: "none",
-                    },
-
-                    "&.Mui-focused fieldset": {
-                        borderTop: "none",
-                        borderLeft: "none",
-                        borderRight: "none",
-                    },
-                },
-
-                "& .MuiInputBase-input::placeholder": {
-                    color: "#999",
-                    opacity: 1,
-                },
-
-                "& .MuiInputBase-input": {
-                    paddingTop: 1.1,
-                    paddingBottom: 1.1,
-                    paddingLeft: 1,
-                    color: "#999",
-                },
-            }}
-        />
-    );
-
     const drawer = (
-        <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center', backgroundColor: theme => theme.palette.layout.header, height: '100%' }} pt={3}>
-            {textInput}
+        <Box onClick={handleDrawerToggle}
+            sx={{
+                textAlign: 'center',
+                backgroundColor: theme => theme.palette.layout.header, height: '100%'
+            }}
+            pt={3}
+            px={2}
+        >
+            <SearchInput />
             <Divider />
             <List>
                 {navItems.map((item) => (
-                    <ListItem key={item} disablePadding>
-                        <ListItemButton sx={{ textAlign: 'center' }}>
-                            <ListItemText primary={item} sx={{ color: 'white' }} />
+                    <ListItem key={item.title} disablePadding>
+                        <ListItemButton sx={{ textAlign: 'center' }} onClick={() => handleRedirect(item.redirectUrl)}>
+                            <ListItemText primary={item.title} sx={{ color: 'white' }} />
                         </ListItemButton>
                     </ListItem>
                 ))}
@@ -136,7 +108,7 @@ export default function Header(props: Props) {
                     <Grid container columns={12} spacing={2} alignItems="center" sx={{ width: "100%" }}>
                         <Grid size={{ xs: 7, md: 3 }} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <IconButton
-                                color="inherit"
+                                color="primary"
                                 aria-label="open menu"
                                 edge="start"
                                 onClick={handleDrawerToggle}
@@ -163,16 +135,16 @@ export default function Header(props: Props) {
                                 }
                             }}>
                                 {navItems.map((item) => (
-                                    <Button key={item} sx={{ color: '#F0F0F0' }}>
+                                    <Button key={item.title} sx={{ color: '#F0F0F0' }} onClick={() => handleRedirect(item.redirectUrl)}>
                                         <Typography variant='h5' fontWeight={400}>
-                                            {item}
+                                            {item.title}
                                         </Typography>
                                     </Button>
                                 ))}
                             </Box>
                         </Grid>
                         <Grid size={{ md: 3, lg: 3 }} sx={{ display: { xs: 'none', md: 'block' } }}>
-                            {textInput}
+                            <SearchInput />
                         </Grid>
                         <Grid size={{ xs: 5, md: 1, lg: 1 }} justifyItems='right'>
                             <Box>
@@ -237,7 +209,7 @@ export default function Header(props: Props) {
                                                 {formattedDate}
                                             </Typography>
                                             <Box mt={3}>
-                                                <Button variant="text" startIcon={<ConfirmationNumberOutlined color='neutral' />} onClick={handleMyTicketsRedirect}>
+                                                <Button variant="text" startIcon={<ConfirmationNumberOutlined color='neutral' />} onClick={() => handleRedirect()}>
                                                     <Typography variant='body1' fontWeight={400} color='neutral'>
                                                         Mis tickets
                                                     </Typography>

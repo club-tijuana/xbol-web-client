@@ -16,7 +16,13 @@ export default function Footer() {
     return (
         <footer className={styles.footer}>
             <Grid container columns={12} pt={11} pb={6}>
-                <Grid size={3}>
+                <Grid size={{
+                    xs: 12,
+                    sm: 6,
+                    md: 4,
+                    lg: 2,
+                    xl: 3
+                }}>
                     <div className={styles.logoContainer}>
                         <Image
                             src="/assets/logo.png"
@@ -27,21 +33,39 @@ export default function Footer() {
                         />
                     </div>
                 </Grid>
-                <Grid size={2} display="flex" justifyContent="flex-end">
-                    <Stack spacing={1} mr={9}>
+                <Grid size={{
+                    xs: 6,
+                    sm: 2,
+                    md: 4,
+                    lg: 3,
+                    xl: 2
+                }} display="flex" justifyContent="flex-end">
+                    <Stack spacing={1} className={styles.stack}>
                         <Typography variant="body1" color={colors.light.neutral}>Eventos</Typography>
                         <Typography variant="body1" color={colors.light.neutral}>Teatro</Typography>
                         <Typography variant="body1" color={colors.light.neutral}>Música</Typography>
                     </Stack>
                 </Grid>
-                <Grid size={2} display="flex" justifyContent="flex-start">
-                    <Stack spacing={1} ml={9}>
+                <Grid size={{
+                    xs: 6,
+                    sm: 4,
+                    md: 4,
+                    lg: 3,
+                    xl: 2
+                }} display="flex" justifyContent="flex-start" >
+                    <Stack spacing={1} className={styles.stack}>
                         <Typography variant="body1" color={colors.light.neutral}>Deporte</Typography>
                         <Typography variant="body1" color={colors.light.neutral}>Centro de ayuda</Typography>
                         <Typography variant="body1" color={colors.light.neutral}>Quienes somos</Typography>
                     </Stack>
                 </Grid>
-                <Grid size={3} px={6}>
+                <Grid size={{
+                    xs: 12,
+                    sm: 6,
+                    md: 12,
+                    lg: 2,
+                    xl: 3
+                }} px={6}>
                     <Grid container columns={4}>
                         <Grid size={4}>
                             <div className={styles.iconContainer}>

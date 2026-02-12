@@ -1,11 +1,9 @@
+import { ResponsiveStyleValue } from "@mui/system";
+
 import { MyTicketDto } from "@/models/my-ticket.dto";
 
 export interface TicketQRGridProps {
-    columnsXs?: number;
-    columnsSm?: number;
-    columnsMd?: number;
-    columnsLg?: number;
-    columnsXl?: number;
+    columns: ResponsiveStyleValue<number>;
     spacing?: number;
 
     title?: string;

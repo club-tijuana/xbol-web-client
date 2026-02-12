@@ -21,7 +21,7 @@ export default function EventCardGrid({
     showCardBadge = false,
     cardBadgeType = "light",
     showCardActions = true,
-    cardImageHeight,
+    cardImageHeights,
     showAllButton = false
 }: EventCardGridProps) {
     return (
@@ -65,7 +65,7 @@ export default function EventCardGrid({
                             showBadge={showCardBadge}
                             badgeType={cardBadgeType}
                             showActions={showCardActions}
-                            imageHeight={cardImageHeight}
+                            imageHeights={cardImageHeights}
                         />
                     </Grid>
                 ))}
