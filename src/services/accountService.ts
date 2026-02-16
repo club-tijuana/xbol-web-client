@@ -5,7 +5,9 @@ import { MyEventDTO } from "@/models/my-event.dto";
 import { MyTicketDto } from "@/models/my-ticket.dto";
 import { PagedResponse } from "@/models/pagination/paged-response.dto";
 
-export async function getMyEvents(filters: TicketsFilters): Promise<PagedResponse<MyEventDTO> | null> {
+export async function getMyEvents(
+    filters: TicketsFilters
+): Promise<PagedResponse<MyEventDTO> | null> {
     const response = await requestAxios<TicketsFilters, PagedResponse<MyEventDTO>>(
         "POST",
         "clients/my-events",
@@ -14,22 +16,19 @@ export async function getMyEvents(filters: TicketsFilters): Promise<PagedRespons
 
     if (!response) return null;
 
-    const duplicatedItems = response.items.flatMap((item, index) => [
-        { ...item, _uiKey: `${item.eventId}-${index}` },
-        { ...item, _uiKey: `${item.eventId}-${index}` },
-        { ...item, _uiKey: `${item.eventId}-${index}` },
-        { ...item, _uiKey: `${item.eventId}-${index}` },
-        { ...item, _uiKey: `${item.eventId}-${index}` },
-        { ...item, _uiKey: `${item.eventId}-${index}` },
-        { ...item, _uiKey: `${item.eventId}-${index}` },
-        { ...item, _uiKey: `${item.eventId}-${index}` },
-    ]);
+    const duplicatedItems = response.items.flatMap((item) =>
+        Array.from({ length: 8 }).map(() => ({
+            ...item,
+            _uiKey: `${item.eventId}-${crypto.randomUUID()}`
+        }))
+    );
 
     return {
         ...response,
         items: duplicatedItems
     };
 }
+
 
 export async function getMyEventDetail(eventId: number): Promise<MyEventDetailDTO | null> {
     return await requestAxios<null, MyEventDetailDTO>(

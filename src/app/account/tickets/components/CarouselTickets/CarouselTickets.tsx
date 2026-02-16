@@ -9,11 +9,10 @@ import { MyEventDTO } from "@/models/my-event.dto";
 import TicketCard from "../TicketCard/TicketCard";
 
 interface CarouselTicketsProps {
-    carouselKey: string;
     tickets?: MyEventDTO[] | null;
 }
 
-export default function CarouselTickets({ carouselKey, tickets }: CarouselTicketsProps) {
+export default function CarouselTickets({ tickets }: CarouselTicketsProps) {
     const theme = useTheme();
 
     const isXs = useMediaQuery(theme.breakpoints.down("sm"));
@@ -66,7 +65,7 @@ export default function CarouselTickets({ carouselKey, tickets }: CarouselTicket
                     <Stack direction="row" spacing={2} justifyContent="center">
                         {currentTickets.map((ticket) => (
                             <Box
-                                key={`${carouselKey}-${ticket.orderId}-${ticket.eventId}`}
+                                key={`${ticket._uiKey}`}
                                 sx={{ width: `${100 / cardsPerPage}%` }}
                             >
                                 <TicketCard ticket={ticket} />

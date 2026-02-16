@@ -78,7 +78,7 @@ export default function TicketTabs({
             {tabs.map((label, index) => (
                 <CustomTabPanel key={index} value={value} index={index}>
                     <CarouselTickets
-                        carouselKey={index.toString()}
+                        key={index}
                         tickets={
                             label === "Tus artistas favoritos"
                                 ? mySeasons

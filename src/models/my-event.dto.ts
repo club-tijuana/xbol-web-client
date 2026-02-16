@@ -7,4 +7,5 @@ export interface MyEventDTO {
     location: string;
     isSeasonPass: boolean;
     isPastEvent: boolean;
+    _uiKey: string;
 }
