@@ -1,4 +1,3 @@
-import { Box } from "@mui/material";
 import type { Metadata } from "next";
 import "../styles/globals.scss";
 import "@/styles/_variables.scss";
@@ -6,6 +5,7 @@ import { Open_Sans } from "next/font/google";
 
 import Footer from "@/components/Footer/Footer";
 import HeaderWrapper from "@/components/Header/HeaderWrapper";
+import { LayoutContainer } from "@/components/LayoutContainer/LayoutContainer";
 import LoginModal from "@/components/LoginModal/LoginModal";
 import Providers from "@/store/Providers";
 import MuiProvider from "@/theme/MuiProvider";
@@ -31,16 +31,9 @@ export default function RootLayout({
           <Providers>
             <HeaderWrapper />
 
-            <Box
-              component="main"
-              sx={{
-                maxWidth: "1500px",
-                mx: "auto",
-                px: { xs: 2, md: 4, lg: 4, xl: 12 },
-              }}
-            >
+            <LayoutContainer>
               {children}
-            </Box>
+            </LayoutContainer>
 
             <Footer />
             <LoginModal />

@@ -4,6 +4,18 @@ import "@mui/material/SvgIcon";
 import "@mui/material/IconButton";
 
 declare module "@mui/material/styles" {
+    interface Theme {
+        customLayout: {
+            contentMaxWidth: number;
+        };
+    }
+
+    interface ThemeOptions {
+        customLayout?: {
+            contentMaxWidth?: number;
+        };
+    }
+
     interface Palette {
         layout: {
             header: string;

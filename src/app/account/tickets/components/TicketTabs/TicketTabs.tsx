@@ -6,7 +6,7 @@ import { SyntheticEvent, useState } from "react";
 import { colors } from "@/theme/colors";
 
 
-import TicketList from "../TicketList/TicketList";
+import CarouselTickets from "../CarouselTickets/CarouselTickets";
 
 import { TicketTabsProps } from "./TicketTabs.type";
 
@@ -38,12 +38,10 @@ export default function TicketTabs({
 }: TicketTabsProps) {
     const [value, setValue] = useState(0);
     const tabs = [
-        ...(myEvents && myEvents.length > 0 ? ["Tus artistas favoritos"] : []),
-        ...(mySeasons && mySeasons.length > 0 ? ["Xolopass"] : []),
-        ...(myEvents && myEvents.length > 0 ? ["Tus tickets"] : []),
+        ...(mySeasons ? ["Tus artistas favoritos"] : []),
+        ...(mySeasons ? ["Xolopass"] : []),
+        ...(myEvents ? ["Tus tickets"] : []),
     ];
-
-    console.log("Ticket Tabs:", myEvents);
 
     const tabStyles = {
         border: "solid",
@@ -79,16 +77,15 @@ export default function TicketTabs({
             </Box>
             {tabs.map((label, index) => (
                 <CustomTabPanel key={index} value={value} index={index}>
-                    <TicketList
-                        listKey={index.toString()}
+                    <CarouselTickets
+                        carouselKey={index.toString()}
                         tickets={
                             label === "Tus artistas favoritos"
-                                ? myEvents
+                                ? mySeasons
                                 : label === "Xolopass"
                                     ? mySeasons
                                     : myEvents
                         }
-                        title={label}
                     />
                 </CustomTabPanel>
             ))}

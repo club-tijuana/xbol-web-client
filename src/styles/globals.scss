@@ -62,4 +62,11 @@ body {
     padding-left: 44px;
     padding-right: 44px;
     border-radius: 29px !important;
+
+    @media (max-width: 599px) {
+        padding-left: 30px;
+        padding-right: 30px;
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
 }

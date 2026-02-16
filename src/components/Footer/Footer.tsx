@@ -1,4 +1,4 @@
-import { Box, Button, Grid, Stack, Typography } from "@mui/material";
+import { Grid, Stack, Typography } from "@mui/material";
 import Image from "next/image";
 
 import { colors } from "@/theme/colors";
@@ -6,23 +6,10 @@ import { colors } from "@/theme/colors";
 import styles from "./Footer.module.scss";
 
 export default function Footer() {
-    const links = [
-        "Política de Compra",
-        "Aviso de Privacidad",
-        "Política de Cookies",
-        "Administrar mis cookies",
-    ];
-
     return (
         <footer className={styles.footer}>
-            <Grid container columns={12} pt={11} pb={6}>
-                <Grid size={{
-                    xs: 12,
-                    sm: 6,
-                    md: 4,
-                    lg: 2,
-                    xl: 3
-                }}>
+            <Grid container columns={12}>
+                <Grid size={{ xs: 12, sm: 6, md: 3, lg: 3, xl: 4 }} className={styles.logoContainer}>
                     <div className={styles.logoContainer}>
                         <Image
                             src="/assets/logo.png"
@@ -33,41 +20,27 @@ export default function Footer() {
                         />
                     </div>
                 </Grid>
-                <Grid size={{
-                    xs: 6,
-                    sm: 2,
-                    md: 4,
-                    lg: 3,
-                    xl: 2
-                }} display="flex" justifyContent="flex-end">
-                    <Stack spacing={1} className={styles.stack}>
-                        <Typography variant="body1" color={colors.light.neutral}>Eventos</Typography>
-                        <Typography variant="body1" color={colors.light.neutral}>Teatro</Typography>
-                        <Typography variant="body1" color={colors.light.neutral}>Música</Typography>
-                    </Stack>
+                <Grid size={{ xs: 12, sm: 6, md: 5, lg: 5, xl: 4 }}>
+                    <Grid container columns={12} className={styles.stackContainer}>
+                        <Grid size={6} display="flex" justifyContent="center">
+                            <Stack spacing={1} className={styles.stack}>
+                                <Typography variant="body1" color={colors.light.neutral}>Eventos</Typography>
+                                <Typography variant="body1" color={colors.light.neutral}>Teatro</Typography>
+                                <Typography variant="body1" color={colors.light.neutral}>Música</Typography>
+                            </Stack>
+                        </Grid>
+                        <Grid size={6} display="flex" justifyContent="center">
+                            <Stack spacing={1} className={styles.stack}>
+                                <Typography variant="body1" color={colors.light.neutral}>Deporte</Typography>
+                                <Typography variant="body1" color={colors.light.neutral}>Centro de ayuda</Typography>
+                                <Typography variant="body1" color={colors.light.neutral}>Quienes somos</Typography>
+                            </Stack>
+                        </Grid>
+                    </Grid>
                 </Grid>
-                <Grid size={{
-                    xs: 6,
-                    sm: 4,
-                    md: 4,
-                    lg: 3,
-                    xl: 2
-                }} display="flex" justifyContent="flex-start" >
-                    <Stack spacing={1} className={styles.stack}>
-                        <Typography variant="body1" color={colors.light.neutral}>Deporte</Typography>
-                        <Typography variant="body1" color={colors.light.neutral}>Centro de ayuda</Typography>
-                        <Typography variant="body1" color={colors.light.neutral}>Quienes somos</Typography>
-                    </Stack>
-                </Grid>
-                <Grid size={{
-                    xs: 12,
-                    sm: 6,
-                    md: 12,
-                    lg: 2,
-                    xl: 3
-                }} px={6}>
-                    <Grid container columns={4}>
-                        <Grid size={4}>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
+                    <Grid container columns={12}>
+                        <Grid size={12} >
                             <div className={styles.iconContainer}>
                                 <Image
                                     src="/assets/icons/facebook-icon.svg"
@@ -95,7 +68,7 @@ export default function Footer() {
                                 />
                             </div>
                         </Grid>
-                        <Grid size={4} mt={4}>
+                        <Grid size={12} >
                             <div className={styles.downloadContainer}>
                                 <Image
                                     src="/assets/icons/google-play.svg"
@@ -113,31 +86,7 @@ export default function Footer() {
                         </Grid>
                     </Grid>
                 </Grid>
-            </Grid>
-            <Box
-                sx={{
-                    backgroundColor: "var(--color-bg-footer-badge)",
-                    textAlign: "center",
-                    pt: 1.1,
-                    pb: 0.7
-                }}
-            >
-                <Stack
-                    direction="row"
-                    alignItems={'center'}
-                    justifyContent="center"
-                    color={colors.light.neutral}
-                    divider={<Typography variant="caption">|</Typography>}
-                >
-                    {links.map((text) => (
-                        <Button key={text} sx={{ textTransform: 'none' }}>
-                            <Typography variant="caption" color={colors.light.neutral}>
-                                {text}
-                            </Typography>
-                        </Button>
-                    ))}
-                </Stack>
-            </Box>
-        </footer>
+            </Grid >
+        </footer >
     );
 }

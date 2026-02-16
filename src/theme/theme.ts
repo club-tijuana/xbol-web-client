@@ -3,6 +3,10 @@ import { createTheme } from "@mui/material/styles";
 import { colors } from "./colors";
 
 export const theme = createTheme({
+    customLayout: {
+        contentMaxWidth: 1500,
+    },
+
     palette: {
         layout: {
             header: colors.layout.header,

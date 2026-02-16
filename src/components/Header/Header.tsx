@@ -104,7 +104,7 @@ export default function Header(props: Props) {
         <Box>
             <CssBaseline />
             <AppBar component="nav" sx={{ backgroundColor: theme => isTransparent ? theme.palette.layout.header : theme.palette.layout.header }}>
-                <Toolbar sx={{ display: 'flex', alignItems: 'center', px: { xs: 5, lg: 10, xl: 40 } }}>
+                <Toolbar sx={{ display: 'flex', alignItems: 'center', px: { xs: 5, lg: 10, xl: 40 }, py: 2.5 }}>
                     <Grid container columns={12} spacing={2} alignItems="center" sx={{ width: "100%" }}>
                         <Grid size={{ xs: 7, md: 3 }} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <IconButton
@@ -209,7 +209,7 @@ export default function Header(props: Props) {
                                                 {formattedDate}
                                             </Typography>
                                             <Box mt={3}>
-                                                <Button variant="text" startIcon={<ConfirmationNumberOutlined color='neutral' />} onClick={() => handleRedirect()}>
+                                                <Button variant="text" startIcon={<ConfirmationNumberOutlined color='neutral' />} onClick={() => handleRedirect('/account/tickets')}>
                                                     <Typography variant='body1' fontWeight={400} color='neutral'>
                                                         Mis tickets
                                                     </Typography>

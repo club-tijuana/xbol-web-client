@@ -3,6 +3,7 @@ import React from "react";
 export type FullWidthSectionVariant =
     | "default"
     | "color"
+    | "colorFixedHeight"
     | "imageFull"
     | "imageFixedHeight"
 
@@ -14,4 +15,5 @@ export interface FullWidthSectionProps {
     image?: string;
     height?: number;
     fullBleed?: boolean;
+    disableMaxWidth?: boolean;
 }

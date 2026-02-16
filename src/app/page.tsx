@@ -1,14 +1,15 @@
 import { Box, Grid } from "@mui/material";
 
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
-import EventCrousel from "@/components/EventCarousel/EventCarousel";
+import EventCarousel from "@/components/EventCarousel/EventCarousel";
 import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
 import { EventCategory } from "@/models/enums/event-category.enum";
-import { getEvents } from "@/services/eventService";
+import { getEvents, getMainEvents } from "@/services/eventService";
 import { colors } from "@/theme/colors";
 
 export default async function Home() {
-  const mainEvents = await getEvents({ page: 1, eventCategory: EventCategory.Concert, pageSize: 6 });
+  const mainEvents = await getMainEvents();
+  const featuredEvents = await getEvents({ page: 1, eventCategory: EventCategory.Concert, pageSize: 6 });
   const futbolEvents = await getEvents({ page: 1, eventCategory: EventCategory.Sports, pageSize: 3 });
   const musicEvents = await getEvents({ page: 1, eventCategory: EventCategory.Concert, pageSize: 3 });
   const theaterEvents = await getEvents({ page: 1, eventCategory: EventCategory.Theater, pageSize: 3 });
@@ -16,8 +17,8 @@ export default async function Home() {
   return (
     <div>
       <main>
-        <FullWidthSection fullBleed={true}>
-          <EventCrousel />
+        <FullWidthSection fullBleed={true} disableMaxWidth={true}>
+          <EventCarousel events={mainEvents.items} />
         </FullWidthSection>
 
         <Grid container columns={12} mt={6} mb={5}>
@@ -25,7 +26,7 @@ export default async function Home() {
             <EventCardGrid
               title="Eventos destacados"
               titleAlign="center"
-              eventCards={mainEvents.items}
+              eventCards={featuredEvents.items}
               columns={{ xs: 2, sm: 3, md: 4, lg: 6, xl: 6 }}
               itemSize={1}
               spacing={3}

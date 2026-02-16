@@ -1,3 +1,5 @@
+"use client";
+
 import { Circle } from "@mui/icons-material";
 import { Box, Card, CardActions, CardContent, CardMedia, IconButton, Typography } from "@mui/material";
 
@@ -5,24 +7,29 @@ import styles from "./TicketQRCard.module.scss";
 import { TicketQRCardProps } from "./TicketQRCard.type";
 
 export default function TicketQRCard({ ticket }: TicketQRCardProps) {
+    const formattedDate = Intl.DateTimeFormat("es-MX", {
+        month: 'long',
+        year: 'numeric'
+    }).format(new Date(ticket.startDate));
+
     return (
         <Card variant="outlined" className={styles.card}>
             <CardContent className={styles.cardContent}>
                 <CardMedia
                     component="img"
-                    image={ticket.image}
+                    image={ticket.eventImage}
                     alt={"title"}
-                    sx={{ display: 'block' }}
+                    sx={{ display: 'block', borderRadius: 2.5, height: '100%', width: '100%', objectFit: 'cover' }}
                 />
 
                 <Box className={styles.overlay} />
 
                 <Box className={styles.cardInfo}>
                     <Typography variant="subtitle1" fontWeight={700} color="primary">
-                        {ticket.title}
+                        {ticket.name}
                     </Typography>
                     <Typography variant="subtitle2" fontWeight={700} color="neutral">
-                        {ticket.dateStr}
+                        {formattedDate}
                     </Typography>
                     <Typography variant="subtitle2" fontWeight={400} color="neutral">
                         {ticket.location}

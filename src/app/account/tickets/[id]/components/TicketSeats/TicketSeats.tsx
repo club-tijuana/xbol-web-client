@@ -3,7 +3,9 @@
 import { Box, Divider, Grid, Paper, Typography } from "@mui/material";
 import Image from "next/image";
 
-export default function TicketSeats() {
+import { TicketSeatsProps } from "./TicketSeats.type";
+
+export default function TicketSeats({ subTotal, totalTaxes, total, seats }: TicketSeatsProps) {
     return (
         <Paper elevation={3} className="paperCard"
         >
@@ -32,12 +34,16 @@ export default function TicketSeats() {
                 </Grid>
                 <Grid size={8}>
                     <Box ml={8} display="flex" flexDirection="column" justifyContent="center" height="100%">
-                        <Typography variant="body1" color="muted">
-                            Sección A Fila 10 x2
-                        </Typography>
-                        <Typography variant="body2" color="muted">
-                            Asientos: 10A, 11 A
-                        </Typography>
+                        {seats.map((seat, index) => (
+                            <Box key={index}>
+                                <Typography variant="body1" color="muted">
+                                    {`Sección ${seat.section}`}
+                                </Typography>
+                                <Typography variant="body2" color="muted">
+                                    {`Asientos: ${seat.seats}`}
+                                </Typography>
+                            </Box>
+                        ))}
                     </Box>
                 </Grid>
             </Grid>
@@ -52,7 +58,7 @@ export default function TicketSeats() {
                 </Grid>
                 <Grid size={1}>
                     <Typography variant="subtitle1" fontWeight={400} color="muted" textAlign="right">
-                        $0,000.00
+                        {new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(subTotal)}
                     </Typography>
                 </Grid>
                 <Grid size={1} offset={2}>
@@ -62,7 +68,7 @@ export default function TicketSeats() {
                 </Grid>
                 <Grid size={1}>
                     <Typography variant="subtitle1" fontWeight={400} color="muted" textAlign="right">
-                        $0,000.00
+                        {new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(totalTaxes)}
                     </Typography>
                 </Grid>
                 <Grid size={1} offset={2}>
@@ -72,7 +78,7 @@ export default function TicketSeats() {
                 </Grid>
                 <Grid size={1}>
                     <Typography variant="subtitle1" fontWeight={400} color="muted" textAlign="right">
-                        $0,000.00
+                        {new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(total)}
                     </Typography>
                 </Grid>
             </Grid>

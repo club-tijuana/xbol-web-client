@@ -23,14 +23,37 @@ export default async function EventPage(props: EventPageProps) {
     const event = await getEventDetail(Number.parseInt(id));
     const outstandingEvents = await getEvents({ page: 1, eventCategory: EventCategory.Concert, pageSize: 4 });
 
+    const Gallery =
+        <>
+            <Box sx={{ position: "relative", height: { xs: 300, sm: 400, md: 439, lg: 539 } }} mb={3}>
+                <Image src={event.gallery[0]} alt="Evento" fill style={{ objectFit: 'cover', borderRadius: 10 }} />
+            </Box>
+            <Typography variant="h3" fontWeight={600} color="primary">
+                Galería
+            </Typography>
+            <Grid container columns={2} spacing={2} mt={1.2}>
+                {
+                    event.gallery.map((image, index) => (
+                        <Grid size={1} key={index}>
+                            <Box sx={{ position: "relative", height: 184 }}
+                                mb={3}
+                            >
+                                <Image src={image} alt="Evento" fill style={{ objectFit: 'cover', borderRadius: 10 }} />
+                            </Box>
+                        </Grid>
+                    ))
+                }
+            </Grid>
+        </>;
+
     return (
         <Box>
             <FullWidthSection
                 variant="imageFixedHeight"
                 image="/assets/images/separators/soccer-separator.png"
-                height={3000}>
-                <Grid container columns={{ xs: 1, sm: 1, md: 2, lg: 2, xl: 18 }} mt={15} spacing={7}>
-                    <Grid size={8}>
+                height={630}>
+                <Grid container columns={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 18 }} mt={15} spacing={{ xs: 0, sm: 0, md: 3, lg: 7 }}>
+                    <Grid size={{ xs: 10, sm: 10, md: 6, lg: 5, xl: 8 }} offset={{ xs: 1, sm: 1, md: 0 }}>
                         <Typography variant="hero" color='primary'>
                             {event.name}
                             <LaunchRoudedIcon color='neutral' fontSize="large" sx={{ marginLeft: 1, marginRight: 1 }} />
@@ -43,7 +66,11 @@ export default async function EventPage(props: EventPageProps) {
                             {event.longDescription}
                         </Typography>
 
-                        <Paper elevation={3} className="paperCard" sx={{ marginTop: 6 }}>
+                        <Box sx={{ display: { sm: 'block', md: 'none' } }} mt={4}>
+                            {Gallery}
+                        </Box>
+
+                        <Paper elevation={3} className="paperCard" sx={{ mt: { xs: 0, sm: 0, md: 6 }, mb: 8 }}>
                             <Typography variant="h3" color="primary">
                                 Boletos
                             </Typography>
@@ -82,35 +109,17 @@ export default async function EventPage(props: EventPageProps) {
                             }
                         </Paper>
                     </Grid>
-                    <Grid size={10} mb={4}>
-                        <Box sx={{ position: "relative", height: 539 }} mb={3}>
-                            <Image src={event.gallery[0]} alt="Evento" fill style={{ objectFit: 'cover', borderRadius: 10 }} />
-                        </Box>
-                        <Typography variant="h3" fontWeight={600} color="primary">
-                            Galería
-                        </Typography>
-                        <Grid container columns={2} spacing={2} mt={1.2}>
-                            {
-                                event.gallery.map((image, index) => (
-                                    <Grid size={1} key={index}>
-                                        <Box sx={{ position: "relative", height: 184 }}
-                                            mb={3}
-                                        >
-                                            <Image src={image} alt="Evento" fill />
-                                        </Box>
-                                    </Grid>
-                                ))
-                            }
-                        </Grid>
+                    <Grid size={{ md: 6, lg: 7, xl: 10 }} mb={4} sx={{ display: { xs: 'none', sm: 'none', md: 'block' } }}>
+                        {Gallery}
                     </Grid>
                 </Grid>
             </FullWidthSection>
             <FullWidthSection variant="color" backgroundColor={colors.brand.background}>
-                <Box sx={{ px: { xs: 4, sm: 10, md: 10, lg: 20, xl: 39 } }} my={5}>
+                <Box sx={{ px: { xs: 4, sm: 10, md: 10, lg: 20, xl: 20 } }} my={5}>
                     <FAQ />
                 </Box>
             </FullWidthSection>
-            <Grid container columns={{ sm: 1, md: 2 }} spacing={5} mt={5} mb={4}>
+            <Grid container columns={{ xs: 1, sm: 1, md: 2 }} spacing={5} mt={5} mb={4}>
                 <Grid size={1}>
                     <Advertisement image="/assets/images/advertisement/advertisement.png" />
                 </Grid>
@@ -120,7 +129,12 @@ export default async function EventPage(props: EventPageProps) {
                     </Typography>
                     <EventCardGrid
                         eventCards={outstandingEvents.items}
-                        columns={4}
+                        columns={{
+                            xs: 2, sm: 3, md: 2, lg: 4, xl: 4
+                        }}
+                        cardImageHeights={{
+                            xs: 200, sm: 200, md: 180, lg: 130, xl: 140
+                        }}
                         itemSize={1}
                         spacing={2.5}
                         size="sm"

@@ -23,7 +23,7 @@ export default function TicketCard({ ticket }: TicketCardProps) {
 
     return (
         <Box>
-            <Card variant="outlined" sx={{ border: 'none', height: 357, width: 431 }}>
+            <Card variant="outlined" sx={{ border: 'none', height: 357, width: "100%" }}>
                 <CardContent className={styles.cardContent}>
                     <CardMedia
                         component="img"

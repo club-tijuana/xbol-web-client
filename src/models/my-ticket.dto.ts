@@ -1,8 +1,7 @@
 export interface MyTicketDto {
     id: number;
-    image: string;
-    ticketCode: string;    
-    title: string;
-    dateStr: string;
+    name: string;
+    startDate: Date;
     location: string;
+    eventImage: string;
 }
