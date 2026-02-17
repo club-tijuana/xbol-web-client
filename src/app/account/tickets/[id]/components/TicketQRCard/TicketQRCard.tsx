@@ -8,11 +8,11 @@ import styles from "./TicketQRCard.module.scss";
 import { TicketQRCardProps } from "./TicketQRCard.type";
 
 export default function TicketQRCard({ ticket }: TicketQRCardProps) {
-    const TOTAL_TIME = 5000;
+    const TOTAL_TIME = 30000;
     const INTERVAL = 100;
 
     const [showQR, setShowQR] = useState(false);
-    const [progress, setProgress] = useState(100);
+    const [progress, setProgress] = useState(0);
     const [seconds, setSeconds] = useState(TOTAL_TIME / 1000);
 
     useEffect(() => {
@@ -24,13 +24,13 @@ export default function TicketQRCard({ ticket }: TicketQRCardProps) {
             const elapsed = Date.now() - startTime;
             const remaining = Math.max(TOTAL_TIME - elapsed, 0);
 
-            const percent = (remaining / TOTAL_TIME) * 100;
+            const percent = 100 - (remaining / TOTAL_TIME) * 100;
             setProgress(percent);
             setSeconds(Math.ceil(remaining / 1000));
 
-            if (remaining === 0) {
+            if (remaining === 100) {
                 startTime = Date.now();
-                setProgress(100);
+                setProgress(0);
                 setSeconds(TOTAL_TIME / 1000);
             }
         }, INTERVAL);
