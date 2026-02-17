@@ -1,5 +1,7 @@
 import { Box, Grid, Typography } from "@mui/material";
+import { Metadata } from "next";
 import Image from "next/image";
+import { cache } from "react";
 
 import Advertisement from "@/components/Advertisement/Advertisement";
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
@@ -11,9 +13,40 @@ import { PagedResponse } from "@/models/pagination/paged-response.dto";
 import { getMyEventDetail, getMyEventTickets } from "@/services/accountService";
 import { getEvents } from "@/services/eventService";
 import { colors } from "@/theme/colors";
+import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
 
 import TicketQRGrid from "./components/TicketQRGrid/TicketQRGrid";
 import TicketSeats from "./components/TicketSeats/TicketSeats";
+
+const getMyEventDetailCached = cache(getMyEventDetail);
+
+export async function generateMetadata(
+    { params }: { params: Promise<{ id: string }> }
+): Promise<Metadata> {
+    const { id } = (await params);
+
+    if (!id) {
+        return {
+            title: "Detalle de ticket | PWRTicket",
+            description: "Consulta los detalles de tu evento y tus boletos.",
+            robots: "noindex, follow",
+        };
+    }
+
+    const detail = await getMyEventDetailCached(Number.parseInt(id));
+
+    const description = detail
+        ? `Tus tickets para "${detail.name}" el ${detail.date ? new Date(detail.date).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }) : ''} en ${detail.location}. Consulta tus asientos, folio y más detalles del evento.`
+        : "Detalles de tus tickets de evento.";
+
+    return buildSeoMetadata({
+        title: `${detail?.name || 'Evento'} | Mis Tickets`,
+        description,
+        url: `https://dev.com/mis-tickets/${id}`,
+        image: detail?.eventImage ?? "/og-default.jpg",
+        type: "article",
+    });
+}
 
 interface EventSectionProps {
     eventImage?: string;
@@ -61,7 +94,7 @@ interface TicketPageProps {
 export default async function TicketPage(props: TicketPageProps) {
     const { id } = await props.params;
 
-    const detail = await getMyEventDetail(Number.parseInt(id));
+    const detail = await getMyEventDetailCached(Number.parseInt(id));
     const tickets = await getMyEventTickets({ page: 1, pageSize: 10, orderId: detail?.orderId });
     const otherEvents = await getEvents({ page: 1, eventCategory: EventCategory.Concert, pageSize: 4 });
 

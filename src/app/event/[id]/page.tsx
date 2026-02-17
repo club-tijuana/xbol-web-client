@@ -1,7 +1,9 @@
 import { StarBorder } from "@mui/icons-material";
 import LaunchRoudedIcon from "@mui/icons-material/LaunchRounded";
 import { Box, Button, Chip, Divider, Grid, Paper, Typography } from "@mui/material";
+import { Metadata } from "next";
 import Image from "next/image";
+import { cache } from "react";
 
 import Advertisement from "@/components/Advertisement/Advertisement";
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
@@ -11,17 +13,44 @@ import { EventCategory } from "@/models/enums/event-category.enum";
 import { getEvents, getEventDetail } from "@/services/eventService";
 import { colors } from "@/theme/colors";
 import { EventCategoryLabel } from "@/utils/mappers/eventCategory.mapper";
+import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
 
-interface EventPageProps {
-    params: Promise<{
-        id: string;
-    }>;
+const getEventCached = cache(getEventDetail);
+
+export async function generateMetadata(
+    { params }: { params: Promise<{ id: string }> }
+): Promise<Metadata> {
+
+    const { id } = await params;
+
+    if (!id) {
+        return {
+            title: "Evento | PWRTicket",
+            description: "Consulta los detalles de este evento.",
+            robots: "noindex, follow",
+        };
+    }
+
+    const event = await getEventCached(Number(id));
+
+    return buildSeoMetadata({
+        title: `${event.name} | Boletos y fechas`,
+        description: event.longDescription?.slice(0, 155) ?? "Detalles del evento",
+        url: `https://dev.com/eventos/${event.id}`,
+        image: event.gallery?.[0] ?? "/og-default.jpg",
+        type: "article",
+    });
 }
 
-export default async function EventPage(props: EventPageProps) {
-    const { id } = await props.params;
 
-    const event = await getEventDetail(Number.parseInt(id));
+interface EventPageProps {
+    params: Promise<{ id: string }>;
+}
+
+export default async function EventPage({ params }: EventPageProps) {
+    const { id } = await params;
+
+    const event = await getEventCached(Number.parseInt(id));
     const outstandingEvents = await getEvents({ page: 1, eventCategory: EventCategory.Concert, pageSize: 4 });
 
     const Gallery =

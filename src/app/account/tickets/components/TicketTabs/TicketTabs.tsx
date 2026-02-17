@@ -5,7 +5,6 @@ import { SyntheticEvent, useState } from "react";
 
 import { colors } from "@/theme/colors";
 
-
 import CarouselTickets from "../CarouselTickets/CarouselTickets";
 
 import { TicketTabsProps } from "./TicketTabs.type";
@@ -38,8 +37,8 @@ export default function TicketTabs({
 }: TicketTabsProps) {
     const [value, setValue] = useState(0);
     const tabs = [
-        ...(mySeasons ? ["Tus artistas favoritos"] : []),
-        ...(mySeasons ? ["Xolopass"] : []),
+        //...(mySeasons ? ["Tus artistas favoritos"] : []),
+        ...(mySeasons ? ["Season Pass"] : []),
         ...(myEvents ? ["Tus tickets"] : []),
     ];
 
@@ -82,7 +81,7 @@ export default function TicketTabs({
                         tickets={
                             label === "Tus artistas favoritos"
                                 ? mySeasons
-                                : label === "Xolopass"
+                                : label === "Season Pass"
                                     ? mySeasons
                                     : myEvents
                         }
