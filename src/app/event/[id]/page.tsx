@@ -1,6 +1,6 @@
 import { StarBorder } from "@mui/icons-material";
 import LaunchRoudedIcon from "@mui/icons-material/LaunchRounded";
-import { Box, Button, Divider, Grid, Paper, Typography } from "@mui/material";
+import { Box, Button, Chip, Divider, Grid, Paper, Typography } from "@mui/material";
 import Image from "next/image";
 
 import Advertisement from "@/components/Advertisement/Advertisement";
@@ -10,6 +10,7 @@ import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
 import { EventCategory } from "@/models/enums/event-category.enum";
 import { getEvents, getEventDetail } from "@/services/eventService";
 import { colors } from "@/theme/colors";
+import { EventCategoryLabel } from "@/utils/mappers/eventCategory.mapper";
 
 interface EventPageProps {
     params: Promise<{
@@ -26,6 +27,29 @@ export default async function EventPage(props: EventPageProps) {
     const Gallery =
         <>
             <Box sx={{ position: "relative", height: { xs: 300, sm: 400, md: 439, lg: 539 } }} mb={3}>
+                <Chip
+                    label={EventCategoryLabel[event.category]}
+                    color={"secondary"}
+                    sx={{
+                        position: "absolute",
+                        bottom: 0,
+                        right: 0,
+                        maxWidth: "100%",
+                        fontWeight: 400,
+                        fontSize: 22,
+                        color: 'white',
+                        borderRadius: 1,
+                        height: 45,
+                        paddingLeft: 4,
+                        paddingRight: 4,
+                        zIndex: 1,
+                        "& .MuiChip-label": {
+                            fontSize: 20,
+                            fontWeight: 400,
+                            color: colors.light.primary,
+                        },
+                    }}
+                />
                 <Image src={event.gallery[0]} alt="Evento" fill style={{ objectFit: 'cover', borderRadius: 10 }} />
             </Box>
             <Typography variant="h3" fontWeight={600} color="primary">
