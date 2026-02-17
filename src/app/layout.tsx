@@ -25,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={openSans.className} style={{ overflowX: "hidden" }}>
+    <html lang="en" className={openSans.className} style={{ overflowX: "hidden" }} >
       <body>
         <MuiProvider>
           <Providers>

@@ -22,8 +22,8 @@ const drawerWidth = 240;
 const navItems = [
     { title: 'Home', redirectUrl: "/" },
     { title: 'Boletos', redirectUrl: "/account/tickets" },
-    { title: 'Vender', redirectUrl: "" },
-    { title: 'Cuenta', redirectUrl: "" }
+    { title: 'Vender', redirectUrl: "/no-content" },
+    { title: 'Cuenta', redirectUrl: "/no-content" }
 ];
 
 export default function Header(props: Props) {
