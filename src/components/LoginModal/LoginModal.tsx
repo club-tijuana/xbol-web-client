@@ -61,16 +61,16 @@ export default function LoginModal() {
             onClose={() => dispatch(closeLoginModal())}
             slotProps={{ paper: { className: styles.modal } }}>
             <Box className={styles.content}>
-                <Box className={styles.topImage}>
+                <Box className={styles.topImage} mt={2}>
                     <Image
-                        src="/assets/login-modal.png"
+                        src="/assets/logo-dark.svg"
                         alt="Evento"
                         fill
                         className={styles.image}
                     />
                 </Box>
 
-                <Typography variant="h2" fontWeight={600} color="primary" mt={7}>
+                <Typography variant="h2" fontWeight={600} color="primary" mt={4}>
                     Inicia sesión
                 </Typography>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { ConfirmationNumberOutlined, CreditCardOutlined, ShieldOutlined } from '@mui/icons-material';
+import { ConfirmationNumberOutlined, CreditCardOutlined, Logout, ShieldOutlined } from '@mui/icons-material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { AppBar, Box, Button, CssBaseline, Divider, Drawer, Grid, IconButton, List, ListItem, ListItemButton, ListItemText, Popover, Toolbar, Typography } from "@mui/material";
 import Image from 'next/image';
@@ -8,6 +8,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useState } from "react";
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { logout } from "@/store/slices/authSlice";
 import { openLoginModal } from "@/store/slices/uiSlice";
 import { colors } from '@/theme/colors';
 
@@ -70,6 +71,16 @@ export default function Header(props: Props) {
 
         router.push(url);
         handleCloseAccount();
+    }
+
+    const handleLogout = () => {
+        if (client === null) {
+            return;
+        }
+
+        dispatch(logout());
+        handleCloseAccount();
+        handleGoHome();
     }
 
     const openAccount = Boolean(anchorEl);
@@ -224,6 +235,13 @@ export default function Header(props: Props) {
                                                         Privacidad
                                                     </Typography>
                                                 </Button>
+                                                {client !== null &&
+                                                    <Button variant="text" startIcon={<Logout color='neutral' />} onClick={handleLogout}>
+                                                        <Typography variant='body1' fontWeight={400} color='neutral'>
+                                                            Cerrar sesión
+                                                        </Typography>
+                                                    </Button>
+                                                }
                                             </Box>
                                         </Box>
                                     </Popover>
