@@ -21,11 +21,11 @@ import TicketSeats from "./components/TicketSeats/TicketSeats";
 const getMyEventDetailCached = cache(getMyEventDetail);
 
 export async function generateMetadata(
-    { params }: { params: Promise<{ id: string }> }
+    { params }: { params: Promise<{ orderId: string; eventId: string; }> }
 ): Promise<Metadata> {
-    const { id } = (await params);
+    const { orderId } = (await params);
 
-    if (!id) {
+    if (!orderId) {
         return {
             title: "Detalle de ticket | PWRTicket",
             description: "Consulta los detalles de tu evento y tus boletos.",
@@ -33,7 +33,7 @@ export async function generateMetadata(
         };
     }
 
-    const detail = await getMyEventDetailCached(Number.parseInt(id));
+    const detail = await getMyEventDetailCached(Number.parseInt(orderId));
 
     const description = detail
         ? `Tus tickets para "${detail.name}" el ${detail.date ? new Date(detail.date).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }) : ''} en ${detail.location}. Consulta tus asientos, folio y más detalles del evento.`
@@ -42,7 +42,7 @@ export async function generateMetadata(
     return buildSeoMetadata({
         title: `${detail?.name || 'Evento'} | Mis Tickets`,
         description,
-        url: `https://dev.com/mis-tickets/${id}`,
+        url: `https://dev.com/mis-tickets/${orderId}`,
         image: detail?.eventImage ?? "/og-default.jpg",
         type: "article",
     });
@@ -84,15 +84,16 @@ const TicketsSection = ({ tickets }: TicketsSectionProps) => (
 
 interface TicketPageProps {
     params: Promise<{
-        id: string
+        orderId: string;
+        eventId: string;
     }>;
 }
 
 export default async function TicketPage(props: TicketPageProps) {
-    const { id } = await props.params;
+    const { orderId, eventId } = await props.params;
 
-    const detail = await getMyEventDetailCached(Number.parseInt(id));
-    const tickets = await getMyEventTickets({ page: 1, pageSize: 10, orderId: detail?.orderId });
+    const detail = await getMyEventDetailCached(Number.parseInt(orderId));
+    const tickets = await getMyEventTickets({ page: 1, pageSize: 10, orderId: Number.parseInt(orderId), eventId: Number.parseInt(eventId) });
     const otherEvents = await getEvents({ page: 1, eventCategory: EventCategory.Concert, pageSize: 4 });
 
     const getDateFormat = (): string => {

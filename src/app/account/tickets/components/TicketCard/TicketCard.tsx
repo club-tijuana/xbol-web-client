@@ -20,7 +20,7 @@ export default function TicketCard({ ticket }: TicketCardProps) {
     }).format(date);
 
     const handleOpenTicket = () => {
-        router.push(`/account/tickets/${ticket.eventId}`);
+        router.push(`/account/tickets/order/${ticket.orderId}/event/${ticket.eventId}`);
     }
 
     return (

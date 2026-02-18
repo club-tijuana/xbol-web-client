@@ -4,5 +4,6 @@ import { BaseFilters } from "./base-filters.dto";
 
 export interface TicketsFilters extends BaseFilters {
     orderType?: OrderType,
-    orderId?: number
+    orderId?: number,
+    eventId?: number
 }
