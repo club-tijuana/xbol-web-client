@@ -1,11 +1,17 @@
 "use client";
 
 import { Box, Divider, Grid, Paper, Typography } from "@mui/material";
-import Image from "next/image";
+
+import SeatsMap from "@/components/SeatsMap/SeatsMap";
 
 import { TicketSeatsProps } from "./TicketSeats.type";
 
-export default function TicketSeats({ subTotal, totalTaxes, total, seats }: TicketSeatsProps) {
+
+export default function TicketSeats({ eventKey, subTotal, totalTaxes, total, currency, seats, selectedSeats }: TicketSeatsProps) {
+    const scale = 0.8;
+    const compensatedWidth = `${100 / scale}%`;
+    const offsetY = -70;
+
     return (
         <Paper elevation={3} className="paperCard"
         >
@@ -21,15 +27,20 @@ export default function TicketSeats({ subTotal, totalTaxes, total, seats }: Tick
                         borderStyle: 'solid',
                         borderColor: 'var(--color-text-primary)',
                         borderWidth: 1,
-                        borderRadius: '15px'
+                        borderRadius: '15px',
+                        overflow: 'hidden',
                     }}
                     >
-                        <Image
-                            src="/assets/images/my-tickets/ticket-details/location-map.png"
-                            alt="Mapa"
-                            fill
-                            style={{ objectFit: "contain" }}
-                        />
+                        <Box
+                            sx={{
+                                transform: `scale(${scale}) translateY(${offsetY}px)`,
+                                transformOrigin: "top left",
+                                width: compensatedWidth,
+                                height: "100%",
+                            }}
+                        >
+                            <SeatsMap eventKey={eventKey} selectedObjects={selectedSeats} mode="print" />
+                        </Box>
                     </Box>
                 </Grid>
                 <Grid size={8}>
@@ -58,7 +69,7 @@ export default function TicketSeats({ subTotal, totalTaxes, total, seats }: Tick
                 </Grid>
                 <Grid size={1}>
                     <Typography variant="subtitle1" fontWeight={400} color="muted" textAlign="right">
-                        {new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(subTotal)}
+                        {`${new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(subTotal)} ${currency}`}
                     </Typography>
                 </Grid>
                 <Grid size={1} offset={2}>
@@ -68,7 +79,7 @@ export default function TicketSeats({ subTotal, totalTaxes, total, seats }: Tick
                 </Grid>
                 <Grid size={1}>
                     <Typography variant="subtitle1" fontWeight={400} color="muted" textAlign="right">
-                        {new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(totalTaxes)}
+                        {`${new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(totalTaxes)} ${currency}`}
                     </Typography>
                 </Grid>
                 <Grid size={1} offset={2}>
@@ -78,7 +89,7 @@ export default function TicketSeats({ subTotal, totalTaxes, total, seats }: Tick
                 </Grid>
                 <Grid size={1}>
                     <Typography variant="subtitle1" fontWeight={400} color="muted" textAlign="right">
-                        {new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(total)}
+                        {`${new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(total)} ${currency}`}
                     </Typography>
                 </Grid>
             </Grid>

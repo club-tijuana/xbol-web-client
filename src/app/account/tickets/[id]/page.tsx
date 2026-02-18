@@ -147,6 +147,8 @@ export default async function TicketPage(props: TicketPageProps) {
                                     totalTaxes={detail?.totalTaxes}
                                     total={detail?.total}
                                     selectedSeats={detail?.selectedSeats}
+                                    eventKey={detail?.eventKey}
+                                    currency={detail.currency}
                                 />
                             }
 
