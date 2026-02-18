@@ -12,7 +12,7 @@ export function LayoutContainer({ children }: { children: React.ReactNode }) {
                 maxWidth: theme.customLayout.contentMaxWidth,
                 mx: "auto",
                 width: "100%",
-                px: { xs: 2, md: 4, lg: 4, xl: 12 },
+                px: { xs: 3, sm: 3, md: 7, lg: 7, xl: 4 },
             }}
         >
             {children}
