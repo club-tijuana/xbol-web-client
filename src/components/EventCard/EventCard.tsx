@@ -38,12 +38,14 @@ export default function EventCard({
         <Card className={styles.card}>
             <Box position={'relative'}>
                 <CardMedia
+                    onClick={(!showActions ? handleClick : () => { })}
                     component="img"
                     image={posterImageUrl}
                     alt={name}
                     sx={{
                         height: imageHeights,
-                        borderRadius: 1
+                        borderRadius: 1,
+                        cursor: showActions ? "auto" : "pointer"
                     }}
                 />
                 {
