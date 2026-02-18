@@ -1,42 +1,32 @@
 "use client";
 
 import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
-import { Box, Slide, Stack, IconButton, useTheme, useMediaQuery } from "@mui/material";
+import { Box, IconButton, Slide, Stack, Typography } from "@mui/material";
 import { useMemo, useState } from "react";
 
-import { MyEventDTO } from "@/models/my-event.dto";
+import { MyTicketDto } from "@/models/my-ticket.dto";
 
-import TicketCard from "../TicketCard/TicketCard";
+import TicketQRCard from "../TicketQRCard/TicketQRCard";
 
-// TODO: This carousel logic is duplicated in multiple places.
-// Extract this into a reusable Carousel component to avoid code repetition.
-// It should be shared and reused by other features, such as:
-// app/account/tickets/[id]/components/CarouselQRTickets.tsx
-// app/page.tsx
-
-interface CarouselTicketsProps {
-    tickets?: MyEventDTO[] | null;
+interface CarouselQRTicketsProps {
+    tickets: MyTicketDto[];
 }
 
-export default function CarouselTickets({ tickets }: CarouselTicketsProps) {
-    const theme = useTheme();
-
-    const isXs = useMediaQuery(theme.breakpoints.down("sm"));
-    const isSm = useMediaQuery(theme.breakpoints.between("sm", "md"));
-
-    const cardsPerPage = isXs ? 1 : isSm ? 2 : 3;
+export default function CarouselQRTickets({ tickets }: CarouselQRTicketsProps) {
+    const cardsPerPage = 1;
 
     const [currentPage, setCurrentPage] = useState(0);
     const [slideDirection, setSlideDirection] = useState<"left" | "right">("left");
 
     const pages = useMemo(() => {
         if (!tickets) return [];
+
         return Array.from(
             { length: Math.ceil(tickets.length / cardsPerPage) },
             (_, i) =>
                 tickets.slice(i * cardsPerPage, i * cardsPerPage + cardsPerPage)
         );
-    }, [tickets, cardsPerPage]);
+    }, [tickets]);
 
     const currentTickets = pages[currentPage] || [];
 
@@ -51,7 +41,7 @@ export default function CarouselTickets({ tickets }: CarouselTicketsProps) {
     };
 
     return (
-        <Box sx={{ display: "flex", alignItems: "center", height: 400 }}>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
             <IconButton
                 onClick={handlePrevPage}
                 disabled={currentPage === 0}
@@ -60,7 +50,7 @@ export default function CarouselTickets({ tickets }: CarouselTicketsProps) {
                 <ArrowBackIos sx={{ fontSize: 40 }} />
             </IconButton>
 
-            <Box sx={{ width: "100%", overflow: "hidden" }}>
+            <Box sx={{ overflow: "hidden" }}>
                 <Slide
                     key={currentPage}
                     direction={slideDirection}
@@ -71,14 +61,25 @@ export default function CarouselTickets({ tickets }: CarouselTicketsProps) {
                     <Stack direction="row" spacing={2} justifyContent="center">
                         {currentTickets.map((ticket) => (
                             <Box
-                                key={`${ticket._uiKey}`}
+                                key={`${ticket.id}`}
                                 sx={{ width: `${100 / cardsPerPage}%` }}
                             >
-                                <TicketCard ticket={ticket} />
+                                <TicketQRCard ticket={ticket} />
                             </Box>
                         ))}
                     </Stack>
                 </Slide>
+                <Typography
+                    variant="h6"
+                    color="secondary"
+                    sx={{
+                        textAlign: "center",
+                        mt: 1,
+                        fontWeight: 700
+                    }}
+                >
+                    {currentPage + 1} / {pages.length}
+                </Typography>
             </Box>
 
             <IconButton

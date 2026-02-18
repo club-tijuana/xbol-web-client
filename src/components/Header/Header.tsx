@@ -98,13 +98,16 @@ export default function Header(props: Props) {
             <SearchInput />
             <Divider />
             <List>
-                {navItems.map((item) => (
-                    <ListItem key={item.title} disablePadding>
-                        <ListItemButton sx={{ textAlign: 'center' }} onClick={() => handleRedirect(item.redirectUrl)}>
-                            <ListItemText primary={item.title} sx={{ color: 'white' }} />
-                        </ListItemButton>
-                    </ListItem>
-                ))}
+                {navItems.map((item) => {
+                    if (item.title === "Boletos" && !client) return null;
+                    return (
+                        <ListItem key={item.title} disablePadding>
+                            <ListItemButton sx={{ textAlign: 'center' }} onClick={() => handleRedirect(item.redirectUrl)}>
+                                <ListItemText primary={item.title} sx={{ color: 'white' }} />
+                            </ListItemButton>
+                        </ListItem>
+                    );
+                })}
             </List>
         </Box>
     );
@@ -145,13 +148,16 @@ export default function Header(props: Props) {
                                     lg: 4
                                 }
                             }}>
-                                {navItems.map((item) => (
-                                    <Button key={item.title} sx={{ color: '#F0F0F0' }} onClick={() => handleRedirect(item.redirectUrl)}>
-                                        <Typography variant='h5' fontWeight={400}>
-                                            {item.title}
-                                        </Typography>
-                                    </Button>
-                                ))}
+                                {navItems.map((item) => {
+                                    if ((item.title === "Boletos") && !client) return null;
+                                    return (
+                                        <Button key={item.title} sx={{ color: '#F0F0F0' }} onClick={() => handleRedirect(item.redirectUrl)}>
+                                            <Typography variant='h5' fontWeight={400}>
+                                                {item.title}
+                                            </Typography>
+                                        </Button>
+                                    );
+                                })}
                             </Box>
                         </Grid>
                         <Grid size={{ md: 3, lg: 3 }} sx={{ display: { xs: 'none', md: 'block' } }}>
@@ -216,7 +222,7 @@ export default function Header(props: Props) {
                                             <Typography variant='subtitle2' color='neutral'>
                                                 {client?.username}
                                             </Typography>
-                                            <Typography variant='subtitle2' fontWeight={400} color='neutral' sx={{ textTransform: 'capitalize' }}>
+                                            <Typography variant='subtitle2' fontWeight={400} color='neutral'>
                                                 {formattedDate}
                                             </Typography>
                                             <Box mt={3}>

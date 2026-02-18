@@ -1,6 +1,6 @@
 "use client";
 
-import { Circle } from "@mui/icons-material";
+import { AttachMoneyOutlined, VisibilityOutlined } from "@mui/icons-material";
 import { Box, Card, CardActions, CardContent, CardMedia, IconButton, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 
@@ -14,7 +14,9 @@ export default function TicketCard({ ticket }: TicketCardProps) {
     const date = new Date(startDate);
     const formattedDate = Intl.DateTimeFormat("es-MX", {
         month: 'long',
-        year: 'numeric'
+        year: 'numeric',
+        hour: '2-digit',
+        hour12: true
     }).format(date);
 
     const handleOpenTicket = () => {
@@ -65,10 +67,10 @@ export default function TicketCard({ ticket }: TicketCardProps) {
                             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                                 <IconButton
                                     aria-label="Ver"
-                                    color="neutral"
+                                    color="primary"
                                     onClick={handleOpenTicket}
                                 >
-                                    <Circle sx={{ fontSize: 50 }} />
+                                    <VisibilityOutlined sx={{ fontSize: 40 }} />
                                 </IconButton>
                                 <Typography variant="bodyXs" color="neutral">
                                     Ver
@@ -78,24 +80,12 @@ export default function TicketCard({ ticket }: TicketCardProps) {
                             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                                 <IconButton
                                     aria-label="Vender"
-                                    color="neutral"
+                                    color="primary"
                                 >
-                                    <Circle sx={{ fontSize: 50 }} />
+                                    <AttachMoneyOutlined sx={{ fontSize: 40 }} />
                                 </IconButton>
                                 <Typography variant="bodyXs" color="neutral">
                                     Vender
-                                </Typography>
-                            </Box>
-
-                            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                <IconButton
-                                    aria-label="Transferir"
-                                    color="neutral"
-                                >
-                                    <Circle sx={{ fontSize: 50 }} />
-                                </IconButton>
-                                <Typography variant="bodyXs" color="neutral">
-                                    Transferir
                                 </Typography>
                             </Box>
                         </CardActions>

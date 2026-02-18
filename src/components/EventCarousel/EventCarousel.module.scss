@@ -1,9 +1,12 @@
 .carouselContainer {
-  position: relative;
+  display: flex;
+  align-items: center;
+  max-height: 842px;
   width: 100%;
   aspect-ratio: 21 / 9;
   overflow: hidden;
-  max-height: 842px;
+  padding-left: 20;
+  padding-right: 20;
 }
 
 .carouselSlide {
@@ -12,7 +15,6 @@
   background-position: center;
   background-size: cover;
   transition: background-image 0.5s ease-in-out;
-  position: relative;
   cursor: pointer;
 }
 

@@ -15,6 +15,7 @@ import { colors } from "@/theme/colors";
 import { EventCategoryLabel } from "@/utils/mappers/eventCategory.mapper";
 import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
 
+
 const getEventCached = cache(getEventDetail);
 
 export async function generateMetadata(
@@ -79,7 +80,18 @@ export default async function EventPage({ params }: EventPageProps) {
                         },
                     }}
                 />
-                <Image src={event.gallery[0]} alt="Evento" fill style={{ objectFit: 'cover', borderRadius: 10 }} />
+                <Image
+                    src={event.gallery[0]}
+                    alt="Evento"
+                    fill
+                    style={{ objectFit: 'cover', borderRadius: 10 }}
+                />
+                {/* <Image
+                    src={event.gallery[0]}
+                    alt="Evento"
+                    fill
+                    className={styles.img}
+                /> */}
             </Box>
             <Typography variant="h3" fontWeight={600} color="primary">
                 Galería
@@ -140,7 +152,9 @@ export default async function EventPage({ params }: EventPageProps) {
                                                     new Date(s.date).toLocaleDateString("ex-MX", {
                                                         day: "2-digit",
                                                         month: "2-digit",
-                                                        year: "numeric"
+                                                        year: "numeric",
+                                                        hour: '2-digit',
+                                                        hour12: true
                                                     })
                                                 }
                                             </Typography>

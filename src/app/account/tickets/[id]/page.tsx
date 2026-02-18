@@ -15,7 +15,7 @@ import { getEvents } from "@/services/eventService";
 import { colors } from "@/theme/colors";
 import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
 
-import TicketQRGrid from "./components/TicketQRGrid/TicketQRGrid";
+import CarouselQRTickets from "./components/CarouselQRTickets/CarouselQRTickets";
 import TicketSeats from "./components/TicketSeats/TicketSeats";
 
 const getMyEventDetailCached = cache(getMyEventDetail);
@@ -75,10 +75,7 @@ interface TicketsSectionProps {
 const TicketsSection = ({ tickets }: TicketsSectionProps) => (
     <>
         {tickets &&
-            <TicketQRGrid
-                columns={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 3 }}
-                spacing={1.5}
-                title="Tus boletos"
+            <CarouselQRTickets
                 tickets={tickets.items}
             />
         }
@@ -154,7 +151,11 @@ export default async function TicketPage(props: TicketPageProps) {
                             }
 
                             <Box sx={{ display: { xs: "block", sm: "block", md: "block", lg: "none" } }} mt={5}>
-                                <TicketsSection tickets={tickets} />
+                                <Grid container columns={{ xs: 2, sm: 2, md: 3 }} justifyContent="center">
+                                    <Grid size={2}>
+                                        <TicketsSection tickets={tickets} />
+                                    </Grid>
+                                </Grid>
                             </Box>
 
                             <Box my={6}>
@@ -169,7 +170,11 @@ export default async function TicketPage(props: TicketPageProps) {
                         </Grid>
                         <Grid size={{ lg: 7, xl: 7 }} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "block" } }}>
                             <EventSection eventImage={detail?.eventImage} />
-                            <TicketsSection tickets={tickets} />
+                            <Grid container columns={{ lg: 3, xl: 5 }} justifyContent="center">
+                                <Grid size={3}>
+                                    <TicketsSection tickets={tickets} />
+                                </Grid>
+                            </Grid>
                         </Grid>
                     </Grid>
                 </Box>

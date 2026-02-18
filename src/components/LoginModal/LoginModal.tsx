@@ -75,7 +75,7 @@ export default function LoginModal() {
                 </Typography>
 
                 <Box className={styles.inputContainer}>
-                    <Typography variant="bodyLg" mb={2.4} color={'text'}>
+                    <Typography variant="bodyLg" mb={1} color={'text'} mt={2}>
                         Correo o número de teléfono
                     </Typography>
                     <FormControl fullWidth variant="filled">
@@ -89,7 +89,7 @@ export default function LoginModal() {
                                     fontSize: 16
                                 }
                             }}
-                            placeholder="alanaschr@gmail.com"
+                            placeholder="usuario@correo.com"
                             sx={{
                                 backgroundColor: 'white',
                                 '&:after': { borderBottom: '2px solid var(--color-text-primary)' },
@@ -99,8 +99,8 @@ export default function LoginModal() {
                     </FormControl>
                 </Box>
 
-                <Box mt={1} className={styles.inputContainer}>
-                    <Typography variant="bodyLg" mb={2.4} color={'text'}>
+                <Box mt={3} className={styles.inputContainer}>
+                    <Typography variant="bodyLg" mb={1} color={'text'}>
                         Contraseña
                     </Typography>
                     <FormControl fullWidth variant="filled">
