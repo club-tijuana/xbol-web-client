@@ -4,26 +4,60 @@ import { Box, Button, Card, CardActions, CardContent, CardMedia, Chip, Typograph
 import { useRouter } from "next/navigation";
 
 import { colors } from "@/theme/colors";
+import { ResponsiveNumber } from "@/types/responsive";
 import { EventCategoryLabel } from "@/utils/mappers/eventCategory.mapper";
 
 import styles from "./EventCard.module.scss";
 import { EventCardProps } from "./EventCard.type";
 
+type SizeVariant = EventCardProps["sizeVariant"];
+type StyleVariant = EventCardProps["styleVariant"];
+type BadgeType = "light" | "dark";
+
+interface StyleConfig {
+    titleColor: string;
+    descriptionColor: string;
+    badgeType: BadgeType;
+}
+
+const imageHeightsByVariant: Record<SizeVariant, ResponsiveNumber> = {
+    xs: { xs: 200, sm: 200, md: 180, lg: 130, xl: 140 },
+    sm: { xs: 180, sm: 210, md: 220, lg: 190, xl: 200 },
+    md: { xs: 200, sm: 200, md: 170, lg: 145, xl: 145 },
+    lg: { xs: 240, sm: 170, md: 170, lg: 210, xl: 200 },
+};
+
+const styleConfig: Record<StyleVariant, StyleConfig> = {
+    default: {
+        titleColor: colors.light.text,
+        descriptionColor: colors.light.text,
+        badgeType: "dark"
+    },
+    muted: {
+        titleColor: colors.light.muted,
+        descriptionColor: colors.light.muted,
+        badgeType: "dark"
+    },
+    dark: {
+        titleColor: colors.light.primary,
+        descriptionColor: colors.light.neutral,
+        badgeType: "light"
+    },
+};
+
 export default function EventCard({
     eventCard,
-    size,
-    titleColor,
-    titleAlign,
-    descriptionColor,
-    descriptionAlign = "left",
+    sizeVariant,
+    styleVariant,
     showBadge = false,
-    badgeType = "light",
-    showActions = true,
-    imageHeights
+    showActions = true
 }: EventCardProps) {
     const router = useRouter();
     const { posterImageUrl, name, startDate, location, category } = eventCard;
     const date = new Date(startDate);
+
+    const currentSizeConfig = imageHeightsByVariant[sizeVariant];
+    const currentStyleConfig = styleConfig[styleVariant];
 
     const handleClick = () => {
         const id = eventCard.id;
@@ -43,7 +77,7 @@ export default function EventCard({
                     image={posterImageUrl}
                     alt={name}
                     sx={{
-                        height: imageHeights,
+                        height: currentSizeConfig,
                         borderRadius: 1,
                         cursor: showActions ? "auto" : "pointer"
                     }}
@@ -52,13 +86,13 @@ export default function EventCard({
                     showBadge &&
                     <Chip
                         label={EventCategoryLabel[category]}
-                        color={badgeType === "light" ? "primary" : "secondary"}
+                        color={currentStyleConfig.badgeType === "light" ? "primary" : "secondary"}
                         sx={{
                             position: "absolute",
                             bottom: 0,
                             right: 0,
                             maxWidth: "100%",
-                            width: size === "sm" ? "100%" : "auto",
+                            width: (sizeVariant === "xs" || sizeVariant === "sm") ? "100%" : "auto",
                             fontWeight: 400,
                             fontSize: 22,
                             color: 'white',
@@ -67,9 +101,9 @@ export default function EventCard({
                             paddingLeft: 1.3,
                             paddingRight: 1.3,
                             "& .MuiChip-label": {
-                                fontSize: size === "lg" ? 22 : 20,
+                                fontSize: (sizeVariant === "lg" || sizeVariant === "md") ? 22 : 20,
                                 fontWeight: 400,
-                                color: badgeType === "light" ? colors.light.neutral : colors.light.primary,
+                                color: currentStyleConfig.badgeType === "light" ? colors.light.neutral : colors.light.primary,
                             },
                         }}
                     />
@@ -78,16 +112,17 @@ export default function EventCard({
             <CardContent>
                 <Typography variant="h3"
                     fontWeight={700}
-                    color={titleColor === undefined ? colors.light.neutral : titleColor}
+                    color={currentStyleConfig.titleColor}
                     className={`${styles.title}`}
-                    textAlign={titleAlign}
+                    textAlign={(sizeVariant === "xs" || sizeVariant === "sm") ? "center" : "left"}
                     height={70}
                     alignContent={'center'}
                 >
                     {name}
                 </Typography>
-                {size === "lg" &&
-                    <Typography variant="h4" fontWeight={400} color={descriptionColor === undefined ? colors.light.neutral : descriptionColor} textAlign={descriptionAlign}>
+                {(sizeVariant === "md" || sizeVariant === "lg") &&
+                    <Typography variant="h4" fontWeight={400} color={currentStyleConfig.descriptionColor}
+                        textAlign="left">
                         {date.toLocaleDateString("ex-MX", {
                             day: "2-digit",
                             month: "2-digit",
@@ -95,15 +130,15 @@ export default function EventCard({
                         })}
                     </Typography>
                 }
-                {size === "lg" &&
-                    <Typography variant="h4" fontWeight={400} color={descriptionColor === undefined ? colors.light.neutral : descriptionColor} textAlign={descriptionAlign}>
+                {(sizeVariant === "md" || sizeVariant === "lg") &&
+                    <Typography variant="h4" fontWeight={400} color={currentStyleConfig.descriptionColor} textAlign="left">
                         {location}
                     </Typography>
                 }
             </CardContent>
             {
                 showActions &&
-                <CardActions sx={{ paddingTop: 0, justifySelf: size === "lg" ? 'left' : 'center' }}>
+                <CardActions sx={{ paddingTop: 0, justifySelf: (sizeVariant === "lg" || sizeVariant === "md") ? 'left' : 'center' }}>
                     <Button variant="outlined" onClick={handleClick}>
                         <Typography variant="body1" px={1.3} py={1}>
                             Ver tickets

@@ -52,16 +52,8 @@ export default async function TicketsPage() {
                     </Typography>
                     <EventCardGrid
                         eventCards={otherEvents.items}
-                        columns={{
-                            xs: 2, sm: 3, md: 2, lg: 4, xl: 4
-                        }}
-                        cardImageHeights={{
-                            xs: 200, sm: 200, md: 180, lg: 130, xl: 140
-                        }}
-                        itemSize={1}
-                        spacing={2.5}
-                        size="sm"
-                        cardTitleColor="text"
+                        sizeVariant="xs"
+                        styleVariant="default"
                         showCardActions={false}
                     />
                 </Grid>

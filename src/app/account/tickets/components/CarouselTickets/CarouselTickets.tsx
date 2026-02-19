@@ -11,7 +11,7 @@ import TicketCard from "../TicketCard/TicketCard";
 // TODO: This carousel logic is duplicated in multiple places.
 // Extract this into a reusable Carousel component to avoid code repetition.
 // It should be shared and reused by other features, such as:
-// app/account/tickets/[id]/components/CarouselQRTickets.tsx
+// app/account/tickets/order/[orderId]/event/[eventId]/components/CarouselQRTickets/CarouselQRTickets.tsx
 // app/page.tsx
 
 interface CarouselTicketsProps {

@@ -86,12 +86,6 @@ export default async function EventPage({ params }: EventPageProps) {
                     fill
                     style={{ objectFit: 'cover', borderRadius: 10 }}
                 />
-                {/* <Image
-                    src={event.gallery[0]}
-                    alt="Evento"
-                    fill
-                    className={styles.img}
-                /> */}
             </Box>
             <Typography variant="h3" fontWeight={600} color="primary">
                 Galería
@@ -196,17 +190,9 @@ export default async function EventPage({ params }: EventPageProps) {
                     </Typography>
                     <EventCardGrid
                         eventCards={outstandingEvents.items}
-                        columns={{
-                            xs: 2, sm: 3, md: 2, lg: 4, xl: 4
-                        }}
-                        cardImageHeights={{
-                            xs: 200, sm: 200, md: 180, lg: 130, xl: 140
-                        }}
-                        itemSize={1}
-                        spacing={2.5}
-                        size="sm"
-                        cardTitleColor="text"
                         showCardActions={false}
+                        sizeVariant="xs"
+                        styleVariant="default"
                     />
                 </Grid>
             </Grid>
