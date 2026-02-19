@@ -8,14 +8,12 @@ import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import FAQ from "@/components/FAQ/FAQ";
 import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
 import { EventCategory } from "@/models/enums/event-category.enum";
-import { MyTicketDto } from "@/models/my-ticket.dto";
-import { PagedResponse } from "@/models/pagination/paged-response.dto";
 import { getMyEventDetail, getMyEventTickets } from "@/services/accountService";
 import { getEvents } from "@/services/eventService";
 import { colors } from "@/theme/colors";
 import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
 
-import CarouselQRTickets from "./components/CarouselQRTickets/CarouselQRTickets";
+import TicketQRTabs from "./components/TicketQRTabs/TicketQRTabs";
 import TicketSeats from "./components/TicketSeats/TicketSeats";
 
 const getMyEventDetailCached = cache(getMyEventDetail);
@@ -67,19 +65,6 @@ const EventSection = ({ eventImage }: EventSectionProps) => (
             />
         }
     </Box>
-);
-
-interface TicketsSectionProps {
-    tickets: PagedResponse<MyTicketDto> | null;
-}
-const TicketsSection = ({ tickets }: TicketsSectionProps) => (
-    <>
-        {tickets &&
-            <CarouselQRTickets
-                tickets={tickets.items}
-            />
-        }
-    </>
 );
 
 interface TicketPageProps {
@@ -154,9 +139,9 @@ export default async function TicketPage(props: TicketPageProps) {
                             }
 
                             <Box sx={{ display: { xs: "block", sm: "block", md: "block", lg: "none" } }} mt={5}>
-                                <Grid container columns={{ xs: 2, sm: 2, md: 3 }} justifyContent="center">
-                                    <Grid size={2}>
-                                        <TicketsSection tickets={tickets} />
+                                <Grid container columns={{ xs: 4, sm: 5, md: 5 }} justifyContent="center">
+                                    <Grid size={"grow"} justifyContent="center">
+                                        {tickets && <TicketQRTabs tickets={tickets.items} />}
                                     </Grid>
                                 </Grid>
                             </Box>
@@ -171,11 +156,11 @@ export default async function TicketPage(props: TicketPageProps) {
                                 <Advertisement image="/assets/images/advertisement/advertisement.png" />
                             </Box>
                         </Grid>
-                        <Grid size={{ lg: 7, xl: 7 }} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "block" } }}>
+                        <Grid size={{ lg: 7, xl: 7 }} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "block" } }} mb={3}>
                             <EventSection eventImage={detail?.eventImage} />
-                            <Grid container columns={{ lg: 3, xl: 5 }} justifyContent="center">
-                                <Grid size={3}>
-                                    <TicketsSection tickets={tickets} />
+                            <Grid container columns={5} justifyContent="center">
+                                <Grid size={5}>
+                                    {tickets && <TicketQRTabs tickets={tickets.items} />}
                                 </Grid>
                             </Grid>
                         </Grid>

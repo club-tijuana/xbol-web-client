@@ -1,13 +1,18 @@
 "use client";
 
-import { Box, Tab, Tabs } from "@mui/material";
+import { Box, Tab, Tabs, useMediaQuery } from "@mui/material";
 import { SyntheticEvent, useState } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 import { colors } from "@/theme/colors";
+import { theme } from "@/theme/theme";
 
-import CarouselTickets from "../CarouselTickets/CarouselTickets";
+import TicketCard from "../TicketCard/TicketCard";
 
 import { TicketTabsProps } from "./TicketTabs.type";
+
+import 'swiper/css';
+import 'swiper/css/pagination';
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -37,10 +42,14 @@ export default function TicketTabs({
 }: TicketTabsProps) {
     const [value, setValue] = useState(0);
     const tabs = [
-        //...(mySeasons ? ["Tus artistas favoritos"] : []),
         ...(mySeasons ? ["Season Pass"] : []),
         ...(myEvents ? ["Tus tickets"] : []),
     ];
+
+    const isXs = useMediaQuery(theme.breakpoints.down("sm"));
+    const isSm = useMediaQuery(theme.breakpoints.between("sm", "md"));
+
+    const slidesPerView = isXs ? 1 : isSm ? 2 : 3;
 
     const tabStyles = {
         border: "solid",
@@ -61,6 +70,12 @@ export default function TicketTabs({
         },
     };
 
+    const getTicketsForTab = (label: string) => {
+        if (label === "Season Pass") return mySeasons ?? [];
+        if (label === "Tus tickets") return myEvents ?? [];
+        return [];
+    };
+
     const handleChange = (event: SyntheticEvent, newValue: number) => {
         setValue(newValue);
     };
@@ -76,16 +91,18 @@ export default function TicketTabs({
             </Box>
             {tabs.map((label, index) => (
                 <CustomTabPanel key={index} value={value} index={index}>
-                    <CarouselTickets
-                        key={index}
-                        tickets={
-                            label === "Tus artistas favoritos"
-                                ? mySeasons
-                                : label === "Season Pass"
-                                    ? mySeasons
-                                    : myEvents
-                        }
-                    />
+                    <Swiper
+                        key={label}
+                        slidesPerView={slidesPerView}
+                        spaceBetween={20}
+                        pagination={{ clickable: true }}
+                    >
+                        {getTicketsForTab(label).map((ticket, index) => (
+                            <SwiperSlide key={"ticket" + ticket + index}>
+                                <TicketCard ticket={ticket} />
+                            </SwiperSlide>
+                        ))}
+                    </Swiper>
                 </CustomTabPanel>
             ))}
         </Box>

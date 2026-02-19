@@ -1,6 +1,6 @@
-import { Box, Button, Grid, Typography } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 
-import TicketQRCard from "../TicketQRCard/TicketQRCard";
+import TicketQRGridItem from "../TicketQRGridItem/TicketQRGridItem";
 
 import { TicketQRGridProps } from "./TicketQRGrid.type";
 
@@ -22,20 +22,10 @@ export default function TicketQRGrid({
                 spacing={spacing}>
                 {tickets.map((ticket) => (
                     <Grid key={ticket.id} size={1}>
-                        <TicketQRCard ticket={ticket} />
+                        <TicketQRGridItem ticket={ticket} />
                     </Grid>
                 ))}
             </Grid>
-            <Button variant="contained" sx={{ py: 1.3, px: 4, mr: 3 }}>
-                <Typography variant="body2" color="neutral">
-                    Agregar a wallet
-                </Typography>
-            </Button>
-            <Button variant="outlined" sx={{ py: 1.3, px: 4 }}>
-                <Typography variant="body2" color="primary">
-                    Ver todos
-                </Typography>
-            </Button>
         </Box>
     );
 }

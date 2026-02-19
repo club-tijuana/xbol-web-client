@@ -1,38 +1,27 @@
 "use client";
 
 import { Box, Card, CardActions, CardContent, CardMedia, LinearProgress, Typography } from "@mui/material";
+import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
 
-import styles from "./TicketQRCard.module.scss";
-import { TicketQRCardProps } from "./TicketQRCard.type";
+import { useQrTimer } from "@/hooks/useQrTimer";
 
-export default function TicketQRCard({ ticket }: TicketQRCardProps) {
-    const TOTAL_TIME = 30000;
-    const INTERVAL = 100;
+import styles from "./CarouselSlideQRTicket.module.scss";
+import { CarouselSlideQRTicketProps } from "./CarouselSlideQRTicket.type";
 
-    const [progress, setProgress] = useState(0);
-    const [seconds, setSeconds] = useState(TOTAL_TIME / 1000);
+export default function CarouselSlideQRTicket({ ticket, isActive }: CarouselSlideQRTicketProps) {
+    const [payload, setPayload] = useState("");
+    const { secondsRemaining, progressPercent } = useQrTimer({
+        isActive: isActive,
+        ticketId: ticket.id.toString(),
+        secretBase32: "7SWHXYWHGSWC7MZXN6AUJGYMINZNWKJG",
+        stepSeconds: 30,
+        onGenerate: setPayload
+    });
 
     useEffect(() => {
-        let startTime = Date.now();
-
-        const timer = setInterval(() => {
-            const elapsed = Date.now() - startTime;
-            const remaining = Math.max(TOTAL_TIME - elapsed, 0);
-
-            const percent = 100 - (remaining / TOTAL_TIME) * 100;
-            setProgress(percent);
-            setSeconds(Math.ceil(remaining / 1000));
-
-            if (remaining <= 0) {
-                startTime = Date.now();
-                setProgress(0);
-                setSeconds(TOTAL_TIME / 1000);
-            }
-        }, INTERVAL);
-
-        return () => clearInterval(timer);
-    }, []);
+        if (!isActive) setPayload("");
+    }, [isActive]);
 
     const formattedDate = Intl.DateTimeFormat("es-MX", {
         month: 'long',
@@ -42,8 +31,8 @@ export default function TicketQRCard({ ticket }: TicketQRCardProps) {
     }).format(new Date(ticket.startDate));
 
     return (
-        <Card variant="outlined" className={styles.card}>
-            <Box position="relative">
+        <Card variant="elevation" className={styles.card}>
+            <Box position="relative" sx={{ backgroundColor: 'white', display: 'grid' }}>
                 <Box>
                     <CardContent className={styles.cardContent}>
                         <CardMedia
@@ -80,23 +69,21 @@ export default function TicketQRCard({ ticket }: TicketQRCardProps) {
                         <Box className={styles.overlay} />
                     </CardContent>
                 </Box>
-                <Box sx={{ backgroundColor: "white" }}>
-                    <CardMedia
-                        component="img"
-                        image={ticket.qr}
-                        alt="QR"
-                        sx={{ px: 8 }}
-                    />
+                <Box sx={{ backgroundColor: "white", justifySelf: "center" }} mt={3} mb={2}>
+                    <QRCodeSVG value={payload} size={260} level="L" />
                     <CardActions sx={{ justifyContent: "center" }}>
-                        <Box sx={{ display: "flex", flexDirection: "column", width: '100%', textAlign: 'center' }} mb={2}>
+                        <Box sx={{ width: '100%', textAlign: 'center' }}>
                             <Typography variant="inherit" mb={1}>
-                                {seconds}s
+                                {secondsRemaining}s
                             </Typography>
-                            <LinearProgress variant="determinate" value={progress} sx={{ width: '100%' }} />
+                            <LinearProgress
+                                variant="determinate"
+                                value={progressPercent}
+                            />
                         </Box>
                     </CardActions>
                 </Box>
             </Box>
-        </Card>
+        </Card >
     );
 }

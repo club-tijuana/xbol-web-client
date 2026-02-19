@@ -1,8 +1,6 @@
 .card {
-    border: none;
-    cursor: pointer;
     border-radius: 10px !important;
-    max-width: 368px;
+    margin-bottom: 3;
 }
 
 .cardContent {
@@ -29,9 +27,4 @@
     justify-self: center;
     align-self: flex-end;
     bottom: 30;
-}
-
-.qrContainer {
-    height: 100%;
-    width: 100%;
 }

@@ -74,3 +74,39 @@ body {
 nav {
     position: relative !important;
 }
+
+.ticketSwiper {
+    max-width: 368px !important;
+    flex-shrink: 0 !important;
+
+    @media (max-width: 540px) {
+        max-width: 300px !important;
+    }
+
+    @media (max-width: 450px) {
+        max-width: 260px !important;
+    }
+}
+
+.ticketSwiper .swiper-button-next,
+.ticketSwiper .swiper-button-prev {
+    color: #000;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.ticketSwiper .swiper-button-prev {
+    left: -100px !important;
+
+    @media (max-width: 590px) {
+        left: -70px !important;
+    }
+}
+
+.ticketSwiper .swiper-button-next {
+    right: -100px !important;
+
+    @media (max-width: 590px) {
+        right: -70px !important;
+    }
+}
