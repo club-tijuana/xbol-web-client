@@ -88,6 +88,27 @@ nav {
     }
 }
 
+.mainSwiper .swiper-button-next,
+.mainSwiper .swiper-button-prev {
+    color: var(--color-text-primary);
+}
+
+.mainSwiper .swiper-button-next {
+    right: 20px !important;
+}
+
+.mainSwiper .swiper-button-prev {
+    left: 20px !important;
+}
+
+.mainSwiper .swiper-pagination-bullet-active {
+    background-color: var(--color-text-primary) !important;
+}
+
+.mainSwiper .swiper-pagination-bullet {
+    background-color: var(--color-text-secondary);
+}
+
 .ticketSwiper .swiper-button-next,
 .ticketSwiper .swiper-button-prev {
     color: #000;
