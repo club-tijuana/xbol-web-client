@@ -8,4 +8,5 @@ export interface EventItemDTO {
     startDate: Date;
     location: string;
     category: EventCategory;
+    eventKey?: string;
 }

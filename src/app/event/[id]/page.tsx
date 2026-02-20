@@ -159,7 +159,7 @@ export default async function EventPage({ params }: EventPageProps) {
                                             </Typography>
                                         </Grid>
                                         <Grid size={2} textAlign={'right'} alignContent={'center'}>
-                                            <Button variant="outlined">
+                                            <Button variant="outlined" href={`/booking/${s.id}`}>
                                                 <Typography variant="body1" py={0.3}>
                                                     Ver tickets
                                                 </Typography>

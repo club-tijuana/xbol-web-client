@@ -22,5 +22,6 @@ export async function requestAxios<TPayload, TResult>(
     };
 
     const response = await axios.request<TResult>(config);
+
     return response.data;
 }
