@@ -1,33 +1,5 @@
-@use "./variables" as vars;
-
-h1 { font-size: vars.$xxxl; }
-h2 { font-size: vars.$xxl; }
-h3 { font-size: vars.$xl2; }
-h4 { font-size: vars.$xl; }
-h5 { font-size: vars.$lg2; }
-h6 { font-size: vars.$lg; }
-p  { font-size: vars.$md; }
-label { font-size: vars.$sm2; }
-small { font-size: vars.$xs; }
-
 body {
     margin: 0;
-}
-
-.textBold {
-    font-weight: 600!important;
-}
-
-.textPrimary {
-    color: vars.$textPrimary;
-}
-
-.textMuted {
-    color: vars.$textMuted;
-}
-
-.textWhite {
-    color: white!important;
 }
 
 .input {
@@ -50,7 +22,7 @@ body {
 
 .btn {
     border: none;
-    border-radius: 6px;
+    border-radius: 6px !important;
     padding-top: 12px;
     padding-bottom: 12px;
     padding-left: 35px;
@@ -67,11 +39,38 @@ body {
 }
 
 .btnPrimary {
-    background-color: vars.$textPrimary;
-    color: white;
+    background-color: var(--color-text-primary) !important;
+    color: white !important;
+    text-transform: none !important;
 }
 
 .btnPrimaryDark {
-    background-color: vars.$textPrimaryDark;
-    color: white;
+    background-color: var(--color-text-primary) !important;
+    color: white !important;
+    text-transform: none !important;
+}
+
+.btnPrimaryOutlined {
+    border-color: var(--color-text-primary) !important;
+    color: var(--color-text-primary) !important;
+    text-transform: none !important;
+}
+
+.paperCard {
+    padding-top: 27px;
+    padding-bottom: 27px;
+    padding-left: 44px;
+    padding-right: 44px;
+    border-radius: 29px !important;
+
+    @media (max-width: 599px) {
+        padding-left: 30px;
+        padding-right: 30px;
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+}
+
+nav {
+    position: relative !important;
 }

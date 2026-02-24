@@ -11,13 +11,16 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
     "@reduxjs/toolkit": "^2.11.2",
     "@seatsio/seatsio-react": "^15.21.0",
-    "next": "16.0.10",
+    "axios": "^1.13.5",
+    "next": "^16.1.6",
     "react": "19.2.1",
     "react-dom": "19.2.1",
     "react-redux": "^9.2.0",
+    "redux-persist": "^6.0.0",
     "sass": "^1.97.3"
   },
   "devDependencies": {
@@ -25,8 +28,10 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
-    "eslint": "^9",
+    "eslint": "^9.39.2",
     "eslint-config-next": "16.0.10",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
     "typescript": "^5"
   }
 }

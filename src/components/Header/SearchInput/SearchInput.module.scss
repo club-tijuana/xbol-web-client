@@ -1,0 +1,32 @@
+.inputContainer {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.search {
+    width: 100%;
+    background-color: black;
+    color: #999;
+    padding: 4px 8px 4px 45px;
+    border: none;
+    outline: none;
+    height: 42px;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+.search:focus {
+    border-bottom: solid var(--color-text-primary) 2px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 20;
+    top: 25%;
+    transform: translate(-50%);
+    pointer-events: none;
+    color: var(--color-text-primary);
+}

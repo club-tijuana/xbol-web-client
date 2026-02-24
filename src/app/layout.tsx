@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
-import Providers from "@/store/Providers";
 import "../styles/globals.scss";
-import LoginModal from "@/components/LoginModal/LoginModal";
-import Header from "@/components/Header/Header";
-import { Inter } from "next/font/google";
-import { Box } from "@mui/material";
-import EventCrousel from "@/components/EventCarousel/EventCarousel";
-import Footer from "@/components/Footer/Footer";
+import "@/styles/_variables.scss";
+import { Open_Sans } from "next/font/google";
 
-const inter = Inter({
+import Footer from "@/components/Footer/Footer";
+import HeaderWrapper from "@/components/Header/HeaderWrapper";
+import { LayoutContainer } from "@/components/LayoutContainer/LayoutContainer";
+import LoginModal from "@/components/LoginModal/LoginModal";
+import Providers from "@/store/Providers";
+import MuiProvider from "@/theme/MuiProvider";
+const openSans = Open_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "600"]
+  weight: ["400", "500", "600", "700"]
 });
 
 export const metadata: Metadata = {
@@ -24,25 +25,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.className} style={{ overflowX: "hidden" }}>
+    <html lang="en" className={openSans.className} style={{ overflowX: "hidden" }} >
       <body>
-        <Providers>
-          <Header />
-          
-          <Box
-            component="main"
-            sx={{
-              maxWidth: "1800px",
-              mx: "auto",
-              px: { xs: 2, md: 4 },
-            }}
-          >
-            {children}
-          </Box>
+        <MuiProvider>
+          <Providers>
+            <HeaderWrapper />
 
-          <Footer />
-          <LoginModal />
-        </Providers>
+            <LayoutContainer>
+              {children}
+            </LayoutContainer>
+
+            <Footer />
+            <LoginModal />
+          </Providers>
+        </MuiProvider>
       </body>
     </html>
   );
