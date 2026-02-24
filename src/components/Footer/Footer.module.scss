@@ -1,30 +1,62 @@
-@use "../../styles/variables" as vars;
-
 .footer {
-    background-color: vars.$bgFooter;
+    background-color: var(--color-bg-footer);
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-top: 40px;
+    padding-bottom: 40px;
+
+    @media (max-width: 599px) {
+        padding-bottom: 60px;
+    }
 }
 
 .logoContainer {
-    position: relative;
+    display: flex;
+    justify-content: flex-end;
     width: 110px;
     height: 48px;
-    justify-self: right;
-}
 
-.logo {
-    object-fit: contain;
+    @media (max-width: 900px) {
+        width: auto;
+        justify-content: center;
+    }
 }
 
 .iconContainer {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
+
+    img {
+        cursor: pointer;
+    }
+
+    img:not(:last-child) {
+        margin-right: 70px;
+    }
+
+    @media (max-width: 899px) {
+        margin-top: 30px;
+    }
 }
 
-.iconContainer > img {
-    cursor: pointer;
+.downloadContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+
+    img {
+        cursor: pointer;
+    }
+
+    img:nth-child(1) {
+        margin-right: 25px;
+    }
 }
 
-.linkButton {
-    font-size: 12px!important;
+.stackContainer {
+    @media (max-width: 599px) {
+        margin-top: 30px;
+    }
 }

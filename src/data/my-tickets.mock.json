@@ -1,0 +1,57 @@
+[
+    {
+        "id": 1,
+        "image": "/assets/images/my-tickets/bad-bunny.png",
+        "ticketCode": "TICKET1",
+        "title": "Bad Bunny",
+        "dateStr": "28/10/2026",
+        "location": "Estadio Caliente",
+        "type": 1
+    },
+    {
+        "id": 2,
+        "image": "/assets/images/my-tickets/rosalia.png",
+        "ticketCode": "TICKET2",
+        "title": "Rosalía",
+        "dateStr": "19/06/2026",
+        "location": "Estadio Caliente",
+        "type": 1
+    },
+
+    {
+        "id": 3,
+        "image": "/assets/images/my-tickets/rosalia.png",
+        "ticketCode": "SEASON1",
+        "title": "Orden 3192-SJU",
+        "dateStr": "28/10/2026",
+        "location": "Estadio Caliente",
+        "type": 2
+    },
+    {
+        "id": 4,
+        "image": "/assets/images/my-tickets/rosalia.png",
+        "ticketCode": "SEASON2",
+        "title": "Orden 1372-STY",
+        "dateStr": "28/10/2026",
+        "location": "Estadio Caliente",
+        "type": 2
+    },
+    {
+        "id": 5,
+        "image": "/assets/images/my-tickets/rosalia.png",
+        "ticketCode": "SEASON3",
+        "title": "Orden 5920-TSJ",
+        "dateStr": "28/10/2026",
+        "location": "Estadio Caliente",
+        "type": 2
+    },
+    {
+        "id": 6,
+        "image": "/assets/images/my-tickets/rosalia.png",
+        "ticketCode": "SEASON4",
+        "title": "Orden 3017-LEM",
+        "dateStr": "28/10/2026",
+        "location": "Estadio Caliente",
+        "type": 2
+    }
+]

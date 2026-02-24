@@ -1,16 +1,27 @@
-import events from "@/data/events.mock.json";
-import { EventCardDto } from "@/models/event-card.dto";
+import { requestAxios } from "@/helpers/axiosHelper";
+import { EventDetailDTO } from "@/models/event-detail.dto";
+import { EventItemDTO } from "@/models/event-item.dto";
+import { EventsFilters } from "@/models/filters/events-filters.dto";
+import { PagedResponse } from "@/models/pagination/paged-response.dto";
 
-export function getOutstandingEvents(): EventCardDto[] {
-    return events.slice(0, 6);
+export async function getMainEvents(): Promise<PagedResponse<EventItemDTO>> {
+    return requestAxios<null, PagedResponse<EventItemDTO>>(
+        "GET",
+        "events"
+    );
 }
 
-export function getEventsByCategory(category: number, limit: number): EventCardDto[] {
-    const filtered = events.filter(e => e.category === category);
+export async function getEvents(filters: EventsFilters): Promise<PagedResponse<EventItemDTO>> {
+    return requestAxios<EventsFilters, PagedResponse<EventItemDTO>>(
+        "POST",
+        "events",
+        filters
+    );
+}
 
-    if (category === 1) {
-        return filtered.slice(6, 6 + limit);
-    }
-
-    return filtered.slice(0, limit);
+export async function getEventDetail(id: number): Promise<EventDetailDTO> {
+    return requestAxios<null, EventDetailDTO>(
+        "GET",
+        `events\\${id}`,
+    );
 }

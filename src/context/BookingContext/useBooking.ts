@@ -1,6 +1,7 @@
 "use client";
 
 import { useContext } from "react";
+
 import { BookingContext } from "./BookingContext";
 
 export function useBooking() {

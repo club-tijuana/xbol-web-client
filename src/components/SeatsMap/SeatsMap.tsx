@@ -1,9 +1,22 @@
 "use client";
 
-import { SeatsioSeatingChart, SelectableObject } from "@seatsio/seatsio-react";
+import { SeatingChart, SeatsioSeatingChart, SelectableObject } from "@seatsio/seatsio-react";
+import { useEffect, useRef } from "react";
+
 import { SeatsMapProps } from "./SeatsMap.type";
 
-export default function SeatsMap({ eventKey, pricing, onSelected, onDeselected }: SeatsMapProps) {
+
+export default function SeatsMap({ eventKey, pricing, selectedObjects, mode = "normal", onSelected, onDeselected }: SeatsMapProps) {
+    const chartRef = useRef<SeatingChart | null>(null);
+
+    useEffect(() => {
+        if (!chartRef.current || !selectedObjects) {
+            return;
+        }
+
+        chartRef.current?.zoomToObjects([...selectedObjects]);
+    }, [selectedObjects]);
+
     const handleSelected = (obj: SelectableObject) => {
         onSelected?.(obj);
     };
@@ -13,7 +26,7 @@ export default function SeatsMap({ eventKey, pricing, onSelected, onDeselected }
     };
 
     return (
-        <div style={{ height: '500px' }}>
+        <div>
             <SeatsioSeatingChart
                 workspaceKey={process.env.NEXT_PUBLIC_SEATS_WORKSPACE_KEY}
                 event={eventKey}
@@ -22,6 +35,16 @@ export default function SeatsMap({ eventKey, pricing, onSelected, onDeselected }
                 onObjectDeselected={handleDeselected}
                 pricing={pricing}
                 priceFormatter={(price) => '$' + price}
+                selectedObjects={selectedObjects}
+                mode={mode}
+                onChartRendered={(chart) => {
+                    chartRef.current = chart;
+
+                    if (selectedObjects) {
+                        chart.zoomToObjects(selectedObjects);
+                    }
+                }}
+                showMinimap={mode !== "print"}
             />
         </div>
     );
