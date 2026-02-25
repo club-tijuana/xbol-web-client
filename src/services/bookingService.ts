@@ -18,8 +18,8 @@ export async function getEventItemBySchedule(scheduleId: number): Promise<EventI
     );
 }
 
-export async function getSeatsAvailability(filters: ReservationFilters): Promise<SectionDTO> {
-    return requestAxios<ReservationFilters, SectionDTO>(
+export async function getSeatsAvailability(filters: ReservationFilters): Promise<SectionDTO[]> {
+    return requestAxios<ReservationFilters, SectionDTO[]>(
         "POST",
         "bookings/seats-availability",
         filters

@@ -10,6 +10,11 @@ import { EventCategoryLabel } from "@/utils/mappers/eventCategory.mapper";
 import styles from "./EventCard.module.scss";
 import { EventCardProps } from "./EventCard.type";
 
+/* -------------------- CONSTANTS -------------------- */
+const SMALL_VARIANTS: EventCardProps["sizeVariant"][] = ["xs", "sm"];
+const LARGE_VARIANTS: EventCardProps["sizeVariant"][] = ["md", "lg"];
+
+/* -------------------- CONFIGS -------------------- */
 type SizeVariant = EventCardProps["sizeVariant"];
 type StyleVariant = EventCardProps["styleVariant"];
 type BadgeType = "light" | "dark";
@@ -45,6 +50,7 @@ const styleConfig: Record<StyleVariant, StyleConfig> = {
     },
 };
 
+/* -------------------- COMPONENT -------------------- */
 export default function EventCard({
     eventCard,
     sizeVariant,
@@ -59,11 +65,12 @@ export default function EventCard({
     const currentSizeConfig = imageHeightsByVariant[sizeVariant];
     const currentStyleConfig = styleConfig[styleVariant];
 
+    const isSmall = SMALL_VARIANTS.includes(sizeVariant);
+    const isLarge = LARGE_VARIANTS.includes(sizeVariant);
+
     const handleClick = () => {
         const id = eventCard.id;
-        if (!id) {
-            return;
-        }
+        if (!id) return;
 
         router.push(`/event/${id}`)
     }
@@ -92,7 +99,7 @@ export default function EventCard({
                             bottom: 0,
                             right: 0,
                             maxWidth: "100%",
-                            width: (sizeVariant === "xs" || sizeVariant === "sm") ? "100%" : "auto",
+                            width: isSmall ? "100%" : "auto",
                             fontWeight: 400,
                             fontSize: 22,
                             color: 'white',
@@ -101,7 +108,7 @@ export default function EventCard({
                             paddingLeft: 1.3,
                             paddingRight: 1.3,
                             "& .MuiChip-label": {
-                                fontSize: (sizeVariant === "lg" || sizeVariant === "md") ? 22 : 20,
+                                fontSize: isLarge ? 22 : 20,
                                 fontWeight: 400,
                                 color: currentStyleConfig.badgeType === "light" ? colors.light.neutral : colors.light.primary,
                             },
@@ -114,13 +121,13 @@ export default function EventCard({
                     fontWeight={700}
                     color={currentStyleConfig.titleColor}
                     className={`${styles.title}`}
-                    textAlign={(sizeVariant === "xs" || sizeVariant === "sm") ? "center" : "left"}
+                    textAlign={isSmall ? "center" : "left"}
                     height={70}
                     alignContent={'center'}
                 >
                     {name}
                 </Typography>
-                {(sizeVariant === "md" || sizeVariant === "lg") &&
+                {isLarge &&
                     <Typography variant="h4" fontWeight={400} color={currentStyleConfig.descriptionColor}
                         textAlign="left">
                         {date.toLocaleDateString("ex-MX", {
@@ -130,7 +137,7 @@ export default function EventCard({
                         })}
                     </Typography>
                 }
-                {(sizeVariant === "md" || sizeVariant === "lg") &&
+                {isLarge &&
                     <Typography variant="h4" fontWeight={400} color={currentStyleConfig.descriptionColor} textAlign="left">
                         {location}
                     </Typography>
@@ -138,7 +145,7 @@ export default function EventCard({
             </CardContent>
             {
                 showActions &&
-                <CardActions sx={{ paddingTop: 0, justifySelf: (sizeVariant === "lg" || sizeVariant === "md") ? 'left' : 'center' }}>
+                <CardActions sx={{ paddingTop: 0, justifySelf: isLarge ? 'left' : 'center' }}>
                     <Button variant="outlined" onClick={handleClick}>
                         <Typography variant="body1" px={1.3} py={1}>
                             Ver tickets

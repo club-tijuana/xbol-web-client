@@ -3,21 +3,30 @@
 import { Box, Divider, Grid, Paper, Typography } from "@mui/material";
 
 import SeatsMap from "@/components/SeatsMap/SeatsMap";
+import { formatCurrency } from "@/helpers/formatCurrencyHelper";
 
 import { TicketSeatsProps } from "./TicketSeats.type";
 
+/* -------------------- CONSTANTS -------------------- */
+const SCALE = 0.8;
+const COMPENSATED_WIDTH = `${100 / SCALE}%`;
+const OFFSET_Y = -70;
 
-export default function TicketSeats({ eventKey, subTotal, totalTaxes, total, currency, seats, selectedSeats }: TicketSeatsProps) {
-    const scale = 0.8;
-    const compensatedWidth = `${100 / scale}%`;
-    const offsetY = -70;
-
+/* -------------------- COMPONENT -------------------- */
+export default function TicketSeats({ eventKey, subTotal, totalTaxes, total, currency, seats, selectedSeats, folio }: TicketSeatsProps) {
     return (
         <Paper elevation={3} className="paperCard"
         >
-            <Typography variant="h3" color="primary">
-                Tus asientos
-            </Typography>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Typography variant="h3" color="primary">
+                    Tus asientos
+                </Typography>
+                {folio &&
+                    <Typography variant="subtitle1" color="primary">
+                        Folio {folio}
+                    </Typography>
+                }
+            </Box>
             <Grid container columns={12} mt={2}>
                 <Grid size={4}>
                     <Box sx={{
@@ -33,9 +42,9 @@ export default function TicketSeats({ eventKey, subTotal, totalTaxes, total, cur
                     >
                         <Box
                             sx={{
-                                transform: `scale(${scale}) translateY(${offsetY}px)`,
+                                transform: `scale(${SCALE}) translateY(${OFFSET_Y}px)`,
                                 transformOrigin: "top left",
-                                width: compensatedWidth,
+                                width: COMPENSATED_WIDTH,
                                 height: "100%",
                             }}
                         >
@@ -59,52 +68,68 @@ export default function TicketSeats({ eventKey, subTotal, totalTaxes, total, cur
                 </Grid>
             </Grid>
 
-            <Divider sx={{ my: 4, borderWidth: 1, borderColor: 'var(--color-text-primary)' }} />
+            {subTotal !== undefined &&
+                <Divider sx={{ my: 4, borderWidth: 1, borderColor: 'var(--color-text-primary)' }} />
+            }
 
-            <Grid container columns={4}>
-                <Grid size={1} offset={2}>
-                    <Typography variant="subtitle1" fontWeight={400} color="primary" textAlign="right">
-                        Subtotal
-                    </Typography>
+            {subTotal !== undefined &&
+                <Grid container columns={4}>
+                    <Grid size={1} offset={2}>
+                        <Typography variant="subtitle1" fontWeight={400} color="primary" textAlign="right">
+                            Subtotal
+                        </Typography>
+                    </Grid>
+                    <Grid size={1}>
+                        <Typography variant="subtitle1" fontWeight={400} color="muted" textAlign="right">
+                            {formatCurrency(subTotal, currency)}
+                        </Typography>
+                    </Grid>
                 </Grid>
-                <Grid size={1}>
-                    <Typography variant="subtitle1" fontWeight={400} color="muted" textAlign="right">
-                        {`${new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(subTotal)} ${currency}`}
-                    </Typography>
+            }
+            {totalTaxes !== undefined &&
+                <Grid container columns={4}>
+                    <Grid size={1} offset={2}>
+                        <Typography variant="subtitle1" fontWeight={400} color="primary" textAlign="right">
+                            Impuestos
+                        </Typography>
+                    </Grid>
+                    <Grid size={1}>
+                        <Typography variant="subtitle1" fontWeight={400} color="muted" textAlign="right">
+                            {formatCurrency(totalTaxes, currency)}
+                        </Typography>
+                    </Grid>
                 </Grid>
-                <Grid size={1} offset={2}>
-                    <Typography variant="subtitle1" fontWeight={400} color="primary" textAlign="right">
-                        Impuestos
-                    </Typography>
+            }
+            {total !== undefined &&
+                <Grid container columns={4}>
+                    <Grid size={1} offset={2}>
+                        <Typography variant="subtitle1" fontWeight={400} color="primary" textAlign="right">
+                            Total
+                        </Typography>
+                    </Grid>
+                    <Grid size={1}>
+                        <Typography variant="subtitle1" fontWeight={400} color="muted" textAlign="right">
+                            {formatCurrency(total, currency)}
+                        </Typography>
+                    </Grid>
                 </Grid>
-                <Grid size={1}>
-                    <Typography variant="subtitle1" fontWeight={400} color="muted" textAlign="right">
-                        {`${new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(totalTaxes)} ${currency}`}
-                    </Typography>
-                </Grid>
-                <Grid size={1} offset={2}>
-                    <Typography variant="subtitle1" fontWeight={400} color="primary" textAlign="right">
-                        Total
-                    </Typography>
-                </Grid>
-                <Grid size={1}>
-                    <Typography variant="subtitle1" fontWeight={400} color="muted" textAlign="right">
-                        {`${new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(total)} ${currency}`}
-                    </Typography>
-                </Grid>
-            </Grid>
+            }
 
-            <Divider sx={{ my: 4, borderWidth: 1, borderColor: 'var(--color-text-primary)' }} />
+            {subTotal !== undefined &&
+                <>
+                    <Divider sx={{ my: 4, borderWidth: 1, borderColor: 'var(--color-text-primary)' }} />
 
-            <Typography variant="h4" fontWeight={400} color="muted" mb={1}>
-                Acceso a tus boletos
-            </Typography>
-            <Typography variant="h6" fontWeight={400} color="text" mb={2}>
-                Tus boletos electrónicos han sido enviados a tu correo electrónico registrado.
-            </Typography>
-            <Typography variant="h6" fontWeight={400} color="text">
-                También puedes descargarlos desde tu cuenta en la sección “Mis Tickets”
-            </Typography>
+                    <Typography variant="h4" fontWeight={400} color="muted" mb={1}>
+                        Acceso a tus boletos
+                    </Typography>
+                    <Typography variant="h6" fontWeight={400} color="text" mb={2}>
+                        Tus boletos electrónicos han sido enviados a tu correo electrónico registrado.
+                    </Typography>
+                    <Typography variant="h6" fontWeight={400} color="text">
+                        También puedes descargarlos desde tu cuenta en la sección “Mis Tickets”
+                    </Typography>
+                </>
+            }
         </Paper>
     );
 }

@@ -14,12 +14,38 @@ import { TicketTabsProps } from "./TicketTabs.type";
 import 'swiper/css';
 import 'swiper/css/pagination';
 
+/* -------------------- CONSTANTS -------------------- */
+const SLIDES_PER_VIEW = {
+    mobile: 1,
+    tablet: 2,
+    desktop: 3,
+};
+
+const TAB_KEYS = {
+    SEASON_PASS: "SEASON_PASS",
+    EVENTS: "EVENTS",
+} as const;
+
+const BREAKPOINTS = {
+    MOBILE: "sm",
+    TABLET: "md",
+} as const;
+
+type TabKey = typeof TAB_KEYS[keyof typeof TAB_KEYS];
+
+const TAB_LABELS: Record<TabKey, string> = {
+    [TAB_KEYS.SEASON_PASS]: "Season Pass",
+    [TAB_KEYS.EVENTS]: "Tus tickets",
+};
+
+/* -------------------- TYPES -------------------- */
 interface TabPanelProps {
     children?: React.ReactNode;
     index: number;
     value: number;
 }
 
+/* -------------------- COMPONENTS -------------------- */
 function CustomTabPanel(props: TabPanelProps) {
     const { children, value, index, ...other } = props;
 
@@ -41,15 +67,21 @@ export default function TicketTabs({
     mySeasons
 }: TicketTabsProps) {
     const [value, setValue] = useState(0);
-    const tabs = [
-        ...(mySeasons ? ["Season Pass"] : []),
-        ...(myEvents ? ["Tus tickets"] : []),
+    const tabs: TabKey[] = [
+        ...(mySeasons ? [TAB_KEYS.SEASON_PASS] : []),
+        ...(myEvents ? [TAB_KEYS.EVENTS] : []),
     ];
 
-    const isXs = useMediaQuery(theme.breakpoints.down("sm"));
-    const isSm = useMediaQuery(theme.breakpoints.between("sm", "md"));
+    const isMobile = useMediaQuery(theme.breakpoints.down(BREAKPOINTS.MOBILE));
+    const isTablet = useMediaQuery(
+        theme.breakpoints.between(BREAKPOINTS.MOBILE, BREAKPOINTS.TABLET)
+    );
 
-    const slidesPerView = isXs ? 1 : isSm ? 2 : 3;
+    const slidesPerView = isMobile
+        ? SLIDES_PER_VIEW.mobile
+        : isTablet
+            ? SLIDES_PER_VIEW.tablet
+            : SLIDES_PER_VIEW.desktop;
 
     const tabStyles = {
         border: "solid",
@@ -70,10 +102,15 @@ export default function TicketTabs({
         },
     };
 
-    const getTicketsForTab = (label: string) => {
-        if (label === "Season Pass") return mySeasons ?? [];
-        if (label === "Tus tickets") return myEvents ?? [];
-        return [];
+    const getTicketsForTab = (tabKey: TabKey) => {
+        switch (tabKey) {
+            case TAB_KEYS.SEASON_PASS:
+                return mySeasons ?? [];
+            case TAB_KEYS.EVENTS:
+                return myEvents ?? [];
+            default:
+                return [];
+        }
     };
 
     const handleChange = (event: SyntheticEvent, newValue: number) => {
@@ -84,21 +121,24 @@ export default function TicketTabs({
         <Box sx={{ width: '100%' }}>
             <Box sx={{ typography: 'body1' }}>
                 <Tabs value={value} onChange={handleChange}>
-                    {tabs.map((label, index) => (
-                        <Tab key={index} label={label} sx={tabStyles} />
+                    {tabs.map(tabKey => (
+                        <Tab
+                            key={tabKey}
+                            label={TAB_LABELS[tabKey]}
+                            sx={tabStyles}
+                        />
                     ))}
                 </Tabs>
             </Box>
-            {tabs.map((label, index) => (
-                <CustomTabPanel key={index} value={value} index={index}>
+            {tabs.map((tabKey, index) => (
+                <CustomTabPanel key={tabKey} value={value} index={index}>
                     <Swiper
-                        key={label}
                         slidesPerView={slidesPerView}
                         spaceBetween={20}
                         pagination={{ clickable: true }}
                     >
-                        {getTicketsForTab(label).map((ticket, index) => (
-                            <SwiperSlide key={"ticket" + ticket + index}>
+                        {getTicketsForTab(tabKey).map((ticket, i) => (
+                            <SwiperSlide key={`ticket-${i}`}>
                                 <TicketCard ticket={ticket} />
                             </SwiperSlide>
                         ))}

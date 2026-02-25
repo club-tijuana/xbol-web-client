@@ -8,6 +8,10 @@ import EventCard from "../EventCard/EventCard";
 
 import { EventCardGridProps } from "./EventCardGrid.type";
 
+/* -------------------- CONSTANTS -------------------- */
+const LARGE_VARIANTS: EventCardGridProps["sizeVariant"][] = ["md", "lg"];
+
+/* -------------------- CONFIGS -------------------- */
 type SizeVariant = EventCardGridProps["sizeVariant"];
 
 interface StyleConfig {
@@ -28,6 +32,7 @@ const spacingConfig: Record<SizeVariant, StyleConfig> = {
     lg: { spacing: 4 },
 };
 
+/* -------------------- COMPONENT -------------------- */
 export default function EventCardGrid({
     title,
     eventCards,
@@ -39,10 +44,12 @@ export default function EventCardGrid({
     const currentColumnsConfig = columnsByVariant[sizeVariant];
     const currentSpacingConfig = spacingConfig[sizeVariant];
 
+    const isLarge = LARGE_VARIANTS.includes(sizeVariant);
+
     return (
         <>
             <Grid container columns={2}>
-                <Grid size={(sizeVariant === "md" || sizeVariant === "lg") ? 1 : 2}>
+                <Grid size={isLarge ? 1 : 2}>
                     <Typography
                         variant="h2"
                         color="primary"
@@ -52,7 +59,7 @@ export default function EventCardGrid({
                     </Typography>
                 </Grid>
                 {
-                    (sizeVariant === "md" || sizeVariant === "lg") &&
+                    isLarge &&
                     <Grid size={1} textAlign={'end'}>
                         <Button variant="outlined" sx={{ borderRadius: 0, py: 1.2, px: 4 }}>
                             <Typography variant="body2" fontWeight={700}>

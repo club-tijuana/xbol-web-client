@@ -7,6 +7,7 @@ import Advertisement from "@/components/Advertisement/Advertisement";
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import FAQ from "@/components/FAQ/FAQ";
 import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
+import { formatDate } from "@/helpers/formatDateHelper";
 import { EventCategory } from "@/models/enums/event-category.enum";
 import { getMyEventDetail, getMyEventTickets } from "@/services/accountService";
 import { getEvents } from "@/services/eventService";
@@ -83,10 +84,7 @@ export default async function TicketPage(props: TicketPageProps) {
 
     const getDateFormat = (): string => {
         if (detail?.date) {
-            return Intl.DateTimeFormat("es-MX", {
-                month: 'long',
-                year: 'numeric'
-            }).format(new Date(detail?.date));
+            return formatDate(detail.date, "monthYear");
         }
         else {
             return "";

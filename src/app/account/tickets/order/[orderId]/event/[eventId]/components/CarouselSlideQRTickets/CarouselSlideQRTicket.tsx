@@ -2,8 +2,9 @@
 
 import { Box, Card, CardActions, CardContent, CardMedia, LinearProgress, Typography } from "@mui/material";
 import { QRCodeSVG } from "qrcode.react";
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
+import { formatDate } from "@/helpers/formatDateHelper";
 import { useQrTimer } from "@/hooks/useQrTimer";
 
 import styles from "./CarouselSlideQRTicket.module.scss";
@@ -11,24 +12,18 @@ import { CarouselSlideQRTicketProps } from "./CarouselSlideQRTicket.type";
 
 export default function CarouselSlideQRTicket({ ticket, isActive }: CarouselSlideQRTicketProps) {
     const [payload, setPayload] = useState("");
+
+    const handleGenerate = useCallback((value: string) => {
+        setPayload(value);
+    }, []);
+
     const { secondsRemaining, progressPercent } = useQrTimer({
         isActive: isActive,
         ticketId: ticket.id.toString(),
-        secretBase32: "7SWHXYWHGSWC7MZXN6AUJGYMINZNWKJG",
-        stepSeconds: 30,
-        onGenerate: setPayload
+        onGenerate: handleGenerate
     });
 
-    useEffect(() => {
-        if (!isActive) setPayload("");
-    }, [isActive]);
-
-    const formattedDate = Intl.DateTimeFormat("es-MX", {
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        hour12: true
-    }).format(new Date(ticket.startDate));
+    const formattedDate = formatDate(ticket.startDate, "dateTime");
 
     return (
         <Card variant="elevation" className={styles.card}>

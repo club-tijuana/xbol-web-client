@@ -4,6 +4,8 @@ import { AttachMoneyOutlined, VisibilityOutlined } from "@mui/icons-material";
 import { Box, Card, CardActions, CardContent, CardMedia, IconButton, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 
+import { formatDate } from "@/helpers/formatDateHelper";
+
 import styles from "./TicketCard.module.scss";
 import { TicketCardProps } from "./TicketCard.type";
 
@@ -12,12 +14,7 @@ export default function TicketCard({ ticket }: TicketCardProps) {
     const { name, eventImage, startDate, location } = ticket;
 
     const date = new Date(startDate);
-    const formattedDate = Intl.DateTimeFormat("es-MX", {
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        hour12: true
-    }).format(date);
+    const formattedDate = formatDate(date, "dateTime");
 
     const handleOpenTicket = () => {
         router.push(`/account/tickets/order/${ticket.orderId}/event/${ticket.eventId}`);

@@ -4,7 +4,6 @@ import { Box, useTheme } from "@mui/material";
 
 export function LayoutContainer({ children }: { children: React.ReactNode }) {
     const theme = useTheme();
-    console.log("theme.CustomLayout:", theme.customLayout);
 
     return (
         <Box component="main"

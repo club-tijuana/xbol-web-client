@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState } from "react";
 
+import { formatDate } from '@/helpers/formatDateHelper';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { logout } from "@/store/slices/authSlice";
 import { openLoginModal } from "@/store/slices/uiSlice";
@@ -36,10 +37,7 @@ export default function Header(props: Props) {
     const dispatch = useAppDispatch();
     const router = useRouter();
     const date = new Date();
-    const formattedDate = Intl.DateTimeFormat("es-MX", {
-        month: 'long',
-        year: 'numeric'
-    }).format(date);
+    const formattedDate = formatDate(date, "monthYear");
 
     const handleDrawerToggle = () => {
         setMobileOpen((prevState) => !prevState);

@@ -3,8 +3,9 @@
 import { AttachMoneyOutlined, VisibilityOutlined } from "@mui/icons-material";
 import { Box, Button, Card, CardActions, CardContent, CardMedia, Fade, IconButton, LinearProgress, Typography } from "@mui/material";
 import { QRCodeSVG } from "qrcode.react";
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
+import { formatDate } from "@/helpers/formatDateHelper";
 import { useQrTimer } from "@/hooks/useQrTimer";
 
 import styles from "./TicketQRGridItem.module.scss";
@@ -13,22 +14,18 @@ import { TicketQRGridItemProps } from "./TicketQRGridItem.type";
 export default function TicketQRGridItem({ ticket }: TicketQRGridItemProps) {
     const [showQR, setShowQR] = useState(false);
     const [payload, setPayload] = useState("");
+
+    const handleGenerate = useCallback((value: string) => {
+        setPayload(value);
+    }, []);
+
     const { secondsRemaining, progressPercent } = useQrTimer({
         isActive: showQR,
         ticketId: ticket.id.toString(),
-        secretBase32: "7SWHXYWHGSWC7MZXN6AUJGYMINZNWKJG",
-        stepSeconds: 30,
-        onGenerate: setPayload
+        onGenerate: handleGenerate
     });
 
-    useEffect(() => {
-        if (!showQR) setPayload("");
-    }, [showQR]);
-
-    const formattedDate = Intl.DateTimeFormat("es-MX", {
-        month: 'long',
-        year: 'numeric'
-    }).format(new Date(ticket.startDate));
+    const formattedDate = formatDate(ticket.startDate, "monthYear");
 
     return (
         <Card variant="outlined" className={styles.card}>
