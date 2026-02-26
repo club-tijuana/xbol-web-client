@@ -34,6 +34,54 @@ export default function BookingClient({ scheduleId, event }: BookingClientProps)
         dispatch(setEventId(event.id));
     }, [event, dispatch]);
 
+    const renderLeftPanel = () => {
+        switch (bookingStep) {
+            case "selection":
+                return (
+                    <SeatFilters
+                        scheduleId={Number(scheduleId)}
+                        onSectionSelected={(section) => { setSelectedSection(section); }}
+                    />
+                );
+            case "payment":
+                return event.eventKey && selectedSeatsDto ? (
+                    <TicketSeats
+                        eventKey={event.eventKey}
+                        seats={selectedSeatsDto}
+                        selectedSeats={selectedSeats}
+                    />
+                ) : null;
+            default:
+                return null;
+        };
+    };
+
+    const renderRightPanel = () => {
+        switch (bookingStep) {
+            case "selection":
+                return event && event.eventKey ? (
+                    <SeatsMap
+                        selectedSection={selectedSection}
+                        selectedObjects={selectedSeats}
+                        onSelected={handleSeatSelect}
+                        onDeselected={handleSeatDeselect}
+                        eventKey={event.eventKey}
+                    />
+                ) : null;
+            case "payment":
+                return (
+                    <Payment
+                        subtotal={0}
+                        taxes={0}
+                        total={0}
+                        currency="MXN"
+                    />
+                );
+            default:
+                return null;
+        }
+    };
+
     const handleSeatSelect = (seat: SelectableObject) => {
         if (!seat.labels.section) return;
         if (selectedSeats?.includes(seat.label)) return;
@@ -139,22 +187,10 @@ export default function BookingClient({ scheduleId, event }: BookingClientProps)
                         </Typography>
                     </Grid>
                 </Grid>
-                {(bookingStep === "selection") && <SeatFilters scheduleId={Number(scheduleId)} onSectionSelected={(section) => { setSelectedSection(section); }} />}
-
-                {(bookingStep === "payment" && event.eventKey && selectedSeatsDto) &&
-                    <TicketSeats eventKey={event.eventKey} seats={selectedSeatsDto} selectedSeats={selectedSeats} />
-                }
+                {renderLeftPanel()}
             </Grid>
             <Grid size={6}>
-                {(bookingStep === "selection" && event && event.eventKey) &&
-                    <SeatsMap selectedSection={selectedSection} selectedObjects={selectedSeats} onSelected={handleSeatSelect} onDeselected={handleSeatDeselect}
-                        eventKey={event.eventKey}
-                    />
-                }
-
-                {(bookingStep === "payment") &&
-                    <Payment subtotal={0} taxes={0} total={0} currency="MXN" />
-                }
+                {renderRightPanel()}
 
                 <Button variant="contained" color="primary" onClick={() => setBookingStep("payment")}>
                     <Typography variant="body1" color="neutral">

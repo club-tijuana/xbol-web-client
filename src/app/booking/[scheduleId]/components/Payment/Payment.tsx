@@ -1,3 +1,5 @@
+"use client";
+
 import { Box, Button, Checkbox, Divider, FormControl, FormControlLabel, Grid, Input, Paper, Typography } from "@mui/material";
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Image from "next/image";
