@@ -40,6 +40,7 @@ export default function EventCardGrid({
     styleVariant,
     showCardBadge = false,
     showCardActions = true,
+    showAllButton = true
 }: EventCardGridProps) {
     const currentColumnsConfig = columnsByVariant[sizeVariant];
     const currentSpacingConfig = spacingConfig[sizeVariant];
@@ -59,7 +60,7 @@ export default function EventCardGrid({
                     </Typography>
                 </Grid>
                 {
-                    isLarge &&
+                    (isLarge && showAllButton) &&
                     <Grid size={1} textAlign={'end'}>
                         <Button variant="outlined" sx={{ borderRadius: 0, py: 1.2, px: 4 }}>
                             <Typography variant="body2" fontWeight={700}>

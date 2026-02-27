@@ -48,7 +48,7 @@ interface EventPageProps {
     params: Promise<{ id: string }>;
 }
 
-export default async function EventPage({ params }: EventPageProps) {
+export default async function EventDetailPage({ params }: EventPageProps) {
     const { id } = await params;
 
     const event = await getEventCached(Number.parseInt(id));

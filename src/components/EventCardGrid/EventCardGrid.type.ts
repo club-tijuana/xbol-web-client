@@ -9,4 +9,5 @@ export interface EventCardGridProps {
     styleVariant: StyleVariant;
     showCardBadge?: boolean;
     showCardActions?: boolean;
+    showAllButton?: boolean;
 }

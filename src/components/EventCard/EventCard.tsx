@@ -3,6 +3,7 @@
 import { Box, Button, Card, CardActions, CardContent, CardMedia, Chip, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 
+import { formatDate } from "@/helpers/formatDateHelper";
 import { colors } from "@/theme/colors";
 import { ResponsiveNumber } from "@/types/responsive";
 import { EventCategoryLabel } from "@/utils/mappers/eventCategory.mapper";
@@ -60,7 +61,7 @@ export default function EventCard({
 }: EventCardProps) {
     const router = useRouter();
     const { posterImageUrl, name, startDate, location, category } = eventCard;
-    const date = new Date(startDate);
+    const date = formatDate(startDate, "date");
 
     const currentSizeConfig = imageHeightsByVariant[sizeVariant];
     const currentStyleConfig = styleConfig[styleVariant];
@@ -130,11 +131,7 @@ export default function EventCard({
                 {isLarge &&
                     <Typography variant="h4" fontWeight={400} color={currentStyleConfig.descriptionColor}
                         textAlign="left">
-                        {date.toLocaleDateString("ex-MX", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric"
-                        })}
+                        {date}
                     </Typography>
                 }
                 {isLarge &&

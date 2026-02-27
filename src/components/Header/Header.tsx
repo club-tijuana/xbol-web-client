@@ -10,6 +10,7 @@ import { useState } from "react";
 import { formatDate } from '@/helpers/formatDateHelper';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { logout } from "@/store/slices/authSlice";
+import { setTextFilter } from '@/store/slices/eventsFilterSlice';
 import { openLoginModal } from "@/store/slices/uiSlice";
 import { colors } from '@/theme/colors';
 
@@ -38,6 +39,7 @@ export default function Header(props: Props) {
     const router = useRouter();
     const date = new Date();
     const formattedDate = formatDate(date, "monthYear");
+    const [searchText, setSearchText] = useState("");
 
     const handleDrawerToggle = () => {
         setMobileOpen((prevState) => !prevState);
@@ -81,11 +83,16 @@ export default function Header(props: Props) {
         handleGoHome();
     }
 
+    const handleOnFilterEnter = () => {
+        dispatch(setTextFilter(searchText));
+        router.push("/event");
+    }
+
     const openAccount = Boolean(anchorEl);
     const idAccount = openAccount ? 'simple-popover' : undefined;
     const isTransparent = pathname === "/" || pathname.startsWith("/event");
     const drawer = (
-        <Box onClick={handleDrawerToggle}
+        <Box
             sx={{
                 textAlign: 'center',
                 backgroundColor: theme => theme.palette.layout.header, height: '100%'
@@ -93,14 +100,19 @@ export default function Header(props: Props) {
             pt={3}
             px={2}
         >
-            <SearchInput />
+            <SearchInput value={searchText} onChange={e => setSearchText(e)} onEnterPress={handleOnFilterEnter} />
             <Divider />
             <List>
                 {navItems.map((item) => {
                     if (item.title === "Boletos" && !client) return null;
                     return (
                         <ListItem key={item.title} disablePadding>
-                            <ListItemButton sx={{ textAlign: 'center' }} onClick={() => handleRedirect(item.redirectUrl)}>
+                            <ListItemButton
+                                sx={{ textAlign: 'center' }}
+                                onClick={() => {
+                                    handleRedirect(item.redirectUrl);
+                                    handleDrawerToggle();
+                                }}>
                                 <ListItemText primary={item.title} sx={{ color: 'white' }} />
                             </ListItemButton>
                         </ListItem>
@@ -159,7 +171,7 @@ export default function Header(props: Props) {
                             </Box>
                         </Grid>
                         <Grid size={{ md: 3, lg: 3 }} sx={{ display: { xs: 'none', md: 'block' } }}>
-                            <SearchInput />
+                            <SearchInput value={searchText} onChange={e => setSearchText(e)} onEnterPress={handleOnFilterEnter} />
                         </Grid>
                         <Grid size={{ xs: 5, md: 1, lg: 1 }} justifyItems='right'>
                             <Box>
