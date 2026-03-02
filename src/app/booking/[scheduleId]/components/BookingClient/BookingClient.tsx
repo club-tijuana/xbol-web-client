@@ -2,15 +2,14 @@
 
 import { CalendarTodayOutlined, LocationOnOutlined } from "@mui/icons-material";
 import { Box, Button, Grid, Typography } from "@mui/material";
-import { SelectableObject } from "@seatsio/seatsio-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import TicketSeats from "@/app/account/tickets/order/[orderId]/event/[eventId]/components/TicketSeats/TicketSeats";
-import SeatsMap from "@/components/SeatsMap/SeatsMap";
+import SeatsMap, { SeatsMapHandle } from "@/components/SeatsMap/SeatsMap";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setEventId, setSeatsDto, setSeats } from "@/store/slices/bookingSlice";
+import { setEventId, setSeats, setSeatsDto } from "@/store/slices/bookingSlice";
 
 import Payment from "../Payment/Payment";
 import SeatFilters from "../SeatFilters/SeatFilters";
@@ -22,6 +21,7 @@ type BookingStep = "selection" | "payment";
 
 /* -------------------- COMPONENT -------------------- */
 export default function BookingClient({ scheduleId, event }: BookingClientProps) {
+    const mapRef = useRef<SeatsMapHandle>(null);
     const [bookingStep, setBookingStep] = useState<BookingStep>("selection");
     const selectedSeatsDto = useAppSelector(store => store.booking.selectedSeatsDto);
     const selectedSeats = useAppSelector(store => store.booking.selectedSeats);
@@ -61,10 +61,9 @@ export default function BookingClient({ scheduleId, event }: BookingClientProps)
             case "selection":
                 return event && event.eventKey ? (
                     <SeatsMap
+                        ref={mapRef}
                         selectedSection={selectedSection}
-                        selectedObjects={selectedSeats}
-                        onSelected={handleSeatSelect}
-                        onDeselected={handleSeatDeselect}
+                        selectedSeats={selectedSeats}
                         eventKey={event.eventKey}
                     />
                 ) : null;
@@ -82,69 +81,20 @@ export default function BookingClient({ scheduleId, event }: BookingClientProps)
         }
     };
 
-    const handleSeatSelect = (seat: SelectableObject) => {
-        if (!seat.labels.section) return;
-        if (selectedSeats?.includes(seat.label)) return;
+    const handleContinue = () => {
+        const seats = mapRef.current?.getSelectedSeats();
+        const seatsDto = mapRef.current?.getSelectedSeatsDto();
 
-        dispatch(setSeats(
-            Array.from(new Set([...(selectedSeats ?? []), seat.label]))
-        ));
-
-        const current = selectedSeatsDto ?? [];
-        const sectionFound = current.find(s => s.section.startsWith(seat.labels.section ?? ""));
-
-        if (sectionFound) {
-            const updatedSeats = sectionFound.seats
-                ? `${sectionFound.seats},${seat.labels.own}`
-                : seat.labels.own;
-
-            const sectionName = updatedSeats.split(",").length > 1
-                ? `${seat.labels.section} x${updatedSeats.split(",").length}`
-                : seat.labels.section;
-
-            dispatch(setSeatsDto([
-                { section: sectionName, seats: updatedSeats },
-                ...current.filter(s => s.section !== sectionFound.section)
-            ]));
-        } else {
-            dispatch(setSeatsDto([
-                ...current,
-                { section: seat.labels.section, seats: seat.labels.own }
-            ]));
+        if (seats) {
+            dispatch(setSeats(seats));
         }
+
+        if (seatsDto) {
+            dispatch(setSeatsDto(seatsDto));
+        }
+
+        setBookingStep("payment");
     };
-
-    const handleSeatDeselect = (seat: SelectableObject) => {
-        if (!seat.labels.section) return;
-
-        if (selectedSeats) {
-            dispatch(setSeats(
-                selectedSeats.filter(s => s !== seat.label)
-            ));
-        }
-
-        const current = selectedSeatsDto ?? [];
-        const sectionFound = current.find(s => s.section.startsWith(seat.labels.section ?? ""));
-
-        if (!sectionFound) return;
-
-        const seatsArray = sectionFound.seats.split(",").map(s => s.trim());
-        const updatedSeatsArray = seatsArray.filter(s => s !== seat.labels.own);
-
-        if (updatedSeatsArray.length === 0) {
-            dispatch(setSeatsDto(current.filter(s => s.section !== sectionFound.section)));
-        }
-        else {
-            const sectionName = updatedSeatsArray.length > 1
-                ? `${seat.labels.section} x${updatedSeatsArray.length}`
-                : seat.labels.section;
-
-            dispatch(setSeatsDto([
-                { section: sectionName, seats: updatedSeatsArray.join(",") },
-                ...current.filter(s => s.section !== sectionFound.section)
-            ]));
-        }
-    }
 
     return (
         <Grid container columns={12} mt={7}>
@@ -192,7 +142,7 @@ export default function BookingClient({ scheduleId, event }: BookingClientProps)
             <Grid size={6}>
                 {renderRightPanel()}
 
-                <Button variant="contained" color="primary" onClick={() => setBookingStep("payment")}>
+                <Button variant="contained" color="primary" onClick={handleContinue}>
                     <Typography variant="body1" color="neutral">
                         Continuar
                     </Typography>
