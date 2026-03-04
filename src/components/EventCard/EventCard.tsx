@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { colors } from "@/theme/colors";
 import { ResponsiveNumber } from "@/types/responsive";
-import { EventCategoryLabel } from "@/utils/mappers/eventCategory.mapper";
 
 import styles from "./EventCard.module.scss";
 import { EventCardProps } from "./EventCard.type";
@@ -60,7 +59,7 @@ export default function EventCard({
     showActions = true
 }: EventCardProps) {
     const router = useRouter();
-    const { posterImageUrl, name, startDate, location, category } = eventCard;
+    const { posterImageUrl, name, startDate, location, categories } = eventCard;
     const date = formatDate(startDate, "date");
 
     const currentSizeConfig = imageHeightsByVariant[sizeVariant];
@@ -93,7 +92,7 @@ export default function EventCard({
                 {
                     showBadge &&
                     <Chip
-                        label={EventCategoryLabel[category]}
+                        label={categories[0].displayName}
                         color={currentStyleConfig.badgeType === "light" ? "primary" : "secondary"}
                         sx={{
                             position: "absolute",

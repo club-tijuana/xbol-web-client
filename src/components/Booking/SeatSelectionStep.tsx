@@ -4,7 +4,7 @@ import SeatsMap from "@/components/SeatsMap/SeatsMap";
 import { useBooking } from "@/context/BookingContext";
 
 export default function SeatSelectionStep() {
-    const { eventKey, pricing, selectObject, removeObject } = useBooking();
+    const { eventKey, pricing } = useBooking();
 
     const pricingKey = JSON.stringify(pricing);
 
@@ -13,8 +13,6 @@ export default function SeatSelectionStep() {
             key={pricingKey}
             eventKey={eventKey || ""}
             pricing={pricing}
-            onSelected={selectObject}
-            onDeselected={(obj) => removeObject(obj.label)}
         />
     );
 }

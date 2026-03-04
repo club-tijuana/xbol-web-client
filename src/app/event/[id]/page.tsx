@@ -12,7 +12,6 @@ import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
 import { EventCategory } from "@/models/enums/event-category.enum";
 import { getEvents, getEventDetail } from "@/services/eventService";
 import { colors } from "@/theme/colors";
-import { EventCategoryLabel } from "@/utils/mappers/eventCategory.mapper";
 import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
 
 
@@ -58,7 +57,7 @@ export default async function EventDetailPage({ params }: EventPageProps) {
         <>
             <Box sx={{ position: "relative", height: { xs: 300, sm: 400, md: 439, lg: 539 } }} mb={3}>
                 <Chip
-                    label={EventCategoryLabel[event.category]}
+                    label={event.categories[0].displayName}
                     color={"secondary"}
                     sx={{
                         position: "absolute",

@@ -1,4 +1,4 @@
-import { EventCategory } from "./enums/event-category.enum";
+import { EventCategoryDTO } from "./event-category.dto";
 import { MyEventSeatDTO } from "./my-event-seat.dto";
 
 export interface OrderEventDTO {
@@ -8,6 +8,6 @@ export interface OrderEventDTO {
     name: string;
     startDate: Date;
     location: string;
-    eventCategory: EventCategory;
     seats: MyEventSeatDTO[];
+    eventCategories?: EventCategoryDTO[];
 }

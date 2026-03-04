@@ -4,7 +4,6 @@ import { Metadata } from "next";
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import EventCarousel from "@/components/EventCarousel/EventCarousel";
 import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
-import { EventCategory } from "@/models/enums/event-category.enum";
 import { getEvents, getMainEvents } from "@/services/eventService";
 import { colors } from "@/theme/colors";
 
@@ -40,10 +39,10 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const mainEvents = await getMainEvents();
-  const featuredEvents = await getEvents({ page: 1, eventCategory: EventCategory.Concert, pageSize: 6 });
-  const futbolEvents = await getEvents({ page: 1, eventCategory: EventCategory.Sports, pageSize: 3 });
-  const musicEvents = await getEvents({ page: 1, eventCategory: EventCategory.Concert, pageSize: 3 });
-  const theaterEvents = await getEvents({ page: 1, eventCategory: EventCategory.Theater, pageSize: 3 });
+  const featuredEvents = await getEvents({ page: 1, pageSize: 6 });
+  const futbolEvents = await getEvents({ page: 1, eventCategoryIds: [1], pageSize: 3 });
+  const musicEvents = await getEvents({ page: 1, eventCategoryIds: [2], pageSize: 3 });
+  const theaterEvents = await getEvents({ page: 1, eventCategoryIds: [3], pageSize: 3 });
 
   return (
     <div>

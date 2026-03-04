@@ -1,4 +1,4 @@
-import { EventCategory } from "./enums/event-category.enum";
+import { EventCategoryDTO } from "./event-category.dto";
 import { EventScheduleDTO } from "./event-schedule.dto";
 
 export interface EventDetailDTO {
@@ -8,5 +8,5 @@ export interface EventDetailDTO {
     longDescription?: string;
     gallery: string[];
     schedules: EventScheduleDTO[];
-    category: EventCategory;
+    categories: EventCategoryDTO[];
 }

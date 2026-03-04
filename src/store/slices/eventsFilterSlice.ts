@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { EventCategory } from "@/models/enums/event-category.enum";
 import { EventsFilters } from "@/models/filters/events-filters.dto";
 
 interface EventsFiltersState {
@@ -11,7 +10,8 @@ const initialState: EventsFiltersState = {
     filters: {
         page: 1,
         pageSize: 6,
-        eventCategory: null
+        eventCategoryIds: undefined,
+        performerId: undefined
     }
 };
 
@@ -30,12 +30,17 @@ const eventsFilterSlice = createSlice({
             state.filters.page = 1;
             state.filters.textFilter = action.payload;
         },
-        setCategory: (state, action: PayloadAction<EventCategory | null>) => {
+        setCategories: (state, action: PayloadAction<number[] | undefined>) => {
             state.filters.page = 1;
-            state.filters.eventCategory = action.payload;
+            state.filters.eventCategoryIds = action.payload;
+        },
+        setPerformerId: (state, action: PayloadAction<number | undefined>) => {
+            state.filters.page = 1;
+            state.filters.textFilter = '';
+            state.filters.performerId = action.payload;
         }
     }
 });
 
-export const { setPage, setPageSize, setTextFilter, setCategory } = eventsFilterSlice.actions;
+export const { setPage, setPageSize, setTextFilter, setCategories, setPerformerId } = eventsFilterSlice.actions;
 export default eventsFilterSlice.reducer;

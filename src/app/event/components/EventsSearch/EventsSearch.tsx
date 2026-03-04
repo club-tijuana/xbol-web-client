@@ -1,25 +1,28 @@
 "use client";
 
-import { ArrowDownwardOutlined, FilterAlt } from "@mui/icons-material";
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Chip, FormControl, Grid, Input, InputLabel, MenuItem, Select, Skeleton, Stack, Typography } from "@mui/material";
+import { ArrowDownwardOutlined, FilterAlt, HighlightOffRounded } from "@mui/icons-material";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Card, CardActionArea, CardContent, CardMedia, Chip, FormControl, Grid, IconButton, Input, Skeleton, Stack, Typography } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import { useDebounce } from "@/hooks/useDebounce";
-import { EventCategory, EventCategoryLabels } from "@/models/enums/event-category.enum";
 import { EventItemDTO } from "@/models/event-item.dto";
 import { PagedResponse } from "@/models/pagination/paged-response.dto";
-import { getEvents } from "@/services/eventService";
+import { PerformerDTO } from "@/models/performer.dto";
+import { getFilteredEvents } from "@/services/eventService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setCategory, setPage, setTextFilter } from "@/store/slices/eventsFilterSlice";
+import { setCategories, setPage, setTextFilter, setPerformerId } from "@/store/slices/eventsFilterSlice";
 
-export default function EventsSearch() {
+import { EventsSearchProps } from "./EventsSearch.types";
+
+export default function EventsSearch({ eventCategories }: EventsSearchProps) {
     const dispatch = useAppDispatch();
     const isMounted = useRef(false);
     const filters = useAppSelector(store => store.eventsFilters.filters);
     const [textFilterInput, setTextFilterInput] = useState(filters.textFilter || "");
     const [currentPage, setCurrentPage] = useState<PagedResponse<EventItemDTO>>();
     const [events, setEvents] = useState<EventItemDTO[]>([]);
+    const [performers, setPerformers] = useState<PerformerDTO[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
     const debouncedTextFilter = useDebounce(textFilterInput, 500);
@@ -34,16 +37,18 @@ export default function EventsSearch() {
             setIsLoading(true);
 
             try {
-                const result = await getEvents(filters);
+                const result = await getFilteredEvents(filters);
 
                 if (filters.page === 1) {
-                    setEvents(result.items);
+                    setPerformers(result.performers);
+                    setEvents(result.pagedEvents.items);
                 }
                 else {
-                    setEvents(prev => [...prev, ...result.items]);
+                    setPerformers(result.performers);
+                    setEvents(prev => [...prev, ...result.pagedEvents.items]);
                 }
 
-                setCurrentPage(result);
+                setCurrentPage(result.pagedEvents);
             }
             catch {
                 // TODO: Implement error handler
@@ -66,13 +71,26 @@ export default function EventsSearch() {
         }
     };
 
-    const handleCategoryChange = (category: EventCategory) => {
-        if (filters.eventCategory === category) {
-            dispatch(setCategory(null));
+    const handleCategoryChange = (categoryId: number) => {
+        const exists = filters.eventCategoryIds?.includes(categoryId);
+
+        if (exists) {
+            const filtered = filters.eventCategoryIds?.filter(id => id !== categoryId);
+
+            dispatch(setCategories(filtered));
         }
         else {
-            dispatch(setCategory(category));
+            dispatch(setCategories([
+                ...(filters.eventCategoryIds ?? []),
+                categoryId
+            ]));
         }
+    };
+
+    const handlePerformerClick = (performerId: number | undefined) => {
+        setTextFilterInput('');
+        dispatch(setTextFilter(''));
+        dispatch(setPerformerId(performerId));
     };
 
     return (
@@ -130,6 +148,7 @@ export default function EventsSearch() {
                                         backgroundColor: 'white',
                                         '&:after': { borderBottom: '2px solid var(--color-text-primary)' },
                                     }}
+                                    value={textFilterInput}
                                 />
                             </FormControl>
                         </Box>
@@ -143,16 +162,16 @@ export default function EventsSearch() {
                                 spacing={2}
                                 sx={{ overflowX: "auto", mt: 1 }}
                             >
-                                {Object.values(EventCategory).filter(v => typeof v === "number").map(value => (
+                                {eventCategories.map(category => (
                                     <Chip
-                                        key={value}
-                                        label={EventCategoryLabels[value as EventCategory]}
-                                        variant={filters.eventCategory === value ? "filled" : "outlined"}
-                                        color={filters.eventCategory === value ? "primary" : "default"}
+                                        key={category.id}
+                                        label={category.displayName}
+                                        variant={filters.eventCategoryIds?.includes(category.id) ? "filled" : "outlined"}
+                                        color={filters.eventCategoryIds?.includes(category.id) ? "primary" : "default"}
                                         clickable
-                                        onClick={() => handleCategoryChange(value)}
+                                        onClick={() => handleCategoryChange(category.id)}
                                         sx={{
-                                            color: filters.eventCategory === value ? "white" : "black",
+                                            color: filters.eventCategoryIds?.includes(category.id) ? "white" : "black",
                                             padding: 2,
                                             fontSize: 16
                                         }}
@@ -164,6 +183,47 @@ export default function EventsSearch() {
                 </AccordionDetails>
             </Accordion>
 
+            {(performers && performers.length > 0) &&
+                <Box>
+                    <Typography variant="h3" textAlign="left" mb={2}>
+                        Artistas
+                    </Typography>
+                    <Grid container columns={4} spacing={3}>
+                        {performers.map((p, index) => (
+                            <Grid key={index} size={1}>
+                                <Card sx={{ position: "relative" }}>
+                                    <IconButton sx={{ position: 'absolute', top: 0, right: 0, zIndex: 2 }} color="primary"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handlePerformerClick(undefined);
+                                        }}
+                                    >
+                                        <HighlightOffRounded />
+                                    </IconButton>
+                                    <CardActionArea onClick={() => handlePerformerClick(p.id)}>
+                                        <CardMedia
+                                            component="img"
+                                            image={p.imageUrl}
+                                            alt={p.name}
+                                        />
+                                        <CardContent>
+                                            <Typography variant="h5" color="text">
+                                                {p.name}
+                                            </Typography>
+                                        </CardContent>
+                                    </CardActionArea>
+                                </Card>
+                            </Grid>
+                        ))}
+                    </Grid>
+                </Box>
+            }
+
+            {(events && events.length > 0) &&
+                <Typography variant="h3" textAlign="left" mt={5}>
+                    Eventos
+                </Typography>
+            }
             <EventCardGrid
                 eventCards={events}
                 sizeVariant="lg"
@@ -202,7 +262,7 @@ export default function EventsSearch() {
                 </Grid>
             }
 
-            {filters.page !== currentPage?.totalPages &&
+            {(filters.page !== currentPage?.totalPages && events.length > 0) &&
                 <Button variant="outlined" color="primary" sx={{ my: 4 }} onClick={handleLoadMore}>
                     <Typography variant="body1" py={1} px={3}>
                         Ver más
