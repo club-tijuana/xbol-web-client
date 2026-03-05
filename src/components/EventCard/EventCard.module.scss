@@ -13,3 +13,15 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(204, 153, 51, 0.10) 5%, rgba(0, 0, 0, 1) 100%);
+  border-top-left-radius: 10;
+  border-top-right-radius: 10;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  z-index: 2;
+}

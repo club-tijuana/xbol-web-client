@@ -9,7 +9,7 @@ import Advertisement from "@/components/Advertisement/Advertisement";
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import FAQ from "@/components/FAQ/FAQ";
 import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
-import { EventCategory } from "@/models/enums/event-category.enum";
+import { mapEventToCardVM } from "@/models/event-item.dto";
 import { getEvents, getEventDetail } from "@/services/eventService";
 import { colors } from "@/theme/colors";
 import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
@@ -51,7 +51,10 @@ export default async function EventDetailPage({ params }: EventPageProps) {
     const { id } = await params;
 
     const event = await getEventCached(Number.parseInt(id));
-    const outstandingEvents = await getEvents({ page: 1, eventCategory: EventCategory.Concert, pageSize: 4 });
+
+    // TODO: Create service to get other events
+    const outstandingEvents = await getEvents({ page: 1, eventCategoryIds: [2], pageSize: 4, rangeDateFrom: null, rangeDateTo: null });
+    const outstandingEventsVM = outstandingEvents.items.map(mapEventToCardVM);
 
     const Gallery =
         <>
@@ -188,7 +191,7 @@ export default async function EventDetailPage({ params }: EventPageProps) {
                         Otros eventos
                     </Typography>
                     <EventCardGrid
-                        eventCards={outstandingEvents.items}
+                        eventCards={outstandingEventsVM}
                         showCardActions={false}
                         sizeVariant="xs"
                         styleVariant="default"

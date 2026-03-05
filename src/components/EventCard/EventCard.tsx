@@ -1,9 +1,10 @@
 "use client";
 
-import { Box, Button, Card, CardActions, CardContent, CardMedia, Chip, Typography } from "@mui/material";
+import { ConfirmationNumberOutlined, VisibilityOutlined } from "@mui/icons-material";
+import { Box, Button, Card, CardActions, CardContent, CardMedia, Chip, IconButton, SxProps, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-import { formatDate } from "@/helpers/formatDateHelper";
 import { colors } from "@/theme/colors";
 import { ResponsiveNumber } from "@/types/responsive";
 
@@ -48,6 +49,18 @@ const styleConfig: Record<StyleVariant, StyleConfig> = {
         descriptionColor: colors.light.neutral,
         badgeType: "light"
     },
+    schedule: {
+        titleColor: colors.light.text,
+        descriptionColor: colors.light.text,
+        badgeType: "dark"
+    }
+};
+
+const actionStyle: SxProps = {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center"
 };
 
 /* -------------------- COMPONENT -------------------- */
@@ -60,7 +73,8 @@ export default function EventCard({
 }: EventCardProps) {
     const router = useRouter();
     const { posterImageUrl, name, startDate, location, categories } = eventCard;
-    const date = formatDate(startDate, "date");
+
+    const [mouseOver, setMouseOver] = useState(false);
 
     const currentSizeConfig = imageHeightsByVariant[sizeVariant];
     const currentStyleConfig = styleConfig[styleVariant];
@@ -69,17 +83,52 @@ export default function EventCard({
     const isLarge = LARGE_VARIANTS.includes(sizeVariant);
 
     const handleClick = () => {
-        const id = eventCard.id;
+        const id = eventCard.eventId;
         if (!id) return;
 
-        router.push(`/event/${id}`)
-    }
+        router.push(`/event/${id}`);
+    };
+
+    const handleBuyTickets = () => {
+        router.push(`/booking/${eventCard.scheduleId}`);
+    };
 
     return (
         <Card className={styles.card}>
-            <Box position={'relative'}>
+            <Box position={'relative'}
+                onMouseEnter={() => setMouseOver(true)}
+                onMouseLeave={() => setMouseOver(false)}
+            >
+                {(mouseOver && styleVariant === "schedule") &&
+                    <Box className={styles.overlay}>
+                        <Box sx={actionStyle} mr={3}>
+                            <IconButton
+                                aria-label="Ver"
+                                color="primary"
+                                onClick={handleClick}
+                            >
+                                <VisibilityOutlined sx={{ fontSize: 40 }} />
+                            </IconButton>
+                            <Typography variant="caption" fontWeight={700} color="neutral">
+                                Ver
+                            </Typography>
+                        </Box>
+                        <Box sx={actionStyle}>
+                            <IconButton
+                                aria-label="Ver"
+                                color="primary"
+                                onClick={handleBuyTickets}
+                            >
+                                <ConfirmationNumberOutlined sx={{ fontSize: 45 }} />
+                            </IconButton>
+                            <Typography variant="caption" fontWeight={700} color="neutral">
+                                Comprar tickets
+                            </Typography>
+                        </Box>
+                    </Box>
+                }
                 <CardMedia
-                    onClick={(!showActions ? handleClick : () => { })}
+                    onClick={((!showActions && styleVariant !== "schedule") ? handleClick : () => { })}
                     component="img"
                     image={posterImageUrl}
                     alt={name}
@@ -130,7 +179,7 @@ export default function EventCard({
                 {isLarge &&
                     <Typography variant="h4" fontWeight={400} color={currentStyleConfig.descriptionColor}
                         textAlign="left">
-                        {date}
+                        {startDate}
                     </Typography>
                 }
                 {isLarge &&

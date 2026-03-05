@@ -4,6 +4,7 @@ import { Metadata } from "next";
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import EventCarousel from "@/components/EventCarousel/EventCarousel";
 import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
+import { mapEventToCardVM } from "@/models/event-item.dto";
 import { getEvents, getMainEvents } from "@/services/eventService";
 import { colors } from "@/theme/colors";
 
@@ -39,10 +40,15 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const mainEvents = await getMainEvents();
-  const featuredEvents = await getEvents({ page: 1, pageSize: 6 });
-  const futbolEvents = await getEvents({ page: 1, eventCategoryIds: [1], pageSize: 3 });
-  const musicEvents = await getEvents({ page: 1, eventCategoryIds: [2], pageSize: 3 });
-  const theaterEvents = await getEvents({ page: 1, eventCategoryIds: [3], pageSize: 3 });
+  const featuredEvents = await getEvents({ page: 1, pageSize: 6, rangeDateFrom: null, rangeDateTo: null });
+  const futbolEvents = await getEvents({ page: 1, eventCategoryIds: [1], pageSize: 3, rangeDateFrom: null, rangeDateTo: null });
+  const musicEvents = await getEvents({ page: 1, eventCategoryIds: [2], pageSize: 3, rangeDateFrom: null, rangeDateTo: null });
+  const theaterEvents = await getEvents({ page: 1, eventCategoryIds: [3], pageSize: 3, rangeDateFrom: null, rangeDateTo: null });
+
+  const featuredEventsVM = featuredEvents.items.map(mapEventToCardVM);
+  const futbolEventsVM = futbolEvents.items.map(mapEventToCardVM);
+  const musicEventsVM = musicEvents.items.map(mapEventToCardVM);
+  const theaterEventsVM = theaterEvents.items.map(mapEventToCardVM);
 
   return (
     <div>
@@ -55,7 +61,7 @@ export default async function Home() {
           <Grid size={12}>
             <EventCardGrid
               title="Eventos destacados"
-              eventCards={featuredEvents.items}
+              eventCards={featuredEventsVM}
               sizeVariant="sm"
               styleVariant="default"
               showCardBadge={true}
@@ -67,7 +73,7 @@ export default async function Home() {
           <Box sx={{ paddingBottom: 6, paddingTop: 6 }}>
             <EventCardGrid
               title="Fútbol"
-              eventCards={futbolEvents.items}
+              eventCards={futbolEventsVM}
               sizeVariant="lg"
               styleVariant="dark"
               showCardBadge={true}
@@ -78,7 +84,7 @@ export default async function Home() {
         <Box mt={6} mb={3}>
           <EventCardGrid
             title="Música"
-            eventCards={musicEvents.items}
+            eventCards={musicEventsVM}
             sizeVariant="lg"
             styleVariant="muted"
           />
@@ -89,7 +95,7 @@ export default async function Home() {
           <Box mt={8} mb={6.5}>
             <EventCardGrid
               title="Otros eventos"
-              eventCards={theaterEvents.items}
+              eventCards={theaterEventsVM}
               sizeVariant="md"
               styleVariant="muted"
               showCardBadge={true}

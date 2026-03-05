@@ -77,7 +77,7 @@ export default function EventCardGrid({
                 mt={3}
             >
                 {eventCards.map((event) => (
-                    <Grid key={event.id} size={1}>
+                    <Grid key={event.eventId + (event.scheduleId ? ("-" + event.scheduleId) : "")} size={1}>
                         <EventCard
                             eventCard={event}
                             sizeVariant={sizeVariant}

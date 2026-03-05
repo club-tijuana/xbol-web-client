@@ -1,9 +1,9 @@
-import { EventItemDTO } from "@/models/event-item.dto";
+import { EventCardVM } from "@/models/views/event-card.vm";
 import { SizeVariant, StyleVariant } from "@/types/variants";
 
 export interface EventCardGridProps {
     title?: string;
-    eventCards: readonly EventItemDTO[];
+    eventCards: readonly EventCardVM[];
 
     sizeVariant: SizeVariant;
     styleVariant: StyleVariant;

@@ -6,6 +6,7 @@ import { EventsFilters } from "@/models/filters/events-filters.dto";
 import { FilteredEventsResponse } from "@/models/filters/filtered-events-response.dto";
 import { PagedResponse } from "@/models/pagination/paged-response.dto";
 import { PerformerDTO } from "@/models/performer.dto";
+import { ScheduleItemDTO } from "@/models/schedule-item.dto";
 
 export async function getMainEvents(): Promise<PagedResponse<EventItemDTO>> {
     return requestAxios<null, PagedResponse<EventItemDTO>>(
@@ -22,8 +23,8 @@ export async function getEvents(filters: EventsFilters): Promise<PagedResponse<E
     );
 }
 
-export async function getFilteredEvents(filters: EventsFilters): Promise<FilteredEventsResponse<PerformerDTO, EventItemDTO>> {
-    return requestAxios<EventsFilters, FilteredEventsResponse<PerformerDTO, EventItemDTO>>(
+export async function getFilteredEvents(filters: EventsFilters): Promise<FilteredEventsResponse<PerformerDTO, ScheduleItemDTO>> {
+    return requestAxios<EventsFilters, FilteredEventsResponse<PerformerDTO, ScheduleItemDTO>>(
         "POST",
         "events/filtered-events",
         filters

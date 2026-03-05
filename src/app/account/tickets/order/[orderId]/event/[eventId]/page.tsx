@@ -8,7 +8,7 @@ import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import FAQ from "@/components/FAQ/FAQ";
 import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
 import { formatDate } from "@/helpers/formatDateHelper";
-import { EventCategory } from "@/models/enums/event-category.enum";
+import { mapEventToCardVM } from "@/models/event-item.dto";
 import { getMyEventDetail, getMyEventTickets } from "@/services/accountService";
 import { getEvents } from "@/services/eventService";
 import { colors } from "@/theme/colors";
@@ -79,8 +79,18 @@ export default async function TicketPage(props: TicketPageProps) {
     const { orderId, eventId } = await props.params;
 
     const detail = await getMyEventDetailCached(Number.parseInt(orderId));
-    const tickets = await getMyEventTickets({ page: 1, pageSize: 10, orderId: Number.parseInt(orderId), eventId: Number.parseInt(eventId) });
-    const otherEvents = await getEvents({ page: 1, eventCategory: EventCategory.Concert, pageSize: 4 });
+    const tickets = await getMyEventTickets({
+        page: 1,
+        pageSize: 10,
+        orderId: Number.parseInt(orderId),
+        eventId: Number.parseInt(eventId),
+        rangeDateFrom: null,
+        rangeDateTo: null
+    });
+
+    // TODO: Create service to get other events
+    const otherEvents = await getEvents({ page: 1, eventCategoryIds: [2], pageSize: 4, rangeDateFrom: null, rangeDateTo: null });
+    const otherEventsVM = otherEvents.items.map(mapEventToCardVM);
 
     const getDateFormat = (): string => {
         if (detail?.date) {
@@ -179,7 +189,7 @@ export default async function TicketPage(props: TicketPageProps) {
                         Eventos destacados
                     </Typography>
                     <EventCardGrid
-                        eventCards={otherEvents.items}
+                        eventCards={otherEventsVM}
                         sizeVariant="xs"
                         styleVariant="default"
                         showCardActions={false}

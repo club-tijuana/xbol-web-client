@@ -6,7 +6,7 @@ import Advertisement from "@/components/Advertisement/Advertisement";
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import FAQ from "@/components/FAQ/FAQ";
 import { formatDate } from "@/helpers/formatDateHelper";
-import { EventCategory } from "@/models/enums/event-category.enum";
+import { mapEventToCardVM } from "@/models/event-item.dto";
 import { getEvents } from "@/services/eventService";
 import { getOrderSuccess } from "@/services/orderService";
 
@@ -23,7 +23,11 @@ interface SuccessPageProps {
 export default async function SuccessPage(props: SuccessPageProps) {
     const { orderId } = await props.params;
     const order = await getOrderSuccess(Number.parseInt(orderId));
-    const otherEvents = await getEvents({ page: 1, eventCategory: EventCategory.Concert, pageSize: 4 });
+
+    // TODO: Create service to get other events
+    const otherEvents = await getEvents({ page: 1, eventCategoryIds: [2], pageSize: 4, rangeDateFrom: null, rangeDateTo: null });
+    const otherEventsVM = otherEvents.items.map(mapEventToCardVM);
+
     const formattedEventDate = formatDate(order.events[0].startDate, "dateTime");
 
     return (
@@ -90,7 +94,7 @@ export default async function SuccessPage(props: SuccessPageProps) {
                         Otros eventos
                     </Typography>
                     <EventCardGrid
-                        eventCards={otherEvents.items}
+                        eventCards={otherEventsVM}
                         sizeVariant="xs"
                         styleVariant="default"
                         showCardActions={false}
