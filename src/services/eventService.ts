@@ -6,6 +6,7 @@ import { EventsFilters } from "@/models/filters/events-filters.dto";
 import { FilteredEventsResponse } from "@/models/filters/filtered-events-response.dto";
 import { PagedResponse } from "@/models/pagination/paged-response.dto";
 import { PerformerDTO } from "@/models/performer.dto";
+import { EventViewRequestDTO } from "@/models/requests/event-view-request.dto";
 import { ScheduleItemDTO } from "@/models/schedule-item.dto";
 
 export async function getMainEvents(): Promise<PagedResponse<EventItemDTO>> {
@@ -40,7 +41,21 @@ export async function getEventDetail(id: number): Promise<EventDetailDTO> {
 
 export async function getEventCategories(): Promise<EventCategoryDTO[]> {
     return requestAxios<null, EventCategoryDTO[]>(
-        'GET',
+        "GET",
         "events/categories"
+    );
+}
+
+export async function registerEventView(eventId: number, visitorId: string) {
+    const viewRequest: EventViewRequestDTO = {
+        eventId: eventId,
+        platform: "web",
+        visitorId: visitorId
+    };
+
+    return requestAxios<EventViewRequestDTO, null>(
+        "POST",
+        "events/view",
+        viewRequest
     );
 }

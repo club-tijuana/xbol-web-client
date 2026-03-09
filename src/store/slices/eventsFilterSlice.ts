@@ -49,6 +49,10 @@ const eventsFilterSlice = createSlice({
         setRangeDateTo: (state, action: PayloadAction<string | null>) => {
             state.filters.page = 1;
             state.filters.rangeDateTo = action.payload;
+        },
+        setTrendingEvents: (state, action: PayloadAction<boolean | undefined>) => {
+            state.filters.page = 1;
+            state.filters.trendingEvents = action.payload;
         }
     }
 });
@@ -61,6 +65,7 @@ export const {
     setCategories,
     setPerformerId,
     setRangeDateFrom,
-    setRangeDateTo
+    setRangeDateTo,
+    setTrendingEvents
 } = eventsFilterSlice.actions;
 export default eventsFilterSlice.reducer;

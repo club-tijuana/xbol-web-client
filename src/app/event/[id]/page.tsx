@@ -14,6 +14,8 @@ import { getEvents, getEventDetail } from "@/services/eventService";
 import { colors } from "@/theme/colors";
 import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
 
+import VisitorRegister from "../components/VisitorRegister/VisitorRegister";
+
 
 const getEventCached = cache(getEventDetail);
 
@@ -109,6 +111,7 @@ export default async function EventDetailPage({ params }: EventPageProps) {
 
     return (
         <Box>
+            <VisitorRegister eventId={Number(id)} />
             <FullWidthSection
                 variant="imageFixedHeight"
                 image="/assets/images/separators/soccer-separator.png"
