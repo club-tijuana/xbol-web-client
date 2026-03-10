@@ -3,7 +3,7 @@ name: Build and Push to GCP (DEV)
 on:
   push:
     branches:
-      - dev
+      - jmedina/build_dev
 
 jobs:
   build-and-push:
