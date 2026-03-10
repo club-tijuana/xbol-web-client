@@ -34,7 +34,7 @@ jobs:
           if [ -n "$INFRA_REPO_TOKEN" ]; then
             git clone --depth 1 "https://x-access-token:${INFRA_REPO_TOKEN}@github.com/club-tijuana/infra-cloud.git" infra-cloud-version 2>/dev/null || true
 
-            DEPLOY_FILE="infra-cloud-version/workloads/cashless/dev/web/deployment.yaml"
+            DEPLOY_FILE="infra-cloud-version/workloads/boletera/dev/web-client/deployment.yaml"
             if [ -f "$DEPLOY_FILE" ]; then
               CURRENT_IMAGE_GET_VERSION=$(yq e '.spec.template.spec.containers[0].image' "$DEPLOY_FILE" 2>/dev/null || true)
               if [ -n "$CURRENT_IMAGE_GET_VERSION" ]; then
@@ -102,7 +102,7 @@ jobs:
             echo "⚠️ INFRA_CLOUD_REPO_TOKEN no configurado, se omite actualización"
             exit 0
           fi
-          DEPLOY_FILE="workloads/cashless/dev/web/deployment.yaml"
+          DEPLOY_FILE="workloads/boletera/dev/web-client/deployment.yaml"
           git clone --depth 1 "https://x-access-token:${INFRA_REPO_TOKEN}@github.com/club-tijuana/infra-cloud.git" infra-cloud
           cd infra-cloud
           if [ ! -f "$DEPLOY_FILE" ]; then
@@ -125,7 +125,7 @@ jobs:
           echo "✅ Image version updated."
   deploy-gke:
     needs: build-and-push
-    runs-on: self-hosted-cashless-qa
+    runs-on: self-hosted-boletera-qa
     environment: GCP_DEV
     permissions:
       contents: read
@@ -156,7 +156,7 @@ jobs:
           fi
           gcloud container clusters get-credentials "${{ secrets.GKE_CLUSTER_NAME }}" $GET_CRED_ARGS
           git clone --depth 1 "https://x-access-token:${INFRA_REPO_TOKEN}@github.com/club-tijuana/infra-cloud.git" infra-cloud-deploy
-          DEPLOY_FILE="infra-cloud-deploy/workloads/cashless/dev/web/deployment.yaml"
+          DEPLOY_FILE="infra-cloud-deploy/workloads/boletera/dev/web-client/deployment.yaml"
           if [ ! -f "$DEPLOY_FILE" ]; then
             echo "❌ No existe $DEPLOY_FILE"
             exit 1
