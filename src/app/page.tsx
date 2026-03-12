@@ -5,7 +5,7 @@ import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import EventCarousel from "@/components/EventCarousel/EventCarousel";
 import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
 import { mapEventToCardVM } from "@/models/event-item.dto";
-import { getEvents, getMainEvents } from "@/services/eventService";
+import { getEvents, getMainEvents, getTrendingEvents } from "@/services/eventService";
 import { colors } from "@/theme/colors";
 
 export const metadata: Metadata = {
@@ -40,12 +40,12 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const mainEvents = await getMainEvents();
-  const featuredEvents = await getEvents({ page: 1, pageSize: 6, rangeDateFrom: null, rangeDateTo: null });
-  const futbolEvents = await getEvents({ page: 1, eventCategoryIds: [1], pageSize: 3, rangeDateFrom: null, rangeDateTo: null });
-  const musicEvents = await getEvents({ page: 1, eventCategoryIds: [2], pageSize: 3, rangeDateFrom: null, rangeDateTo: null });
-  const theaterEvents = await getEvents({ page: 1, eventCategoryIds: [3], pageSize: 3, rangeDateFrom: null, rangeDateTo: null });
+  const trendingEvents = await getTrendingEvents({ page: 1, pageSize: 6 });
+  const futbolEvents = await getEvents({ page: 1, eventCategoryId: 1, pageSize: 3, rangeDateFrom: null, rangeDateTo: null });
+  const musicEvents = await getEvents({ page: 1, eventCategoryId: 2, pageSize: 3, rangeDateFrom: null, rangeDateTo: null });
+  const theaterEvents = await getEvents({ page: 1, eventCategoryId: 3, pageSize: 3, rangeDateFrom: null, rangeDateTo: null });
 
-  const featuredEventsVM = featuredEvents.items.map(mapEventToCardVM);
+  const trendingEventsVM = trendingEvents.items.map(mapEventToCardVM);
   const futbolEventsVM = futbolEvents.items.map(mapEventToCardVM);
   const musicEventsVM = musicEvents.items.map(mapEventToCardVM);
   const theaterEventsVM = theaterEvents.items.map(mapEventToCardVM);
@@ -61,7 +61,7 @@ export default async function Home() {
           <Grid size={12}>
             <EventCardGrid
               title="Eventos destacados"
-              eventCards={featuredEventsVM}
+              eventCards={trendingEventsVM}
               sizeVariant="sm"
               styleVariant="default"
               showCardBadge={true}

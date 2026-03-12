@@ -8,9 +8,11 @@ import { useEffect, useRef, useState } from "react";
 import TicketSeats from "@/app/account/tickets/order/[orderId]/event/[eventId]/components/TicketSeats/TicketSeats";
 import SeatsMap, { SeatsMapHandle } from "@/components/SeatsMap/SeatsMap";
 import { formatDate } from "@/helpers/formatDateHelper";
+import { ItemType } from "@/models/enums/item-type.enum";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setEventId, setSeats, setSeatsDto } from "@/store/slices/bookingSlice";
+import { setBookHoldToken, setBookKey, setBookMode, setBookSeats, setBookTicketType, setSeats, setSeatsDto, eventBook } from "@/store/slices/bookingSlice";
 
+import ClientInfo from "../ClientInfo/ClientInfo";
 import Payment from "../Payment/Payment";
 import SeatFilters from "../SeatFilters/SeatFilters";
 
@@ -21,6 +23,7 @@ type BookingStep = "selection" | "payment";
 
 /* -------------------- COMPONENT -------------------- */
 export default function BookingClient({ scheduleId, event }: BookingClientProps) {
+    const eventBookObj = useAppSelector(state => state.booking.eventBookingRequest);
     const mapRef = useRef<SeatsMapHandle>(null);
     const [bookingStep, setBookingStep] = useState<BookingStep>("selection");
     const selectedSeatsDto = useAppSelector(store => store.booking.selectedSeatsDto);
@@ -31,7 +34,17 @@ export default function BookingClient({ scheduleId, event }: BookingClientProps)
     const formattedDate = formatDate(event.startDate, "dateTime");
 
     useEffect(() => {
-        dispatch(setEventId(event.id));
+        // TODO: Handle Event and Season booking
+        if (!event.eventKey) {
+            // TODO: Redirect to event page and show a message
+        }
+        else {
+            dispatch(setBookMode("event")); // TODO: Handle Event and Season
+            dispatch(setBookTicketType(ItemType.Ticket));
+            dispatch(setBookKey(event.eventKey));
+            dispatch(setBookHoldToken("aaaaaaaaaaaa")); // TODO: Get hold token from API
+            dispatch(setBookTicketType(ItemType.Ticket)); // TODO: Handle Event and Season
+        }
     }, [event, dispatch]);
 
     const renderLeftPanel = () => {
@@ -45,11 +58,18 @@ export default function BookingClient({ scheduleId, event }: BookingClientProps)
                 );
             case "payment":
                 return event.eventKey && selectedSeatsDto ? (
-                    <TicketSeats
-                        eventKey={event.eventKey}
-                        seats={selectedSeatsDto}
-                        selectedSeats={selectedSeats}
-                    />
+                    <>
+                        <Box>
+                            <TicketSeats
+                                eventKey={event.eventKey}
+                                seats={selectedSeatsDto}
+                                selectedSeats={selectedSeats}
+                            />
+                        </Box>
+                        <Box mt={4}>
+                            <ClientInfo />
+                        </Box>
+                    </>
                 ) : null;
             default:
                 return null;
@@ -65,6 +85,7 @@ export default function BookingClient({ scheduleId, event }: BookingClientProps)
                         selectedSection={selectedSection}
                         selectedSeats={selectedSeats}
                         eventKey={event.eventKey}
+                        pricing={[{ category: 3, price: 1 }, { category: 4, price: 2 }, { category: 5, price: 3 }]}
                     />
                 ) : null;
             case "payment":
@@ -81,23 +102,41 @@ export default function BookingClient({ scheduleId, event }: BookingClientProps)
         }
     };
 
-    const handleContinue = () => {
-        const seats = mapRef.current?.getSelectedSeats();
-        const seatsDto = mapRef.current?.getSelectedSeatsDto();
+    const handleContinue = async () => {
+        switch (bookingStep) {
+            case "selection":
+                const seats = mapRef.current?.getSelectedSeats();
+                const seatsDto = mapRef.current?.getSelectedSeatsDto();
 
-        if (seats) {
-            dispatch(setSeats(seats));
+                if (seats) {
+                    dispatch(setSeats(seats));
+                    dispatch(setBookSeats(seats));
+                }
+
+                if (seatsDto) {
+                    dispatch(setSeatsDto(seatsDto));
+                }
+
+                setBookingStep("payment");
+                break;
+            case "payment":
+                if (eventBookObj) {
+                    const result = await dispatch(eventBook(eventBookObj));
+
+                    if (eventBook.fulfilled.match(result)) {
+
+                    }
+                    else if (eventBook.rejected.match(result)) {
+
+                    }
+                }
+                break;
         }
 
-        if (seatsDto) {
-            dispatch(setSeatsDto(seatsDto));
-        }
-
-        setBookingStep("payment");
     };
 
     return (
-        <Grid container columns={12} mt={7}>
+        <Grid container columns={12} mt={7} spacing={4}>
             <Grid size={6}>
                 <Grid container columns={12}>
                     <Grid size={4}>

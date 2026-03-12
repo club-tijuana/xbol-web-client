@@ -1,37 +1,96 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+import { BookingResult } from "@/models/booking-result.dto";
+import { ItemType } from "@/models/enums/item-type.enum";
 import { MyEventSeatDTO } from "@/models/my-event-seat.dto";
-
-interface BookingPayload {
-    eventId: number;
-    selectedSeats: MyEventSeatDTO[];
-}
+import { ClientInfoRequest } from "@/models/requests/client-info-request.dto";
+import { EventBookingRequest } from "@/models/requests/event-booking-request.dto";
+import { PaymentInfoRequest } from "@/models/requests/payment-info-request.dto";
+import { SeasonBookingRequest } from "@/models/requests/season-booking-request.dto";
+import { eventBookSeats, seasonBookSeats } from "@/services/bookingService";
 
 interface BookingState {
-    eventId: number | null;
+    //     eventId: number | null;
+    bookMode?: "event" | "season";
     selectedSeatsDto: MyEventSeatDTO[] | undefined;
-    selectedSeats: Array<string> | undefined;
+    //selectedSeats: Array<string> | undefined;
+    selectedSeats?: Array<[string, number]>;
+    eventBookingRequest?: EventBookingRequest;
+    seasonBookingRequest?: SeasonBookingRequest;
     status: "idle" | "loading" | "success" | "error";
     error?: string;
 }
 
 const initialState: BookingState = {
-    eventId: null,
+    //     eventId: null,
+    bookMode: undefined,
     selectedSeatsDto: undefined,
     selectedSeats: undefined,
+    eventBookingRequest: undefined,
+    seasonBookingRequest: undefined,
     status: "idle"
 };
 
-export const book = createAsyncThunk<
-    boolean,
-    BookingPayload,
+function createEventBookingRequest(): EventBookingRequest {
+    return {
+        eventKey: "",
+        seats: [],
+        ticketType: ItemType.Ticket,
+        clientContact: {} as ClientInfoRequest,
+        paymentInfoRequest: {
+            cardAmount: 0,
+            cashAmount: 0,
+            creditAmount: 0,
+            dolarAmount: 0,
+            exchangeRate: 0,
+            isCourtesy: false,
+            otherAmount: 0
+        }
+    };
+}
+
+function createSeasonBookingRequest(): SeasonBookingRequest {
+    return {
+        seats: [],
+        ticketType: ItemType.SeasonPass,
+        clientContact: {} as ClientInfoRequest,
+        paymentInfoRequest: {} as PaymentInfoRequest,
+    };
+}
+
+export const eventBook = createAsyncThunk<
+    BookingResult,
+    EventBookingRequest,
     { rejectValue: string }
 >(
-    "booking/book",
-    async ({ eventId, selectedSeats }, thunkAPI) => {
+    "event/book",
+    async (request, thunkAPI) => {
         try {
-            // TODO: Implement a reservation service
-            return true;
+            const response = await eventBookSeats(request);
+            return response;
+        }
+        catch (error: unknown) {
+            let message = "Error al reservar los asientos";
+
+            if (error instanceof Error) {
+                message = error.message;
+            }
+
+            return thunkAPI.rejectWithValue(message);
+        }
+    }
+);
+
+export const seasonBook = createAsyncThunk<
+    BookingResult,
+    SeasonBookingRequest,
+    { rejectValue: string }
+>(
+    "season/book",
+    async (request, thunkAPI) => {
+        try {
+            const response = await seasonBookSeats(request);
+            return response;
         }
         catch (error: unknown) {
             let message = "Error al reservar los asientos";
@@ -49,29 +108,110 @@ const bookingSlice = createSlice({
     name: "booking",
     initialState,
     reducers: {
-        setEventId: (state, action: PayloadAction<number>) => {
-            state.eventId = action.payload;
+        setBookMode: (state, action: PayloadAction<"event" | "season">) => { // TODO: Use ticket type
+            state.bookMode = action.payload;
+            state.eventBookingRequest = undefined;
+            state.seasonBookingRequest = undefined;
+        },
+        setBookKey: (state, action: PayloadAction<string>) => {
+            if (state.bookMode === "event") {
+                state.eventBookingRequest ??= createEventBookingRequest();
+                state.eventBookingRequest.eventKey = action.payload;
+            }
+            else if (state.bookMode === "season") {
+                state.seasonBookingRequest ??= createSeasonBookingRequest();
+                state.seasonBookingRequest.seasonKey = action.payload;
+            }
+        },
+        setBookSeats: (state, action: PayloadAction<Array<[string, number]>>) => {
+            if (state.bookMode === "event") {
+                state.eventBookingRequest ??= createEventBookingRequest();
+                state.eventBookingRequest.seats = action.payload;
+            }
+            else if (state.bookMode === "season") {
+                state.seasonBookingRequest ??= createSeasonBookingRequest();
+                state.seasonBookingRequest.seats = action.payload;
+            }
+        },
+        setBookHoldToken: (state, action: PayloadAction<string>) => {
+            if (state.bookMode === "event") {
+                state.eventBookingRequest ??= createEventBookingRequest();
+                state.eventBookingRequest.holdToken = action.payload;
+            }
+            else if (state.bookMode === "season") {
+                state.seasonBookingRequest ??= createSeasonBookingRequest();
+                state.seasonBookingRequest.holdToken = action.payload;
+            }
+        },
+        setBookTicketType: (state, action: PayloadAction<ItemType>) => {
+            if (state.bookMode === "event") {
+                state.eventBookingRequest ??= createEventBookingRequest();
+                state.eventBookingRequest.ticketType = action.payload;
+            }
+            else if (state.bookMode === "season") {
+                state.seasonBookingRequest ??= createSeasonBookingRequest();
+                state.seasonBookingRequest.ticketType = action.payload;
+            }
+        },
+        setBookClientContact: (state, action: PayloadAction<ClientInfoRequest>) => {
+            if (state.bookMode === "event") {
+                state.eventBookingRequest ??= createEventBookingRequest();
+                state.eventBookingRequest.clientContact = action.payload;
+            }
+            else if (state.bookMode === "season") {
+                state.seasonBookingRequest ??= createSeasonBookingRequest();
+                state.seasonBookingRequest.clientContact = action.payload;
+            }
+        },
+        setBookPaymentInfo: (state, action: PayloadAction<PaymentInfoRequest>) => {
+            if (state.bookMode === "event") {
+                state.eventBookingRequest ??= createEventBookingRequest();
+                state.eventBookingRequest.paymentInfoRequest = action.payload;
+            }
+            else if (state.bookMode === "season") {
+                state.seasonBookingRequest ??= createSeasonBookingRequest();
+                state.seasonBookingRequest.paymentInfoRequest = action.payload;
+            }
         },
         setSeatsDto: (state, action: PayloadAction<MyEventSeatDTO[]>) => {
             state.selectedSeatsDto = action.payload;
         },
-        setSeats: (state, action: PayloadAction<string[]>) => {
+        setSeats: (state, action: PayloadAction<Array<[string, number]>>) => {
             state.selectedSeats = action.payload;
         }
     },
     extraReducers: (builder) => {
         builder
-            .addCase(book.pending, (state) => {
+            .addCase(eventBook.pending, (state) => {
                 state.status = "loading";
             })
-            .addCase(book.fulfilled, (state, action) => {
+            .addCase(eventBook.fulfilled, (state, action) => {
                 state.status = "success";
             })
-            .addCase(book.rejected, (state) => {
+            .addCase(eventBook.rejected, (state) => {
+                state.status = "error";
+            })
+            .addCase(seasonBook.pending, (state) => {
+                state.status = "loading";
+            })
+            .addCase(seasonBook.fulfilled, (state, action) => {
+                state.status = "success";
+            })
+            .addCase(seasonBook.rejected, (state) => {
                 state.status = "error";
             });
     }
 });
 
-export const { setEventId, setSeatsDto, setSeats } = bookingSlice.actions;
+export const {
+    setBookMode,
+    setBookKey,
+    setBookSeats,
+    setBookHoldToken,
+    setBookTicketType,
+    setBookClientContact,
+    setBookPaymentInfo,
+    setSeatsDto,
+    setSeats
+} = bookingSlice.actions;
 export default bookingSlice.reducer;

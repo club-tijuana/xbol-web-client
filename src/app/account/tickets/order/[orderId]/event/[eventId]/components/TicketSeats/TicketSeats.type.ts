@@ -8,6 +8,6 @@ export interface TicketSeatsProps {
     total?: number;
     currency?: string;
     seats: Array<MyEventSeatDTO>;
-    selectedSeats?: Array<string>;
+    selectedSeats?: Array<[string, number]>;
     folio?: string;
 }

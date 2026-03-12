@@ -7,7 +7,7 @@ import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import FAQ from "@/components/FAQ/FAQ";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { mapEventToCardVM } from "@/models/event-item.dto";
-import { getEvents } from "@/services/eventService";
+import { getTrendingEvents } from "@/services/eventService";
 import { getOrderSuccess } from "@/services/orderService";
 
 import TicketSeats from "../event/[eventId]/components/TicketSeats/TicketSeats";
@@ -24,9 +24,8 @@ export default async function SuccessPage(props: SuccessPageProps) {
     const { orderId } = await props.params;
     const order = await getOrderSuccess(Number.parseInt(orderId));
 
-    // TODO: Create service to get other events
-    const otherEvents = await getEvents({ page: 1, eventCategoryIds: [2], pageSize: 4, rangeDateFrom: null, rangeDateTo: null });
-    const otherEventsVM = otherEvents.items.map(mapEventToCardVM);
+    const trendingEvents = await getTrendingEvents({ page: 1, pageSize: 4 });
+    const trendingEventsVM = trendingEvents.items.map(mapEventToCardVM);
 
     const formattedEventDate = formatDate(order.events[0].startDate, "dateTime");
 
@@ -94,7 +93,7 @@ export default async function SuccessPage(props: SuccessPageProps) {
                         Otros eventos
                     </Typography>
                     <EventCardGrid
-                        eventCards={otherEventsVM}
+                        eventCards={trendingEventsVM}
                         sizeVariant="xs"
                         styleVariant="default"
                         showCardActions={false}

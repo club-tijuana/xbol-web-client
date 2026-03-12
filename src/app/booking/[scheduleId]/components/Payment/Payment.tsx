@@ -3,12 +3,30 @@
 import { Box, Button, Checkbox, Divider, FormControl, FormControlLabel, Grid, Input, Paper, Typography } from "@mui/material";
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Image from "next/image";
+import { useState } from "react";
 
 import { formatCurrency } from "@/helpers/formatCurrencyHelper";
+import { PaymentMethodDTO } from "@/models/payment-method.dto";
 
 import { PaymentProps } from "./Payment.type";
 
 export default function Payment({ subtotal, taxes, total, currency }: PaymentProps) {
+    const [paymentMethod, setPaymentMethod] = useState<PaymentMethodDTO>({
+        ownerName: "",
+        cardNumber: "",
+        expirationDay: 0,
+        expirationMonth: 0
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+
+        setPaymentMethod(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
     return (
         <Paper elevation={3} className="paperCard" sx={{ backgroundColor: "white" }}>
             <Typography variant="h3" color="primary">
@@ -21,18 +39,16 @@ export default function Payment({ subtotal, taxes, total, currency }: PaymentPro
                     </Typography>
                     <FormControl fullWidth variant="filled">
                         <Input
-                            id="email"
+                            id="ownerName"
+                            name="ownerName"
                             type={'text'}
-                            inputProps={{
-                                style: {
-                                    fontSize: 16
-                                }
-                            }}
+                            inputProps={{ style: { fontSize: 16 } }}
                             sx={{
                                 backgroundColor: 'white',
                                 '&:after': { borderBottom: '2px solid var(--color-text-primary)' },
                             }}
-                            onChange={(e) => { }}
+                            value={paymentMethod.ownerName}
+                            onChange={handleChange}
                         />
                     </FormControl>
                 </Grid>
@@ -42,18 +58,16 @@ export default function Payment({ subtotal, taxes, total, currency }: PaymentPro
                     </Typography>
                     <FormControl fullWidth variant="filled">
                         <Input
-                            id="email"
+                            id="cardNumber"
+                            name="cardNumber"
                             type={'text'}
-                            inputProps={{
-                                style: {
-                                    fontSize: 16
-                                }
-                            }}
+                            inputProps={{ style: { fontSize: 16 } }}
                             sx={{
                                 backgroundColor: 'white',
                                 '&:after': { borderBottom: '2px solid var(--color-text-primary)' },
                             }}
-                            onChange={(e) => { }}
+                            value={paymentMethod.cardNumber}
+                            onChange={handleChange}
                         />
                     </FormControl>
                 </Grid>

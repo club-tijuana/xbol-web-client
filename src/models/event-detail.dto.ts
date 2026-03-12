@@ -6,6 +6,15 @@ export interface EventDetailDTO {
     name: string;
     shortDescription?: string;
     longDescription?: string;
+    image: string;
+    addressLine: string;
+    city: string;
+    state: string;
+    country: string;
+    zipCode?: string;
+    fullAddress: string;
+    latitude: number;
+    longitude: number;
     gallery: string[];
     schedules: EventScheduleDTO[];
     categories: EventCategoryDTO[];

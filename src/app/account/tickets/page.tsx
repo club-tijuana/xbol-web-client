@@ -6,7 +6,7 @@ import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import { OrderType } from "@/models/enums/order-type.enum";
 import { mapEventToCardVM } from "@/models/event-item.dto";
 import { getMyEvents } from "@/services/accountService";
-import { getEvents } from "@/services/eventService";
+import { getTrendingEvents } from "@/services/eventService";
 import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
 
 import TicketTabs from "./components/TicketTabs/TicketTabs";
@@ -30,9 +30,8 @@ export default async function TicketsPage() {
     const myTickets = await getMyEvents({ page: 1, pageSize: 10, orderType: OrderType.Ticket, rangeDateFrom: null, rangeDateTo: null });
     const mySeasonTickets = await getMyEvents({ page: 1, pageSize: 10, orderType: OrderType.SeasonPass, rangeDateFrom: null, rangeDateTo: null });
 
-    // TODO: Create service to get other events
-    const otherEvents = await getEvents({ page: 1, eventCategoryIds: [2], pageSize: 4, rangeDateFrom: null, rangeDateTo: null });
-    const otherEventsVM = otherEvents.items.map(mapEventToCardVM);
+    const trendingEvents = await getTrendingEvents({ page: 1, pageSize: 4 });
+    const trendingEventsVM = trendingEvents.items.map(mapEventToCardVM);
 
     return (
         <Box mt={13}>
@@ -54,7 +53,7 @@ export default async function TicketsPage() {
                         Otros eventos
                     </Typography>
                     <EventCardGrid
-                        eventCards={otherEventsVM}
+                        eventCards={trendingEventsVM}
                         sizeVariant="xs"
                         styleVariant="default"
                         showCardActions={false}

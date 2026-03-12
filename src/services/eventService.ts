@@ -4,6 +4,7 @@ import { EventDetailDTO } from "@/models/event-detail.dto";
 import { EventItemDTO } from "@/models/event-item.dto";
 import { EventsFilters } from "@/models/filters/events-filters.dto";
 import { FilteredEventsResponse } from "@/models/filters/filtered-events-response.dto";
+import { SearchEventsFilters } from "@/models/filters/search-events-filters.dto";
 import { PagedResponse } from "@/models/pagination/paged-response.dto";
 import { PerformerDTO } from "@/models/performer.dto";
 import { EventViewRequestDTO } from "@/models/requests/event-view-request.dto";
@@ -24,8 +25,8 @@ export async function getEvents(filters: EventsFilters): Promise<PagedResponse<E
     );
 }
 
-export async function getFilteredEvents(filters: EventsFilters): Promise<FilteredEventsResponse<PerformerDTO, ScheduleItemDTO>> {
-    return requestAxios<EventsFilters, FilteredEventsResponse<PerformerDTO, ScheduleItemDTO>>(
+export async function getFilteredEvents(filters: SearchEventsFilters): Promise<FilteredEventsResponse<PerformerDTO, ScheduleItemDTO>> {
+    return requestAxios<SearchEventsFilters, FilteredEventsResponse<PerformerDTO, ScheduleItemDTO>>(
         "POST",
         "events/filtered-events",
         filters
@@ -57,5 +58,13 @@ export async function registerEventView(eventId: number, visitorId: string) {
         "POST",
         "events/view",
         viewRequest
+    );
+}
+
+export async function getTrendingEvents(filters: EventsFilters): Promise<PagedResponse<EventItemDTO>> {
+    return requestAxios<EventsFilters, PagedResponse<EventItemDTO>>(
+        "POST",
+        "events/trending-events",
+        filters
     );
 }

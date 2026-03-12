@@ -171,8 +171,15 @@ export default function EventCard({
                     color={currentStyleConfig.titleColor}
                     className={`${styles.title}`}
                     textAlign={isSmall ? "center" : "left"}
-                    height={70}
-                    alignContent={'center'}
+                    sx={{
+                        height: 60,
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        lineHeight: 1.2
+                    }}
                 >
                     {name}
                 </Typography>

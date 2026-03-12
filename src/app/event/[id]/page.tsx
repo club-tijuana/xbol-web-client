@@ -1,6 +1,6 @@
-import { StarBorder } from "@mui/icons-material";
+import { ArrowDownwardOutlined, StarBorder } from "@mui/icons-material";
 import LaunchRoudedIcon from "@mui/icons-material/LaunchRounded";
-import { Box, Button, Chip, Divider, Grid, Paper, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Chip, Divider, Grid, Paper, Typography } from "@mui/material";
 import { Metadata } from "next";
 import Image from "next/image";
 import { cache } from "react";
@@ -9,8 +9,10 @@ import Advertisement from "@/components/Advertisement/Advertisement";
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import FAQ from "@/components/FAQ/FAQ";
 import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
+import { formatCurrency } from "@/helpers/formatCurrencyHelper";
+import { formatDate } from "@/helpers/formatDateHelper";
 import { mapEventToCardVM } from "@/models/event-item.dto";
-import { getEvents, getEventDetail } from "@/services/eventService";
+import { getEventDetail, getTrendingEvents } from "@/services/eventService";
 import { colors } from "@/theme/colors";
 import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
 
@@ -55,8 +57,8 @@ export default async function EventDetailPage({ params }: EventPageProps) {
     const event = await getEventCached(Number.parseInt(id));
 
     // TODO: Create service to get other events
-    const outstandingEvents = await getEvents({ page: 1, eventCategoryIds: [2], pageSize: 4, rangeDateFrom: null, rangeDateTo: null });
-    const outstandingEventsVM = outstandingEvents.items.map(mapEventToCardVM);
+    const trendingEvents = await getTrendingEvents({ page: 1, pageSize: 4 });
+    const trendingEventsVM = trendingEvents.items.map(mapEventToCardVM);
 
     const Gallery =
         <>
@@ -123,11 +125,17 @@ export default async function EventDetailPage({ params }: EventPageProps) {
                             <LaunchRoudedIcon color='neutral' fontSize="large" sx={{ marginLeft: 1, marginRight: 1 }} />
                             <StarBorder color='neutral' fontSize="large" />
                         </Typography>
-                        <Typography variant="h3" fontWeight={400} mb={1} color='primary'>
+                        <Typography variant="h3" fontWeight={400} mb={1} mt={3} color='primary'>
                             Información
                         </Typography>
                         <Typography variant="bodyLg" mb={4} color="neutral">
                             {event.longDescription}
+                        </Typography>
+                        <Typography variant="h3" fontWeight={400} mb={1} mt={3} color='primary'>
+                            Dirección del recinto
+                        </Typography>
+                        <Typography variant="bodyLg" mb={4} color="neutral">
+                            {event.fullAddress}
                         </Typography>
 
                         <Box sx={{ display: { sm: 'block', md: 'none' } }} mt={4}>
@@ -141,36 +149,97 @@ export default async function EventDetailPage({ params }: EventPageProps) {
                             <Divider sx={{ mt: 2, borderWidth: 1, borderColor: 'var(--color-bg-muted)' }} />
                             {
                                 event.schedules.map(s => (
-                                    <Grid container columns={6} mt={1} key={s.id}>
-                                        <Grid size={2}>
-                                            <Typography variant="h6" color="primary">
-                                                Fecha
-                                            </Typography>
-                                            <Typography variant="subtitle1" fontWeight={400} color="text">
-                                                {
-                                                    new Date(s.date).toLocaleDateString("ex-MX", {
-                                                        day: "2-digit",
-                                                        month: "2-digit",
-                                                        year: "numeric",
-                                                        hour: '2-digit',
-                                                        hour12: true
-                                                    })
-                                                }
-                                            </Typography>
-                                        </Grid>
-                                        <Grid size={2} alignContent='center'>
-                                            <Typography variant="bodyLg" className="textSecondary">
-                                                {s.location}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid size={2} textAlign={'right'} alignContent={'center'}>
-                                            <Button variant="outlined" href={`/booking/${s.id}`}>
-                                                <Typography variant="body1" py={0.3}>
-                                                    Ver tickets
-                                                </Typography>
-                                            </Button>
-                                        </Grid>
-                                    </Grid>
+                                    <Accordion key={s.id} elevation={0}>
+                                        <AccordionSummary
+                                            expandIcon={
+                                                <Box display="flex" flexDirection="column" alignItems="center" gap={1}>
+                                                    <Button variant="outlined" href={`/booking/${s.id}`}>
+                                                        <Typography variant="body2" py={0.3}>
+                                                            Ver tickets
+                                                        </Typography>
+                                                    </Button>
+                                                    <Box display="flex" flexDirection="row" mt={1}>
+                                                        <ArrowDownwardOutlined className="arrowIcon" fontSize="small" />
+                                                        <Typography variant="body2" color="text">
+                                                            Secciones
+                                                        </Typography>
+                                                    </Box>
+                                                </Box>
+                                            }
+                                            sx={{
+                                                "& .MuiAccordionSummary-expandIconWrapper": {
+                                                    transform: "none",
+                                                },
+                                                "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
+                                                    transform: "none",
+                                                },
+
+                                                "& .MuiAccordionSummary-expandIconWrapper .arrowIcon": {
+                                                    transition: "transform 0.3s ease",
+                                                },
+                                                "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded .arrowIcon": {
+                                                    transform: "rotate(180deg)",
+                                                },
+                                            }}
+                                        >
+                                            <Grid container columns={6} my={2} sx={{ width: "100%" }} spacing={{ xs: 0, lg: 1 }}>
+                                                <Grid size={{ xs: 6, sm: 3, md: 3, lg: 2 }}>
+                                                    <Typography variant="subtitle1" color="primary">
+                                                        Fecha
+                                                    </Typography>
+                                                    <Typography variant="subtitle2" fontWeight={400}>
+                                                        {
+                                                            formatDate(s.date, "date")
+                                                        }
+                                                    </Typography>
+                                                </Grid>
+                                                <Grid size={{ xs: 6, sm: 3, md: 3, lg: 2 }} alignContent='start' my={{ xs: 1, sm: 0 }}>
+                                                    <Typography variant="subtitle1" color="primary">
+                                                        Hora
+                                                    </Typography>
+                                                    <Typography variant="subtitle2" fontWeight={400}>
+                                                        {
+                                                            formatDate(s.date, "time")
+                                                        }
+                                                    </Typography>
+                                                </Grid>
+                                                <Grid size={{ xs: 6, sm: 2, md: 2 }} alignContent='start' mt={{ xs: 0, sm: 1 }}>
+                                                    <Typography variant="subtitle1" color="primary">
+                                                        Estadio
+                                                    </Typography>
+                                                    <Typography variant="subtitle2" fontWeight={400}>
+                                                        {s.location}
+                                                    </Typography>
+                                                </Grid>
+                                            </Grid>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <Divider sx={{ mb: 2, borderWidth: 1 }} />
+                                            <Grid container columns={2} px={8}>
+                                                <Grid size={1}>
+                                                    <Typography variant="subtitle1" color="primary">Sección</Typography>
+                                                </Grid>
+                                                <Grid size={1}>
+                                                    <Typography variant="subtitle1" color="primary" textAlign="right">Precio</Typography>
+                                                </Grid>
+                                            </Grid>
+                                            {(s.sectionPrices && s.sectionPrices.length > 0) && s.sectionPrices.map((section, index) => (
+                                                <Box key={index}>
+                                                    <Grid container columns={2} px={8}>
+                                                        <Grid size={1}>
+                                                            <Typography variant="subtitle2" color="text">{section.objects.join(", ")}</Typography>
+                                                        </Grid>
+                                                        <Grid size={1}>
+                                                            <Typography variant="subtitle2" color="text" textAlign="right">
+                                                                {formatCurrency(section.price ?? 0, section.currency)}
+                                                            </Typography>
+                                                        </Grid>
+                                                    </Grid>
+                                                    {(index < s.sectionPrices.length - 1) && <Divider sx={{ my: 1, borderWidth: 1 }} />}
+                                                </Box>
+                                            ))}
+                                        </AccordionDetails>
+                                    </Accordion>
                                 ))
                             }
                         </Paper>
@@ -194,7 +263,7 @@ export default async function EventDetailPage({ params }: EventPageProps) {
                         Otros eventos
                     </Typography>
                     <EventCardGrid
-                        eventCards={outstandingEventsVM}
+                        eventCards={trendingEventsVM}
                         showCardActions={false}
                         sizeVariant="xs"
                         styleVariant="default"

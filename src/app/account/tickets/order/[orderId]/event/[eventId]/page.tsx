@@ -10,7 +10,7 @@ import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { mapEventToCardVM } from "@/models/event-item.dto";
 import { getMyEventDetail, getMyEventTickets } from "@/services/accountService";
-import { getEvents } from "@/services/eventService";
+import { getTrendingEvents } from "@/services/eventService";
 import { colors } from "@/theme/colors";
 import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
 
@@ -88,9 +88,8 @@ export default async function TicketPage(props: TicketPageProps) {
         rangeDateTo: null
     });
 
-    // TODO: Create service to get other events
-    const otherEvents = await getEvents({ page: 1, eventCategoryIds: [2], pageSize: 4, rangeDateFrom: null, rangeDateTo: null });
-    const otherEventsVM = otherEvents.items.map(mapEventToCardVM);
+    const trendingEvents = await getTrendingEvents({ page: 1, pageSize: 4 });
+    const trendingEventsVM = trendingEvents.items.map(mapEventToCardVM);
 
     const getDateFormat = (): string => {
         if (detail?.date) {
@@ -140,7 +139,7 @@ export default async function TicketPage(props: TicketPageProps) {
                                     totalFees={detail?.totalFees}
                                     totalTaxes={detail?.totalTaxes}
                                     total={detail?.total}
-                                    selectedSeats={detail?.selectedSeats}
+                                    selectedSeats={detail ? detail.selectedSeats.map(s => [s, 0]) : []}
                                     eventKey={detail?.eventKey}
                                     currency={detail.currency}
                                 />
@@ -189,7 +188,7 @@ export default async function TicketPage(props: TicketPageProps) {
                         Eventos destacados
                     </Typography>
                     <EventCardGrid
-                        eventCards={otherEventsVM}
+                        eventCards={trendingEventsVM}
                         sizeVariant="xs"
                         styleVariant="default"
                         showCardActions={false}

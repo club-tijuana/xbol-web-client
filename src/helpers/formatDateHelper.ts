@@ -1,4 +1,4 @@
-type DateFormatMode = "monthYear" | "date" | "dateTime";
+type DateFormatMode = "monthYear" | "date" | "dateTime" | "time";
 
 export function formatDate(date: Date | string, mode: DateFormatMode = "dateTime"): string {
     const d = date instanceof Date ? date : new Date(date);
@@ -21,6 +21,12 @@ export function formatDate(date: Date | string, mode: DateFormatMode = "dateTime
                 day: "2-digit",
                 month: "long",
                 year: "numeric",
+                hour: "2-digit",
+                hour12: true
+            };
+            break;
+        case "time":
+            options = {
                 hour: "2-digit",
                 hour12: true
             };

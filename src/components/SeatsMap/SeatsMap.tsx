@@ -7,19 +7,38 @@ import { MyEventSeatDTO } from "@/models/my-event-seat.dto";
 
 import { SeatsMapProps } from "./SeatsMap.type";
 
+/* -------------------- TYPES -------------------- */
+type Session = 'continue' | 'manual' | 'none' | 'start';
+
+/* -------------------- CONSTANTS -------------------- */
+const SESSION_NONE: Session = "none";
+
 export interface SeatsMapHandle {
-    getSelectedSeats: () => string[];
+    getSelectedSeats: () => Array<[string, number]>;
     getSelectedSeatsDto: () => MyEventSeatDTO[];
     clearSelection: () => void;
 }
 
 const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
-    ({ eventKey, pricing, selectedSeats, selectedSection, mode = "normal" }, ref) => {
+    ({
+        eventKey,
+        pricing,
+        selectedSeats,
+        selectedSection,
+        mode = "normal",
+        categoryFilter = {
+            enabled: true,
+            sortBy: "price",
+            multiSelect: true,
+            zoomOnSelect: true
+        },
+        channels
+    }, ref) => {
 
         const chartRef = useRef<SeatingChart | null>(null);
-        const [currentSelectedSeats, setCurrentSelectedSeats] = useState<string[]>(selectedSeats ?? []);
+        const [currentSelectedSeats, setCurrentSelectedSeats] = useState<[string, number][]>(selectedSeats ?? []);
         const [currentSelectedSeatsDto, setCurrentSelectedSeatsDto] = useState<MyEventSeatDTO[]>([]);
-        const selectedSeatsRef = useRef<string[]>([]);
+        const selectedSeatsRef = useRef<Array<[string, number]>>([]);
         const selectedSeatsDtoRef = useRef<MyEventSeatDTO[]>([]);
 
         useEffect(() => {
@@ -43,16 +62,17 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
             clearSelection: () => {
                 if (!chartRef.current) return;
 
-                chartRef.current.deselectObjects(selectedSeatsRef.current);
+                chartRef.current.deselectObjects(selectedSeatsRef.current.map(s => s[0]));
                 setCurrentSelectedSeats([]);
                 setCurrentSelectedSeatsDto([]);
             }
         }));
 
         const handleSelected = (obj: SelectableObject) => {
-            if (selectedSeats?.includes(obj.label)) return;
+            const seatLabels = selectedSeats?.map(s => s[0]);
+            if (seatLabels?.includes(obj.label)) return;
 
-            setCurrentSelectedSeats(prev => [...prev, obj.label]);
+            setCurrentSelectedSeats(prev => [...prev, [obj.label, Number.parseFloat(obj.pricing.price?.toString() ?? "0")]]);
 
             const current = currentSelectedSeatsDto ?? [];
             const sectionFound = current.find(s => s.section.startsWith(obj.labels.section ?? ""));
@@ -82,7 +102,7 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
         const handleDeselected = (obj: SelectableObject) => {
             if (!obj.labels.section) return;
 
-            setCurrentSelectedSeats(prev => prev.filter(s => s !== obj.label));
+            setCurrentSelectedSeats(prev => prev.filter(s => s[0] !== obj.label));
 
             const current = currentSelectedSeatsDto ?? [];
             const sectionFound = current.find(s => s.section.startsWith(obj.labels.section ?? ""));
@@ -115,16 +135,19 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
                     region="na"
                     pricing={pricing}
                     mode={mode}
-                    selectedObjects={selectedSeats}
+                    selectedObjects={selectedSeats?.map(s => s[0])}
                     onObjectSelected={handleSelected}
                     onObjectDeselected={handleDeselected}
                     onChartRendered={(chart) => {
                         chartRef.current = chart;
 
                         if (selectedSection) chart.zoomToSection(selectedSection);
-                        if (selectedSeats) chart.zoomToObjects(selectedSeats);
+                        if (selectedSeats) chart.zoomToObjects(selectedSeats.map(s => s[0]));
                     }}
                     showMinimap={mode !== "print"}
+                    categoryFilter={categoryFilter}
+                    channels={channels}
+                    session={SESSION_NONE}
                 />
             </div>
         );

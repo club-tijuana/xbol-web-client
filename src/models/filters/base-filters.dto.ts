@@ -4,6 +4,6 @@ export interface BaseFilters {
     sortBy?: string;
     sortDesc?: string;
     textFilter?: string;
-    rangeDateFrom: string | null;
-    rangeDateTo: string | null;
+    rangeDateFrom?: string | null;
+    rangeDateTo?: string | null;
 }
