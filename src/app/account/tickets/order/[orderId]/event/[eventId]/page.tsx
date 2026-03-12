@@ -83,9 +83,7 @@ export default async function TicketPage(props: TicketPageProps) {
         page: 1,
         pageSize: 10,
         orderId: Number.parseInt(orderId),
-        eventId: Number.parseInt(eventId),
-        rangeDateFrom: null,
-        rangeDateTo: null
+        eventId: Number.parseInt(eventId)
     });
 
     const trendingEvents = await getTrendingEvents({ page: 1, pageSize: 4 });

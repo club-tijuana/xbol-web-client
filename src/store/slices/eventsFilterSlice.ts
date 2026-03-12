@@ -1,9 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { EventsFilters } from "@/models/filters/events-filters.dto";
+import { SearchEventsFilters } from "@/models/filters/search-events-filters.dto";
 
 interface EventsFiltersState {
-    filters: EventsFilters;
+    filters: SearchEventsFilters;
 }
 
 const initialState: EventsFiltersState = {
@@ -31,7 +31,7 @@ const eventsFilterSlice = createSlice({
         },
         setTextFilter: (state, action: PayloadAction<string | undefined>) => {
             state.filters.page = 1;
-            state.filters.textFilter = action.payload;
+            state.filters.searchTerm = action.payload;
         },
         setCategories: (state, action: PayloadAction<number[] | undefined>) => {
             state.filters.page = 1;
@@ -39,7 +39,7 @@ const eventsFilterSlice = createSlice({
         },
         setPerformerId: (state, action: PayloadAction<number | undefined>) => {
             state.filters.page = 1;
-            state.filters.textFilter = '';
+            state.filters.searchTerm = '';
             state.filters.performerId = action.payload;
         },
         setRangeDateFrom: (state, action: PayloadAction<string | null>) => {

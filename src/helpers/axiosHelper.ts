@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig } from "axios";
+import qs from "qs";
 
 /* if (process.env.NODE_ENV === "development") {
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -11,7 +12,10 @@ export async function requestAxios<TPayload, TResult>(
     path: string,
     payload?: TPayload,
     token?: string,
-    options?: { isBlob?: boolean }
+    options?: {
+        isBlob?: boolean,
+        params?: Record<string, unknown>
+    }
 ): Promise<TResult> {
     const config: AxiosRequestConfig = {
         url: `${BASE_URL}${path}`,
@@ -22,6 +26,8 @@ export async function requestAxios<TPayload, TResult>(
             ...(token ? { Authorization: `Bearer ${token}` } : {})
         },
         data: payload,
+        params: options?.params,
+        paramsSerializer: params => qs.stringify(params, { arrayFormat: "repeat" }),
         responseType: options?.isBlob ? "blob" : "json"
     };
 

@@ -10,26 +10,50 @@ import { PerformerDTO } from "@/models/performer.dto";
 import { EventViewRequestDTO } from "@/models/requests/event-view-request.dto";
 import { ScheduleItemDTO } from "@/models/schedule-item.dto";
 
+const TOKEN = "";
+
 export async function getMainEvents(): Promise<PagedResponse<EventItemDTO>> {
     return requestAxios<null, PagedResponse<EventItemDTO>>(
         "GET",
-        "events"
+        "events/main"
     );
 }
 
 export async function getEvents(filters: EventsFilters): Promise<PagedResponse<EventItemDTO>> {
+    const params = {
+        page: filters.page,
+        pageSize: filters.pageSize,
+        eventCategoryId: filters.eventCategoryId,
+        searchTerm: filters.searchTerm
+    };
+
     return requestAxios<EventsFilters, PagedResponse<EventItemDTO>>(
-        "POST",
+        "GET",
         "events",
-        filters
+        undefined,
+        TOKEN,
+        { params }
     );
 }
 
 export async function getFilteredEvents(filters: SearchEventsFilters): Promise<FilteredEventsResponse<PerformerDTO, ScheduleItemDTO>> {
+    const params = {
+        page: filters.page,
+        pageSize: filters.pageSize,
+        rangeDateFrom: filters.rangeDateFrom,
+        rangeDateTo: filters.rangeDateTo,
+        searchTerm: filters.searchTerm,
+        performerId: filters.performerId,
+        eventCategoryIds: filters.eventCategoryIds,
+        trendingEvents: filters.trendingEvents
+    };
+
     return requestAxios<SearchEventsFilters, FilteredEventsResponse<PerformerDTO, ScheduleItemDTO>>(
-        "POST",
+        "GET",
         "events/filtered-events",
-        filters
+        undefined,
+        TOKEN,
+        { params }
     );
 }
 
@@ -63,8 +87,15 @@ export async function registerEventView(eventId: number, visitorId: string) {
 
 export async function getTrendingEvents(filters: EventsFilters): Promise<PagedResponse<EventItemDTO>> {
     return requestAxios<EventsFilters, PagedResponse<EventItemDTO>>(
-        "POST",
+        "GET",
         "events/trending-events",
-        filters
+        undefined,
+        TOKEN,
+        {
+            params: {
+                page: filters.page,
+                pageSize: filters.pageSize
+            }
+        }
     );
 }

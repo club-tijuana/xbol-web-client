@@ -1,6 +1,6 @@
 "use client";
 
-import { AttachMoneyOutlined, VisibilityOutlined } from "@mui/icons-material";
+import { AttachMoneyOutlined, Share, VisibilityOutlined } from "@mui/icons-material";
 import { Box, Button, Card, CardActions, CardContent, CardMedia, Fade, IconButton, LinearProgress, Typography } from "@mui/material";
 import { QRCodeSVG } from "qrcode.react";
 import { useCallback, useState } from "react";
@@ -81,6 +81,18 @@ export default function TicketQRGridItem({ ticket }: TicketQRGridItemProps) {
                                         </IconButton>
                                         <Typography variant="bodyXs" color="neutral">
                                             Vender
+                                        </Typography>
+                                    </Box>
+
+                                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                        <IconButton
+                                            aria-label="Compartir"
+                                            color="primary"
+                                        >
+                                            <Share sx={{ fontSize: 30 }} />
+                                        </IconButton>
+                                        <Typography variant="bodyXs" color="neutral">
+                                            Compartir
                                         </Typography>
                                     </Box>
                                 </CardActions>

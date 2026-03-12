@@ -16,7 +16,7 @@ export default function AccordionFilters() {
     const dispatch = useAppDispatch();
     const filters = useAppSelector(store => store.eventsFilters.filters);
 
-    const [textFilterInput, setTextFilterInput] = useState(filters.textFilter || "");
+    const [textFilterInput, setTextFilterInput] = useState(filters.searchTerm || "");
     const [categoriesDto, setCategoriesDto] = useState<EventCategoryDTO[]>([]);
 
     const debouncedTextFilter = useDebounce(textFilterInput, 500);

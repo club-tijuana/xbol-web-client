@@ -27,8 +27,8 @@ export function generateMetadata(): Metadata {
 }
 
 export default async function TicketsPage() {
-    const myTickets = await getMyEvents({ page: 1, pageSize: 10, orderType: OrderType.Ticket, rangeDateFrom: null, rangeDateTo: null });
-    const mySeasonTickets = await getMyEvents({ page: 1, pageSize: 10, orderType: OrderType.SeasonPass, rangeDateFrom: null, rangeDateTo: null });
+    const myTickets = await getMyEvents({ page: 1, pageSize: 10, orderType: OrderType.Ticket });
+    const mySeasonTickets = await getMyEvents({ page: 1, pageSize: 10, orderType: OrderType.SeasonPass });
 
     const trendingEvents = await getTrendingEvents({ page: 1, pageSize: 4 });
     const trendingEventsVM = trendingEvents.items.map(mapEventToCardVM);

@@ -130,7 +130,7 @@ export default function EventsSearch() {
                         Eventos
                     </Typography>
                     <Typography variant="h6" textAlign="right">
-                        {schedules.length}/{currentPage?.totalItems}
+                        {schedules.length}/{currentPage?.totalCount}
                     </Typography>
                 </Box>
             }

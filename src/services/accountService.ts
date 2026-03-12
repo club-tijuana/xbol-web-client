@@ -5,13 +5,23 @@ import { MyEventDTO } from "@/models/my-event.dto";
 import { MyTicketDto } from "@/models/my-ticket.dto";
 import { PagedResponse } from "@/models/pagination/paged-response.dto";
 
+const TOKEN = "";
+
 export async function getMyEvents(
     filters: TicketsFilters
 ): Promise<PagedResponse<MyEventDTO> | null> {
+    const params = {
+        page: filters.page,
+        pageSize: filters.pageSize,
+        orderType: filters.orderType
+    };
+
     const response = await requestAxios<TicketsFilters, PagedResponse<MyEventDTO>>(
-        "POST",
+        "GET",
         "clients/my-events",
-        filters
+        undefined,
+        TOKEN,
+        { params }
     );
 
     if (!response) return null;
@@ -38,9 +48,18 @@ export async function getMyEventDetail(eventId: number): Promise<MyEventDetailDT
 }
 
 export async function getMyEventTickets(filters: TicketsFilters): Promise<PagedResponse<MyTicketDto> | null> {
+    const params = {
+        page: filters.page,
+        pageSize: filters.pageSize,
+        eventId: filters.eventId,
+        orderId: filters.orderId
+    };
+
     return await requestAxios<TicketsFilters, PagedResponse<MyTicketDto>>(
-        "POST",
+        "GET",
         "clients/my-event-tickets",
-        filters
+        undefined,
+        TOKEN,
+        { params }
     );
 }

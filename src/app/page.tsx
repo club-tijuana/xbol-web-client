@@ -41,9 +41,9 @@ export const metadata: Metadata = {
 export default async function Home() {
   const mainEvents = await getMainEvents();
   const trendingEvents = await getTrendingEvents({ page: 1, pageSize: 6 });
-  const futbolEvents = await getEvents({ page: 1, eventCategoryId: 1, pageSize: 3, rangeDateFrom: null, rangeDateTo: null });
-  const musicEvents = await getEvents({ page: 1, eventCategoryId: 2, pageSize: 3, rangeDateFrom: null, rangeDateTo: null });
-  const theaterEvents = await getEvents({ page: 1, eventCategoryId: 3, pageSize: 3, rangeDateFrom: null, rangeDateTo: null });
+  const futbolEvents = await getEvents({ page: 1, eventCategoryId: 1, pageSize: 3 });
+  const musicEvents = await getEvents({ page: 1, eventCategoryId: 2, pageSize: 3 });
+  const theaterEvents = await getEvents({ page: 1, eventCategoryId: 3, pageSize: 3 });
 
   const trendingEventsVM = trendingEvents.items.map(mapEventToCardVM);
   const futbolEventsVM = futbolEvents.items.map(mapEventToCardVM);
