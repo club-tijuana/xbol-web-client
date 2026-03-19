@@ -1,25 +1,11 @@
-import { Box, Grid, Typography } from "@mui/material";
-import { Metadata } from "next";
-import Image from "next/image";
-import { cache } from "react";
-
-import Advertisement from "@/components/Advertisement/Advertisement";
-import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
-import FAQ from "@/components/FAQ/FAQ";
-import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
-import { formatDate } from "@/helpers/formatDateHelper";
 import { mapEventToCardVM } from "@/models/event-item.dto";
-import { getMyEventDetail, getMyEventTickets } from "@/services/accountService";
 import { getTrendingEvents } from "@/services/eventService";
-import { colors } from "@/theme/colors";
-import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
 
-import TicketQRTabs from "./components/TicketQRTabs/TicketQRTabs";
-import TicketSeats from "./components/TicketSeats/TicketSeats";
+import TicketPageClient from "./components/TicketPageClient/TicketPageClient";
 
-const getMyEventDetailCached = cache(getMyEventDetail);
+//const getMyEventDetailCached = cache(getMyEventDetail);
 
-export async function generateMetadata(
+/* export async function generateMetadata(
     { params }: { params: Promise<{ orderId: string; eventId: string; }> }
 ): Promise<Metadata> {
     const { orderId } = (await params);
@@ -45,28 +31,7 @@ export async function generateMetadata(
         image: detail?.eventImage ?? "/og-default.jpg",
         type: "article",
     });
-}
-
-interface EventSectionProps {
-    eventImage?: string;
-}
-const EventSection = ({ eventImage }: EventSectionProps) => (
-    <Box sx={{
-        position: "relative",
-        height: 539
-    }}
-        mb={2.5}
-    >
-        {eventImage &&
-            <Image
-                src={eventImage}
-                alt="Evento"
-                fill
-                style={{ objectFit: 'cover', borderRadius: 10 }}
-            />
-        }
-    </Box>
-);
+} */
 
 interface TicketPageProps {
     params: Promise<{
@@ -78,121 +43,14 @@ interface TicketPageProps {
 export default async function TicketPage(props: TicketPageProps) {
     const { orderId, eventId } = await props.params;
 
-    const detail = await getMyEventDetailCached(Number.parseInt(orderId));
-    const tickets = await getMyEventTickets({
-        page: 1,
-        pageSize: 10,
-        orderId: Number.parseInt(orderId),
-        eventId: Number.parseInt(eventId)
-    });
-
     const trendingEvents = await getTrendingEvents({ page: 1, pageSize: 4 });
     const trendingEventsVM = trendingEvents.items.map(mapEventToCardVM);
 
-    const getDateFormat = (): string => {
-        if (detail?.date) {
-            return formatDate(detail.date, "monthYear");
-        }
-        else {
-            return "";
-        }
-    }
-
     return (
-        <Box>
-            <FullWidthSection
-                variant="colorFixedHeight"
-                backgroundColor={colors.brand.background}
-                height={670}
-            >
-                <Box mt={15}>
-                    <Typography variant="h6" fontWeight={400} color="primary" mb={1} textAlign='right'>
-                        {`Folio ${detail?.folio}`}
-                    </Typography>
-                    <Grid container columns={12} spacing={6}>
-                        <Grid size={{ xs: 12, sm: 12, md: 12, lg: 5, xl: 5 }}>
-                            <Typography variant="hero" color="primary" mb={4}>
-                                {`Detalles > ${detail?.name}`}
-                            </Typography>
-                            <Box mb={3}>
-                                <Typography variant="h2" fontWeight={600} color="primary" mb={1}>
-                                    {detail?.name}
-                                </Typography>
-                                <Typography variant="h6" fontWeight={700} color="muted">
-                                    {getDateFormat()}
-                                </Typography>
-                                <Typography variant="h6" fontWeight={400}>
-                                    {detail?.location}
-                                </Typography>
-                            </Box>
-
-                            <Box sx={{ display: { xs: "block", sm: "block", md: "block", lg: "none" } }} mb={5}>
-                                <EventSection eventImage={detail?.eventImage} />
-                            </Box>
-
-                            {detail &&
-                                <TicketSeats
-                                    seats={detail?.seats}
-                                    subTotal={detail?.subTotal}
-                                    totalFees={detail?.totalFees}
-                                    totalTaxes={detail?.totalTaxes}
-                                    total={detail?.total}
-                                    selectedSeats={detail ? detail.selectedSeats.map(s => [s, 0]) : []}
-                                    eventKey={detail?.eventKey}
-                                    currency={detail.currency}
-                                />
-                            }
-
-                            <Box sx={{ display: { xs: "block", sm: "block", md: "block", lg: "none" } }} mt={5}>
-                                <Grid container columns={{ xs: 4, sm: 5, md: 5 }} justifyContent="center">
-                                    <Grid size={"grow"} justifyContent="center">
-                                        {tickets && <TicketQRTabs tickets={tickets.items} />}
-                                    </Grid>
-                                </Grid>
-                            </Box>
-
-                            <Box my={6}>
-                                <Typography variant="h3" color="primary">
-                                    ¡Haz feliz a otro fan!
-                                </Typography>
-                                <Typography variant="h6" fontWeight={400} color="text" mt={2.5}>
-                                    ¿Un amigo no puede acompañarte? ¿Hubo cambio de planes? ¡Conoce nuestro mercado secundario para esos tickets que no podrán ser usados!
-                                </Typography>
-                                <Advertisement image="/assets/images/advertisement/advertisement.png" />
-                            </Box>
-                        </Grid>
-                        <Grid size={{ lg: 7, xl: 7 }} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "block" } }} mb={3}>
-                            <EventSection eventImage={detail?.eventImage} />
-                            <Grid container columns={5} justifyContent="center">
-                                <Grid size={5}>
-                                    {tickets && <TicketQRTabs tickets={tickets.items} />}
-                                </Grid>
-                            </Grid>
-                        </Grid>
-                    </Grid>
-                </Box>
-            </FullWidthSection>
-
-
-            <FullWidthSection variant="color" backgroundColor={colors.brand.background}>
-                <Box sx={{ px: { xs: 4, sm: 10, md: 10, lg: 20, xl: 39 } }} my={5}>
-                    <FAQ />
-                </Box>
-            </FullWidthSection>
-
-            <Grid container columns={12} mt={6}>
-                <Grid size={{ xs: 12, sm: 12, md: 8, lg: 9, xl: 9 }} offset={{ xs: 0, sm: 0, md: 2, lg: 2, xl: 2 }}>
-                    <Typography variant="h2" fontWeight={600} color="primary" align="center">
-                        Eventos destacados
-                    </Typography>
-                    <EventCardGrid
-                        eventCards={trendingEventsVM}
-                        sizeVariant="xs"
-                        styleVariant="default"
-                        showCardActions={false}
-                    />
-                </Grid>
-            </Grid>
-        </Box >
+        <TicketPageClient
+            eventId={Number(eventId)}
+            orderId={Number(orderId)}
+            trendingEvents={trendingEventsVM}
+        />
     );
 }

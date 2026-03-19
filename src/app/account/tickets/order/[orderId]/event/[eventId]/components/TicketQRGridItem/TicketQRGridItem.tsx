@@ -1,6 +1,6 @@
 "use client";
 
-import { AttachMoneyOutlined, Share, VisibilityOutlined } from "@mui/icons-material";
+import { AttachMoneyOutlined, LinkOff, Share, VisibilityOutlined } from "@mui/icons-material";
 import { Box, Button, Card, CardActions, CardContent, CardMedia, Fade, IconButton, LinearProgress, Typography } from "@mui/material";
 import { QRCodeSVG } from "qrcode.react";
 import { useCallback, useState } from "react";
@@ -11,9 +11,10 @@ import { useQrTimer } from "@/hooks/useQrTimer";
 import styles from "./TicketQRGridItem.module.scss";
 import { TicketQRGridItemProps } from "./TicketQRGridItem.type";
 
-export default function TicketQRGridItem({ ticket }: TicketQRGridItemProps) {
+export default function TicketQRGridItem({ ticket, onShare, onUnshare }: TicketQRGridItemProps) {
     const [showQR, setShowQR] = useState(false);
     const [payload, setPayload] = useState("");
+
 
     const handleGenerate = useCallback((value: string) => {
         setPayload(value);
@@ -84,17 +85,34 @@ export default function TicketQRGridItem({ ticket }: TicketQRGridItemProps) {
                                         </Typography>
                                     </Box>
 
-                                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                        <IconButton
-                                            aria-label="Compartir"
-                                            color="primary"
-                                        >
-                                            <Share sx={{ fontSize: 30 }} />
-                                        </IconButton>
-                                        <Typography variant="bodyXs" color="neutral">
-                                            Compartir
-                                        </Typography>
-                                    </Box>
+                                    {ticket.canShare &&
+                                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                            <IconButton
+                                                aria-label="Compartir"
+                                                color="primary"
+                                                onClick={() => onShare(ticket.id, ticket.orderType)}
+                                            >
+                                                <Share sx={{ fontSize: 30 }} />
+                                            </IconButton>
+                                            <Typography variant="bodyXs" color="neutral">
+                                                Compartir
+                                            </Typography>
+                                        </Box>
+                                    }
+                                    {(ticket.isOwner && ticket.isShared) &&
+                                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                            <IconButton
+                                                aria-label="Dejar de compartir"
+                                                color="primary"
+                                                onClick={() => onUnshare(ticket.id, ticket.orderType)}
+                                            >
+                                                <LinkOff sx={{ fontSize: 30 }} />
+                                            </IconButton>
+                                            <Typography variant="bodyXs" color="neutral">
+                                                Dejar de compartir
+                                            </Typography>
+                                        </Box>
+                                    }
                                 </CardActions>
                             </Box>
 
@@ -110,6 +128,11 @@ export default function TicketQRGridItem({ ticket }: TicketQRGridItemProps) {
                             inset: 0,
                         }}
                     >
+                        {(ticket.isOwner && ticket.isShared) &&
+                            <Typography>
+                                Compartido
+                            </Typography>
+                        }
                         <QRCodeSVG value={payload} size={260} level="L" />
                         <CardActions sx={{ justifyContent: "center" }}>
                             <Box sx={{ display: "flex", flexDirection: "column", width: '100%', textAlign: 'center' }} mt={1}>
@@ -127,7 +150,7 @@ export default function TicketQRGridItem({ ticket }: TicketQRGridItemProps) {
                         </CardActions>
                     </Box>
                 </Fade>
-            </Box>
-        </Card>
+            </Box >
+        </Card >
     );
 }

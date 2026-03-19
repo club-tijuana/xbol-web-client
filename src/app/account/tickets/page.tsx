@@ -3,13 +3,11 @@ import { Metadata } from "next";
 
 import Advertisement from "@/components/Advertisement/Advertisement";
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
-import { OrderType } from "@/models/enums/order-type.enum";
 import { mapEventToCardVM } from "@/models/event-item.dto";
-import { getMyEvents } from "@/services/accountService";
 import { getTrendingEvents } from "@/services/eventService";
 import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
 
-import TicketTabs from "./components/TicketTabs/TicketTabs";
+import TicketsClientWrapper from "./components/TicketsClientWrapper/TicketsClientWrapper";
 
 export function generateMetadata(): Metadata {
     const title = "Mis tickets";
@@ -27,15 +25,12 @@ export function generateMetadata(): Metadata {
 }
 
 export default async function TicketsPage() {
-    const myTickets = await getMyEvents({ page: 1, pageSize: 10, orderType: OrderType.Ticket });
-    const mySeasonTickets = await getMyEvents({ page: 1, pageSize: 10, orderType: OrderType.SeasonPass });
-
     const trendingEvents = await getTrendingEvents({ page: 1, pageSize: 4 });
     const trendingEventsVM = trendingEvents.items.map(mapEventToCardVM);
 
     return (
         <Box mt={13}>
-            <TicketTabs myEvents={myTickets?.items} mySeasons={mySeasonTickets?.items} />
+            <TicketsClientWrapper />
 
             <Grid container
                 columns={2}

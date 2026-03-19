@@ -10,8 +10,6 @@ import { PerformerDTO } from "@/models/performer.dto";
 import { EventViewRequestDTO } from "@/models/requests/event-view-request.dto";
 import { ScheduleItemDTO } from "@/models/schedule-item.dto";
 
-const TOKEN = "";
-
 export async function getMainEvents(): Promise<PagedResponse<EventItemDTO>> {
     return requestAxios<null, PagedResponse<EventItemDTO>>(
         "GET",
@@ -31,7 +29,7 @@ export async function getEvents(filters: EventsFilters): Promise<PagedResponse<E
         "GET",
         "events",
         undefined,
-        TOKEN,
+        undefined,
         { params }
     );
 }
@@ -52,7 +50,7 @@ export async function getFilteredEvents(filters: SearchEventsFilters): Promise<F
         "GET",
         "events/filtered-events",
         undefined,
-        TOKEN,
+        undefined,
         { params }
     );
 }
@@ -90,7 +88,7 @@ export async function getTrendingEvents(filters: EventsFilters): Promise<PagedRe
         "GET",
         "events/trending-events",
         undefined,
-        TOKEN,
+        "",
         {
             params: {
                 page: filters.page,
