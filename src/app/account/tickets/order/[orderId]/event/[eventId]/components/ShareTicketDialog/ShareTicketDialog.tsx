@@ -1,6 +1,6 @@
 "use client";
 
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, Grid, Input, TextField, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import { Box, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, Grid, Input, TextField, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import Button from '@mui/material/Button';
 import { forwardRef, useEffect, useState } from "react";
 import PhoneInput, { DefaultInputComponentProps, parsePhoneNumber } from "react-phone-number-input";
@@ -132,15 +132,45 @@ export default function ShareTicketDialog({ ticketId, open, variant, orderType, 
 
     return (
         <Dialog open={open}>
-            <DialogTitle>Compartir ticket</DialogTitle>
+            <DialogTitle>
+                {variant === "share" ? "Compartir ticket" : "Dejar de compartir ticket"}
+            </DialogTitle>
             <DialogContent>
-                <DialogContentText>
+                <Box>
                     {variant === "share" ?
-                        "Lorem ipsum dolor sit amet consectetur adipiscing elit, nulla iaculis pellentesque volutpat eget eleifend, nullam vitae fermentum laoreet risus scelerisque."
-                        : "Lorem ipsum dolor sit amet consectetur adipiscing elit, nulla iaculis pellentesque volutpat eget eleifend, nullam vitae fermentum laoreet risus scelerisque. \n ¿Dejar de compartir?"}
-                </DialogContentText>
+                        <Box>
+                            <Typography variant="body1" color="muted" fontWeight={600}>
+                                Estás a punto de compartir este boleto.
+                            </Typography>
+                            <Typography mt={1} color="muted">
+                                Le darás acceso a este ticket a la persona que estás ingresando.
+                            </Typography >
+                            <Typography mt={1} color="muted">
+                                Esa persona debe tener una cuenta registrada para poder verlo y utilizarlo.
+                            </Typography >
+                            <Typography mt={1} color="muted">
+                                Ten en cuenta que, mientras esté compartido, podrá acceder a la información del boleto como si fuera suyo.
+                            </Typography>
+                            <Typography mt={1} color="muted">
+                                Puedes dejar de compartirlo en cualquier momento desde tu cuenta.
+                            </Typography>
+                        </Box>
+                        :
+                        <Box>
+                            <Typography variant="body1" color="text" fontWeight={600}>
+                                Estás a punto de dejar de compartir este boleto.
+                            </Typography>
+                            <Typography mt={1}>
+                                Al continuar, la persona con la que lo compartiste perderá el acceso de inmediato y ya no podrá ver ni utilizar este ticket.
+                            </Typography>
+                            <Typography mt={1}>
+                                Esta acción no se puede deshacer automáticamente; si deseas volver a compartirlo, tendrás que hacerlo nuevamente.
+                            </Typography>
+                        </Box>
+                    }
+                </Box>
                 {variant === "share" &&
-                    <Grid container columns={2} spacing={2}>
+                    <Grid container columns={2} spacing={2} mt={3}>
                         <Grid size={1}>
                             <Typography variant="body1" mb={1} color="muted">
                                 Correo
@@ -197,14 +227,16 @@ export default function ShareTicketDialog({ ticketId, open, variant, orderType, 
                     </Grid>
                 }
                 {orderType === OrderType.SeasonPass &&
-                    <ToggleButtonGroup
-                        color="primary"
-                        value={toggleValue}
-                        exclusive
-                        onChange={handleToggleChange}>
-                        <ToggleButton value={false}>Aplicar solo el ticket</ToggleButton>
-                        <ToggleButton value={true}>Aplicar a toda la temporada</ToggleButton>
-                    </ToggleButtonGroup>
+                    <Box mt={4} textAlign="center">
+                        <ToggleButtonGroup
+                            color="primary"
+                            value={toggleValue}
+                            exclusive
+                            onChange={handleToggleChange}>
+                            <ToggleButton value={false}>Aplicar solo el ticket</ToggleButton>
+                            <ToggleButton value={true}>Aplicar a toda la temporada</ToggleButton>
+                        </ToggleButtonGroup>
+                    </Box>
                 }
             </DialogContent>
             <DialogActions sx={{ p: 3 }}>

@@ -14,14 +14,14 @@ import { TicketQRGridItemProps } from "./TicketQRGridItem.type";
 export default function TicketQRGridItem({ ticket, onShare, onUnshare }: TicketQRGridItemProps) {
     const [showQR, setShowQR] = useState(false);
     const [payload, setPayload] = useState("");
-
+    const shouldGenerateQR = showQR && !(ticket.isOwner && ticket.isShared);
 
     const handleGenerate = useCallback((value: string) => {
         setPayload(value);
     }, []);
 
     const { secondsRemaining, progressPercent } = useQrTimer({
-        isActive: showQR,
+        isActive: shouldGenerateQR,
         ticketId: ticket.id.toString(),
         onGenerate: handleGenerate
     });
@@ -43,80 +43,86 @@ export default function TicketQRGridItem({ ticket, onShare, onUnshare }: TicketQ
                                 component="img"
                                 image={ticket.eventImage}
                                 alt="title"
-                                sx={{ display: 'block', borderRadius: 2.5, height: '100%', width: '100%', objectFit: 'cover' }}
+                                sx={{
+                                    display: 'block',
+                                    borderRadius: 2.5,
+                                    height: 220,
+                                    width: '100%',
+                                    objectFit: 'cover'
+                                }}
                             />
 
                             <Box className={styles.cardInfo}>
                                 <Typography variant="subtitle1" fontWeight={700} color="primary">
                                     {ticket.name}
                                 </Typography>
-                                <Typography variant="subtitle2" fontWeight={700} color="neutral">
+                                <Typography variant="subtitle2" fontWeight={700}>
                                     {formattedDate}
                                 </Typography>
-                                <Typography variant="subtitle2" fontWeight={400} color="neutral">
+                                <Typography variant="subtitle2" fontWeight={400}>
                                     {ticket.location}
                                 </Typography>
-                                <Typography variant="subtitle2" fontWeight={400} color="neutral">
+                                <Typography variant="subtitle2" fontWeight={400}>
                                     {'ID: ' + ticket.id}
                                 </Typography>
-                                <CardActions sx={{ justifyContent: "center" }}>
-                                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                        <IconButton
-                                            aria-label="Ver"
-                                            color="primary"
-                                            onClick={() => setShowQR(true)}
-                                        >
-                                            <VisibilityOutlined sx={{ fontSize: 30 }} />
-                                        </IconButton>
-                                        <Typography variant="bodyXs" color="neutral">
-                                            Ver
-                                        </Typography>
-                                    </Box>
-
-                                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                        <IconButton
-                                            aria-label="Vender"
-                                            color="primary"
-                                        >
-                                            <AttachMoneyOutlined sx={{ fontSize: 30 }} />
-                                        </IconButton>
-                                        <Typography variant="bodyXs" color="neutral">
-                                            Vender
-                                        </Typography>
-                                    </Box>
-
-                                    {ticket.canShare &&
-                                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                <CardActions>
+                                    <Box display="flex" mb={1}>
+                                        <Box sx={{ display: "flex", flexDirection: "column" }}>
                                             <IconButton
-                                                aria-label="Compartir"
+                                                aria-label="Ver"
                                                 color="primary"
-                                                onClick={() => onShare(ticket.id, ticket.orderType)}
+                                                onClick={() => setShowQR(true)}
                                             >
-                                                <Share sx={{ fontSize: 30 }} />
+                                                <VisibilityOutlined sx={{ fontSize: 30 }} />
                                             </IconButton>
-                                            <Typography variant="bodyXs" color="neutral">
-                                                Compartir
+                                            <Typography variant="bodyXs">
+                                                Ver
                                             </Typography>
                                         </Box>
-                                    }
-                                    {(ticket.isOwner && ticket.isShared) &&
-                                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+
+                                        <Box sx={{ display: "flex", flexDirection: "column" }} mx={1}>
                                             <IconButton
-                                                aria-label="Dejar de compartir"
+                                                aria-label="Vender"
                                                 color="primary"
-                                                onClick={() => onUnshare(ticket.id, ticket.orderType)}
                                             >
-                                                <LinkOff sx={{ fontSize: 30 }} />
+                                                <AttachMoneyOutlined sx={{ fontSize: 30 }} />
                                             </IconButton>
-                                            <Typography variant="bodyXs" color="neutral">
-                                                Dejar de compartir
+                                            <Typography variant="bodyXs">
+                                                Vender
                                             </Typography>
                                         </Box>
-                                    }
+
+                                        {ticket.canShare &&
+                                            <Box sx={{ display: "flex", flexDirection: "column" }}>
+                                                <IconButton
+                                                    aria-label="Compartir"
+                                                    color="primary"
+                                                    onClick={() => onShare(ticket.id)}
+                                                >
+                                                    <Share sx={{ fontSize: 30 }} />
+                                                </IconButton>
+                                                <Typography variant="bodyXs">
+                                                    Compartir
+                                                </Typography>
+                                            </Box>
+                                        }
+                                        {(ticket.isOwner && ticket.isShared) &&
+                                            <Box sx={{ display: "flex", flexDirection: "column" }}>
+                                                <IconButton
+                                                    aria-label="Dejar de compartir"
+                                                    color="primary"
+                                                    onClick={() => onUnshare(ticket.id)}
+                                                >
+                                                    <LinkOff sx={{ fontSize: 30 }} />
+                                                </IconButton>
+                                                <Typography variant="bodyXs">
+                                                    Dejar de compartir
+                                                </Typography>
+                                            </Box>
+                                        }
+                                    </Box>
                                 </CardActions>
                             </Box>
-
-                            <Box className={styles.overlay} />
                         </CardContent>
                     </Box>
                 </Fade>
@@ -129,20 +135,35 @@ export default function TicketQRGridItem({ ticket, onShare, onUnshare }: TicketQ
                         }}
                     >
                         {(ticket.isOwner && ticket.isShared) &&
-                            <Typography>
-                                Compartido
-                            </Typography>
+                            <Box sx={{
+                                backgroundColor: "red",
+                                position: "absolute",
+                                width: "100%",
+                                top: "35%",
+                                textAlign: "center",
+                                py: 1
+                            }}>
+                                <Typography variant="body1" color="neutral" fontWeight={700}>
+                                    Compartido
+                                </Typography>
+                            </Box>
                         }
-                        <QRCodeSVG value={payload} size={260} level="L" />
+                        <Box textAlign="center">
+                            <QRCodeSVG value={payload} size={260} level="L" />
+                        </Box>
                         <CardActions sx={{ justifyContent: "center" }}>
                             <Box sx={{ display: "flex", flexDirection: "column", width: '100%', textAlign: 'center' }} mt={1}>
-                                <Typography variant="inherit" mb={1}>
-                                    {secondsRemaining}s
-                                </Typography>
-                                <LinearProgress
-                                    variant="determinate"
-                                    value={progressPercent}
-                                />
+                                {shouldGenerateQR &&
+                                    <Box>
+                                        <Typography variant="inherit" mb={1}>
+                                            {secondsRemaining}s
+                                        </Typography>
+                                        <LinearProgress
+                                            variant="determinate"
+                                            value={progressPercent}
+                                        />
+                                    </Box>
+                                }
                                 <Button variant="text" sx={{ mt: 1 }} onClick={() => setShowQR(false)}>
                                     Ocultar
                                 </Button>

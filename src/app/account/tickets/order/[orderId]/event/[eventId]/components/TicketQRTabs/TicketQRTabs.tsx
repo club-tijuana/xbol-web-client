@@ -1,13 +1,15 @@
 "use client";
 
 import { BarcodeReader, GridOn } from "@mui/icons-material";
-import { Box, Button, Tab, Tabs, Typography } from "@mui/material";
+import { Alert, Box, Button, Snackbar, Tab, Tabs, Typography } from "@mui/material";
 import { SyntheticEvent, useState } from "react";
 
 import useIsVisible from "@/hooks/useIsVisible";
+import { OrderType } from "@/models/enums/order-type.enum";
 import { colors } from "@/theme/colors";
 
 import CarouselQRTickets from "../CarouselQRTickets/CarouselQRTickets";
+import ShareTicketDialog from "../ShareTicketDialog/ShareTicketDialog";
 import TicketQRGrid from "../TicketQRGrid/TicketQRGrid";
 
 import { TicketQRTabsProps } from "./TicketQRTabs.types";
@@ -40,6 +42,13 @@ export default function TicketQRTabs({
     const [ref, isVisible] = useIsVisible();
     const [value, setValue] = useState(0);
 
+    const [ticketId, setTicketId] = useState<number | null>(null);
+    const [ticketOrderType, setTicketOrderType] = useState<OrderType>(OrderType.Ticket);
+    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState("");
+    const [openShare, setOpenShare] = useState(false);
+    const [shareType, setShareType] = useState<"share" | "unshare">("share");
+
     const tabStyles = {
         border: "solid",
         borderColor: colors.light.primary,
@@ -70,6 +79,37 @@ export default function TicketQRTabs({
         };
     }
 
+    const handleDialogClose = (message: string | undefined) => {
+        if (message) {
+            setSnackbarMessage(message);
+            setOpenSnackbar(true);
+        }
+
+        setOpenShare(false);
+    };
+
+    const handleShareTicket = (ticketToShareId: number) => {
+        const ticket = tickets.find(t => t.id === ticketToShareId);
+
+        if (ticket) {
+            setTicketId(ticket?.id);
+            setTicketOrderType(ticket.orderType);
+            setShareType("share");
+            setOpenShare(true);
+        }
+    };
+
+    const handleUnshareTicket = (ticketToUnshareId: number) => {
+        const ticket = tickets.find(t => t.id === ticketToUnshareId);
+
+        if (ticket) {
+            setTicketId(ticket?.id);
+            setTicketOrderType(ticket.orderType);
+            setShareType("unshare");
+            setOpenShare(true);
+        }
+    };
+
     return (
         <Box sx={{ width: "100%" }}>
             <Box sx={{ typography: "body1" }}>
@@ -80,7 +120,12 @@ export default function TicketQRTabs({
             </Box>
             <Box ref={ref}>
                 <CustomTabPanel value={value} index={0}>
-                    <CarouselQRTickets tickets={tickets} isTabActive={value === 0 && isVisible} />
+                    <CarouselQRTickets
+                        tickets={tickets}
+                        isTabActive={value === 0 && isVisible}
+                        onShare={handleShareTicket}
+                        onUnshare={handleUnshareTicket}
+                    />
                 </CustomTabPanel>
             </Box>
             <CustomTabPanel value={value} index={1}>
@@ -89,6 +134,8 @@ export default function TicketQRTabs({
                     spacing={1.5}
                     title="Tus boletos"
                     tickets={tickets}
+                    onShare={handleShareTicket}
+                    onUnshare={handleUnshareTicket}
                 />
             </CustomTabPanel>
             <Button variant="contained" sx={{ py: 1.3, px: 4, mr: 3 }}>
@@ -103,6 +150,28 @@ export default function TicketQRTabs({
                     </Typography>
                 </Button>
             }
+
+            {ticketId &&
+                <ShareTicketDialog
+                    ticketId={ticketId}
+                    orderType={ticketOrderType}
+                    open={openShare}
+                    variant={shareType}
+                    onClose={(message) => handleDialogClose(message)}
+                />
+            }
+            <Snackbar
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                open={openSnackbar}
+                autoHideDuration={5000}>
+                <Alert
+                    onClose={() => setOpenSnackbar(false)}
+                    severity="success"
+                    variant="filled"
+                    sx={{ width: "100%" }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 }

@@ -6,20 +6,14 @@ import { Swiper as SwiperType } from "swiper";
 import { EffectCards, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { MyTicketDto } from "@/models/my-ticket.dto";
-
 import TicketQRCard from "../CarouselSlideQRTickets/CarouselSlideQRTicket";
 
 import 'swiper/css';
 import 'swiper/css/effect-cards';
 import 'swiper/css/navigation';
+import { CarouselQRTicketsProps } from "./CarouselQRTickets.type";
 
-interface CarouselQRTicketsProps {
-    tickets: MyTicketDto[];
-    isTabActive: boolean;
-}
-
-export default function CarouselQRTickets({ tickets, isTabActive }: CarouselQRTicketsProps) {
+export default function CarouselQRTickets({ tickets, isTabActive, onShare, onUnshare }: CarouselQRTicketsProps) {
     const [activeIndex, setActiveIndex] = useState(0);
 
     const swiperRef = useRef<SwiperType | null>(null);
@@ -32,6 +26,14 @@ export default function CarouselQRTickets({ tickets, isTabActive }: CarouselQRTi
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
+
+    const handleShareTicket = (ticketToShareId: number) => {
+        onShare(ticketToShareId);
+    };
+
+    const handleUnshareTicket = (ticketToUnshareId: number) => {
+        onUnshare(ticketToUnshareId);
+    };
 
     return (
         <>
@@ -46,7 +48,12 @@ export default function CarouselQRTickets({ tickets, isTabActive }: CarouselQRTi
             >
                 {tickets.map((ticket, index) => (
                     <SwiperSlide key={ticket.id}>
-                        <TicketQRCard ticket={ticket} isActive={activeIndex === index && isTabActive} />
+                        <TicketQRCard
+                            ticket={ticket}
+                            isActive={activeIndex === index && isTabActive}
+                            onShare={handleShareTicket}
+                            onUnshare={handleUnshareTicket}
+                        />
                     </SwiperSlide>
                 ))}
             </Swiper>

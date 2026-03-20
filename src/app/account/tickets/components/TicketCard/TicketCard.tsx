@@ -1,6 +1,6 @@
 "use client";
 
-import { AttachMoneyOutlined, VisibilityOutlined } from "@mui/icons-material";
+import { VisibilityOutlined } from "@mui/icons-material";
 import { Box, Card, CardActions, CardContent, CardMedia, IconButton, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 
@@ -71,18 +71,6 @@ export default function TicketCard({ ticket }: TicketCardProps) {
                                 </IconButton>
                                 <Typography variant="bodyXs" color="neutral">
                                     Ver
-                                </Typography>
-                            </Box>
-
-                            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                <IconButton
-                                    aria-label="Vender"
-                                    color="primary"
-                                >
-                                    <AttachMoneyOutlined sx={{ fontSize: 40 }} />
-                                </IconButton>
-                                <Typography variant="bodyXs" color="neutral">
-                                    Vender
                                 </Typography>
                             </Box>
                         </CardActions>

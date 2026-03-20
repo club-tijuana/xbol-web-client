@@ -9,21 +9,11 @@
     padding: 0 !important;
     position: relative !important;
     border-radius: 10px !important;
-    height: 348px;
+    height: 420px;
     display: grid;
 }
 
-.overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgba(204, 153, 51, 0.40) 5%, rgba(0, 0, 0, 1) 100%);
-    pointer-events: none;
-    border-top-left-radius: 10;
-    border-top-right-radius: 10;
-}
-
 .cardInfo {
-    position: absolute;
     text-align: center;
     padding-bottom: 2;
     z-index: 2;
