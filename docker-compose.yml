@@ -8,6 +8,7 @@ services:
       args:
         NEXT_PUBLIC_API_BASE_URL: "${NEXT_PUBLIC_API_BASE_URL:-https://dev-api.ticketing.pwrticket.mx/api/}"
         NEXT_PUBLIC_SEATS_WORKSPACE_KEY: "${NEXT_PUBLIC_SEATS_WORKSPACE_KEY:-demo}"
+        DOCKER_IMAGE_VERSION: "${DOCKER_IMAGE_VERSION:-0.0.0.0.99}"
     ports:
       - "3000:3000"
     environment:

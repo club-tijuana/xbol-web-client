@@ -20,6 +20,9 @@ RUN npm run build
 # --- Runtime stage ---
 FROM node:20-alpine AS runner
 
+ARG DOCKER_IMAGE_VERSION
+ENV DOCKER_IMAGE_VERSION=${DOCKER_IMAGE_VERSION}
+
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
