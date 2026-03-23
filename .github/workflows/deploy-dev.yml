@@ -99,12 +99,18 @@ jobs:
             exit 1
           fi
           export IMAGE_VERSION
-          # Actualiza version imagen
-          CURRENT_IMAGE=$(yq e '.spec.template.spec.containers[0].image' "$DEPLOY_FILE")
-          IMAGE_BASE=$(echo "$CURRENT_IMAGE" | sed 's/:[^:]*$//')
+          # Actualiza version imagen del Init container de WebClient
+          CURRENT_IMAGE_NET_INIT=$(yq e '.spec.template.spec.initContainers[0].image' "$DEPLOY_FILE")
+          IMAGE_BASE=$(echo "$CURRENT_IMAGE_NET_INIT" | sed 's/:[^:]*$//')
+          NEW_IMAGE="${IMAGE_BASE}:${IMAGE_VERSION}"
+          yq e -i ".spec.template.spec.initContainers[0].image = \"${NEW_IMAGE}\"" "$DEPLOY_FILE"
+          echo "✅ Update WebClient init container image (${NEW_IMAGE}) version: ${IMAGE_VERSION}"
+          # Actualiza version imagen WebClient
+          CURRENT_IMAGE_NET=$(yq e '.spec.template.spec.containers[0].image' "$DEPLOY_FILE")
+          IMAGE_BASE=$(echo "$CURRENT_IMAGE_NET" | sed 's/:[^:]*$//')
           NEW_IMAGE="${IMAGE_BASE}:${IMAGE_VERSION}"
           yq e -i ".spec.template.spec.containers[0].image = \"${NEW_IMAGE}\"" "$DEPLOY_FILE"
-          echo "✅ Update image (${NEW_IMAGE}) version: ${IMAGE_VERSION}"
+          echo "✅ Update WebClient image (${NEW_IMAGE}) version: ${IMAGE_VERSION}"
           # Commit
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
