@@ -6,12 +6,10 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_BASE_URL: "${NEXT_PUBLIC_API_BASE_URL:-http://localhost:3001/}"
+        NEXT_PUBLIC_API_BASE_URL: "${NEXT_PUBLIC_API_BASE_URL:-https://dev-api.ticketing.pwrticket.mx/api/}"
         NEXT_PUBLIC_SEATS_WORKSPACE_KEY: "${NEXT_PUBLIC_SEATS_WORKSPACE_KEY:-demo}"
     ports:
       - "3000:3000"
-    env_file:
-      - .env
     environment:
       # Allow overriding port at runtime if needed (Next uses PORT env var)
       - PORT=3000

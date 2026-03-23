@@ -11,6 +11,8 @@ import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
 
 import TicketTabs from "./components/TicketTabs/TicketTabs";
 
+export const dynamic = "force-dynamic";
+
 export function generateMetadata(): Metadata {
     const title = "Mis tickets";
     const description =
