@@ -70,12 +70,16 @@ jobs:
           gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
 
       - name: Build and Push Docker Image
+        env:
+          NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
         run: |
           IMAGE_TAG="${IMAGE_BASE}${IMAGE_NAME}:${IMAGE_VERSION}"
           echo $IMAGE_VERSION
           echo $IMAGE_TAG
           docker build \
             --no-cache \
+            --build-arg NEXT_PUBLIC_API_BASE_URL="${NEXT_PUBLIC_API_BASE_URL}" \
+            --build-arg NEXT_PUBLIC_SEATS_WORKSPACE_KEY="demo" \
             --build-arg DOCKER_IMAGE_VERSION="${IMAGE_VERSION}" \
             -t "${IMAGE_TAG}" .
           docker push "${IMAGE_TAG}"
