@@ -11,9 +11,8 @@ jobs:
     environment: GCP_DEV
 
     env:
-      IMAGE_VERSION: '0.0.0001'
       IMAGE_NAME: dev-xbol-web-client
-      IMAGE_BASE: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/clubtijuana-docker-repo/
+      IMAGE_BASE: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/club-tijuana-docker-repo/
 
     permissions:
       contents: read
