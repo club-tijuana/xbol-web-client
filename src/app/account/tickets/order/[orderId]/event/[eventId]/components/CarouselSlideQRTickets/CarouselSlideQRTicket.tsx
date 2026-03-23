@@ -1,8 +1,9 @@
 "use client";
 
 import { AttachMoneyOutlined, LinkOff, Share } from "@mui/icons-material";
-import { Box, Card, CardActions, CardContent, CardMedia, IconButton, LinearProgress, Typography } from "@mui/material";
+import { Box, Card, CardActions, CardContent, CardMedia, IconButton, LinearProgress, SxProps, Theme, Typography } from "@mui/material";
 import { QRCodeSVG } from "qrcode.react";
+import { ReactNode } from "react";
 import { useCallback, useState } from "react";
 
 import { formatDate } from "@/helpers/formatDateHelper";
@@ -10,6 +11,40 @@ import { useQrTimer } from "@/hooks/useQrTimer";
 
 import styles from "./CarouselSlideQRTicket.module.scss";
 import { CarouselSlideQRTicketProps } from "./CarouselSlideQRTicket.type";
+
+type TicketActionProps = {
+    icon: ReactNode;
+    label: string;
+    onClick: () => void;
+};
+
+const actionSx: SxProps<Theme> = {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center"
+};
+
+const sharedBanner: SxProps<Theme> = {
+    backgroundColor: "red",
+    position: "absolute",
+    width: "100%",
+    top: "43%",
+    textAlign: "center",
+    py: 1
+};
+
+function TicketAction({ icon, label, onClick }: TicketActionProps) {
+    return (
+        <Box sx={actionSx}>
+            <IconButton color="primary" onClick={onClick}>
+                {icon}
+            </IconButton>
+            <Typography variant="bodyXs">
+                {label}
+            </Typography>
+        </Box>
+    );
+};
 
 export default function CarouselSlideQRTicket({ ticket, isActive, onShare, onUnshare }: CarouselSlideQRTicketProps) {
     const [payload, setPayload] = useState("");
@@ -66,14 +101,7 @@ export default function CarouselSlideQRTicket({ ticket, isActive, onShare, onUns
                 <Box sx={{ backgroundColor: "white", justifySelf: "center" }} mt={3} mb={2}>
                     <Box textAlign="center" sx={{ position: "relative" }}>
                         {(ticket.isOwner && ticket.isShared) &&
-                            <Box sx={{
-                                backgroundColor: "red",
-                                position: "absolute",
-                                width: "100%",
-                                top: "43%",
-                                textAlign: "center",
-                                py: 1
-                            }}>
+                            <Box sx={sharedBanner}>
                                 <Typography variant="body1" color="neutral" fontWeight={700}>
                                     Compartido
                                 </Typography>
@@ -96,7 +124,7 @@ export default function CarouselSlideQRTicket({ ticket, isActive, onShare, onUns
                             }
 
                             <Box display="flex" flexDirection="row" justifyContent="space-around" mt={3}>
-                                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                <Box sx={actionSx}>
                                     <IconButton
                                         aria-label="Vender"
                                         color="primary"
@@ -109,32 +137,18 @@ export default function CarouselSlideQRTicket({ ticket, isActive, onShare, onUns
                                 </Box>
 
                                 {ticket.canShare &&
-                                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                        <IconButton
-                                            aria-label="Compartir"
-                                            color="primary"
-                                            onClick={() => onShare(ticket.id)}
-                                        >
-                                            <Share sx={{ fontSize: 30 }} />
-                                        </IconButton>
-                                        <Typography variant="bodyXs">
-                                            Compartir
-                                        </Typography>
-                                    </Box>
+                                    <TicketAction
+                                        icon={<Share sx={{ fontSize: 30 }} />}
+                                        label="Compartir"
+                                        onClick={() => onShare(ticket.id)}
+                                    />
                                 }
                                 {(ticket.isOwner && ticket.isShared) &&
-                                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                        <IconButton
-                                            aria-label="Dejar de compartir"
-                                            color="primary"
-                                            onClick={() => onUnshare(ticket.id)}
-                                        >
-                                            <LinkOff sx={{ fontSize: 30 }} />
-                                        </IconButton>
-                                        <Typography variant="bodyXs">
-                                            Dejar de compartir
-                                        </Typography>
-                                    </Box>
+                                    <TicketAction
+                                        icon={<LinkOff sx={{ fontSize: 30 }} />}
+                                        label="Dejar de compartir"
+                                        onClick={() => onUnshare(ticket.id)}
+                                    />
                                 }
                             </Box>
                         </Box>

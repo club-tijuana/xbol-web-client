@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Button, Checkbox, Divider, FormControl, FormControlLabel, Grid, Input, Paper, Typography } from "@mui/material";
+import { Alert, AlertColor, Box, Button, Checkbox, Divider, FormControl, FormControlLabel, Grid, Input, Snackbar, Typography } from "@mui/material";
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Image from "next/image";
 import { useState } from "react";
@@ -10,13 +10,18 @@ import { PaymentMethodDTO } from "@/models/payment-method.dto";
 
 import { PaymentProps } from "./Payment.type";
 
-export default function Payment({ subtotal, taxes, total, currency }: PaymentProps) {
+export default function Payment({ subtotal, taxes, total, currency, onPay }: PaymentProps) {
+    const [acceptedTerms, setAcceptedTerms] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethodDTO>({
         ownerName: "",
         cardNumber: "",
-        expirationDay: 0,
-        expirationMonth: 0
+        expirationMonth: 0,
+        expirationYear: 0
     });
+
+    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState("");
+    const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("success");
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -27,8 +32,27 @@ export default function Payment({ subtotal, taxes, total, currency }: PaymentPro
         }));
     };
 
+    const handlePay = () => {
+        if (
+            !paymentMethod.ownerName
+            || !paymentMethod.cardNumber
+            || !paymentMethod.expirationMonth
+            || !paymentMethod.expirationYear
+        ) {
+            setSnackbarSeverity("warning");
+            setSnackbarMessage("Es necesario capturar la información de pago");
+            setOpenSnackbar(true);
+
+            return;
+        }
+
+        if (onPay) {
+            onPay();
+        }
+    }
+
     return (
-        <Paper elevation={3} className="paperCard" sx={{ backgroundColor: "white" }}>
+        <Box>
             <Typography variant="h3" color="primary">
                 Datos de pago
             </Typography>
@@ -78,13 +102,40 @@ export default function Payment({ subtotal, taxes, total, currency }: PaymentPro
                     <Grid container columns={2} spacing={2}>
                         <Grid size={1}>
                             <DatePicker
-                                views={['day']}
+                                views={['month']}
+                                format="MM"
+                                value={
+                                    paymentMethod.expirationMonth
+                                        ? new Date(2025, paymentMethod.expirationMonth - 1, 1)
+                                        : null
+                                }
+                                onChange={(date) => {
+                                    if (date) {
+                                        setPaymentMethod(prev => ({
+                                            ...prev,
+                                            expirationMonth: date.getMonth() + 1
+                                        }));
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid size={1}>
                             <DatePicker
-                                views={['month']}
-                                format="MM"
+                                views={['year']}
+                                format="yyyy"
+                                value={
+                                    paymentMethod.expirationYear
+                                        ? new Date(paymentMethod.expirationYear, 0, 1)
+                                        : null
+                                }
+                                onChange={(date) => {
+                                    if (date) {
+                                        setPaymentMethod(prev => ({
+                                            ...prev,
+                                            expirationYear: date.getFullYear()
+                                        }));
+                                    }
+                                }}
                             />
                         </Grid>
                     </Grid>
@@ -137,13 +188,35 @@ export default function Payment({ subtotal, taxes, total, currency }: PaymentPro
             <Divider sx={{ my: 4, borderWidth: 1, borderColor: 'var(--color-text-muted)' }} />
 
             <Box display="flex" justifyContent="space-between" alignItems="center">
-                <FormControlLabel required control={<Checkbox />} label="Acepto las condiciones de compra" />
-                <Button variant="contained" color="primary" sx={{ px: 5.5, py: 1.3 }}>
+                <FormControlLabel
+                    required
+                    control={
+                        <Checkbox
+                            checked={acceptedTerms}
+                            onChange={(e) => setAcceptedTerms(e.target.checked)}
+                        />
+                    }
+                    label="Acepto las condiciones de compra"
+                />
+                <Button variant="contained" color="primary" sx={{ px: 5.5, py: 1.3 }} onClick={handlePay} disabled={!acceptedTerms}>
                     <Typography variant="subtitle1" fontWeight={400} color="neutral">
                         Pagar
                     </Typography>
                 </Button>
             </Box>
-        </Paper>
+
+            <Snackbar
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                open={openSnackbar}
+                autoHideDuration={5000}>
+                <Alert
+                    onClose={() => setOpenSnackbar(false)}
+                    severity={snackbarSeverity}
+                    variant="filled"
+                    sx={{ width: "100%" }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
+        </Box>
     );
 }

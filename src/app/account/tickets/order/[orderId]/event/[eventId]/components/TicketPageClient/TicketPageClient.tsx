@@ -9,6 +9,7 @@ import Advertisement from "@/components/Advertisement/Advertisement";
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import FAQ from "@/components/FAQ/FAQ";
 import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
+import Loader from "@/components/Loader/Loader";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { MyEventDetailDTO } from "@/models/my-event-detail.dto";
 import { MyTicketDto } from "@/models/my-ticket.dto";
@@ -121,7 +122,7 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
                     backgroundColor={colors.brand.background}
                     height={670}
                 >
-                    <Box mt={15}>
+                    <Box mt={5}>
                         <Typography variant="h6" fontWeight={400} color="primary" mb={1} textAlign='right'>
                             {`Folio ${detail?.folio}`}
                         </Typography>
@@ -222,6 +223,8 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
                     {snackbarMessage}
                 </Alert>
             </Snackbar>
+
+            <Loader isLoading={status === "loading"} />
         </Box >
     );
 }

@@ -3,4 +3,6 @@ export interface PaymentProps {
     taxes: number;
     total: number;
     currency: string;
+
+    onPay?: () => void;
 }

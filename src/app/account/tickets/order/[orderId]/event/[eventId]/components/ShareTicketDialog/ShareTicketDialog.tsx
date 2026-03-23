@@ -64,10 +64,10 @@ export default function ShareTicketDialog({ ticketId, open, variant, orderType, 
     useEffect(() => {
         if (shareTicketState.status === "success") {
             if (variant === "share") {
-                onClose(`Ticket compartido con el Cliente con correo ${client.email} y teléfono ${client.phoneCode}${client.phone}`);
+                onClose(`Boleto compartido con el Cliente con correo ${client.email} y teléfono ${client.phoneCode}${client.phone}`);
             }
             else if (variant === "unshare") {
-                onClose(`El ticket se ha dejado de compartir`);
+                onClose(`El boleto se ha dejado de compartir`);
             }
         }
         else if (shareTicketState.status === "error") {
@@ -133,7 +133,7 @@ export default function ShareTicketDialog({ ticketId, open, variant, orderType, 
     return (
         <Dialog open={open}>
             <DialogTitle>
-                {variant === "share" ? "Compartir ticket" : "Dejar de compartir ticket"}
+                {variant === "share" ? "Compartir boleto" : "Dejar de compartir boleto"}
             </DialogTitle>
             <DialogContent>
                 <Box>
@@ -143,7 +143,7 @@ export default function ShareTicketDialog({ ticketId, open, variant, orderType, 
                                 Estás a punto de compartir este boleto.
                             </Typography>
                             <Typography mt={1} color="muted">
-                                Le darás acceso a este ticket a la persona que estás ingresando.
+                                Le darás acceso a este boleto a la persona que estás ingresando.
                             </Typography >
                             <Typography mt={1} color="muted">
                                 Esa persona debe tener una cuenta registrada para poder verlo y utilizarlo.
@@ -161,7 +161,7 @@ export default function ShareTicketDialog({ ticketId, open, variant, orderType, 
                                 Estás a punto de dejar de compartir este boleto.
                             </Typography>
                             <Typography mt={1}>
-                                Al continuar, la persona con la que lo compartiste perderá el acceso de inmediato y ya no podrá ver ni utilizar este ticket.
+                                Al continuar, la persona con la que lo compartiste perderá el acceso de inmediato y ya no podrá ver ni utilizar este boleto.
                             </Typography>
                             <Typography mt={1}>
                                 Esta acción no se puede deshacer automáticamente; si deseas volver a compartirlo, tendrás que hacerlo nuevamente.
@@ -202,22 +202,25 @@ export default function ShareTicketDialog({ ticketId, open, variant, orderType, 
                                 onChange={(value) => {
                                     setPhoneValue(value);
 
-                                    let phone = "";
-                                    let callingCode = "";
-
-                                    if (value) {
-                                        const phoneNumber = parsePhoneNumber(value);
-
-                                        phone = phoneNumber?.nationalNumber ?? "";
-                                        callingCode = phoneNumber?.countryCallingCode ?? "";
+                                    if (!value) {
+                                        setClient(prev => ({
+                                            ...prev,
+                                            phone: "",
+                                            phoneIsoCode: "",
+                                            phoneCode: "",
+                                            fullPhone: ""
+                                        }));
+                                        return;
                                     }
 
-                                    console.log("CALLINGCODE: " + callingCode);
+                                    const phoneNumber = parsePhoneNumber(value);
+
                                     setClient(prev => ({
                                         ...prev,
-                                        phone: phone,
-                                        phoneIsoCode: "+" + callingCode,
-                                        phoneCode: "+" + callingCode
+                                        phone: phoneNumber?.nationalNumber ?? "",
+                                        phoneIsoCode: phoneNumber ? `+${phoneNumber.countryCallingCode}` : "",
+                                        phoneCode: phoneNumber ? `+${phoneNumber.countryCallingCode}` : "",
+                                        fullPhone: value
                                     }));
                                 }}
                                 labels={es}
@@ -233,7 +236,7 @@ export default function ShareTicketDialog({ ticketId, open, variant, orderType, 
                             value={toggleValue}
                             exclusive
                             onChange={handleToggleChange}>
-                            <ToggleButton value={false}>Aplicar solo el ticket</ToggleButton>
+                            <ToggleButton value={false}>Aplicar solo el boleto</ToggleButton>
                             <ToggleButton value={true}>Aplicar a toda la temporada</ToggleButton>
                         </ToggleButtonGroup>
                     </Box>

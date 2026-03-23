@@ -34,6 +34,7 @@ const initialState: BookingState = {
 function createEventBookingRequest(): EventBookingRequest {
     return {
         eventKey: "",
+        scheduleId: 0,
         seats: [],
         ticketType: ItemType.Ticket,
         clientContact: {} as ClientInfoRequest,
@@ -51,7 +52,8 @@ function createEventBookingRequest(): EventBookingRequest {
 
 function createSeasonBookingRequest(): SeasonBookingRequest {
     return {
-        seats: [],
+        scheduleId: 0,
+        seats: undefined,
         ticketType: ItemType.SeasonPass,
         clientContact: {} as ClientInfoRequest,
         paymentInfoRequest: {} as PaymentInfoRequest,
@@ -113,6 +115,16 @@ const bookingSlice = createSlice({
             state.eventBookingRequest = undefined;
             state.seasonBookingRequest = undefined;
         },
+        setBookScheduleId: (state, action: PayloadAction<number>) => {
+            if (state.bookMode === "event") {
+                state.eventBookingRequest ??= createEventBookingRequest();
+                state.eventBookingRequest.scheduleId = action.payload;
+            }
+            else if (state.bookMode === "season") {
+                state.seasonBookingRequest ??= createSeasonBookingRequest();
+                state.seasonBookingRequest.scheduleId = action.payload;
+            }
+        },
         setBookKey: (state, action: PayloadAction<string>) => {
             if (state.bookMode === "event") {
                 state.eventBookingRequest ??= createEventBookingRequest();
@@ -124,13 +136,18 @@ const bookingSlice = createSlice({
             }
         },
         setBookSeats: (state, action: PayloadAction<Array<[string, number]>>) => {
+            const seatsArray = action.payload;
+            const seatsObject = Object.fromEntries(seatsArray);
+
             if (state.bookMode === "event") {
                 state.eventBookingRequest ??= createEventBookingRequest();
-                state.eventBookingRequest.seats = action.payload;
+                state.eventBookingRequest.seats = seatsObject;
+                //state.eventBookingRequest.seatsObjs = seatsObject;
             }
             else if (state.bookMode === "season") {
                 state.seasonBookingRequest ??= createSeasonBookingRequest();
-                state.seasonBookingRequest.seats = action.payload;
+                state.seasonBookingRequest.seats = seatsObject;
+                //state.seasonBookingRequest.seatsObjs = seatsObject;
             }
         },
         setBookHoldToken: (state, action: PayloadAction<string>) => {
@@ -205,6 +222,7 @@ const bookingSlice = createSlice({
 
 export const {
     setBookMode,
+    setBookScheduleId,
     setBookKey,
     setBookSeats,
     setBookHoldToken,

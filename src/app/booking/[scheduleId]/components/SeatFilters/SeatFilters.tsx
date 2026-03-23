@@ -4,6 +4,7 @@ import { ArrowDownwardOutlined, TuneOutlined } from "@mui/icons-material";
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Chip, Divider, Grid, Paper, Stack, Typography } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 
+import { formatCurrency } from "@/helpers/formatCurrencyHelper";
 import { useDebounce } from "@/hooks/useDebounce";
 import { PriceRange, ReservationFilters } from "@/models/filters/reservation-filters.dto";
 import { SectionDTO } from "@/models/section.dto";
@@ -84,7 +85,7 @@ export default function SeatFilters({ scheduleId, onSectionSelected }: SeatFilte
     };
 
     return (
-        <Paper elevation={3} className="paperCard" sx={{ width: "100%" }}>
+        <Paper elevation={3} className="paperCard" sx={{ width: "100%", backgroundColor: "white" }}>
             <Accordion elevation={0}>
                 <AccordionSummary
                     expandIcon={
@@ -97,6 +98,7 @@ export default function SeatFilters({ scheduleId, onSectionSelected }: SeatFilte
                         </Box>
                     }
                     sx={{
+                        backgroundColor: "white",
                         "& .MuiAccordionSummary-expandIconWrapper": {
                             transform: "none",
                         },
@@ -118,7 +120,7 @@ export default function SeatFilters({ scheduleId, onSectionSelected }: SeatFilte
                         Selecciona tus asientos
                     </Typography>
                 </AccordionSummary>
-                <AccordionDetails>
+                <AccordionDetails sx={{ backgroundColor: "white" }}>
                     <Box display="flex" flexDirection="row">
                         <Typography variant="h6" fontWeight={400} mr={4}>
                             Precios
@@ -129,12 +131,12 @@ export default function SeatFilters({ scheduleId, onSectionSelected }: SeatFilte
                         />
                     </Box>
                     <Box display="flex" flexDirection="row" mt={3}>
-                        <Typography variant="h6" fontWeight={400}>
+                        <Typography variant="h6" fontWeight={400} mr={1}>
                             Tipo de boleto
                         </Typography>
                         <Stack
                             direction="row"
-                            spacing={8}
+                            spacing={2}
                             sx={{
                                 overflowX: "auto"
                             }}
@@ -167,18 +169,20 @@ export default function SeatFilters({ scheduleId, onSectionSelected }: SeatFilte
                                     Sección {section.name}
                                 </Typography>
                             </Grid>
-                            <Grid size={2} textAlign={"right"}>
-                                <Typography variant="h6" fontWeight={400} color="muted">
-                                    {section.price}
-                                </Typography>
+                            <Grid size={3} textAlign={"right"}>
+                                {section.price &&
+                                    <Typography variant="h6" fontWeight={400} color="muted">
+                                        {formatCurrency(section.price)}
+                                    </Typography>
+                                }
                                 <Typography variant="caption" color="muted">
                                     + Impuestos
                                 </Typography>
                             </Grid>
-                            <Grid size={6} textAlign={"right"}>
+                            <Grid size={5} textAlign={"right"}>
                                 <Button variant="outlined" onClick={() => handleSectionSelected(section.name)}>
                                     <Typography variant="body1" px={1.3} py={1}>
-                                        Ver tickets
+                                        Comprar tickets
                                     </Typography>
                                 </Button>
                             </Grid>
