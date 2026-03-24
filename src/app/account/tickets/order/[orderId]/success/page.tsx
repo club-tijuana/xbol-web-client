@@ -8,8 +8,6 @@ import { getTrendingEvents } from "@/services/eventService";
 
 import SuccessClient from "./components/SuccessClient/SuccessClient";
 
-
-
 interface SuccessPageProps {
     params: Promise<{
         orderId: string;

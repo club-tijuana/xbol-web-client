@@ -29,7 +29,12 @@ export default async function TicketsPage() {
     const trendingEventsVM = trendingEvents.items.map(mapEventToCardVM);
 
     return (
-        <Box mt={13}>
+        <Box mt={13} sx={{
+            minHeight: "100vh",
+            display: "flex",
+            flexDirection: "column",
+            mt: 13
+        }}>
             <TicketsClientWrapper />
 
             <Grid container

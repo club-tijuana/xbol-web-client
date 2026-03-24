@@ -4,8 +4,10 @@ import { Metadata } from "next";
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import EventCarousel from "@/components/EventCarousel/EventCarousel";
 import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
+import SeasonBanner from "@/components/SeasonBanner/SeasonBanner";
 import { mapEventToCardVM } from "@/models/event-item.dto";
 import { getEvents, getMainEvents, getTrendingEvents } from "@/services/eventService";
+import { getSeasonBanner } from "@/services/seasonService";
 import { colors } from "@/theme/colors";
 
 export const metadata: Metadata = {
@@ -44,6 +46,7 @@ export default async function Home() {
   const futbolEvents = await getEvents({ page: 1, eventCategoryId: 1, pageSize: 3 });
   const musicEvents = await getEvents({ page: 1, eventCategoryId: 2, pageSize: 3 });
   const theaterEvents = await getEvents({ page: 1, eventCategoryId: 3, pageSize: 3 });
+  const seasonBanner = await getSeasonBanner();
 
   const trendingEventsVM = trendingEvents.items.map(mapEventToCardVM);
   const futbolEventsVM = futbolEvents.items.map(mapEventToCardVM);
@@ -90,6 +93,9 @@ export default async function Home() {
           />
         </Box>
 
+        {seasonBanner &&
+          <SeasonBanner seasonItem={seasonBanner} />
+        }
 
         <FullWidthSection variant="color" backgroundColor={colors.brand.background} fullBleed={false}>
           <Box mt={8} mb={6.5}>

@@ -1,5 +1,5 @@
 import { OrderType } from "./enums/order-type.enum";
-import { OrderEventDTO } from "./order-event.dto";
+import { MyEventSeatDTO } from "./my-event-seat.dto";
 
 export interface OrderDTO {
     id: number;
@@ -10,5 +10,10 @@ export interface OrderDTO {
     totalTaxes: number;
     total: number;
     currency: string;
-    events: OrderEventDTO[];
+    itemName: string;
+    itemLocation: string;
+    itemKey: string;
+    itemSeats: MyEventSeatDTO[];
+    itemPosterImageUrl: string;
+    itemStartDate: Date;
 }

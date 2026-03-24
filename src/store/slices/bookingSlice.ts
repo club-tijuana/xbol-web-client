@@ -110,6 +110,7 @@ const bookingSlice = createSlice({
     name: "booking",
     initialState,
     reducers: {
+        resetState: () => initialState,
         setBookMode: (state, action: PayloadAction<"event" | "season">) => { // TODO: Use ticket type
             state.bookMode = action.payload;
             state.eventBookingRequest = undefined;
@@ -221,6 +222,7 @@ const bookingSlice = createSlice({
 });
 
 export const {
+    resetState,
     setBookMode,
     setBookScheduleId,
     setBookKey,

@@ -4,6 +4,7 @@ import { EventItemDTO } from "@/models/event-item.dto";
 import { ReservationFilters } from "@/models/filters/reservation-filters.dto";
 import { EventBookingRequest } from "@/models/requests/event-booking-request.dto";
 import { SeasonBookingRequest } from "@/models/requests/season-booking-request.dto";
+import { SeasonItemDTO } from "@/models/season-item.dto";
 import { SectionDTO } from "@/models/section.dto";
 import { ZoneDTO } from "@/models/zone.dto";
 
@@ -20,6 +21,13 @@ export async function getEventItemBySchedule(scheduleId: number): Promise<EventI
     return requestAxios<null, EventItemDTO>(
         "GET",
         `${PATH}/event-by-schedule/${scheduleId}`
+    );
+}
+
+export async function getSeasonById(seasonId: number): Promise<SeasonItemDTO> {
+    return requestAxios<null, SeasonItemDTO>(
+        "GET",
+        `${PATH}/season-by-id/${seasonId}`
     );
 }
 
