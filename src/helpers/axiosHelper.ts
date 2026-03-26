@@ -9,8 +9,10 @@ export async function requestAxios<TPayload, TResult>(
     token?: string,
     options?: { isBlob?: boolean }
 ): Promise<TResult> {
+    const fullUrl = `${BASE_URL ?? ""}${path}`;
+
     const config: AxiosRequestConfig = {
-        url: `${BASE_URL}${path}`,
+        url: fullUrl,
         method,
         headers: {
             "Accept": "application/json",

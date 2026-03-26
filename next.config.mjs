@@ -1,14 +1,13 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  output: "standalone",
   reactCompiler: true,
   images: {
     remotePatterns: [
       {
         protocol: "https",
         hostname: "media.informabtl.com",
-        pathname: "/**"
+        pathname: "/**",
       },
       {
         protocol: "https",
