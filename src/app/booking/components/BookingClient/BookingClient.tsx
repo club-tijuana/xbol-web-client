@@ -14,6 +14,7 @@ import { ItemType } from "@/models/enums/item-type.enum";
 import { EventItemDTO } from "@/models/event-item.dto";
 import { SeasonItemDTO } from "@/models/season-item.dto";
 import { getEventItemBySchedule, getSeasonById } from "@/services/bookingService";
+import { holdToken as holdTokenService } from "@/services/holdService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
     resetState,
@@ -30,6 +31,8 @@ import {
 } from "@/store/slices/bookingSlice";
 
 import ClientInfo from "../ClientInfo/ClientInfo";
+import HoldExpiredModal from "../HoldExpiredModal/HoldExpiredModal";
+import HoldTokenTimer from "../HoldTokenTimer/HoldTokenTimer";
 import Payment from "../Payment/Payment";
 import SeatFilters from "../SeatFilters/SeatFilters";
 
@@ -59,50 +62,74 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
     const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
     const [snackbarMessage, setSnackbarMessage] = useState<string>("");
     const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("success");
+    const [holdToken, setHoldToken] = useState<string | undefined>(undefined);
 
     useEffect(() => {
-        dispatch(resetState());
-        dispatch(setBookMode(bookingMode));
+        let isMounted = true;
 
-        async function load() {
-            if (bookingMode === "event") {
-                const eventResponse = await getEventItemBySchedule(Number.parseInt(id));
+        async function loadAll() {
+            try {
+                const holdTokenResponse = await holdTokenService();
 
-                if (!eventResponse.eventKey) {
-                    // TODO: Redirect to event page and show message
-                    return;
+                let mapKeyLocal = "";
+
+                if (bookingMode === "event") {
+                    const eventResponse = await getEventItemBySchedule(Number.parseInt(id));
+
+                    if (!eventResponse.eventKey) return;
+
+                    mapKeyLocal = eventResponse.eventKey;
+
+                    if (!isMounted) return;
+
+                    setEvent(eventResponse);
+                    setFormattedDate(formatDate(eventResponse.startDate, "dateTime"));
+
+                    await dispatch(resetState());
+                    await dispatch(setBookMode("event"));
+                    await dispatch(setBookTicketType(ItemType.Ticket));
+                    await dispatch(setBookKey(eventResponse.eventKey));
+                    await dispatch(setBookScheduleId(Number.parseInt(id)));
+                }
+                else {
+                    const seasonResponse = await getSeasonById(Number.parseInt(id));
+
+                    if (!seasonResponse.externalSeasonKey) return;
+
+                    mapKeyLocal = seasonResponse.externalSeasonKey;
+
+                    if (!isMounted) return;
+
+                    setSeason(seasonResponse);
+                    setFormattedDate(formatDate(seasonResponse.startDate, "dateTime"));
+
+                    await dispatch(resetState());
+                    await dispatch(setBookMode("season"));
+                    await dispatch(setBookTicketType(ItemType.SeasonPass));
+                    await dispatch(setBookKey(seasonResponse.externalSeasonKey));
+                    await dispatch(setBookScheduleId(Number.parseInt(id)));
                 }
 
-                setEvent(eventResponse);
-                setFormattedDate(formatDate(eventResponse.startDate, "dateTime"));
-                setMapKey(eventResponse.eventKey);
+                if (!isMounted) return;
 
-                dispatch(setBookTicketType(ItemType.Ticket));
-                dispatch(setBookKey(eventResponse.eventKey));
-                dispatch(setBookScheduleId(Number.parseInt(id)));
-                dispatch(setBookHoldToken("aaaaaaaaa"));
-            }
-            else if (bookingMode === "season") {
-                const seasonResponse = await getSeasonById(Number.parseInt(id));
-
-                if (!seasonResponse.externalSeasonKey) {
-                    // TODO: Redirect to event page and show message
-                    return;
+                if (holdTokenResponse?.token) {
+                    setHoldToken(holdTokenResponse.token);
+                    await dispatch(setBookHoldToken(holdTokenResponse));
                 }
 
-                setSeason(seasonResponse);
-                setFormattedDate(formatDate(seasonResponse.startDate, "dateTime"));
-                setMapKey(seasonResponse.externalSeasonKey);
+                setMapKey(mapKeyLocal);
 
-                dispatch(setBookTicketType(ItemType.SeasonPass));
-                dispatch(setBookKey(seasonResponse.externalSeasonKey));
-                dispatch(setBookScheduleId(Number.parseInt(id)));
-                dispatch(setBookHoldToken("aaaaaaaaa"));
+            } catch (err) {
+                console.error(err);
             }
+        }
+
+        loadAll();
+
+        return () => {
+            isMounted = false;
         };
-
-        load();
-    }, [dispatch, id, bookingMode]);
+    }, [id, bookingMode, dispatch]);
 
     const { subtotal, taxes, total } = useMemo(() => {
         let _subtotal = 0;
@@ -153,13 +180,15 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
     const renderRightPanel = () => {
         switch (bookingStep) {
             case "selection":
-                return ((event && event.eventKey) || (season && season.externalSeasonKey)) ? (
+                return (holdToken && ((event && event.eventKey) || (season && season.externalSeasonKey))) ? (
                     <SeatsMap
                         ref={mapRef}
                         selectedSection={selectedSection}
                         selectedSeats={selectedSeats}
                         eventKey={mapKey}
+                        holdToken={holdToken}
                         pricing={[{ category: 3, price: 1 }, { category: 4, price: 2 }, { category: 5, price: 3 }]}
+                        session="manual"
                     />
                 ) : null;
             case "payment":
@@ -253,6 +282,9 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
 
     return (
         <Grid container columns={12} mt={7} spacing={4} pb={8}>
+            <Grid size={12}>
+                <HoldTokenTimer />
+            </Grid>
             <Grid size={6}>
                 {(bookingMode === "event" && event) &&
                     <Grid container columns={12} mb={4}>
@@ -333,6 +365,7 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                 </Box>
             </Grid>
 
+            <HoldExpiredModal />
             <Snackbar
                 anchorOrigin={{ vertical: "top", horizontal: "right" }}
                 open={openSnackbar}

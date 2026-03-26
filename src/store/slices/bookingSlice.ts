@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { HoldToken } from "@seatsio/seatsio-react";
 
 import { BookingResult } from "@/models/booking-result.dto";
 import { ItemType } from "@/models/enums/item-type.enum";
@@ -9,25 +10,30 @@ import { PaymentInfoRequest } from "@/models/requests/payment-info-request.dto";
 import { SeasonBookingRequest } from "@/models/requests/season-booking-request.dto";
 import { eventBookSeats, seasonBookSeats } from "@/services/bookingService";
 
+interface HoldTokenState {
+    token: string;
+    expiresInSeconds: number;
+    status: "active" | "expired";
+}
+
 interface BookingState {
-    //     eventId: number | null;
     bookMode?: "event" | "season";
     selectedSeatsDto: MyEventSeatDTO[] | undefined;
-    //selectedSeats: Array<string> | undefined;
     selectedSeats?: Array<[string, number]>;
     eventBookingRequest?: EventBookingRequest;
     seasonBookingRequest?: SeasonBookingRequest;
     status: "idle" | "loading" | "success" | "error";
+    holdTokenObj?: HoldTokenState;
     error?: string;
 }
 
 const initialState: BookingState = {
-    //     eventId: null,
     bookMode: undefined,
     selectedSeatsDto: undefined,
     selectedSeats: undefined,
     eventBookingRequest: undefined,
     seasonBookingRequest: undefined,
+    holdTokenObj: undefined,
     status: "idle"
 };
 
@@ -106,6 +112,24 @@ export const seasonBook = createAsyncThunk<
     }
 );
 
+export const expireHoldToken = createAsyncThunk<
+    string,
+    void,
+    { state: { booking: BookingState } }
+>(
+    "booking/expireHoldToken",
+    async (_, thunkAPI) => {
+        const state = thunkAPI.getState().booking;
+        const token = state.holdTokenObj?.token;
+
+        if (!token) {
+            throw new Error("No hold token to expire");
+        }
+
+        return token;
+    }
+);
+
 const bookingSlice = createSlice({
     name: "booking",
     initialState,
@@ -151,14 +175,17 @@ const bookingSlice = createSlice({
                 //state.seasonBookingRequest.seatsObjs = seatsObject;
             }
         },
-        setBookHoldToken: (state, action: PayloadAction<string>) => {
+        setBookHoldToken: (state, action: PayloadAction<HoldToken>) => {
+            const tokenState: HoldTokenState = { token: action.payload.token, expiresInSeconds: action.payload.expiresInSeconds, status: "active" };
+            state.holdTokenObj = tokenState;
+
             if (state.bookMode === "event") {
                 state.eventBookingRequest ??= createEventBookingRequest();
-                state.eventBookingRequest.holdToken = action.payload;
+                state.eventBookingRequest.holdToken = action.payload.token;
             }
             else if (state.bookMode === "season") {
                 state.seasonBookingRequest ??= createSeasonBookingRequest();
-                state.seasonBookingRequest.holdToken = action.payload;
+                state.seasonBookingRequest.holdToken = action.payload.token;
             }
         },
         setBookTicketType: (state, action: PayloadAction<ItemType>) => {
@@ -217,6 +244,11 @@ const bookingSlice = createSlice({
             })
             .addCase(seasonBook.rejected, (state) => {
                 state.status = "error";
+            })
+            .addCase(expireHoldToken.fulfilled, (state, action) => {
+                if (state.holdTokenObj?.token === action.payload) {
+                    state.holdTokenObj.status = "expired";
+                }
             });
     }
 });

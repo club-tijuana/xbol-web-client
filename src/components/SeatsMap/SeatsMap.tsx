@@ -4,14 +4,10 @@ import { SeatingChart, SeatsioSeatingChart, SelectableObject } from "@seatsio/se
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 
 import { MyEventSeatDTO } from "@/models/my-event-seat.dto";
+import { useAppDispatch } from "@/store/hooks";
+import { expireHoldToken } from "@/store/slices/bookingSlice";
 
 import { SeatsMapProps } from "./SeatsMap.type";
-
-/* -------------------- TYPES -------------------- */
-type Session = 'continue' | 'manual' | 'none' | 'start';
-
-/* -------------------- CONSTANTS -------------------- */
-const SESSION_NONE: Session = "none";
 
 export interface SeatsMapHandle {
     getSelectedSeats: () => Array<[string, number]>;
@@ -22,6 +18,7 @@ export interface SeatsMapHandle {
 const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
     ({
         eventKey,
+        holdToken,
         pricing,
         selectedSeats,
         selectedSection,
@@ -32,14 +29,18 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
             multiSelect: true,
             zoomOnSelect: true
         },
-        channels
+        channels,
+        session
     }, ref) => {
-
+        const dispatch = useAppDispatch();
         const chartRef = useRef<SeatingChart | null>(null);
         const [currentSelectedSeats, setCurrentSelectedSeats] = useState<[string, number][]>(selectedSeats ?? []);
         const [currentSelectedSeatsDto, setCurrentSelectedSeatsDto] = useState<MyEventSeatDTO[]>([]);
         const selectedSeatsRef = useRef<Array<[string, number]>>([]);
         const selectedSeatsDtoRef = useRef<MyEventSeatDTO[]>([]);
+        const chartConfig = eventKey
+            ? { holdToken, eventKey }
+            : null;
 
         useEffect(() => {
             selectedSeatsRef.current = currentSelectedSeats;
@@ -129,26 +130,33 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
 
         return (
             <div>
-                <SeatsioSeatingChart
-                    workspaceKey={process.env.NEXT_PUBLIC_SEATS_WORKSPACE_KEY}
-                    event={eventKey}
-                    region="na"
-                    pricing={pricing}
-                    mode={mode}
-                    selectedObjects={selectedSeats?.map(s => s[0])}
-                    onObjectSelected={handleSelected}
-                    onObjectDeselected={handleDeselected}
-                    onChartRendered={(chart) => {
-                        chartRef.current = chart;
+                {chartConfig && (
+                    <SeatsioSeatingChart
+                        key={holdToken}
+                        workspaceKey={process.env.NEXT_PUBLIC_SEATS_WORKSPACE_KEY}
+                        holdToken={holdToken}
+                        onHoldTokenExpired={() => {
+                            dispatch(expireHoldToken())
+                        }}
+                        event={eventKey}
+                        region="na"
+                        pricing={pricing}
+                        mode={mode}
+                        onObjectSelected={handleSelected}
+                        onObjectDeselected={handleDeselected}
+                        onChartRendered={(chart) => {
+                            chartRef.current = chart;
 
-                        if (selectedSection) chart.zoomToSection(selectedSection);
-                        if (selectedSeats) chart.zoomToObjects(selectedSeats.map(s => s[0]));
-                    }}
-                    showMinimap={mode !== "print"}
-                    categoryFilter={categoryFilter}
-                    channels={channels}
-                    session={SESSION_NONE}
-                />
+                            if (selectedSection) chart.zoomToSection(selectedSection);
+                            if (selectedSeats) chart.zoomToObjects(selectedSeats.map(s => s[0]));
+                        }}
+                        showMinimap={mode !== "print"}
+                        categoryFilter={categoryFilter}
+                        channels={channels}
+                        session={session}
+                        maxSelectedObjects={2}
+                    />
+                )}
             </div>
         );
     }

@@ -48,7 +48,7 @@ export default function TicketSeats({ eventKey, subTotal, totalTaxes, total, cur
                                 height: "100%",
                             }}
                         >
-                            <SeatsMap eventKey={eventKey} selectedSeats={selectedSeats} mode="print" />
+                            <SeatsMap eventKey={eventKey} selectedSeats={selectedSeats} mode="print" session="continue" />
                         </Box>
                     </Box>
                 </Grid>
