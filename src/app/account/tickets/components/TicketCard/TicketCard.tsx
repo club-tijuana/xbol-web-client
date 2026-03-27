@@ -1,6 +1,6 @@
 "use client";
 
-import { VisibilityOutlined } from "@mui/icons-material";
+import { Autorenew, VisibilityOutlined } from "@mui/icons-material";
 import { Box, Card, CardActions, CardContent, CardMedia, IconButton, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 
@@ -18,6 +18,10 @@ export default function TicketCard({ ticket }: TicketCardProps) {
 
     const handleOpenTicket = () => {
         router.push(`/account/tickets/order/${ticket.orderId}/event/${ticket.eventId}`);
+    }
+
+    const handleSeasonRenovate = () => {
+        router.push(`/season/renovation/${ticket.orderId}`);
     }
 
     return (
@@ -73,6 +77,20 @@ export default function TicketCard({ ticket }: TicketCardProps) {
                                     Ver
                                 </Typography>
                             </Box>
+                            {(ticket.isSeasonPass && ticket.canRenovateSeasonPass) &&
+                                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                    <IconButton
+                                        aria-label="Ver"
+                                        color="primary"
+                                        onClick={handleSeasonRenovate}
+                                    >
+                                        <Autorenew sx={{ fontSize: 40 }} />
+                                    </IconButton>
+                                    <Typography variant="bodyXs" color="neutral">
+                                        Renovar
+                                    </Typography>
+                                </Box>
+                            }
                         </CardActions>
 
                     </Box>

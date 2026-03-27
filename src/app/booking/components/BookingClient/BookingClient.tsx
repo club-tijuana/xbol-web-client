@@ -27,7 +27,8 @@ import {
     setSeatsDto,
     eventBook,
     setBookScheduleId,
-    seasonBook
+    seasonBook,
+    seasonRenovate
 } from "@/store/slices/bookingSlice";
 
 import ClientInfo from "../ClientInfo/ClientInfo";
@@ -73,6 +74,7 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
 
                 let mapKeyLocal = "";
 
+                await dispatch(setBookMode(bookingMode));
                 if (bookingMode === "event") {
                     const eventResponse = await getEventItemBySchedule(Number.parseInt(id));
 
@@ -85,8 +87,7 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                     setEvent(eventResponse);
                     setFormattedDate(formatDate(eventResponse.startDate, "dateTime"));
 
-                    await dispatch(resetState());
-                    await dispatch(setBookMode("event"));
+                    //await dispatch(resetState());
                     await dispatch(setBookTicketType(ItemType.Ticket));
                     await dispatch(setBookKey(eventResponse.eventKey));
                     await dispatch(setBookScheduleId(Number.parseInt(id)));
@@ -103,8 +104,7 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                     setSeason(seasonResponse);
                     setFormattedDate(formatDate(seasonResponse.startDate, "dateTime"));
 
-                    await dispatch(resetState());
-                    await dispatch(setBookMode("season"));
+                    //await dispatch(resetState());
                     await dispatch(setBookTicketType(ItemType.SeasonPass));
                     await dispatch(setBookKey(seasonResponse.externalSeasonKey));
                     await dispatch(setBookScheduleId(Number.parseInt(id)));
@@ -187,7 +187,7 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                         selectedSeats={selectedSeats}
                         eventKey={mapKey}
                         holdToken={holdToken}
-                        pricing={[{ category: 3, price: 1 }, { category: 4, price: 2 }, { category: 5, price: 3 }]}
+                        pricing={[{ category: 'Zona Norte Corner', price: 300 }]}
                         session="manual"
                     />
                 ) : null;
@@ -247,13 +247,14 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                     const result = await dispatch(eventBook(eventBookObj));
 
                     if (eventBook.fulfilled.match(result)) {
+                        await dispatch(resetState());
                         router.push(`/account/tickets/order/${result.payload.orderId}/success`);
                     }
                     else if (eventBook.rejected.match(result)) {
                         // TODO: Handle error
                     }
                 }
-                else if (bookingMode === "season") {
+                else if (bookingMode === "season" || bookingMode === "renovateSeason") {
                     if (
                         !seasonBookObj?.clientContact?.firstName
                         || !seasonBookObj?.clientContact?.lastName
@@ -266,13 +267,27 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                         return;
                     }
 
-                    const result = await dispatch(seasonBook(seasonBookObj));
+                    if (bookingMode === "season") {
+                        const result = await dispatch(seasonBook(seasonBookObj));
 
-                    if (seasonBook.fulfilled.match(result)) {
-                        router.push(`/account/tickets/order/${result.payload.orderId}/success`);
+                        if (seasonBook.fulfilled.match(result)) {
+                            await dispatch(resetState());
+                            router.push(`/account/tickets/order/${result.payload.orderId}/success`);
+                        }
+                        else if (seasonBook.rejected.match(result)) {
+                            // TODO: Handle error
+                        }
                     }
-                    else if (seasonBook.rejected.match(result)) {
-                        // TODO: Handle error
+                    else if (bookingMode === "renovateSeason") {
+                        const result = await dispatch(seasonRenovate(seasonBookObj));
+
+                        if (seasonRenovate.fulfilled.match(result)) {
+                            await dispatch(resetState());
+                            router.push(`/account/tickets/order/${result.payload.orderId}/success`);
+                        }
+                        else if (seasonRenovate.rejected.match(result)) {
+                            // TODO: Handle error
+                        }
                     }
                 }
                 break;
@@ -326,7 +341,7 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                         </Grid>
                     </Grid>
                 }
-                {(bookingMode === "season" && season) &&
+                {((bookingMode === "season" || bookingMode === "renovateSeason") && season) &&
                     <Box mb={2} sx={{
                         position: "relative",
                         height: 180,

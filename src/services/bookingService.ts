@@ -52,5 +52,13 @@ export async function seasonBookSeats(request: SeasonBookingRequest): Promise<Bo
         "POST",
         `${PATH}/season/book-season`,
         request
-    )
+    );
+}
+
+export async function seasonRenovationSeats(request: SeasonBookingRequest): Promise<BookingResult> {
+    return requestAxios<SeasonBookingRequest, BookingResult>(
+        "POST",
+        `${PATH}/season/renovate-season`,
+        request
+    );
 }

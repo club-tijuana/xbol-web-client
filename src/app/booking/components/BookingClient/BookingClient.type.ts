@@ -1,4 +1,4 @@
 export interface BookingClientProps {
     id: string;
-    bookingMode: "event" | "season";
+    bookingMode: "event" | "season" | "renovateSeason";
 }

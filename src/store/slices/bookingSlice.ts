@@ -8,7 +8,7 @@ import { ClientInfoRequest } from "@/models/requests/client-info-request.dto";
 import { EventBookingRequest } from "@/models/requests/event-booking-request.dto";
 import { PaymentInfoRequest } from "@/models/requests/payment-info-request.dto";
 import { SeasonBookingRequest } from "@/models/requests/season-booking-request.dto";
-import { eventBookSeats, seasonBookSeats } from "@/services/bookingService";
+import { eventBookSeats, seasonBookSeats, seasonRenovationSeats } from "@/services/bookingService";
 
 interface HoldTokenState {
     token: string;
@@ -17,7 +17,7 @@ interface HoldTokenState {
 }
 
 interface BookingState {
-    bookMode?: "event" | "season";
+    bookMode?: "event" | "season" | "renovateSeason";
     selectedSeatsDto: MyEventSeatDTO[] | undefined;
     selectedSeats?: Array<[string, number]>;
     eventBookingRequest?: EventBookingRequest;
@@ -112,6 +112,29 @@ export const seasonBook = createAsyncThunk<
     }
 );
 
+export const seasonRenovate = createAsyncThunk<
+    BookingResult,
+    SeasonBookingRequest,
+    { rejectValue: string }
+>(
+    "season/renovate",
+    async (request, thunkAPI) => {
+        try {
+            const response = await seasonRenovationSeats(request);
+            return response;
+        }
+        catch (error: unknown) {
+            let message = "Error al renovar la temporada";
+
+            if (error instanceof Error) {
+                message = error.message;
+            }
+
+            return thunkAPI.rejectWithValue(message);
+        }
+    }
+);
+
 export const expireHoldToken = createAsyncThunk<
     string,
     void,
@@ -135,17 +158,15 @@ const bookingSlice = createSlice({
     initialState,
     reducers: {
         resetState: () => initialState,
-        setBookMode: (state, action: PayloadAction<"event" | "season">) => { // TODO: Use ticket type
+        setBookMode: (state, action: PayloadAction<"event" | "season" | "renovateSeason">) => { // TODO: Use ticket type
             state.bookMode = action.payload;
-            state.eventBookingRequest = undefined;
-            state.seasonBookingRequest = undefined;
         },
         setBookScheduleId: (state, action: PayloadAction<number>) => {
             if (state.bookMode === "event") {
                 state.eventBookingRequest ??= createEventBookingRequest();
                 state.eventBookingRequest.scheduleId = action.payload;
             }
-            else if (state.bookMode === "season") {
+            else if (state.bookMode === "season" || state.bookMode === "renovateSeason") {
                 state.seasonBookingRequest ??= createSeasonBookingRequest();
                 state.seasonBookingRequest.scheduleId = action.payload;
             }
@@ -155,7 +176,7 @@ const bookingSlice = createSlice({
                 state.eventBookingRequest ??= createEventBookingRequest();
                 state.eventBookingRequest.eventKey = action.payload;
             }
-            else if (state.bookMode === "season") {
+            else if (state.bookMode === "season" || state.bookMode === "renovateSeason") {
                 state.seasonBookingRequest ??= createSeasonBookingRequest();
                 state.seasonBookingRequest.seasonKey = action.payload;
             }
@@ -169,7 +190,7 @@ const bookingSlice = createSlice({
                 state.eventBookingRequest.seats = seatsObject;
                 //state.eventBookingRequest.seatsObjs = seatsObject;
             }
-            else if (state.bookMode === "season") {
+            else if (state.bookMode === "season" || state.bookMode === "renovateSeason") {
                 state.seasonBookingRequest ??= createSeasonBookingRequest();
                 state.seasonBookingRequest.seats = seatsObject;
                 //state.seasonBookingRequest.seatsObjs = seatsObject;
@@ -183,7 +204,7 @@ const bookingSlice = createSlice({
                 state.eventBookingRequest ??= createEventBookingRequest();
                 state.eventBookingRequest.holdToken = action.payload.token;
             }
-            else if (state.bookMode === "season") {
+            else if (state.bookMode === "season" || state.bookMode === "renovateSeason") {
                 state.seasonBookingRequest ??= createSeasonBookingRequest();
                 state.seasonBookingRequest.holdToken = action.payload.token;
             }
@@ -193,7 +214,7 @@ const bookingSlice = createSlice({
                 state.eventBookingRequest ??= createEventBookingRequest();
                 state.eventBookingRequest.ticketType = action.payload;
             }
-            else if (state.bookMode === "season") {
+            else if (state.bookMode === "season" || state.bookMode === "renovateSeason") {
                 state.seasonBookingRequest ??= createSeasonBookingRequest();
                 state.seasonBookingRequest.ticketType = action.payload;
             }
@@ -203,7 +224,7 @@ const bookingSlice = createSlice({
                 state.eventBookingRequest ??= createEventBookingRequest();
                 state.eventBookingRequest.clientContact = action.payload;
             }
-            else if (state.bookMode === "season") {
+            else if (state.bookMode === "season" || state.bookMode === "renovateSeason") {
                 state.seasonBookingRequest ??= createSeasonBookingRequest();
                 state.seasonBookingRequest.clientContact = action.payload;
             }
@@ -213,7 +234,7 @@ const bookingSlice = createSlice({
                 state.eventBookingRequest ??= createEventBookingRequest();
                 state.eventBookingRequest.paymentInfoRequest = action.payload;
             }
-            else if (state.bookMode === "season") {
+            else if (state.bookMode === "season" || state.bookMode === "renovateSeason") {
                 state.seasonBookingRequest ??= createSeasonBookingRequest();
                 state.seasonBookingRequest.paymentInfoRequest = action.payload;
             }
@@ -223,6 +244,12 @@ const bookingSlice = createSlice({
         },
         setSeats: (state, action: PayloadAction<Array<[string, number]>>) => {
             state.selectedSeats = action.payload;
+        },
+        setSeasonRelatedOrderId: (state, action: PayloadAction<number>) => {
+            if (state.bookMode === "renovateSeason") {
+                state.seasonBookingRequest ??= createSeasonBookingRequest();
+                state.seasonBookingRequest.refereceOrderId = action.payload;
+            }
         }
     },
     extraReducers: (builder) => {
@@ -249,6 +276,15 @@ const bookingSlice = createSlice({
                 if (state.holdTokenObj?.token === action.payload) {
                     state.holdTokenObj.status = "expired";
                 }
+            })
+            .addCase(seasonRenovate.pending, (state) => {
+                state.status = "loading";
+            })
+            .addCase(seasonRenovate.fulfilled, (state, action) => {
+                state.status = "success";
+            })
+            .addCase(seasonRenovate.rejected, (state) => {
+                state.status = "error";
             });
     }
 });
@@ -264,6 +300,7 @@ export const {
     setBookClientContact,
     setBookPaymentInfo,
     setSeatsDto,
-    setSeats
+    setSeats,
+    setSeasonRelatedOrderId
 } = bookingSlice.actions;
 export default bookingSlice.reducer;

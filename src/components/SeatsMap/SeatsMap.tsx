@@ -9,6 +9,9 @@ import { expireHoldToken } from "@/store/slices/bookingSlice";
 
 import { SeatsMapProps } from "./SeatsMap.type";
 
+/* -------------------- CONSTANTS -------------------- */
+const MAX_SEATS_SELECTION: number = 12;
+
 export interface SeatsMapHandle {
     getSelectedSeats: () => Array<[string, number]>;
     getSelectedSeatsDto: () => MyEventSeatDTO[];
@@ -41,6 +44,7 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
         const chartConfig = eventKey
             ? { holdToken, eventKey }
             : null;
+        const initialSeats: Array<string> | undefined = selectedSeats ? selectedSeats.map(s => s[0]) : undefined;
 
         useEffect(() => {
             selectedSeatsRef.current = currentSelectedSeats;
@@ -128,6 +132,17 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
             }
         };
 
+        const handleHoldTokenExpired = () => {
+            dispatch(expireHoldToken());
+        }
+
+        const handleChartRendered = (chart: SeatingChart) => {
+            chartRef.current = chart;
+
+            if (selectedSection) chart.zoomToSection(selectedSection);
+            if (selectedSeats) chart.zoomToObjects(selectedSeats.map(s => s[0]));
+        }
+
         return (
             <div>
                 {chartConfig && (
@@ -135,26 +150,20 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
                         key={holdToken}
                         workspaceKey={process.env.NEXT_PUBLIC_SEATS_WORKSPACE_KEY}
                         holdToken={holdToken}
-                        onHoldTokenExpired={() => {
-                            dispatch(expireHoldToken())
-                        }}
                         event={eventKey}
                         region="na"
                         pricing={pricing}
                         mode={mode}
-                        onObjectSelected={handleSelected}
-                        onObjectDeselected={handleDeselected}
-                        onChartRendered={(chart) => {
-                            chartRef.current = chart;
-
-                            if (selectedSection) chart.zoomToSection(selectedSection);
-                            if (selectedSeats) chart.zoomToObjects(selectedSeats.map(s => s[0]));
-                        }}
                         showMinimap={mode !== "print"}
                         categoryFilter={categoryFilter}
                         channels={channels}
                         session={session}
-                        maxSelectedObjects={2}
+                        selectedObjects={initialSeats}
+                        maxSelectedObjects={MAX_SEATS_SELECTION}
+                        onHoldTokenExpired={handleHoldTokenExpired}
+                        onObjectSelected={handleSelected}
+                        onObjectDeselected={handleDeselected}
+                        onChartRendered={handleChartRendered}
                     />
                 )}
             </div>
