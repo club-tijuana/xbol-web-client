@@ -1,5 +1,6 @@
 export interface ReservationFilters {
-    scheduleId: number;
+    seasonId?: number;
+    scheduleId?: number;
     sectionId?: number;
     zoneId?: number;
     priceRange?: PriceRange;

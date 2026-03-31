@@ -188,12 +188,10 @@ const bookingSlice = createSlice({
             if (state.bookMode === "event") {
                 state.eventBookingRequest ??= createEventBookingRequest();
                 state.eventBookingRequest.seats = seatsObject;
-                //state.eventBookingRequest.seatsObjs = seatsObject;
             }
             else if (state.bookMode === "season" || state.bookMode === "renovateSeason") {
                 state.seasonBookingRequest ??= createSeasonBookingRequest();
                 state.seasonBookingRequest.seats = seatsObject;
-                //state.seasonBookingRequest.seatsObjs = seatsObject;
             }
         },
         setBookHoldToken: (state, action: PayloadAction<HoldToken>) => {

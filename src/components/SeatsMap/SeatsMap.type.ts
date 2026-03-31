@@ -1,12 +1,11 @@
-import { CategoryFilter } from "@seatsio/seatsio-react";
+import { CategoryFilter, Pricing } from "@seatsio/seatsio-react";
 
-import { SeatsioPricing } from "@/context/BookingContext";
 import { SeatsMapSession } from "@/types/seatsMapSession";
 
 export interface SeatsMapProps {
     eventKey: string;
     holdToken?: string;
-    pricing?: SeatsioPricing[];
+    pricing?: Pricing;
     selectedSeats?: Array<[string, number]>;
     selectedSection?: string;
     mode?: "normal" | "print";

@@ -7,6 +7,8 @@ import { MyEventSeatDTO } from "@/models/my-event-seat.dto";
 import { useAppDispatch } from "@/store/hooks";
 import { expireHoldToken } from "@/store/slices/bookingSlice";
 
+import Loader from "../Loader/Loader";
+
 import { SeatsMapProps } from "./SeatsMap.type";
 
 /* -------------------- CONSTANTS -------------------- */
@@ -36,7 +38,9 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
         session
     }, ref) => {
         const dispatch = useAppDispatch();
+        const initializedRef = useRef(false);
         const chartRef = useRef<SeatingChart | null>(null);
+        const [isLoading, setIsLoading] = useState(false);
         const [currentSelectedSeats, setCurrentSelectedSeats] = useState<[string, number][]>(selectedSeats ?? []);
         const [currentSelectedSeatsDto, setCurrentSelectedSeatsDto] = useState<MyEventSeatDTO[]>([]);
         const selectedSeatsRef = useRef<Array<[string, number]>>([]);
@@ -47,22 +51,18 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
         const initialSeats: Array<string> | undefined = selectedSeats ? selectedSeats.map(s => s[0]) : undefined;
 
         useEffect(() => {
+            initializedRef.current = false;
+        }, [eventKey]);
+
+        useEffect(() => {
             selectedSeatsRef.current = currentSelectedSeats;
             selectedSeatsDtoRef.current = currentSelectedSeatsDto;
         }, [currentSelectedSeats, currentSelectedSeatsDto]);
 
-        useEffect(() => {
-            if (!chartRef.current) return;
-
-            if (selectedSection) {
-                chartRef.current.zoomToSection(selectedSection);
-            }
-        }, [selectedSection]);
-
         useImperativeHandle(ref, () => ({
             getSelectedSeats: () => selectedSeatsRef.current,
 
-            getSelectedSeatsDto: () => selectedSeatsDtoRef.current,
+            getSelectedSeatsDto: () => currentSelectedSeatsDto,
 
             clearSelection: () => {
                 if (!chartRef.current) return;
@@ -73,19 +73,72 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
             }
         }));
 
+        const handleChartRendered = (chart: SeatingChart) => {
+            chartRef.current = chart;
+
+            if (selectedSection) chart.zoomToSection(selectedSection);
+            if (selectedSeats) chart.zoomToObjects(selectedSeats.map(s => s[0]));
+
+            if (!initializedRef.current && selectedSeats && selectedSeats.length > 0) {
+
+                const sectionMap: Record<string, string[]> = {};
+
+                selectedSeats.forEach(([label]) => {
+                    const section = label.split("-")[0];
+
+                    if (!sectionMap[section]) {
+                        sectionMap[section] = [];
+                    }
+
+                    sectionMap[section].push(label);
+                });
+
+                const dtoFromSelected: MyEventSeatDTO[] = Object.entries(sectionMap).map(([section, seats]) => {
+                    const seatsString = seats.join(", ");
+
+                    const sectionName = seats.length > 1
+                        ? `${section} x${seats.length}`
+                        : section;
+
+                    return {
+                        section: sectionName,
+                        seats: seatsString
+                    };
+                });
+
+                setCurrentSelectedSeatsDto(dtoFromSelected);
+
+                initializedRef.current = true;
+            }
+
+            setIsLoading(false);
+        };
+
         const handleSelected = (obj: SelectableObject) => {
-            const seatLabels = selectedSeats?.map(s => s[0]);
+            const seatLabels = currentSelectedSeats.map(s => s[0]);
+
             if (seatLabels?.includes(obj.label)) return;
 
-            setCurrentSelectedSeats(prev => [...prev, [obj.label, Number.parseFloat(obj.pricing.price?.toString() ?? "0")]]);
+            setCurrentSelectedSeats(prev => [...prev, [
+                obj.label,
+                Number.parseFloat(
+                    obj.pricing !== undefined ?
+                        (
+                            obj.pricing.price !== undefined ?
+                                obj.pricing.price.toString() :
+                                "0"
+                        ) :
+                        "0"
+                )
+            ]]);
 
             const current = currentSelectedSeatsDto ?? [];
             const sectionFound = current.find(s => s.section.startsWith(obj.labels.section ?? ""));
 
             if (sectionFound) {
                 const updatedSeats = sectionFound.seats
-                    ? `${sectionFound.seats},${obj.labels.own}`
-                    : obj.labels.own;
+                    ? `${sectionFound.seats}, ${obj.labels.displayedLabel}`
+                    : obj.labels.displayedLabel;
 
                 const sectionName = updatedSeats.split(",").length > 1
                     ? `${obj.labels.section} x${updatedSeats.split(",").length}`
@@ -99,7 +152,7 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
             else {
                 setCurrentSelectedSeatsDto([
                     ...current,
-                    { section: obj.labels.section ?? "", seats: obj.labels.own }
+                    { section: obj.labels.section ?? "", seats: obj.labels.displayedLabel }
                 ]);
             }
         };
@@ -115,7 +168,7 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
             if (!sectionFound) return;
 
             const seatsArray = sectionFound.seats.split(",").map(s => s.trim());
-            const updatedSeatsArray = seatsArray.filter(s => s !== obj.labels.own);
+            const updatedSeatsArray = seatsArray.filter(s => s !== obj.labels.displayedLabel);
 
             if (updatedSeatsArray.length === 0) {
                 setCurrentSelectedSeatsDto(current.filter(s => s.section !== sectionFound.section));
@@ -126,7 +179,7 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
                     : obj.labels.section;
 
                 setCurrentSelectedSeatsDto([
-                    { section: sectionName, seats: updatedSeatsArray.join(",") },
+                    { section: sectionName, seats: updatedSeatsArray.join(", ") },
                     ...current.filter(s => s.section !== sectionFound.section)
                 ]);
             }
@@ -134,13 +187,6 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
 
         const handleHoldTokenExpired = () => {
             dispatch(expireHoldToken());
-        }
-
-        const handleChartRendered = (chart: SeatingChart) => {
-            chartRef.current = chart;
-
-            if (selectedSection) chart.zoomToSection(selectedSection);
-            if (selectedSeats) chart.zoomToObjects(selectedSeats.map(s => s[0]));
         }
 
         return (
@@ -164,8 +210,11 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
                         onObjectSelected={handleSelected}
                         onObjectDeselected={handleDeselected}
                         onChartRendered={handleChartRendered}
+                        objectWithoutPricingSelectable={mode !== "normal"}
+                        onRenderStarted={() => setIsLoading(true)}
                     />
                 )}
+                <Loader isLoading={isLoading} />
             </div>
         );
     }

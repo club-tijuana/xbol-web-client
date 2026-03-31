@@ -2,6 +2,7 @@
 
 import { CalendarTodayOutlined, LocationOnOutlined } from "@mui/icons-material";
 import { Alert, AlertColor, Box, Button, Grid, Paper, Snackbar, Typography } from "@mui/material";
+import { Pricing } from "@seatsio/seatsio-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -64,6 +65,7 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
     const [snackbarMessage, setSnackbarMessage] = useState<string>("");
     const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("success");
     const [holdToken, setHoldToken] = useState<string | undefined>(undefined);
+    const [sectionsPrices, setSectionsPrices] = useState<Pricing>();
 
     useEffect(() => {
         let isMounted = true;
@@ -87,7 +89,6 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                     setEvent(eventResponse);
                     setFormattedDate(formatDate(eventResponse.startDate, "dateTime"));
 
-                    //await dispatch(resetState());
                     await dispatch(setBookTicketType(ItemType.Ticket));
                     await dispatch(setBookKey(eventResponse.eventKey));
                     await dispatch(setBookScheduleId(Number.parseInt(id)));
@@ -104,7 +105,6 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                     setSeason(seasonResponse);
                     setFormattedDate(formatDate(seasonResponse.startDate, "dateTime"));
 
-                    //await dispatch(resetState());
                     await dispatch(setBookTicketType(ItemType.SeasonPass));
                     await dispatch(setBookKey(seasonResponse.externalSeasonKey));
                     await dispatch(setBookScheduleId(Number.parseInt(id)));
@@ -128,6 +128,7 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
 
         return () => {
             isMounted = false;
+            dispatch(resetState());
         };
     }, [id, bookingMode, dispatch]);
 
@@ -155,6 +156,8 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                     <SeatFilters
                         scheduleId={Number(id)}
                         onSectionSelected={(section) => { setSelectedSection(section); }}
+                        onSectionsChange={setSectionsPrices}
+                        buttonText="Ver"
                     />
                 );
             case "payment":
@@ -187,7 +190,7 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                         selectedSeats={selectedSeats}
                         eventKey={mapKey}
                         holdToken={holdToken}
-                        pricing={[{ category: 'Zona Norte Corner', price: 300 }]}
+                        pricing={sectionsPrices}
                         session="manual"
                     />
                 ) : null;

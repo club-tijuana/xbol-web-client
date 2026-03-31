@@ -5,7 +5,7 @@ import { ReservationFilters } from "@/models/filters/reservation-filters.dto";
 import { EventBookingRequest } from "@/models/requests/event-booking-request.dto";
 import { SeasonBookingRequest } from "@/models/requests/season-booking-request.dto";
 import { SeasonItemDTO } from "@/models/season-item.dto";
-import { SectionDTO } from "@/models/section.dto";
+import { SeatAvailabilityDTO } from "@/models/seat-availability.dto";
 import { ZoneDTO } from "@/models/zone.dto";
 
 const PATH: string = "bookings";
@@ -31,8 +31,8 @@ export async function getSeasonById(seasonId: number): Promise<SeasonItemDTO> {
     );
 }
 
-export async function getSeatsAvailability(filters: ReservationFilters): Promise<SectionDTO[]> {
-    return requestAxios<ReservationFilters, SectionDTO[]>(
+export async function getSeatsAvailability(filters: ReservationFilters): Promise<SeatAvailabilityDTO> {
+    return requestAxios<ReservationFilters, SeatAvailabilityDTO>(
         "POST",
         `${PATH}/seats-availability`,
         filters

@@ -10,14 +10,21 @@ import { PriceRange, ReservationFilters } from "@/models/filters/reservation-fil
 import { SectionDTO } from "@/models/section.dto";
 import { ZoneDTO } from "@/models/zone.dto";
 import { getSeatsAvailability, getZonesBySchedule } from "@/services/bookingService";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { resetFilters } from "@/store/slices/eventsFilterSlice";
+import { mapPricing } from "@/utils/mappers/seatsSectionPrices.mapper";
 
 import PriceRangeFilter from "../PriceRangeFilter/PriceRangeFilter";
 
 import { SeatFiltersProps } from "./SeatFilters.type";
 
-export default function SeatFilters({ scheduleId, onSectionSelected }: SeatFiltersProps) {
+// TODO: Specify if is Event or Season or change the property name and add a type
+export default function SeatFilters({ scheduleId, buttonText, onSectionSelected, onSectionsChange }: SeatFiltersProps) {
+    const dispatch = useAppDispatch();
+    const bookingMode = useAppSelector(store => store.booking.bookMode);
     const [filters, setFilters] = useState<ReservationFilters>({
-        scheduleId: scheduleId
+        scheduleId: (!bookingMode || bookingMode === "event") ? scheduleId : undefined,
+        seasonId: (bookingMode === "season" || bookingMode === "renovateSeason") ? scheduleId : undefined
     });
     const [loading, setLoading] = useState(false);
     const [sections, setSections] = useState<SectionDTO[]>([]);
@@ -37,14 +44,33 @@ export default function SeatFilters({ scheduleId, onSectionSelected }: SeatFilte
         };
 
         loadZones();
-    }, [scheduleId]);
+
+        return () => {
+            dispatch(resetFilters());
+        }
+    }, [scheduleId, dispatch]);
+
+    useEffect(() => {
+        setFilters(prev => ({
+            ...prev,
+            scheduleId: (!bookingMode || bookingMode === "event") ? scheduleId : undefined,
+            seasonId: (bookingMode === "season" || bookingMode === "renovateSeason") ? scheduleId : undefined
+        }))
+    }, [bookingMode, scheduleId]);
 
     useEffect(() => {
         const loadSections = async () => {
             setLoading(true);
             try {
                 const result = await getSeatsAvailability(debouncedFilters);
-                setSections(result);
+                setSections(result.sections);
+
+                if (onSectionsChange) {
+                    const sectionPrices = mapPricing(result);
+                    if (sectionPrices) {
+                        onSectionsChange(sectionPrices);
+                    }
+                }
             }
             catch {
                 // TODO: Implement error handler
@@ -55,7 +81,7 @@ export default function SeatFilters({ scheduleId, onSectionSelected }: SeatFilte
         };
 
         loadSections();
-    }, [debouncedFilters]);
+    }, [debouncedFilters, onSectionsChange]);
 
     const handlePriceRangeChange = useCallback((priceRange: PriceRange) => {
         setFilters((prev) => ({
@@ -117,7 +143,7 @@ export default function SeatFilters({ scheduleId, onSectionSelected }: SeatFilte
                     id="filters-header"
                 >
                     <Typography component="span" variant="h6" fontWeight={400} color="primary">
-                        Selecciona tus asientos
+                        Selecciona tus asientos {bookingMode}
                     </Typography>
                 </AccordionSummary>
                 <AccordionDetails sx={{ backgroundColor: "white" }}>
@@ -161,7 +187,7 @@ export default function SeatFilters({ scheduleId, onSectionSelected }: SeatFilte
                 </AccordionDetails>
             </Accordion>
             <Box sx={{ backgroundColor: "white" }}>
-                {sections?.map((section, index) => (
+                {sections?.filter(section => section.price !== null).map((section, index) => (
                     <Box key={section.id}>
                         <Grid container columns={12} py={3.5}>
                             <Grid size={4}>
@@ -182,7 +208,7 @@ export default function SeatFilters({ scheduleId, onSectionSelected }: SeatFilte
                             <Grid size={5} textAlign={"right"}>
                                 <Button variant="outlined" onClick={() => handleSectionSelected(section.name)}>
                                     <Typography variant="body1" px={1.3} py={1}>
-                                        Comprar tickets
+                                        {buttonText}
                                     </Typography>
                                 </Button>
                             </Grid>

@@ -55,7 +55,7 @@ export default function TicketSeats({ eventKey, subTotal, totalTaxes, total, cur
                 <Grid size={8}>
                     <Box ml={8} display="flex" flexDirection="column" justifyContent="center" height="100%">
                         {seats.map((seat, index) => (
-                            <Box key={index}>
+                            <Box key={index} mb={2}>
                                 <Typography variant="body1" color="muted">
                                     {`Sección ${seat.section}`}
                                 </Typography>
