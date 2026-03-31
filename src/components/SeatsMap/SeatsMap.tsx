@@ -80,31 +80,8 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
             if (selectedSeats) chart.zoomToObjects(selectedSeats.map(s => s[0]));
 
             if (!initializedRef.current && selectedSeats && selectedSeats.length > 0) {
-
-                const sectionMap: Record<string, string[]> = {};
-
-                selectedSeats.forEach(([label]) => {
-                    const section = label.split("-")[0];
-
-                    if (!sectionMap[section]) {
-                        sectionMap[section] = [];
-                    }
-
-                    sectionMap[section].push(label);
-                });
-
-                const dtoFromSelected: MyEventSeatDTO[] = Object.entries(sectionMap).map(([section, seats]) => {
-                    const seatsString = seats.join(", ");
-
-                    const sectionName = seats.length > 1
-                        ? `${section} x${seats.length}`
-                        : section;
-
-                    return {
-                        section: sectionName,
-                        seats: seatsString
-                    };
-                });
+                const dtoFromSelected = Object.entries(groupSeatsBySection(selectedSeats))
+                    .map(([Selection, seats]) => buildSectionDto(Selection, seats));
 
                 setCurrentSelectedSeatsDto(dtoFromSelected);
 
@@ -121,40 +98,17 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
 
             setCurrentSelectedSeats(prev => [...prev, [
                 obj.label,
-                Number.parseFloat(
-                    obj.pricing !== undefined ?
-                        (
-                            obj.pricing.price !== undefined ?
-                                obj.pricing.price.toString() :
-                                "0"
-                        ) :
-                        "0"
-                )
+                getSeatPrice(obj)
             ]]);
 
-            const current = currentSelectedSeatsDto ?? [];
-            const sectionFound = current.find(s => s.section.startsWith(obj.labels.section ?? ""));
-
-            if (sectionFound) {
-                const updatedSeats = sectionFound.seats
-                    ? `${sectionFound.seats}, ${obj.labels.displayedLabel}`
-                    : obj.labels.displayedLabel;
-
-                const sectionName = updatedSeats.split(",").length > 1
-                    ? `${obj.labels.section} x${updatedSeats.split(",").length}`
-                    : obj.labels.section ?? "";
-
-                setCurrentSelectedSeatsDto([
-                    { section: sectionName, seats: updatedSeats },
-                    ...current.filter(s => s.section !== sectionFound.section)
-                ]);
-            }
-            else {
-                setCurrentSelectedSeatsDto([
-                    ...current,
-                    { section: obj.labels.section ?? "", seats: obj.labels.displayedLabel }
-                ]);
-            }
+            setCurrentSelectedSeatsDto(prev =>
+                updateSectionSeats(
+                    prev ?? [],
+                    obj.labels.section ?? "",
+                    obj.labels.displayedLabel,
+                    "add"
+                )
+            );
         };
 
         const handleDeselected = (obj: SelectableObject) => {
@@ -162,32 +116,79 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
 
             setCurrentSelectedSeats(prev => prev.filter(s => s[0] !== obj.label));
 
-            const current = currentSelectedSeatsDto ?? [];
-            const sectionFound = current.find(s => s.section.startsWith(obj.labels.section ?? ""));
-
-            if (!sectionFound) return;
-
-            const seatsArray = sectionFound.seats.split(",").map(s => s.trim());
-            const updatedSeatsArray = seatsArray.filter(s => s !== obj.labels.displayedLabel);
-
-            if (updatedSeatsArray.length === 0) {
-                setCurrentSelectedSeatsDto(current.filter(s => s.section !== sectionFound.section));
-            }
-            else {
-                const sectionName = updatedSeatsArray.length > 1
-                    ? `${obj.labels.section} x${updatedSeatsArray.length}`
-                    : obj.labels.section;
-
-                setCurrentSelectedSeatsDto([
-                    { section: sectionName, seats: updatedSeatsArray.join(", ") },
-                    ...current.filter(s => s.section !== sectionFound.section)
-                ]);
-            }
+            setCurrentSelectedSeatsDto(prev =>
+                updateSectionSeats(
+                    prev ?? [],
+                    obj.labels.section ?? "",
+                    obj.labels.displayedLabel,
+                    "remove"
+                )
+            );
         };
 
         const handleHoldTokenExpired = () => {
             dispatch(expireHoldToken());
-        }
+        };
+
+        const getSeatPrice = (obj: SelectableObject): number => {
+            return obj.pricing?.price
+                ? Number.parseFloat(obj.pricing.price.toString())
+                : 0;
+        };
+
+        const buildSectionDto = (section: string, seats: string[]): MyEventSeatDTO => {
+            return {
+                section: seats.length > 1 ? `${section} x${seats.length}` : section,
+                seats: seats.join(", ")
+            };
+        };
+
+        const groupSeatsBySection = (seats: Array<[string, number]>) => {
+            return seats.reduce<Record<string, string[]>>((acc, [label]) => {
+                const section = label.split("-")[0];
+
+                if (!acc[section]) {
+                    acc[section] = [];
+                }
+
+                acc[section].push(label);
+
+                return acc;
+            }, {});
+        };
+
+        const updateSectionSeats = (
+            current: MyEventSeatDTO[],
+            section: string,
+            seatLabel: string,
+            action: "add" | "remove"
+        ): MyEventSeatDTO[] => {
+            const found = current.find(s => s.section.startsWith(section));
+
+            if (!found && action === "add") {
+                return [...current, buildSectionDto(section, [seatLabel])];
+            }
+
+            if (!found) {
+                return current;
+            }
+
+            const seatsArray = found.seats.split(",").map(s => s.trim());
+
+            const updatedSeats =
+                action === "add"
+                    ? [...seatsArray, seatLabel]
+                    : seatsArray.filter(s => s !== seatLabel);
+
+            if (updatedSeats.length === 0) {
+                return current.filter(s => s.section !== found.section);
+            }
+
+            return [
+                buildSectionDto(section, updatedSeats),
+                ...current.filter(s => s.section !== found.section)
+            ];
+        };
 
         return (
             <div>
