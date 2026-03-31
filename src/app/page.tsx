@@ -1,24 +1,25 @@
-import { Box, Grid } from "@mui/material";
+// import { Box, Grid } from "@mui/material";
 import { Metadata } from "next";
 
-import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
-import EventCarousel from "@/components/EventCarousel/EventCarousel";
-import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
-import SeasonBanner from "@/components/SeasonBanner/SeasonBanner";
-import { mapEventToCardVM } from "@/models/event-item.dto";
-import { getEvents, getMainEvents, getTrendingEvents } from "@/services/eventService";
-import { getSeasonBanner } from "@/services/seasonService";
-import { colors } from "@/theme/colors";
+// import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
+// import EventCarousel from "@/components/EventCarousel/EventCarousel";
+// import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
+// import { mapEventToCardVM } from "@/models/event-item.dto";
+// import { getEvents, getMainEvents, getTrendingEvents } from "@/services/eventService";
+// import { colors } from "@/theme/colors";
+import HomeClientWrapper from "./event/components/HomeClientWrapper/HomeClientWrapper";
 
 export const metadata: Metadata = {
   title: "Compra boletos para conciertos, fútbol y teatro | PWRTicket",
-  description: "Encuentra los mejores eventos en vivo: conciertos, fútbol, teatro y espectáculos. Compra boletos fácil, rápido y seguro.",
+  description:
+    "Encuentra los mejores eventos en vivo: conciertos, fútbol, teatro y espectáculos. Compra boletos fácil, rápido y seguro.",
   keywords: ["eventos", "boletos", "conciertos", "fútbol", "teatro", "tickets"],
   authors: [{ name: "PWRTicket" }],
   robots: "index, follow",
   openGraph: {
     title: "Eventos en vivo | PWRTicket",
-    description: "Compra boletos para conciertos, fútbol y teatro. Vive la experiencia.",
+    description:
+      "Compra boletos para conciertos, fútbol y teatro. Vive la experiencia.",
     url: "https://dev.com",
     siteName: "PWRTicket",
     images: [
@@ -41,22 +42,23 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const mainEvents = await getMainEvents();
-  const trendingEvents = await getTrendingEvents({ page: 1, pageSize: 6 });
-  const futbolEvents = await getEvents({ page: 1, eventCategoryId: 1, pageSize: 3 });
-  const musicEvents = await getEvents({ page: 1, eventCategoryId: 2, pageSize: 3 });
-  const theaterEvents = await getEvents({ page: 1, eventCategoryId: 3, pageSize: 3 });
-  const seasonBanner = await getSeasonBanner();
+  // const mainEvents = await getMainEvents();
+  // const trendingEvents = await getTrendingEvents({ page: 1, pageSize: 6 });
+  // const futbolEvents = await getEvents({ page: 1, eventCategoryId: 1, pageSize: 3 });
+  // const musicEvents = await getEvents({ page: 1, eventCategoryId: 2, pageSize: 3 });
+  // const theaterEvents = await getEvents({ page: 1, eventCategoryId: 3, pageSize: 3 });
 
-  const trendingEventsVM = trendingEvents.items.map(mapEventToCardVM);
-  const futbolEventsVM = futbolEvents.items.map(mapEventToCardVM);
-  const musicEventsVM = musicEvents.items.map(mapEventToCardVM);
-  const theaterEventsVM = theaterEvents.items.map(mapEventToCardVM);
+  // const trendingEventsVM = trendingEvents.items.map(mapEventToCardVM);
+  // const futbolEventsVM = futbolEvents.items.map(mapEventToCardVM);
+  // const musicEventsVM = musicEvents.items.map(mapEventToCardVM);
+  // const theaterEventsVM = theaterEvents.items.map(mapEventToCardVM);
 
   return (
     <div>
       <main>
-        <FullWidthSection fullBleed={true} disableMaxWidth={true}>
+        {
+          <HomeClientWrapper></HomeClientWrapper>
+          /* <FullWidthSection fullBleed={true} disableMaxWidth={true}>
           <EventCarousel events={mainEvents.items} />
         </FullWidthSection>
 
@@ -107,7 +109,8 @@ export default async function Home() {
               showCardBadge={true}
             />
           </Box>
-        </FullWidthSection>
+        </FullWidthSection> */
+        }
       </main>
     </div>
   );
