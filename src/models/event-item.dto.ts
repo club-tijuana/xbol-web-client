@@ -12,6 +12,7 @@ export interface EventItemDTO {
     location: string;
     eventKey?: string;
     categories: EventCategoryDTO[];
+    isFavorite: boolean;
 }
 
 export const mapEventToCardVM = (e: EventItemDTO): EventCardVM => ({
@@ -20,5 +21,6 @@ export const mapEventToCardVM = (e: EventItemDTO): EventCardVM => ({
     name: e.name,
     startDate: formatDate(e.startDate, "date"),
     location: e.location,
-    categories: e.categories
+    categories: e.categories,
+    isFavorite: e.isFavorite
 });

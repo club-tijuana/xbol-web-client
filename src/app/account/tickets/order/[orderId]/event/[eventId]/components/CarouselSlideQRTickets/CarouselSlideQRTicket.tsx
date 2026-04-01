@@ -81,23 +81,6 @@ export default function CarouselSlideQRTicket({ ticket, isActive, onShare, onUns
                         />
                     </CardContent>
                 </Box>
-                <Box className={styles.cardInfo} mt={2} mb={1}>
-                    <Typography variant="subtitle1" fontWeight={700} color="primary">
-                        {ticket.name}
-                    </Typography>
-                    <Typography variant="subtitle2" fontWeight={700}>
-                        {formattedDate}
-                    </Typography>
-                    <Typography variant="subtitle2" fontWeight={400}>
-                        {ticket.location}
-                    </Typography>
-                    <Typography variant="subtitle2" fontWeight={400}>
-                        {`Sección ${ticket.section}`}
-                    </Typography>
-                    <Typography variant="subtitle2" fontWeight={400}>
-                        {`Fila ${ticket.row}, Asiento ${ticket.seat}`}
-                    </Typography>
-                </Box>
                 <Box sx={{ backgroundColor: "white", justifySelf: "center" }} mt={3} mb={2}>
                     <Box textAlign="center" sx={{ position: "relative" }}>
                         {(ticket.isOwner && ticket.isShared) &&
@@ -122,6 +105,24 @@ export default function CarouselSlideQRTicket({ ticket, isActive, onShare, onUns
                                     />
                                 </Box>
                             }
+
+                            <Box className={styles.cardInfo} mt={4} mb={1}>
+                                <Typography variant="subtitle1" fontWeight={700} color="primary">
+                                    {ticket.name}
+                                </Typography>
+                                <Typography variant="subtitle2" fontWeight={700}>
+                                    {formattedDate}
+                                </Typography>
+                                <Typography variant="subtitle2" fontWeight={400}>
+                                    {ticket.location}
+                                </Typography>
+                                <Typography variant="subtitle2" fontWeight={400}>
+                                    {`Sección ${ticket.section}`}
+                                </Typography>
+                                <Typography variant="subtitle2" fontWeight={400}>
+                                    {`Fila ${ticket.row}, Asiento ${ticket.seat}`}
+                                </Typography>
+                            </Box>
 
                             <Box display="flex" flexDirection="row" justifyContent="space-around" mt={3}>
                                 <Box sx={actionSx}>

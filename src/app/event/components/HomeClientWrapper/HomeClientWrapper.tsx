@@ -6,13 +6,16 @@ import { useEffect, useState } from "react";
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import EventCarousel from "@/components/EventCarousel/EventCarousel";
 import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
+import SeasonBanner from "@/components/SeasonBanner/SeasonBanner";
 import { EventItemDTO, mapEventToCardVM } from "@/models/event-item.dto";
 import { PagedResponse } from "@/models/pagination/paged-response.dto";
+import { SeasonItemDTO } from "@/models/season-item.dto";
 import {
   getEvents,
   getMainEvents,
   getTrendingEvents,
 } from "@/services/eventService";
+import { getSeasonBanner } from "@/services/seasonService";
 import { colors } from "@/theme/colors";
 
 export default function HomeClientWrapper() {
@@ -24,7 +27,7 @@ export default function HomeClientWrapper() {
   const [musicEvents, setMusicEvents] = useState<PagedResponse<EventItemDTO>>();
   const [theaterEvents, setTheaterEvents] =
     useState<PagedResponse<EventItemDTO>>();
-  // const [loading, setLoading] = useState(true);
+  const [seasonBanner, setSeasonBanner] = useState<SeasonItemDTO>();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,12 +38,14 @@ export default function HomeClientWrapper() {
           futbolResponse,
           musicResponse,
           theaterResponse,
+          seasonResponse
         ] = await Promise.all([
           getMainEvents(),
           getTrendingEvents({ page: 1, pageSize: 6 }),
           getEvents({ page: 1, eventCategoryId: 1, pageSize: 3 }),
           getEvents({ page: 1, eventCategoryId: 2, pageSize: 3 }),
           getEvents({ page: 1, eventCategoryId: 3, pageSize: 3 }),
+          getSeasonBanner()
         ]);
 
         setMainEvents(mainResponse);
@@ -48,6 +53,7 @@ export default function HomeClientWrapper() {
         setFutbolEvents(futbolResponse);
         setMusicEvents(musicResponse);
         setTheaterEvents(theaterResponse);
+        setSeasonBanner(seasonResponse);
 
         console.log("ok");
         console.log(trendingResponse);
@@ -108,6 +114,10 @@ export default function HomeClientWrapper() {
           />
         </Box>
       )}
+
+      {seasonBanner &&
+        <SeasonBanner seasonItem={seasonBanner} />
+      }
 
       {theaterEvents && (
         <FullWidthSection

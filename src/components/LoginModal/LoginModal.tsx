@@ -5,9 +5,11 @@ import { Alert, AlertColor, Backdrop, Box, Button, CircularProgress, Dialog, For
 import Image from "next/image";
 import { useState } from "react";
 
+import { getFavoritesIdsByClientId } from "@/services/clientFavoriteEventService";
 import { RootState } from "@/store";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { login } from "@/store/slices/authSlice";
+import { setFavouritesList } from "@/store/slices/favouriteEventSlice";
 import { closeLoginModal } from "@/store/slices/uiSlice";
 import { colors } from "@/theme/colors";
 
@@ -39,8 +41,19 @@ export default function LoginModal() {
         const result = await dispatch(login({ username, password }));
 
         if (login.fulfilled.match(result)) {
+            try {
+                const favouriteResult = await getFavoritesIdsByClientId();
+                if (favouriteResult) {
+                    await dispatch(setFavouritesList(favouriteResult));
+                }
+            }
+            catch {
+
+            }
+
             dispatch(closeLoginModal());
 
+            window.location.reload();
             setAlertSeverity("success");
             setAlertMessage("Sesión iniciada");
             setAlertOpen(true);

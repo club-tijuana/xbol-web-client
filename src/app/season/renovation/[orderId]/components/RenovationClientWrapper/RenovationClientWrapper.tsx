@@ -24,13 +24,14 @@ export default function RenovationClientWrapper({ orderId }: RenovationClientWra
             await dispatch(setBookMode("renovateSeason"))
             await dispatch(setSeasonRelatedOrderId(orderId));
 
-            const prevSeats = season.previousSeats
-                .flatMap(x =>
-                    x.seats
-                        .split(",")
-                        .map(seat => [seat.trim(), 0] as [string, number])
-                );
-            await dispatch(setSeats(prevSeats));
+            if (season.previousSeatPrices) {
+                const prevSeats = season.previousSeatPrices
+                    .map(seat =>
+                        [seat.externalSeatObjectKey, seat.priceOverride] as [string, number]
+                    );
+
+                await dispatch(setSeats(prevSeats));
+            }
 
             setSeasonToRenovate(season);
         };

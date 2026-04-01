@@ -1,6 +1,6 @@
 "use client";
 
-import { ConfirmationNumberOutlined, CreditCardOutlined, Logout, ShieldOutlined } from '@mui/icons-material';
+import { ConfirmationNumberOutlined, CreditCardOutlined, Logout, ShieldOutlined, Star } from '@mui/icons-material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { AppBar, Box, Button, CssBaseline, Divider, Drawer, Grid, IconButton, List, ListItem, ListItemButton, ListItemText, Popover, Toolbar, Typography } from "@mui/material";
 import Image from 'next/image';
@@ -17,10 +17,6 @@ import { colors } from '@/theme/colors';
 import styles from "./Header.module.scss";
 import SearchInput from './SearchInput/SearchInput';
 
-interface Props {
-    window?: () => Window;
-}
-
 const drawerWidth = 240;
 const navItems = [
     { title: 'Home', redirectUrl: "/" },
@@ -29,8 +25,7 @@ const navItems = [
     { title: 'Cuenta', redirectUrl: "/no-content" }
 ];
 
-export default function Header(props: Props) {
-    const { window } = props;
+export default function Header() {
     const pathname = usePathname();
     const [mobileOpen, setMobileOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -81,6 +76,10 @@ export default function Header(props: Props) {
         dispatch(logout());
         handleCloseAccount();
         handleGoHome();
+
+        if (pathname === "/") {
+            window.location.reload();
+        }
     }
 
     const handleOnFilterEnter = () => {
@@ -122,7 +121,7 @@ export default function Header(props: Props) {
         </Box>
     );
 
-    const containerW = window !== undefined ? () => window().document.body : undefined;
+    const containerW = window !== undefined ? () => window.document.body : undefined;
 
     return (
         <Box>
@@ -239,6 +238,11 @@ export default function Header(props: Props) {
                                                 <Button variant="text" startIcon={<ConfirmationNumberOutlined color='neutral' />} onClick={() => handleRedirect('/account/tickets')}>
                                                     <Typography variant='body1' fontWeight={400} color='neutral'>
                                                         Mis tickets
+                                                    </Typography>
+                                                </Button>
+                                                <Button variant="text" startIcon={<Star color='neutral' />} onClick={() => handleRedirect('/account/favourites')}>
+                                                    <Typography variant='body1' fontWeight={400} color='neutral'>
+                                                        Mis Favoritos
                                                     </Typography>
                                                 </Button>
                                                 <Button variant="text" startIcon={<CreditCardOutlined color='neutral' />}>

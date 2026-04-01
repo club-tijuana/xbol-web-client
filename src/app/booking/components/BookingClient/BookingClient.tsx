@@ -128,7 +128,6 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
 
         return () => {
             isMounted = false;
-            dispatch(resetState());
         };
     }, [id, bookingMode, dispatch]);
 
@@ -254,7 +253,12 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                         router.push(`/account/tickets/order/${result.payload.orderId}/success`);
                     }
                     else if (eventBook.rejected.match(result)) {
-                        // TODO: Handle error
+                        const message =
+                            result.payload || result.error.message || "Error al reservar el evento";
+
+                        setSnackbarSeverity("error");
+                        setSnackbarMessage(message);
+                        setOpenSnackbar(true);
                     }
                 }
                 else if (bookingMode === "season" || bookingMode === "renovateSeason") {
@@ -278,7 +282,12 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                             router.push(`/account/tickets/order/${result.payload.orderId}/success`);
                         }
                         else if (seasonBook.rejected.match(result)) {
-                            // TODO: Handle error
+                            const message =
+                                result.payload || result.error.message || "Error al reservar la temporada";
+
+                            setSnackbarSeverity("error");
+                            setSnackbarMessage(message);
+                            setOpenSnackbar(true);
                         }
                     }
                     else if (bookingMode === "renovateSeason") {
@@ -289,7 +298,12 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                             router.push(`/account/tickets/order/${result.payload.orderId}/success`);
                         }
                         else if (seasonRenovate.rejected.match(result)) {
-                            // TODO: Handle error
+                            const message =
+                                result.payload || result.error.message || "Error al renovar la temporada";
+
+                            setSnackbarSeverity("error");
+                            setSnackbarMessage(message);
+                            setOpenSnackbar(true);
                         }
                     }
                 }

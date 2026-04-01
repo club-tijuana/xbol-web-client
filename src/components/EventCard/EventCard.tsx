@@ -146,7 +146,7 @@ export default function EventCard({
         )}
         <CardMedia
           onClick={
-            !showActions && styleVariant !== "schedule" ? handleClick : () => {}
+            !showActions && styleVariant !== "schedule" ? handleClick : () => { }
           }
           component="img"
           image={posterImageUrl}
@@ -229,21 +229,6 @@ export default function EventCard({
         )}
       </CardContent>
       {showActions && (
-        // <CardActions
-        //   sx={{ paddingTop: 0, justifySelf: isLarge ? "left" : "center" }}
-        // >
-        //   <Button variant="outlined" onClick={handleClick}>
-        //     <Typography variant="body1" px={1.3} py={1}>
-        //       Ver tickets
-        //     </Typography>
-        //   </Button>
-        //   <FavoriteButton
-        //     eventId={eventCard.eventId}
-        //     initialFavorite={eventCard.isFavorite}
-        //     colorBorder="disabled"
-        //   />
-        // </CardActions>
-
         <CardActions sx={{ paddingTop: 0 }}>
           <Box
             sx={{

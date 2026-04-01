@@ -13,6 +13,7 @@ import storage from "redux-persist/lib/storage";
 import authReducer from "./slices/authSlice";
 import bookingReducer from "./slices/bookingSlice";
 import eventsFiltersReducer from "./slices/eventsFilterSlice";
+import favouriteEventReducer from "./slices/favouriteEventSlice";
 import shareTicketReducer from "./slices/shareTicketSlice";
 import uiReducer from "./slices/uiSlice";
 
@@ -30,7 +31,8 @@ export const store = configureStore({
         auth: persistedAuthReducer,
         booking: bookingReducer,
         eventsFilters: eventsFiltersReducer,
-        shareTicket: shareTicketReducer
+        shareTicket: shareTicketReducer,
+        favouriteEvents: favouriteEventReducer
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({

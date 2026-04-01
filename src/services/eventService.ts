@@ -25,6 +25,8 @@ export async function getMainEvents(): Promise<PagedResponse<EventItemDTO>> {
 export async function getEvents(
   filters: EventsFilters,
 ): Promise<PagedResponse<EventItemDTO>> {
+  const state = store.getState();
+
   const params = {
     page: filters.page,
     pageSize: filters.pageSize,
@@ -36,7 +38,7 @@ export async function getEvents(
     "GET",
     "events",
     undefined,
-    undefined,
+    state.auth.user?.token,
     { params },
   );
 }
