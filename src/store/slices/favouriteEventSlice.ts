@@ -1,12 +1,23 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+
+import { getFavoritesIdsByClientId } from "@/services/clientFavoriteEventService";
 
 interface FavouriteEventState {
-    eventIds?: Array<number>;
+    eventIds: Record<number, true>;
+    loading: boolean
 };
 
 const initialState: FavouriteEventState = {
-    eventIds: undefined
+    eventIds: {},
+    loading: false
 };
+
+export const loadFavorites = createAsyncThunk(
+    "favoriteEvents/loadFavorites",
+    async () => {
+        return await getFavoritesIdsByClientId();
+    }
+);
 
 const favouriteEventSlice = createSlice({
     name: "favouriteEvents",
@@ -14,28 +25,37 @@ const favouriteEventSlice = createSlice({
     reducers: {
         resetState: () => initialState,
         toggleFavourite: (state, action: PayloadAction<number>) => {
-            if (!state.eventIds) {
-                state.eventIds = new Array<number>();
-                state.eventIds.push(action.payload);
+            const id = action.payload;
+
+            if (state.eventIds[id]) {
+                delete state.eventIds[id];
             }
             else {
-                if (state.eventIds?.includes(action.payload)) {
-                    state.eventIds = state.eventIds.filter(id => id !== action.payload);
-                }
-                else {
-                    state.eventIds.push(action.payload);
-                }
+                state.eventIds[id] = true;
             }
-        },
-        setFavouritesList: (state, action: PayloadAction<number[]>) => {
-            state.eventIds = action.payload;
         }
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(loadFavorites.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(loadFavorites.fulfilled, (state, action) => {
+                state.loading = false;
+
+                state.eventIds = action.payload.reduce((acc, id) => {
+                    acc[id] = true;
+                    return acc;
+                }, {} as Record<number, true>);
+            })
+            .addCase(loadFavorites.rejected, (state) => {
+                state.loading = false;
+            });
     }
 });
 
 export const {
     resetState,
     toggleFavourite,
-    setFavouritesList
 } = favouriteEventSlice.actions;
 export default favouriteEventSlice.reducer;

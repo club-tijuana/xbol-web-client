@@ -245,7 +245,6 @@ export default function EventCard({
 
             <FavoriteButton
               eventId={eventCard.eventId}
-              initialFavorite={eventCard.isFavorite}
               colorBorder="primary"
             />
           </Box>

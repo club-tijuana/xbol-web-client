@@ -5,47 +5,46 @@ import { Alert, Box, Snackbar, SvgIconProps } from "@mui/material";
 import { useState } from "react";
 
 import { toggleFavorite } from "@/services/clientFavoriteEventService";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { toggleFavourite as toggleFavouriteSlice } from "@/store/slices/favouriteEventSlice";
 
 interface Props {
   eventId: number;
-  initialFavorite: boolean;
+  //initialFavorite: boolean;
   colorBorder: SvgIconProps["color"];
 }
 
 export default function FavoriteButton({
   eventId,
-  initialFavorite,
+  //initialFavorite,
   colorBorder,
 }: Props) {
-  const [isFavorite, setIsFavorite] = useState(initialFavorite);
+  //const [isFavorite, setIsFavorite] = useState(initialFavorite);
+  const dispatch = useAppDispatch();
+  const isFavorite = useAppSelector(
+    state => !!state.favouriteEvents.eventIds[eventId]
+  );
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">("success");
 
   const handleToggleFavorite = async () => {
-    const previous = isFavorite;
-    setIsFavorite(!previous);
+    dispatch(toggleFavouriteSlice(eventId));
 
     try {
-      const result = await toggleFavorite(eventId);
+      await toggleFavorite(eventId);
 
-      setIsFavorite(result.isFavorite);
       setAlertSeverity("success");
-      setSnackbarMessage(
-        result.isFavorite ? "Evento marcado como favorito."
-          : "Evento removido de favoritos."
-      );
-      setOpenSnackbar(true);
+      setSnackbarMessage("Actualizado correctamente");
     } catch {
-      setIsFavorite(previous);
-      setAlertSeverity("error");
-      setSnackbarMessage(
-        "Error al marcar/desmarcar el evento como favorito."
-      );
-      setOpenSnackbar(true);
-    }
-  };
+      dispatch(toggleFavouriteSlice(eventId));
 
+      setAlertSeverity("error");
+      setSnackbarMessage("Error al marcar/desmarcar el evento como favorito.");
+    }
+
+    setOpenSnackbar(true);
+  };
   return (
     <Box>
       <span onClick={handleToggleFavorite} style={{ cursor: "pointer" }}>

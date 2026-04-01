@@ -54,9 +54,6 @@ export default function HomeClientWrapper() {
         setMusicEvents(musicResponse);
         setTheaterEvents(theaterResponse);
         setSeasonBanner(seasonResponse);
-
-        console.log("ok");
-        console.log(trendingResponse);
       } catch (error) {
         console.error("Error loading home data:", error);
       } finally {

@@ -11,6 +11,7 @@ import { formatDate } from '@/helpers/formatDateHelper';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { logout } from "@/store/slices/authSlice";
 import { setTextFilter } from '@/store/slices/eventsFilterSlice';
+import { resetState as favouriteResetState } from "@/store/slices/favouriteEventSlice";
 import { openLoginModal } from "@/store/slices/uiSlice";
 import { colors } from '@/theme/colors';
 
@@ -74,6 +75,7 @@ export default function Header() {
         }
 
         dispatch(logout());
+        dispatch(favouriteResetState());
         handleCloseAccount();
         handleGoHome();
 
