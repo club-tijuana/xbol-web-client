@@ -4,6 +4,7 @@ import { ArrowDownwardOutlined, TuneOutlined } from "@mui/icons-material";
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Chip, Divider, Grid, Paper, Stack, Typography } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 
+import Loader from "@/components/Loader/Loader";
 import { formatCurrency } from "@/helpers/formatCurrencyHelper";
 import { useDebounce } from "@/hooks/useDebounce";
 import { PriceRange, ReservationFilters } from "@/models/filters/reservation-filters.dto";
@@ -217,6 +218,7 @@ export default function SeatFilters({ scheduleId, buttonText, onSectionSelected,
                     </Box>
                 ))}
             </Box>
+            <Loader isLoading={loading} />
         </Paper>
     );
 }

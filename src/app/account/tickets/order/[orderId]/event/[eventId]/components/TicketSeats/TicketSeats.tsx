@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Divider, Grid, Paper, Typography } from "@mui/material";
+import { Box, Divider, Grid, Paper, SxProps, Typography } from "@mui/material";
 
 import SeatsMap from "@/components/SeatsMap/SeatsMap";
 import { formatCurrency } from "@/helpers/formatCurrencyHelper";
@@ -11,6 +11,18 @@ import { TicketSeatsProps } from "./TicketSeats.type";
 const SCALE = 0.8;
 const COMPENSATED_WIDTH = `${100 / SCALE}%`;
 const OFFSET_Y = -70;
+
+/* -------------------- STYLES -------------------- */
+const contentStyle: SxProps = {
+    position: "relative",
+    width: "100%",
+    height: 120,
+    borderStyle: 'solid',
+    borderColor: 'var(--color-text-primary)',
+    borderWidth: 1,
+    borderRadius: '15px',
+    overflow: 'hidden',
+};
 
 /* -------------------- COMPONENT -------------------- */
 export default function TicketSeats({ eventKey, subTotal, totalTaxes, total, currency, seats, selectedSeats, folio }: TicketSeatsProps) {
@@ -29,17 +41,7 @@ export default function TicketSeats({ eventKey, subTotal, totalTaxes, total, cur
             </Box>
             <Grid container columns={12} mt={2}>
                 <Grid size={4}>
-                    <Box sx={{
-                        position: "relative",
-                        width: "100%",
-                        height: 120,
-                        borderStyle: 'solid',
-                        borderColor: 'var(--color-text-primary)',
-                        borderWidth: 1,
-                        borderRadius: '15px',
-                        overflow: 'hidden',
-                    }}
-                    >
+                    <Box sx={contentStyle}>
                         <Box
                             sx={{
                                 transform: `scale(${SCALE}) translateY(${OFFSET_Y}px)`,

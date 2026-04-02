@@ -14,13 +14,6 @@ export default function TicketQRGrid({
     onShare,
     onUnshare
 }: TicketQRGridProps) {
-    /*     const [ticketId, setTicketId] = useState<number | null>(null);
-        const [ticketOrderType, setTicketOrderType] = useState<OrderType>(OrderType.Ticket);
-        const [openSnackbar, setOpenSnackbar] = useState(false);
-        const [snackbarMessage, setSnackbarMessage] = useState("");
-        const [openShare, setOpenShare] = useState(false);
-        const [shareType, setShareType] = useState<"share" | "unshare">("share"); */
-
     const handleShareTicket = (ticketToShareId: number) => {
         onShare(ticketToShareId);
     };
@@ -28,13 +21,6 @@ export default function TicketQRGrid({
     const handleUnshareTicket = (ticketToUnshareId: number) => {
         onUnshare(ticketToUnshareId);
     };
-
-    /*     const handleUnshareTicket = (ticketToUnshareId: number, orderType: OrderType) => {
-            setTicketId(ticketToUnshareId);
-            setTicketOrderType(orderType);
-            setShareType("unshare");
-            setOpenShare(true);
-        }; */
 
     return (
         <Box>
@@ -52,28 +38,6 @@ export default function TicketQRGrid({
                     </Grid>
                 ))}
             </Grid>
-
-            {/* {ticketId &&
-                <ShareTicketDialog
-                    ticketId={ticketId}
-                    orderType={ticketOrderType}
-                    open={openShare}
-                    variant={shareType}
-                    onClose={(message) => handleDialogClose(message)}
-                />
-            } */}
-            {/* <Snackbar
-                anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                open={openSnackbar}
-                autoHideDuration={5000}>
-                <Alert
-                    onClose={() => setOpenSnackbar(false)}
-                    severity="success"
-                    variant="filled"
-                    sx={{ width: "100%" }}>
-                    {snackbarMessage}
-                </Alert>
-            </Snackbar> */}
         </Box>
     );
 }
