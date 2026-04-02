@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import EventCarousel from "@/components/EventCarousel/EventCarousel";
 import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
+import Loader from "@/components/Loader/Loader";
 import SeasonBanner from "@/components/SeasonBanner/SeasonBanner";
 import { EventItemDTO, mapEventToCardVM } from "@/models/event-item.dto";
 import { PagedResponse } from "@/models/pagination/paged-response.dto";
@@ -28,10 +29,12 @@ export default function HomeClientWrapper() {
   const [theaterEvents, setTheaterEvents] =
     useState<PagedResponse<EventItemDTO>>();
   const [seasonBanner, setSeasonBanner] = useState<SeasonItemDTO>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true);
         const [
           mainResponse,
           trendingResponse,
@@ -57,7 +60,7 @@ export default function HomeClientWrapper() {
       } catch (error) {
         console.error("Error loading home data:", error);
       } finally {
-        // setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -65,7 +68,7 @@ export default function HomeClientWrapper() {
   }, []);
 
   return (
-    <Box>
+    <Box sx={{ minHeight: "100vh" }}>
       {mainEvents && (
         <FullWidthSection fullBleed={true} disableMaxWidth={true}>
           <EventCarousel events={mainEvents.items} />
@@ -133,6 +136,8 @@ export default function HomeClientWrapper() {
           </Box>
         </FullWidthSection>
       )}
+
+      <Loader isLoading={isLoading} />
     </Box>
   );
 }

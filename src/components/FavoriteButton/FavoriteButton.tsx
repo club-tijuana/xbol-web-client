@@ -35,12 +35,12 @@ export default function FavoriteButton({
       await toggleFavorite(eventId);
 
       setAlertSeverity("success");
-      setSnackbarMessage("Actualizado correctamente");
+      setSnackbarMessage(`Evento ${isFavorite ? 'desmarcado' : 'marcado'} como favorito correctamente.`);
     } catch {
       dispatch(toggleFavouriteSlice(eventId));
 
       setAlertSeverity("error");
-      setSnackbarMessage("Error al marcar/desmarcar el evento como favorito.");
+      setSnackbarMessage(`Error al ${isFavorite ? 'desmarcar' : 'marcar'} el evento como favorito.`);
     }
 
     setOpenSnackbar(true);

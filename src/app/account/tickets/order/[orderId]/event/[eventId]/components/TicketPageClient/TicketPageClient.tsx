@@ -59,7 +59,7 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
     useEffect(() => {
         async function load() {
             try {
-                const detailResponse = await getMyEventDetail(eventId);
+                const detailResponse = await getMyEventDetail(eventId, orderId);
                 const ticketsResponse = await getMyEventTickets({
                     page: 1,
                     pageSize: 10,

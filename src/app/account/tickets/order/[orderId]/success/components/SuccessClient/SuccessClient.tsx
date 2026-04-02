@@ -9,6 +9,7 @@ import Loader from "@/components/Loader/Loader";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { OrderType } from "@/models/enums/order-type.enum";
 import { OrderDTO } from "@/models/order.dto";
+import { SeatDTO } from "@/models/seat.dto";
 import { getOrderSuccess } from "@/services/orderService";
 
 import TicketSeats from "../../../event/[eventId]/components/TicketSeats/TicketSeats";
@@ -23,6 +24,7 @@ export default function SuccessClient({ orderId }: SuccessClientProps) {
     const [order, setOrder] = useState<OrderDTO | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [formattedDate, setFormattedDatte] = useState<string>("");
+    const [seatMap, setSeatMap] = useState<Array<[string, number]>>();
 
     useEffect(() => {
         async function load() {
@@ -30,8 +32,15 @@ export default function SuccessClient({ orderId }: SuccessClientProps) {
 
             try {
                 const response = await getOrderSuccess(Number.parseInt(orderId));
+
+                const mapped: [string, number][] = response.itemSeatsLabels
+                    .filter((s): s is SeatDTO & { priceOverride: number } => s.priceOverride !== undefined)
+                    .map(s => [s.externalSeatObjectKey, s.priceOverride]);
+
+                setSeatMap(mapped);
                 setOrder(response);
                 setFormattedDatte(formatDate(response.itemStartDate, "dateTime"))
+
             }
             catch {
                 // TODO: Handle error
@@ -96,7 +105,6 @@ export default function SuccessClient({ orderId }: SuccessClientProps) {
                                 </Box>
                             </Box>
                         </Box>
-
                         <TicketSeats
                             eventKey={order.itemKey}
                             subTotal={order.subTotal}
@@ -104,6 +112,7 @@ export default function SuccessClient({ orderId }: SuccessClientProps) {
                             total={order.total}
                             currency={order.currency}
                             seats={order.itemSeats}
+                            selectedSeats={seatMap}
                             folio={order.folio}
                         />
                     </Grid>

@@ -66,12 +66,14 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
     const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("success");
     const [holdToken, setHoldToken] = useState<string | undefined>(undefined);
     const [sectionsPrices, setSectionsPrices] = useState<Pricing>();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
         let isMounted = true;
 
         async function loadAll() {
             try {
+                setIsLoading(true);
                 const holdTokenResponse = await holdTokenService();
 
                 let mapKeyLocal = "";
@@ -121,6 +123,9 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
 
             } catch (err) {
                 console.error(err);
+            }
+            finally {
+                setIsLoading(false);
             }
         }
 
@@ -313,7 +318,7 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
     };
 
     return (
-        <Grid container columns={12} mt={7} spacing={4} pb={8}>
+        <Grid container columns={12} mt={7} spacing={4} pb={8} sx={{ minHeight: "100vh", alignContent: "start" }}>
             <Grid size={12}>
                 <HoldTokenTimer />
             </Grid>
@@ -410,7 +415,7 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                     {snackbarMessage}
                 </Alert>
             </Snackbar>
-            <Loader isLoading={bookingState === "loading"} />
+            <Loader isLoading={(bookingState === "loading" || isLoading)} />
         </Grid>
     );
 }

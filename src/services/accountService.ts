@@ -41,12 +41,12 @@ export async function getMyEvents(
 }
 
 
-export async function getMyEventDetail(eventId: number): Promise<MyEventDetailDTO | null> {
+export async function getMyEventDetail(eventId: number, orderId: number): Promise<MyEventDetailDTO | null> {
     const state = store.getState();
 
     return await requestAxios<null, MyEventDetailDTO>(
         "GET",
-        `clients/my-event/${eventId}`,
+        `clients/my-event/${eventId}/${orderId}`,
         null,
         state.auth.user?.token
     );

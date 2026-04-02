@@ -143,7 +143,7 @@ export default function Header() {
                             </IconButton>
                             <Box className={styles.logoContainer}>
                                 <Image
-                                    src="/assets/logo.png"
+                                    src="/assets/logo.svg"
                                     alt="Logo"
                                     fill
                                     className={styles.logo}
