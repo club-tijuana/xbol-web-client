@@ -1,4 +1,6 @@
+import { BookingMode } from "@/types/bookingMode";
+
 export interface BookingClientProps {
     id: string;
-    bookingMode: "event" | "season" | "renovateSeason";
+    bookingMode: BookingMode;
 }

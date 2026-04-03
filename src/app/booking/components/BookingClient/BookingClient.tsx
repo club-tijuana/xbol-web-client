@@ -5,12 +5,9 @@ import { Alert, AlertColor, Box, Button, Grid, Paper, Snackbar, Typography } fro
 import { HoldToken, Pricing } from "@seatsio/seatsio-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import TicketSeats from "@/app/account/tickets/order/[orderId]/event/[eventId]/components/TicketSeats/TicketSeats";
 import Loader from "@/components/Loader/Loader";
-import SeatsMap, { SeatsMapHandle } from "@/components/SeatsMap/SeatsMap";
-import { formatCurrency } from "@/helpers/formatCurrencyHelper";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { ItemType } from "@/models/enums/item-type.enum";
 import { EventItemDTO } from "@/models/event-item.dto";
@@ -32,29 +29,24 @@ import {
     seasonBook,
     seasonRenovate
 } from "@/store/slices/bookingSlice";
-import { colors } from "@/theme/colors";
+import { BookingStep } from "@/types/bookingStep";
 
-import ClientInfo from "../ClientInfo/ClientInfo";
+import BookingLeftPanel from "../BookingLeftPanel/BookingLeftPanel";
+import BookingRightPanel, { BookingRightPanelHandle } from "../BookingRightPanel/BookingRightPanel";
 import HoldExpiredModal from "../HoldExpiredModal/HoldExpiredModal";
 import HoldTokenTimer from "../HoldTokenTimer/HoldTokenTimer";
-import Payment from "../Payment/Payment";
-import SeatFilters from "../SeatFilters/SeatFilters";
 
 import { BookingClientProps } from "./BookingClient.type";
-
-/* -------------------- STEPS -------------------- */
-type BookingStep = "selection" | "payment";
 
 /* -------------------- COMPONENT -------------------- */
 export default function BookingClient({ id, bookingMode }: BookingClientProps) {
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const mapRef = useRef<SeatsMapHandle>(null);
+    const mapRef = useRef<BookingRightPanelHandle>(null);
 
     const eventBookObj = useAppSelector(state => state.booking.eventBookingRequest);
     const seasonBookObj = useAppSelector(state => state.booking.seasonBookingRequest);
     const bookingState = useAppSelector(state => state.booking.status);
-    const selectedSeatsDto = useAppSelector(store => store.booking.selectedSeatsDto);
     const selectedSeats = useAppSelector(store => store.booking.selectedSeats);
 
     const [event, setEvent] = useState<EventItemDTO | null>(null);
@@ -69,7 +61,6 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
     const [holdToken, setHoldToken] = useState<string | undefined>(undefined);
     const [sectionsPrices, setSectionsPrices] = useState<Pricing>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [mapSelectionSummary, setMapSelectionSummary] = useState<[string, number][] | undefined>();
 
     useEffect(() => {
         let isMounted = true;
@@ -146,130 +137,6 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
             isMounted = false;
         };
     }, [id, bookingMode, dispatch]);
-
-    const { subtotal, taxes, total } = useMemo(() => {
-        let _subtotal = 0;
-        const _taxes = 0;
-        let _total = 0;
-
-        selectedSeats?.forEach(s => {
-            _subtotal += s[1];
-            _total += s[1];
-        });
-
-        return {
-            subtotal: _subtotal,
-            taxes: _taxes,
-            total: _total
-        };
-    }, [selectedSeats]);
-
-    const renderLeftPanel = () => {
-        switch (bookingStep) {
-            case "selection":
-                return (
-                    <SeatFilters
-                        scheduleId={Number(id)}
-                        onSectionSelected={(section) => { setSelectedSection(section); }}
-                        onSectionsChange={setSectionsPrices}
-                        buttonText="Ver"
-                    />
-                );
-            case "payment":
-                return (mapKey && selectedSeatsDto) ? (
-                    <>
-                        <Box>
-                            <TicketSeats
-                                eventKey={mapKey}
-                                seats={selectedSeatsDto}
-                                selectedSeats={selectedSeats}
-                            />
-                        </Box>
-                        <Box mt={4}>
-                            <ClientInfo />
-                        </Box>
-                    </>
-                ) : null;
-            default:
-                return null;
-        };
-    };
-
-    const handleOnMapSeatChange = () => {
-        if (mapRef.current) {
-            const seats = mapRef.current.getSelectedSeats();
-            setMapSelectionSummary(seats);
-        }
-    };
-
-    const renderRightPanel = () => {
-        switch (bookingStep) {
-            case "selection":
-                return (holdToken !== undefined && ((event && event.eventKey) || (season && season.externalSeasonKey))) ? (
-                    <Box>
-                        <SeatsMap
-                            ref={mapRef}
-                            selectedSection={selectedSection}
-                            selectedSeats={selectedSeats}
-                            eventKey={mapKey}
-                            holdToken={bookingMode !== "renovateSeason" ? holdToken : ""}
-                            pricing={sectionsPrices}
-                            session={bookingMode === "renovateSeason" ? "none" : "manual"}
-                            isRenovation={bookingMode === "renovateSeason"}
-                            onSeatsChange={handleOnMapSeatChange}
-                        />
-                        {(mapSelectionSummary && mapSelectionSummary.length > 0) &&
-                            <Box mt={3}>
-                                <Grid container columns={2} px={10}>
-                                    <Grid size={1}>
-                                        <Typography variant="subtitle1">
-                                            Asiento
-                                        </Typography>
-                                    </Grid>
-                                    <Grid size={1}>
-                                        <Typography variant="subtitle1" textAlign="right">
-                                            Precio
-                                        </Typography>
-                                    </Grid>
-                                    {mapSelectionSummary.map(s => (
-                                        <Grid size={2} key={s[0]}>
-                                            <Box display="flex" alignItems="center">
-                                                <Typography>
-                                                    {s[0]}
-                                                </Typography>
-                                                <Box
-                                                    sx={{
-                                                        flexGrow: 1,
-                                                        borderBottom: "1px solid",
-                                                        borderColor: colors.light.primary,
-                                                        mx: 1
-                                                    }}
-                                                />
-                                                <Typography textAlign="right">
-                                                    {formatCurrency(s[1])}
-                                                </Typography>
-                                            </Box>
-                                        </Grid>
-                                    ))}
-                                </Grid>
-                            </Box>
-                        }
-                    </Box>
-                ) : null;
-            case "payment":
-                return (
-                    <Payment
-                        subtotal={subtotal}
-                        taxes={taxes}
-                        total={total}
-                        currency="MXN"
-                        onPay={handleContinue}
-                    />
-                );
-            default:
-                return null;
-        }
-    };
 
     const handleContinue = async () => {
         switch (bookingStep) {
@@ -444,11 +311,26 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                         />
                     </Box>
                 }
-                {renderLeftPanel()}
+                <BookingLeftPanel
+                    mapKey={mapKey}
+                    scheduleId={Number(id)}
+                    bookingStep={bookingStep}
+                    onSectionSelected={(section) => { setSelectedSection(section); }}
+                    onSectionsChange={setSectionsPrices}
+                />
             </Grid>
             <Grid size={6}>
                 <Paper elevation={3} className="paperCard" sx={{ backgroundColor: "white" }}>
-                    {renderRightPanel()}
+                    <BookingRightPanel
+                        ref={mapRef}
+                        holdToken={holdToken}
+                        mapKey={mapKey}
+                        bookingMode={bookingMode}
+                        bookingStep={bookingStep}
+                        selectedSection={selectedSection}
+                        sectionsPrices={sectionsPrices}
+                        onPay={handleContinue}
+                    />
                 </Paper>
                 <Box mt={2} textAlign="end">
                     {bookingStep !== "selection" &&
