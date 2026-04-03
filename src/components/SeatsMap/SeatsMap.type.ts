@@ -12,4 +12,7 @@ export interface SeatsMapProps {
     categoryFilter?: CategoryFilter;
     channels?: string[];
     session: SeatsMapSession;
+    isRenovation?: boolean;
+
+    onSeatsChange?: () => void;
 }

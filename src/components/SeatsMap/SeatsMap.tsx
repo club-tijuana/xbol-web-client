@@ -13,6 +13,7 @@ import { SeatsMapProps } from "./SeatsMap.type";
 
 /* -------------------- CONSTANTS -------------------- */
 const MAX_SEATS_SELECTION: number = 12;
+const DISABLED_SELECTED_SEAT_COLOR: string = "#902748";
 
 export interface SeatsMapHandle {
     getSelectedSeats: () => Array<[string, number]>;
@@ -35,7 +36,9 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
             zoomOnSelect: true
         },
         channels,
-        session
+        session,
+        isRenovation = false,
+        onSeatsChange
     }, ref) => {
         const dispatch = useAppDispatch();
         const initializedRef = useRef(false);
@@ -57,6 +60,10 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
         useEffect(() => {
             selectedSeatsRef.current = currentSelectedSeats;
             selectedSeatsDtoRef.current = currentSelectedSeatsDto;
+
+            if (onSeatsChange) {
+                onSeatsChange();
+            }
         }, [currentSelectedSeats, currentSelectedSeatsDto]);
 
         useImperativeHandle(ref, () => ({
@@ -86,6 +93,11 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
                 setCurrentSelectedSeatsDto(dtoFromSelected);
 
                 initializedRef.current = true;
+            }
+
+            if (initialSeats?.length) {
+                chart.doSelectObjects(initialSeats);
+                chart.zoomToObjects(initialSeats);
             }
 
             setIsLoading(false);
@@ -124,6 +136,10 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
                     "remove"
                 )
             );
+
+            if (onSeatsChange) {
+                onSeatsChange();
+            }
         };
 
         const handleHoldTokenExpired = () => {
@@ -194,9 +210,9 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
             <div>
                 {chartConfig && (
                     <SeatsioSeatingChart
-                        key={holdToken}
+                        key={!isRenovation ? holdToken : "map"}
                         workspaceKey={process.env.NEXT_PUBLIC_SEATS_WORKSPACE_KEY}
-                        holdToken={holdToken}
+                        holdToken={!isRenovation ? holdToken : ""}
                         event={eventKey}
                         region="na"
                         pricing={pricing}
@@ -205,7 +221,6 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
                         categoryFilter={categoryFilter}
                         channels={channels}
                         session={session}
-                        selectedObjects={initialSeats}
                         maxSelectedObjects={MAX_SEATS_SELECTION}
                         onHoldTokenExpired={handleHoldTokenExpired}
                         onObjectSelected={handleSelected}
@@ -213,6 +228,54 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
                         onChartRendered={handleChartRendered}
                         objectWithoutPricingSelectable={mode !== "normal"}
                         onRenderStarted={() => setIsLoading(true)}
+                        onChartRenderingFailed={() => setIsLoading(false)}
+                        extraConfig={{
+                            allowedSeats: initialSeats ?? [],
+                            mapIsRenovation: isRenovation,
+                            mapDisabledSelectedColor: DISABLED_SELECTED_SEAT_COLOR
+                        }}
+                        objectColor={(object, defaultColor, extraConfig) => {
+                            if (extraConfig.mapIsRenovation) {
+                                const type =
+                                    typeof object.objectType === "function"
+                                        ? object.objectType()
+                                        : object.objectType;
+
+                                if (!extraConfig.allowedSeats?.length) {
+                                    return defaultColor;
+                                }
+
+                                if (type === "Seat" && extraConfig.allowedSeats.includes(object.labels.displayedLabel)) {
+                                    return extraConfig.mapDisabledSelectedColor;
+                                }
+
+                                return defaultColor;
+                            }
+                            else {
+                                return defaultColor;
+                            }
+                        }}
+                        isObjectVisible={(object, extraConfig) => {
+                            if (extraConfig.mapIsRenovation) {
+                                const type =
+                                    typeof object.objectType === "function"
+                                        ? object.objectType()
+                                        : object.objectType;
+
+                                if (!extraConfig.allowedSeats?.length) {
+                                    return true;
+                                }
+
+                                if (type === "Seat") {
+                                    return extraConfig.allowedSeats.includes(object.labels.displayedLabel);
+                                }
+
+                                return type === "row" || type === "section";
+                            }
+                            else {
+                                return true;
+                            }
+                        }}
                     />
                 )}
                 <Loader isLoading={isLoading} />

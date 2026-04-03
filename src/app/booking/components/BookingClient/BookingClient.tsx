@@ -2,7 +2,7 @@
 
 import { CalendarTodayOutlined, LocationOnOutlined } from "@mui/icons-material";
 import { Alert, AlertColor, Box, Button, Grid, Paper, Snackbar, Typography } from "@mui/material";
-import { Pricing } from "@seatsio/seatsio-react";
+import { HoldToken, Pricing } from "@seatsio/seatsio-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -10,6 +10,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import TicketSeats from "@/app/account/tickets/order/[orderId]/event/[eventId]/components/TicketSeats/TicketSeats";
 import Loader from "@/components/Loader/Loader";
 import SeatsMap, { SeatsMapHandle } from "@/components/SeatsMap/SeatsMap";
+import { formatCurrency } from "@/helpers/formatCurrencyHelper";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { ItemType } from "@/models/enums/item-type.enum";
 import { EventItemDTO } from "@/models/event-item.dto";
@@ -31,6 +32,7 @@ import {
     seasonBook,
     seasonRenovate
 } from "@/store/slices/bookingSlice";
+import { colors } from "@/theme/colors";
 
 import ClientInfo from "../ClientInfo/ClientInfo";
 import HoldExpiredModal from "../HoldExpiredModal/HoldExpiredModal";
@@ -67,6 +69,7 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
     const [holdToken, setHoldToken] = useState<string | undefined>(undefined);
     const [sectionsPrices, setSectionsPrices] = useState<Pricing>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [mapSelectionSummary, setMapSelectionSummary] = useState<[string, number][] | undefined>();
 
     useEffect(() => {
         let isMounted = true;
@@ -74,7 +77,10 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
         async function loadAll() {
             try {
                 setIsLoading(true);
-                const holdTokenResponse = await holdTokenService();
+                let holdTokenResponse: HoldToken | undefined;
+                if (bookingMode !== "renovateSeason") {
+                    holdTokenResponse = await holdTokenService();
+                }
 
                 let mapKeyLocal = "";
 
@@ -114,9 +120,14 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
 
                 if (!isMounted) return;
 
-                if (holdTokenResponse?.token) {
-                    setHoldToken(holdTokenResponse.token);
-                    await dispatch(setBookHoldToken(holdTokenResponse));
+                if (bookingMode !== "renovateSeason") {
+                    if (holdTokenResponse && holdTokenResponse?.token) {
+                        setHoldToken(holdTokenResponse.token);
+                        await dispatch(setBookHoldToken(holdTokenResponse));
+                    }
+                }
+                else {
+                    setHoldToken("");
                 }
 
                 setMapKey(mapKeyLocal);
@@ -184,19 +195,66 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
         };
     };
 
+    const handleOnMapSeatChange = () => {
+        if (mapRef.current) {
+            const seats = mapRef.current.getSelectedSeats();
+            setMapSelectionSummary(seats);
+        }
+    };
+
     const renderRightPanel = () => {
         switch (bookingStep) {
             case "selection":
-                return (holdToken && ((event && event.eventKey) || (season && season.externalSeasonKey))) ? (
-                    <SeatsMap
-                        ref={mapRef}
-                        selectedSection={selectedSection}
-                        selectedSeats={selectedSeats}
-                        eventKey={mapKey}
-                        holdToken={holdToken}
-                        pricing={sectionsPrices}
-                        session="manual"
-                    />
+                return (holdToken !== undefined && ((event && event.eventKey) || (season && season.externalSeasonKey))) ? (
+                    <Box>
+                        <SeatsMap
+                            ref={mapRef}
+                            selectedSection={selectedSection}
+                            selectedSeats={selectedSeats}
+                            eventKey={mapKey}
+                            holdToken={bookingMode !== "renovateSeason" ? holdToken : ""}
+                            pricing={sectionsPrices}
+                            session={bookingMode === "renovateSeason" ? "none" : "manual"}
+                            isRenovation={bookingMode === "renovateSeason"}
+                            onSeatsChange={handleOnMapSeatChange}
+                        />
+                        {(mapSelectionSummary && mapSelectionSummary.length > 0) &&
+                            <Box mt={3}>
+                                <Grid container columns={2} px={10}>
+                                    <Grid size={1}>
+                                        <Typography variant="subtitle1">
+                                            Asiento
+                                        </Typography>
+                                    </Grid>
+                                    <Grid size={1}>
+                                        <Typography variant="subtitle1" textAlign="right">
+                                            Precio
+                                        </Typography>
+                                    </Grid>
+                                    {mapSelectionSummary.map(s => (
+                                        <Grid size={2} key={s[0]}>
+                                            <Box display="flex" alignItems="center">
+                                                <Typography>
+                                                    {s[0]}
+                                                </Typography>
+                                                <Box
+                                                    sx={{
+                                                        flexGrow: 1,
+                                                        borderBottom: "1px solid",
+                                                        borderColor: colors.light.primary,
+                                                        mx: 1
+                                                    }}
+                                                />
+                                                <Typography textAlign="right">
+                                                    {formatCurrency(s[1])}
+                                                </Typography>
+                                            </Box>
+                                        </Grid>
+                                    ))}
+                                </Grid>
+                            </Box>
+                        }
+                    </Box>
                 ) : null;
             case "payment":
                 return (
@@ -216,7 +274,15 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
     const handleContinue = async () => {
         switch (bookingStep) {
             case "selection":
-                const seats = mapRef.current?.getSelectedSeats();
+                let seats: [string, number][] | undefined;
+
+                if (bookingMode !== "renovateSeason") {
+                    seats = mapRef.current?.getSelectedSeats();
+                }
+                else {
+                    seats = selectedSeats;
+                }
+
                 const seatsDto = mapRef.current?.getSelectedSeatsDto();
 
                 if (!seats || seats.length === 0) {
@@ -319,9 +385,11 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
 
     return (
         <Grid container columns={12} mt={7} spacing={4} pb={8} sx={{ minHeight: "100vh", alignContent: "start" }}>
-            <Grid size={12}>
-                <HoldTokenTimer />
-            </Grid>
+            {holdToken &&
+                <Grid size={12}>
+                    <HoldTokenTimer />
+                </Grid>
+            }
             <Grid size={6}>
                 {(bookingMode === "event" && event) &&
                     <Grid container columns={12} mb={4}>

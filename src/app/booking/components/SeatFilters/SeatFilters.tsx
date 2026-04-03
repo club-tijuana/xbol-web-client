@@ -144,7 +144,7 @@ export default function SeatFilters({ scheduleId, buttonText, onSectionSelected,
                     id="filters-header"
                 >
                     <Typography component="span" variant="h6" fontWeight={400} color="primary">
-                        Selecciona tus asientos {bookingMode}
+                        Selecciona tus asientos
                     </Typography>
                 </AccordionSummary>
                 <AccordionDetails sx={{ backgroundColor: "white" }}>
