@@ -130,7 +130,6 @@ export default function EventClientWrapper({
                 />
                 <FavoriteButton
                   eventId={event.id}
-                  initialFavorite={event.isFavorite}
                   colorBorder="neutral"
                 />
               </Typography>
@@ -209,17 +208,17 @@ export default function EventClientWrapper({
                           transform: "none",
                         },
                         "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded":
-                          {
-                            transform: "none",
-                          },
+                        {
+                          transform: "none",
+                        },
 
                         "& .MuiAccordionSummary-expandIconWrapper .arrowIcon": {
                           transition: "transform 0.3s ease",
                         },
                         "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded .arrowIcon":
-                          {
-                            transform: "rotate(180deg)",
-                          },
+                        {
+                          transform: "rotate(180deg)",
+                        },
                       }}
                     >
                       <Grid

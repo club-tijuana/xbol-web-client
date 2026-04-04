@@ -17,4 +17,5 @@ export const mapScheduleToCardVM = (s: ScheduleItemDTO): EventCardVM => ({
     startDate: formatDate(s.startDate, "dateTime"),
     location: s.event.location,
     categories: s.event.categories,
+    isFavorite: s.event.isFavorite
 });

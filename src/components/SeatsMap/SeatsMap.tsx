@@ -234,7 +234,7 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
                             mapIsRenovation: isRenovation,
                             mapDisabledSelectedColor: DISABLED_SELECTED_SEAT_COLOR
                         }}
-                        objectColor={(object, defaultColor, extraConfig) => {
+                        objectColor={(object: any, defaultColor, extraConfig) => {
                             if (extraConfig.mapIsRenovation) {
                                 const type =
                                     typeof object.objectType === "function"
@@ -255,7 +255,7 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
                                 return defaultColor;
                             }
                         }}
-                        isObjectVisible={(object, extraConfig) => {
+                        isObjectVisible={(object: any, extraConfig) => {
                             if (extraConfig.mapIsRenovation) {
                                 const type =
                                     typeof object.objectType === "function"
