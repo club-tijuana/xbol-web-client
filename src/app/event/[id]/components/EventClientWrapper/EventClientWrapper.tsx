@@ -14,6 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import FavoriteButton from "@/components/FavoriteButton/FavoriteButton";
@@ -31,7 +32,9 @@ interface EventClientWrapperProps {
 export default function EventClientWrapper({
   eventId,
 }: EventClientWrapperProps) {
+  const router = useRouter();
   const [event, setEvent] = useState<EventDetailDTO | null>(null);
+
   useEffect(() => {
     async function load() {
       const eventRequest = await getEventDetail(eventId);
@@ -39,6 +42,10 @@ export default function EventClientWrapper({
     }
     load();
   }, []);
+
+  const handleSeasonRenovate = (scheduleId: number) => {
+    router.push(`/booking/${scheduleId}`);
+  }
 
   const Gallery = (
     <>
@@ -187,7 +194,11 @@ export default function EventClientWrapper({
                           alignItems="center"
                           gap={1}
                         >
-                          <Button variant="outlined" href={`/booking/${s.id}`}>
+                          <Button variant="outlined" component="div"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSeasonRenovate(s.id);
+                            }}>
                             <Typography variant="body2" py={0.3}>
                               Ver tickets
                             </Typography>
