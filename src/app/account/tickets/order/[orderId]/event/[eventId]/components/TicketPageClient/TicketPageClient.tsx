@@ -175,7 +175,7 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
                                     <Typography variant="h6" fontWeight={400} color="text" mt={2.5}>
                                         ¿Un amigo no puede acompañarte? ¿Hubo cambio de planes? ¡Conoce nuestro mercado secundario para esos tickets que no podrán ser usados!
                                     </Typography>
-                                    <Advertisement image="/assets/images/advertisement/advertisement.png" />
+                                    <Advertisement image={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/images/advertisement/advertisement.png`} />
                                 </Box>
                             </Grid>
                             <Grid size={{ lg: 7, xl: 7 }} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "block" } }} mb={3}>

@@ -27,7 +27,7 @@ export default async function SuccessPage(props: SuccessPageProps) {
 
             <Grid container columns={2} spacing={2} my={3}>
                 <Grid size={1}>
-                    <Advertisement image="/assets/images/advertisement/advertisement.png" />
+                    <Advertisement image={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/images/advertisement/advertisement.png`} />
                 </Grid>
                 <Grid size={1}>
                     <Typography variant="h2" fontWeight={400} color="primary">

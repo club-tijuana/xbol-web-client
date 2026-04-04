@@ -115,7 +115,7 @@ export default function EventClientWrapper({
       {event && (
         <FullWidthSection
           variant="imageFixedHeight"
-          image="/assets/images/separators/soccer-separator.png"
+          image={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/images/separators/soccer-separator.png`}
           height={630}
         >
           <Grid

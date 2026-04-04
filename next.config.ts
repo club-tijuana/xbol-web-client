@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  basePath: '/XBOL2/Site',
+  basePath: '/XBOL',
   output: 'standalone',
   productionBrowserSourceMaps: true,
   reactCompiler: true,
