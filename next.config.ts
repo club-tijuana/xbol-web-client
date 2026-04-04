@@ -1,29 +1,31 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  basePath: '/XBOL2/Site',
+  output: 'standalone',
+  productionBrowserSourceMaps: true,
   reactCompiler: true,
   images: {
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "media.informabtl.com",
-        pathname: "/**"
+        protocol: 'https',
+        hostname: 'media.informabtl.com',
+        pathname: '/**',
       },
       {
-        protocol: "https",
-        hostname: "www.tudn.com",
-        pathname: "/**",
+        protocol: 'https',
+        hostname: 'www.tudn.com',
+        pathname: '/**',
       },
       {
-        protocol: "https",
-        hostname: "st1.uvnimg.com",
-        pathname: "/**",
+        protocol: 'https',
+        hostname: 'st1.uvnimg.com',
+        pathname: '/**',
       },
       {
-        protocol: "https",
-        hostname: "dev.zorbek.software",
-        pathname: "/**",
+        protocol: 'https',
+        hostname: 'dev.zorbek.software',
+        pathname: '/**',
       },
     ],
   },
