@@ -22,7 +22,7 @@ import { SeatFiltersProps } from "./SeatFilters.type";
 // TODO: Specify if is Event or Season or change the property name and add a type
 export default function SeatFilters({ scheduleId, buttonText, onSectionSelected, onSectionsChange }: SeatFiltersProps) {
     const dispatch = useAppDispatch();
-    const bookingMode = useAppSelector(store => store.booking.bookMode);
+    const bookingMode = useAppSelector(store => store.bookingFlow.bookMode);
     const [filters, setFilters] = useState<ReservationFilters>({
         scheduleId: (!bookingMode || bookingMode === "event") ? scheduleId : undefined,
         seasonId: (bookingMode === "season" || bookingMode === "renovateSeason") ? scheduleId : undefined

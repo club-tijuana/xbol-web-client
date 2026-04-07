@@ -23,7 +23,6 @@ interface EventPageProps {
 export default async function EventDetailPage({ params }: EventPageProps) {
   const { id } = await params;
 
-  // TODO: Create service to get other events
   const trendingEvents = await getTrendingEvents({ page: 1, pageSize: 4 });
   const trendingEventsVM = trendingEvents.items.map(mapEventToCardVM);
 

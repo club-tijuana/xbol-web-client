@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 import { useAppSelector } from "@/store/hooks";
 
 export default function HoldTokenTimer() {
-    const holdTokenObj = useAppSelector(state => state.booking.holdTokenObj);
-    const holdTokenStatus = useAppSelector(state => state.booking.holdTokenObj?.status);
+    const holdTokenObj = useAppSelector(state => state.bookingFlow.holdTokenObj);
+    const holdTokenStatus = useAppSelector(state => state.bookingFlow.holdTokenObj?.status);
 
     const [timeLeft, setTimeLeft] = useState(
         holdTokenObj?.expiresInSeconds ?? 0

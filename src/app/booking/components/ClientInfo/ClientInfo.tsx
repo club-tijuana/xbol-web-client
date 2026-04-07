@@ -9,7 +9,7 @@ import 'react-phone-number-input/style.css'
 import { useDebounce } from "@/hooks/useDebounce";
 import { ClientInfoRequest } from "@/models/requests/client-info-request.dto";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setBookClientContact } from "@/store/slices/bookingSlice";
+import { setBookClientContact } from "@/store/slices/bookingFlowSlice";
 
 /* -------------------- CONSTANTS -------------------- */
 const DEFAULT_PHONE_COUNTRY = "MX";

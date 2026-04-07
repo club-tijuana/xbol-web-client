@@ -15,17 +15,10 @@ import { SeasonItemDTO } from "@/models/season-item.dto";
 import { getEventItemBySchedule, getSeasonById } from "@/services/bookingService";
 import { holdToken as holdTokenService } from "@/services/holdService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { setBookHoldToken, setBookKey, setBookMode, setBookTicketType, setSeats, setSeatsDto } from "@/store/slices/bookingFlowSlice";
 import {
     resetState,
-    setBookHoldToken,
-    setBookKey,
-    setBookMode,
-    setBookSeats,
-    setBookTicketType,
-    setSeats,
-    setSeatsDto,
     eventBook,
-    setBookScheduleId,
     seasonBook,
     seasonRenovate
 } from "@/store/slices/bookingSlice";
@@ -44,10 +37,13 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
     const dispatch = useAppDispatch();
     const mapRef = useRef<BookingRightPanelHandle>(null);
 
-    const eventBookObj = useAppSelector(state => state.booking.eventBookingRequest);
-    const seasonBookObj = useAppSelector(state => state.booking.seasonBookingRequest);
+    //const eventBookObj = useAppSelector(state => state.booking.eventBookingRequest);
+    //const seasonBookObj = useAppSelector(state => state.booking.seasonBookingRequest);
     const bookingState = useAppSelector(state => state.booking.status);
-    const selectedSeats = useAppSelector(store => store.booking.selectedSeats);
+    const initialSeats = useAppSelector(state => state.bookingFlow.initialSeats);
+    const selectedSeats = useAppSelector(store => store.bookingFlow.selectedSeats);
+    const renovationType = useAppSelector(store => store.bookingFlow.renovationType);
+    const clientContactObj = useAppSelector(store => store.bookingFlow.clientContact);
 
     const [event, setEvent] = useState<EventItemDTO | null>(null);
     const [season, setSeason] = useState<SeasonItemDTO | null>(null);
@@ -69,13 +65,19 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
             try {
                 setIsLoading(true);
                 let holdTokenResponse: HoldToken | undefined;
-                if (bookingMode !== "renovateSeason") {
+                if (bookingMode === "event" || bookingMode === "season" || renovationType === "changeSeats") {
                     holdTokenResponse = await holdTokenService();
                 }
 
                 let mapKeyLocal = "";
 
                 await dispatch(setBookMode(bookingMode));
+                await dispatch(setSeats([]));
+                await dispatch(setBookHoldToken({
+                    token: '',
+                    expiresInSeconds: 0,
+                    expiresAt: ''
+                }));
                 if (bookingMode === "event") {
                     const eventResponse = await getEventItemBySchedule(Number.parseInt(id));
 
@@ -90,7 +92,6 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
 
                     await dispatch(setBookTicketType(ItemType.Ticket));
                     await dispatch(setBookKey(eventResponse.eventKey));
-                    await dispatch(setBookScheduleId(Number.parseInt(id)));
                 }
                 else {
                     const seasonResponse = await getSeasonById(Number.parseInt(id));
@@ -106,12 +107,11 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
 
                     await dispatch(setBookTicketType(ItemType.SeasonPass));
                     await dispatch(setBookKey(seasonResponse.externalSeasonKey));
-                    await dispatch(setBookScheduleId(Number.parseInt(id)));
                 }
 
                 if (!isMounted) return;
 
-                if (bookingMode !== "renovateSeason") {
+                if (bookingMode === "event" || bookingMode === "season" || renovationType === "changeSeats") {
                     if (holdTokenResponse && holdTokenResponse?.token) {
                         setHoldToken(holdTokenResponse.token);
                         await dispatch(setBookHoldToken(holdTokenResponse));
@@ -119,6 +119,10 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                 }
                 else {
                     setHoldToken("");
+                }
+
+                if (bookingMode === "renovateSeason" && renovationType === "changeSeats") {
+                    dispatch(setSeats([]));
                 }
 
                 setMapKey(mapKeyLocal);
@@ -136,7 +140,7 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
         return () => {
             isMounted = false;
         };
-    }, [id, bookingMode, dispatch]);
+    }, [id, bookingMode, renovationType, dispatch]);
 
     const handleContinue = async () => {
         switch (bookingStep) {
@@ -147,7 +151,7 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                     seats = mapRef.current?.getSelectedSeats();
                 }
                 else {
-                    seats = selectedSeats;
+                    seats = (!initialSeats || initialSeats.length === 0) ? selectedSeats : initialSeats;
                 }
 
                 const seatsDto = mapRef.current?.getSelectedSeatsDto();
@@ -161,7 +165,6 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
 
                 if (seats) {
                     dispatch(setSeats(seats));
-                    dispatch(setBookSeats(seats));
                 }
 
                 if (seatsDto) {
@@ -171,76 +174,64 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                 setBookingStep("payment");
                 break;
             case "payment":
-                if (bookingMode === "event") {
-                    if (
-                        !eventBookObj?.clientContact?.firstName
-                        || !eventBookObj?.clientContact?.lastName
-                        || !eventBookObj?.clientContact?.email
-                        || !eventBookObj?.clientContact?.phoneNumber
-                    ) {
-                        setSnackbarSeverity("warning");
-                        setSnackbarMessage("Es necesario capturar la información del cliente");
-                        setOpenSnackbar(true);
-                        return;
-                    }
+                if (
+                    !clientContactObj?.firstName
+                    || !clientContactObj?.lastName
+                    || !clientContactObj?.email
+                    || !clientContactObj?.phoneNumber
+                ) {
+                    setSnackbarSeverity("warning");
+                    setSnackbarMessage("Es necesario capturar la información del cliente");
+                    setOpenSnackbar(true);
+                    return;
+                }
 
-                    const result = await dispatch(eventBook(eventBookObj));
+                if (bookingMode === "event") {
+                    const result = await dispatch(eventBook());
 
                     if (eventBook.fulfilled.match(result)) {
                         await dispatch(resetState());
                         router.push(`/account/tickets/order/${result.payload.orderId}/success`);
                     }
                     else if (eventBook.rejected.match(result)) {
-                        const message =
-                            result.payload || result.error.message || "Error al reservar el evento";
+                        //const message =
+                        //    result.payload || result.error.message || "Error al reservar el evento";
 
                         setSnackbarSeverity("error");
-                        setSnackbarMessage(message);
+                        setSnackbarMessage(""); // TODO: Get error message
                         setOpenSnackbar(true);
                     }
                 }
                 else if (bookingMode === "season" || bookingMode === "renovateSeason") {
-                    if (
-                        !seasonBookObj?.clientContact?.firstName
-                        || !seasonBookObj?.clientContact?.lastName
-                        || !seasonBookObj?.clientContact?.email
-                        || !seasonBookObj?.clientContact?.phoneNumber
-                    ) {
-                        setSnackbarSeverity("warning");
-                        setSnackbarMessage("Es necesario capturar la información del cliente");
-                        setOpenSnackbar(true);
-                        return;
-                    }
-
                     if (bookingMode === "season") {
-                        const result = await dispatch(seasonBook(seasonBookObj));
+                        const result = await dispatch(seasonBook());
 
                         if (seasonBook.fulfilled.match(result)) {
                             await dispatch(resetState());
                             router.push(`/account/tickets/order/${result.payload.orderId}/success`);
                         }
                         else if (seasonBook.rejected.match(result)) {
-                            const message =
-                                result.payload || result.error.message || "Error al reservar la temporada";
+                            //const message =
+                            //    result.payload || result.error.message || "Error al reservar la temporada";
 
                             setSnackbarSeverity("error");
-                            setSnackbarMessage(message);
+                            setSnackbarMessage(""); // TODO: Get error message
                             setOpenSnackbar(true);
                         }
                     }
                     else if (bookingMode === "renovateSeason") {
-                        const result = await dispatch(seasonRenovate(seasonBookObj));
+                        const result = await dispatch(seasonRenovate());
 
                         if (seasonRenovate.fulfilled.match(result)) {
                             await dispatch(resetState());
                             router.push(`/account/tickets/order/${result.payload.orderId}/success`);
                         }
                         else if (seasonRenovate.rejected.match(result)) {
-                            const message =
-                                result.payload || result.error.message || "Error al renovar la temporada";
+                            //const message =
+                            //    result.payload || result.error.message || "Error al renovar la temporada";
 
                             setSnackbarSeverity("error");
-                            setSnackbarMessage(message);
+                            setSnackbarMessage(""); // TODO: Get error message
                             setOpenSnackbar(true);
                         }
                     }

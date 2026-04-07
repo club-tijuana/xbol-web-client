@@ -6,7 +6,7 @@ import BookingClient from "@/app/booking/components/BookingClient/BookingClient"
 import { SeasonToRenovateDTO } from "@/models/season-to-renovate.dto";
 import { getOrderToRenovate } from "@/services/orderService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setBookMode, setSeasonRelatedOrderId, setSeats } from "@/store/slices/bookingSlice";
+import { setBookMode, setInitialSeats, setOrderLeftSeats, setRenovationType, setSeasonRelatedOrderId } from "@/store/slices/bookingFlowSlice";
 
 interface RenovationClientWrapperProps {
     orderId: number;
@@ -14,14 +14,15 @@ interface RenovationClientWrapperProps {
 
 export default function RenovationClientWrapper({ orderId }: RenovationClientWrapperProps) {
     const dispatch = useAppDispatch();
-    const selectedSeats = useAppSelector(store => store.booking.selectedSeats);
+    const initialSeats = useAppSelector(store => store.bookingFlow.initialSeats);
     const [seasonToRenovate, setSeasonToRenovate] = useState<SeasonToRenovateDTO | null>(null);
 
     useEffect(() => {
         async function loadSeason() {
             const season = await getOrderToRenovate(orderId);
 
-            await dispatch(setBookMode("renovateSeason"))
+            await dispatch(setBookMode("renovateSeason"));
+            await dispatch(setRenovationType("sameSeats"));
             await dispatch(setSeasonRelatedOrderId(orderId));
 
             if (season.previousSeatPrices) {
@@ -30,7 +31,8 @@ export default function RenovationClientWrapper({ orderId }: RenovationClientWra
                         [seat.externalSeatObjectKey, seat.priceOverride] as [string, number]
                     );
 
-                await dispatch(setSeats(prevSeats));
+                await dispatch(setInitialSeats(prevSeats));
+                await dispatch(setOrderLeftSeats(prevSeats.length));
             }
 
             setSeasonToRenovate(season);
@@ -41,7 +43,7 @@ export default function RenovationClientWrapper({ orderId }: RenovationClientWra
 
     return (
         <>
-            {(seasonToRenovate && selectedSeats) &&
+            {(seasonToRenovate && initialSeats) &&
                 <BookingClient id={seasonToRenovate.seasonId.toString()} bookingMode="renovateSeason" />
             }
         </>

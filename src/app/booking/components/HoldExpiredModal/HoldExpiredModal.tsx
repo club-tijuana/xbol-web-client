@@ -10,7 +10,7 @@ import styles from "./HoldExpiredModal.module.scss";
 
 export default function HoldExpiredModal() {
     const dispatch = useAppDispatch();
-    const holdTokenStatus = useAppSelector(state => state.booking.holdTokenObj?.status);
+    const holdTokenStatus = useAppSelector(state => state.bookingFlow.holdTokenObj?.status);
     const router = useRouter();
 
     const handleGoHome = async () => {

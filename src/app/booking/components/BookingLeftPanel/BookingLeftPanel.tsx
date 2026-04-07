@@ -20,8 +20,8 @@ interface BookingLeftPanelProps {
 }
 
 export default function BookingLeftPanel({ mapKey, scheduleId, bookingStep, onSectionSelected, onSectionsChange }: BookingLeftPanelProps) {
-    const selectedSeatsDto = useAppSelector(store => store.booking.selectedSeatsDto);
-    const selectedSeats = useAppSelector(store => store.booking.selectedSeats);
+    const selectedSeatsDto = useAppSelector(store => store.bookingFlow.selectedSeatsDto);
+    const selectedSeats = useAppSelector(store => store.bookingFlow.selectedSeats);
 
     const renderContent = () => {
         switch (bookingStep) {
