@@ -77,12 +77,12 @@ export default function HomeClientWrapper() {
 
   return (
     <Box sx={{ minHeight: "100vh" }}>
-      {mainEvents && (
+      {(mainEvents && mainEvents.items.length > 0) && (
         <FullWidthSection fullBleed={true} disableMaxWidth={true}>
           <EventCarousel events={mainEvents.items} />
         </FullWidthSection>
       )}
-      {trendingEvents && (
+      {(trendingEvents && trendingEvents.items.length > 0) && (
         <Grid container columns={12} mt={6} mb={5}>
           <Grid size={12}>
             <EventCardGrid
@@ -96,7 +96,7 @@ export default function HomeClientWrapper() {
         </Grid>
       )}
 
-      {futbolEvents && (
+      {(futbolEvents && futbolEvents.items.length > 0) && (
         <FullWidthSection
           variant="imageFull"
           image={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/images/separators/soccer-separator-light.png`}
@@ -112,7 +112,7 @@ export default function HomeClientWrapper() {
           </Box>
         </FullWidthSection>
       )}
-      {musicEvents && (
+      {(musicEvents && musicEvents.items.length > 0) && (
         <Box mt={6} mb={3}>
           <EventCardGrid
             title="Música"
@@ -127,7 +127,7 @@ export default function HomeClientWrapper() {
         <SeasonBanner seasonItem={seasonBanner} />
       }
 
-      {theaterEvents && (
+      {(theaterEvents && theaterEvents.items.length > 0) && (
         <FullWidthSection
           variant="color"
           backgroundColor={colors.brand.background}

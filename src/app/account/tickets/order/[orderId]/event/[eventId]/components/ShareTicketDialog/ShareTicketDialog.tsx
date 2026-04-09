@@ -11,7 +11,7 @@ import { OrderType } from "@/models/enums/order-type.enum";
 import { ShareTicket } from "@/models/requests/share-ticket.dto";
 import { UnshareTicket } from "@/models/requests/unshare-ticket.dto";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { share, unshare } from "@/store/slices/shareTicketSlice";
+import { resetStatus, share, unshare } from "@/store/slices/shareTicketSlice";
 
 import { ShareTicketDialogProps } from "./ShareTicketDialog.type";
 
@@ -64,10 +64,10 @@ export default function ShareTicketDialog({ ticketId, open, variant, orderType, 
     useEffect(() => {
         if (shareTicketState.status === "success") {
             if (variant === "share") {
-                onClose(`Boleto compartido con el Cliente con correo ${client.email} y teléfono ${client.phoneCode}${client.phone}`);
+                onClose(`Boleto compartido con el Cliente con correo ${client.email} y teléfono ${client.phoneCode}${client.phone}`, "success");
             }
             else if (variant === "unshare") {
-                onClose(`El boleto se ha dejado de compartir`);
+                onClose(`El boleto se ha dejado de compartir`, "success");
             }
         }
         else if (shareTicketState.status === "error") {
@@ -87,7 +87,7 @@ export default function ShareTicketDialog({ ticketId, open, variant, orderType, 
     const handleShareTicket = async () => {
         const result = await dispatch(share(client));
 
-        if (result) {
+        if (share.fulfilled.match(result)) {
             setClient({
                 ticketId: 0,
                 email: "",
@@ -96,6 +96,13 @@ export default function ShareTicketDialog({ ticketId, open, variant, orderType, 
                 phoneIsoCode: "",
                 applyToEntireSeason: false
             });
+
+            dispatch(resetStatus());
+            onClose(undefined);
+        }
+        else if (share.rejected.match(result)) {
+            dispatch(resetStatus());
+            onClose(result.payload, "error");
         }
     };
 

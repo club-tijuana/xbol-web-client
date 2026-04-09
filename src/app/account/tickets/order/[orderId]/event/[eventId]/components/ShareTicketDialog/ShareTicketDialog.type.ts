@@ -1,3 +1,5 @@
+import { AlertColor } from "@mui/material";
+
 import { OrderType } from "@/models/enums/order-type.enum";
 
 export interface ShareTicketDialogProps {
@@ -5,5 +7,5 @@ export interface ShareTicketDialogProps {
     open: boolean;
     variant: "share" | "unshare";
     orderType: OrderType;
-    onClose: (message?: string) => void;
+    onClose: (message?: string, severity?: AlertColor) => void;
 }

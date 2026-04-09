@@ -1,7 +1,7 @@
 "use client";
 
 import { BarcodeReader, GridOn } from "@mui/icons-material";
-import { Alert, Box, Button, Snackbar, Tab, Tabs, Typography } from "@mui/material";
+import { Alert, AlertColor, Box, Button, Snackbar, Tab, Tabs, Typography } from "@mui/material";
 import { SyntheticEvent, useState } from "react";
 
 import useIsVisible from "@/hooks/useIsVisible";
@@ -46,6 +46,7 @@ export default function TicketQRTabs({
     const [ticketOrderType, setTicketOrderType] = useState<OrderType>(OrderType.Ticket);
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
+    const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor | undefined>(undefined);
     const [openShare, setOpenShare] = useState(false);
     const [shareType, setShareType] = useState<"share" | "unshare">("share");
 
@@ -79,9 +80,10 @@ export default function TicketQRTabs({
         };
     }
 
-    const handleDialogClose = (message: string | undefined) => {
+    const handleDialogClose = (message: string | undefined, severity: AlertColor | undefined) => {
         if (message) {
             setSnackbarMessage(message);
+            setSnackbarSeverity(severity);
             setOpenSnackbar(true);
         }
 
@@ -157,7 +159,7 @@ export default function TicketQRTabs({
                     orderType={ticketOrderType}
                     open={openShare}
                     variant={shareType}
-                    onClose={(message) => handleDialogClose(message)}
+                    onClose={(message, severity) => handleDialogClose(message, severity)}
                 />
             }
             <Snackbar
@@ -166,7 +168,7 @@ export default function TicketQRTabs({
                 autoHideDuration={5000}>
                 <Alert
                     onClose={() => setOpenSnackbar(false)}
-                    severity="success"
+                    severity={snackbarSeverity}
                     variant="filled"
                     sx={{ width: "100%" }}>
                     {snackbarMessage}

@@ -11,6 +11,7 @@ import TicketQRCard from "../CarouselSlideQRTickets/CarouselSlideQRTicket";
 import 'swiper/css';
 import 'swiper/css/effect-cards';
 import 'swiper/css/navigation';
+
 import { CarouselQRTicketsProps } from "./CarouselQRTickets.type";
 
 export default function CarouselQRTickets({ tickets, isTabActive, onShare, onUnshare }: CarouselQRTicketsProps) {

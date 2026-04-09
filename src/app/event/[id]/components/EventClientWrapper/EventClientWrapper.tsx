@@ -21,6 +21,7 @@ import FavoriteButton from "@/components/FavoriteButton/FavoriteButton";
 import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
 import { formatCurrency } from "@/helpers/formatCurrencyHelper";
 import { formatDate } from "@/helpers/formatDateHelper";
+import { AgeRestrictionLabels } from "@/models/enums/age-restriction.enum";
 import { EventDetailDTO } from "@/models/event-detail.dto";
 import { getEventDetail } from "@/services/eventService";
 import { colors } from "@/theme/colors";
@@ -34,11 +35,16 @@ export default function EventClientWrapper({
 }: EventClientWrapperProps) {
   const router = useRouter();
   const [event, setEvent] = useState<EventDetailDTO | null>(null);
+  const [ageRestriction, setAgeRestriction] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
       const eventRequest = await getEventDetail(eventId);
       setEvent(eventRequest);
+
+      if (eventRequest.ageRestriction) {
+        setAgeRestriction(AgeRestrictionLabels[eventRequest.ageRestriction]);
+      }
     }
     load();
   }, []);
@@ -128,7 +134,7 @@ export default function EventClientWrapper({
               size={{ xs: 10, sm: 10, md: 6, lg: 5, xl: 8 }}
               offset={{ xs: 1, sm: 1, md: 0 }}
             >
-              <Typography variant="hero" color="primary">
+              <Typography variant="hero" color="primary" sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                 {event.name}
                 <LaunchRoudedIcon
                   color="neutral"
@@ -165,6 +171,8 @@ export default function EventClientWrapper({
                 {event.fullAddress}
               </Typography>
 
+
+
               <Box sx={{ display: { sm: "block", md: "none" } }} mt={4}>
                 {Gallery}
               </Box>
@@ -172,7 +180,7 @@ export default function EventClientWrapper({
               <Paper
                 elevation={3}
                 className="paperCard"
-                sx={{ mt: { xs: 0, sm: 0, md: 6 }, mb: 8 }}
+                sx={{ mt: { xs: 0, sm: 0, md: 6 }, mb: 6 }}
               >
                 <Typography variant="h3" color="primary">
                   Boletos
@@ -323,6 +331,40 @@ export default function EventClientWrapper({
                   </Accordion>
                 ))}
               </Paper>
+
+              {ageRestriction &&
+                <Box mb={3}>
+                  <Typography
+                    variant="h3"
+                    fontWeight={400}
+                    mb={1}
+                    mt={3}
+                    color="primary"
+                  >
+                    Restricciones de edad
+                  </Typography>
+                  <Typography variant="bodyLg" mb={4} color="text">
+                    {ageRestriction}
+                  </Typography>
+                </Box>
+              }
+
+              {event.securityPolicies &&
+                <Box mb={3}>
+                  <Typography
+                    variant="h3"
+                    fontWeight={400}
+                    mb={1}
+                    mt={3}
+                    color="primary"
+                  >
+                    Políticas de seguridad
+                  </Typography>
+                  <Typography variant="bodyLg" mb={4} color="text">
+                    {event.securityPolicies}
+                  </Typography>
+                </Box>
+              }
             </Grid>
             <Grid
               size={{ md: 6, lg: 7, xl: 10 }}

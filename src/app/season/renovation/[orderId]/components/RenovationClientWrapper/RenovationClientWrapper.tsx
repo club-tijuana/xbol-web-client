@@ -9,7 +9,7 @@ import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { SeasonToRenovateDTO } from "@/models/season-to-renovate.dto";
 import { getOrderToRenovate } from "@/services/orderService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setBookMode, setInitialSeats, setOrderLeftSeats, setRenovationType, setSeasonRelatedOrderId } from "@/store/slices/bookingFlowSlice";
+import { setBookHoldToken, setBookMode, setInitialSeats, setOrderLeftSeats, setRenovationType, setSeasonRelatedOrderId } from "@/store/slices/bookingFlowSlice";
 import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
 
 interface RenovationClientWrapperProps {
@@ -31,6 +31,11 @@ export default function RenovationClientWrapper({ orderId }: RenovationClientWra
                 await dispatch(setBookMode("renovateSeason"));
                 await dispatch(setRenovationType("sameSeats"));
                 await dispatch(setSeasonRelatedOrderId(orderId));
+                await dispatch(setBookHoldToken({
+                    expiresAt: "",
+                    expiresInSeconds: 0,
+                    token: ""
+                }));
 
                 if (season.previousSeatPrices) {
                     const prevSeats = season.previousSeatPrices
