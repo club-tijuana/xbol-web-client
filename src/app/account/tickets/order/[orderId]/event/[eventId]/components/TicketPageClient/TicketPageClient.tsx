@@ -11,6 +11,7 @@ import FAQ from "@/components/FAQ/FAQ";
 import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
 import Loader from "@/components/Loader/Loader";
 import { formatDate } from "@/helpers/formatDateHelper";
+import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { MyEventDetailDTO } from "@/models/my-event-detail.dto";
 import { MyTicketDto } from "@/models/my-ticket.dto";
 import { PagedResponse } from "@/models/pagination/paged-response.dto";
@@ -18,6 +19,7 @@ import { getMyEventDetail, getMyEventTickets } from "@/services/accountService";
 import { store } from "@/store";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { resetStatus } from "@/store/slices/shareTicketSlice";
+import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
 import { colors } from "@/theme/colors";
 
 import TicketQRTabs from "../TicketQRTabs/TicketQRTabs";
@@ -54,6 +56,7 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
     const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
     const [snackbarMessage, setSnackbarMessage] = useState<string>("");
     const status = useAppSelector(store => store.shareTicket.status);
+    const generalMessage = useAppSelector(state => state.ui.generalMessage);
     const dispatch = useAppDispatch();
 
     useEffect(() => {
@@ -79,7 +82,12 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
                     router.push(`/account/tickets`);
                 }
             }
-            catch {
+            catch (error) {
+                dispatch(showGeneralMessage({
+                    message: getErrorMessage(error),
+                    severity: "error"
+                }));
+
                 router.push(`/account/tickets`);
             }
         }
@@ -221,6 +229,19 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
                     variant="filled"
                     sx={{ width: "100%" }}>
                     {snackbarMessage}
+                </Alert>
+            </Snackbar>
+
+            <Snackbar
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                open={!!generalMessage.message}
+                autoHideDuration={4000}
+                onClose={() => dispatch(clearGeneralMessage())}>
+                <Alert
+                    severity={generalMessage.severity}
+                    variant="filled"
+                    sx={{ width: "100%" }}>
+                    {generalMessage.message}
                 </Alert>
             </Snackbar>
 

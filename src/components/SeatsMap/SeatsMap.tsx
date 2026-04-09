@@ -129,7 +129,7 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
             chartRef.current = chart;
 
             if (selectedSection) chart.zoomToSection(selectedSection);
-            if (initialSeats) chart.zoomToObjects(initialSeats.map(s => s[0]));
+            //if (initialSeats) chart.zoomToObjects(initialSeats.map(s => s[0]));
 
             if (!initializedRef.current && initialSeats && initialSeats.length > 0) {
                 initializedRef.current = true;

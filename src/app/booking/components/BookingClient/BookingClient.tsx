@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
 
 import Loader from "@/components/Loader/Loader";
 import { formatDate } from "@/helpers/formatDateHelper";
+import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { ItemType } from "@/models/enums/item-type.enum";
 import { EventItemDTO } from "@/models/event-item.dto";
 import { SeasonItemDTO } from "@/models/season-item.dto";
@@ -22,6 +23,7 @@ import {
     seasonBook,
     seasonRenovate
 } from "@/store/slices/bookingSlice";
+import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
 import { BookingStep } from "@/types/bookingStep";
 
 import BookingLeftPanel from "../BookingLeftPanel/BookingLeftPanel";
@@ -39,6 +41,7 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
 
     //const eventBookObj = useAppSelector(state => state.booking.eventBookingRequest);
     //const seasonBookObj = useAppSelector(state => state.booking.seasonBookingRequest);
+    const generalMessage = useAppSelector(state => state.ui.generalMessage);
     const bookingState = useAppSelector(state => state.booking.status);
     const initialSeats = useAppSelector(state => state.bookingFlow.initialSeats);
     const selectedSeats = useAppSelector(store => store.bookingFlow.selectedSeats);
@@ -79,34 +82,54 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                     expiresAt: ''
                 }));
                 if (bookingMode === "event") {
-                    const eventResponse = await getEventItemBySchedule(Number.parseInt(id));
+                    try {
+                        const eventResponse = await getEventItemBySchedule(Number.parseInt(id));
 
-                    if (!eventResponse.eventKey) return;
+                        if (!eventResponse.eventKey) return;
 
-                    mapKeyLocal = eventResponse.eventKey;
+                        mapKeyLocal = eventResponse.eventKey;
 
-                    if (!isMounted) return;
+                        if (!isMounted) return;
 
-                    setEvent(eventResponse);
-                    setFormattedDate(formatDate(eventResponse.startDate, "dateTime"));
+                        setEvent(eventResponse);
+                        setFormattedDate(formatDate(eventResponse.startDate, "dateTime"));
 
-                    await dispatch(setBookTicketType(ItemType.Ticket));
-                    await dispatch(setBookKey(eventResponse.eventKey));
+                        await dispatch(setBookTicketType(ItemType.Ticket));
+                        await dispatch(setBookKey(eventResponse.eventKey));
+                    }
+                    catch (error) {
+                        dispatch(resetState());
+                        dispatch(showGeneralMessage({
+                            message: getErrorMessage(error),
+                            severity: "error"
+                        }));
+                        router.push("/");
+                    }
                 }
                 else {
-                    const seasonResponse = await getSeasonById(Number.parseInt(id));
+                    try {
+                        const seasonResponse = await getSeasonById(Number.parseInt(id));
 
-                    if (!seasonResponse.externalSeasonKey) return;
+                        if (!seasonResponse.externalSeasonKey) return;
 
-                    mapKeyLocal = seasonResponse.externalSeasonKey;
+                        mapKeyLocal = seasonResponse.externalSeasonKey;
 
-                    if (!isMounted) return;
+                        if (!isMounted) return;
 
-                    setSeason(seasonResponse);
-                    setFormattedDate(formatDate(seasonResponse.startDate, "dateTime"));
+                        setSeason(seasonResponse);
+                        setFormattedDate(formatDate(seasonResponse.startDate, "dateTime"));
 
-                    await dispatch(setBookTicketType(ItemType.SeasonPass));
-                    await dispatch(setBookKey(seasonResponse.externalSeasonKey));
+                        await dispatch(setBookTicketType(ItemType.SeasonPass));
+                        await dispatch(setBookKey(seasonResponse.externalSeasonKey));
+                    }
+                    catch (error) {
+                        dispatch(resetState());
+                        dispatch(showGeneralMessage({
+                            message: getErrorMessage(error),
+                            severity: "error"
+                        }));
+                        router.push("/");
+                    }
                 }
 
                 if (!isMounted) return;
@@ -127,8 +150,13 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
 
                 setMapKey(mapKeyLocal);
 
-            } catch (err) {
-                console.error(err);
+            } catch (error) {
+                dispatch(showGeneralMessage({
+                    message: getErrorMessage(error),
+                    severity: "error"
+                }));
+
+                router.push("/");
             }
             finally {
                 setIsLoading(false);
@@ -194,11 +222,13 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                         router.push(`/account/tickets/order/${result.payload.orderId}/success`);
                     }
                     else if (eventBook.rejected.match(result)) {
-                        //const message =
-                        //    result.payload || result.error.message || "Error al reservar el evento";
+                        const message =
+                            (result.payload as string) ||
+                            result.error.message ||
+                            "Error al reservar el evento";
 
                         setSnackbarSeverity("error");
-                        setSnackbarMessage(""); // TODO: Get error message
+                        setSnackbarMessage(message);
                         setOpenSnackbar(true);
                     }
                 }
@@ -211,11 +241,13 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                             router.push(`/account/tickets/order/${result.payload.orderId}/success`);
                         }
                         else if (seasonBook.rejected.match(result)) {
-                            //const message =
-                            //    result.payload || result.error.message || "Error al reservar la temporada";
+                            const message =
+                                (result.payload as string) ||
+                                result.error.message ||
+                                "Error al reservar la temporada";
 
                             setSnackbarSeverity("error");
-                            setSnackbarMessage(""); // TODO: Get error message
+                            setSnackbarMessage(message);
                             setOpenSnackbar(true);
                         }
                     }
@@ -227,11 +259,13 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                             router.push(`/account/tickets/order/${result.payload.orderId}/success`);
                         }
                         else if (seasonRenovate.rejected.match(result)) {
-                            //const message =
-                            //    result.payload || result.error.message || "Error al renovar la temporada";
+                            const message =
+                                (result.payload as string) ||
+                                result.error.message ||
+                                "Error al renovar la temporada";
 
                             setSnackbarSeverity("error");
-                            setSnackbarMessage(""); // TODO: Get error message
+                            setSnackbarMessage(message);
                             setOpenSnackbar(true);
                         }
                     }
@@ -304,7 +338,8 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                 }
                 <BookingLeftPanel
                     mapKey={mapKey}
-                    scheduleId={Number(id)}
+                    scheduleId={bookingMode === "event" ? Number(id) : undefined}
+                    seasonId={bookingMode !== "event" ? Number(id) : undefined}
                     bookingStep={bookingStep}
                     onSectionSelected={(section) => { setSelectedSection(section); }}
                     onSectionsChange={setSectionsPrices}
@@ -354,6 +389,19 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                     variant="filled"
                     sx={{ width: "100%" }}>
                     {snackbarMessage}
+                </Alert>
+            </Snackbar>
+
+            <Snackbar
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                open={!!generalMessage.message}
+                autoHideDuration={4000}
+                onClose={() => dispatch(clearGeneralMessage())}>
+                <Alert
+                    severity={generalMessage.severity}
+                    variant="filled"
+                    sx={{ width: "100%" }}>
+                    {generalMessage.message}
                 </Alert>
             </Snackbar>
             <Loader isLoading={(bookingState === "loading" || isLoading)} />

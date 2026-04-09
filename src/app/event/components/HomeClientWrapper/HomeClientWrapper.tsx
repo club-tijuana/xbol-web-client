@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Grid } from "@mui/material";
+import { Alert, Box, Grid, Snackbar } from "@mui/material";
 import { useEffect, useState } from "react";
 
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
@@ -8,6 +8,7 @@ import EventCarousel from "@/components/EventCarousel/EventCarousel";
 import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
 import Loader from "@/components/Loader/Loader";
 import SeasonBanner from "@/components/SeasonBanner/SeasonBanner";
+import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { EventItemDTO, mapEventToCardVM } from "@/models/event-item.dto";
 import { PagedResponse } from "@/models/pagination/paged-response.dto";
 import { SeasonItemDTO } from "@/models/season-item.dto";
@@ -17,9 +18,13 @@ import {
   getTrendingEvents,
 } from "@/services/eventService";
 import { getSeasonBanner } from "@/services/seasonService";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
 import { colors } from "@/theme/colors";
 
 export default function HomeClientWrapper() {
+  const dispatch = useAppDispatch();
+  const generalMessage = useAppSelector(state => state.ui.generalMessage);
   const [mainEvents, setMainEvents] = useState<PagedResponse<EventItemDTO>>();
   const [trendingEvents, setTrendingEvents] =
     useState<PagedResponse<EventItemDTO>>();
@@ -58,7 +63,10 @@ export default function HomeClientWrapper() {
         setTheaterEvents(theaterResponse);
         setSeasonBanner(seasonResponse);
       } catch (error) {
-        console.error("Error loading home data:", error);
+        dispatch(showGeneralMessage({
+          message: getErrorMessage(error),
+          severity: "error"
+        }));
       } finally {
         setIsLoading(false);
       }
@@ -137,6 +145,18 @@ export default function HomeClientWrapper() {
         </FullWidthSection>
       )}
 
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        open={!!generalMessage.message}
+        autoHideDuration={4000}
+        onClose={() => dispatch(clearGeneralMessage())}>
+        <Alert
+          severity={generalMessage.severity}
+          variant="filled"
+          sx={{ width: "100%" }}>
+          {generalMessage.message}
+        </Alert>
+      </Snackbar>
       <Loader isLoading={isLoading} />
     </Box>
   );

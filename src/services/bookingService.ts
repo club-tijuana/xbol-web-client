@@ -7,6 +7,7 @@ import { SeasonBookingRequest } from "@/models/requests/season-booking-request.d
 import { SeasonItemDTO } from "@/models/season-item.dto";
 import { SeatAvailabilityDTO } from "@/models/seat-availability.dto";
 import { ZoneDTO } from "@/models/zone.dto";
+import { store } from "@/store";
 
 const PATH: string = "bookings";
 
@@ -14,6 +15,13 @@ export async function getZonesBySchedule(scheduleId: number): Promise<ZoneDTO[]>
     return requestAxios<null, ZoneDTO[]>(
         "GET",
         `${PATH}/zones-by-schedule/${scheduleId}`
+    );
+}
+
+export async function getZonesBySeason(seasonId: number): Promise<ZoneDTO[]> {
+    return requestAxios<null, ZoneDTO[]>(
+        "GET",
+        `${PATH}/zones-by-season/${seasonId}`
     );
 }
 
@@ -25,9 +33,13 @@ export async function getEventItemBySchedule(scheduleId: number): Promise<EventI
 }
 
 export async function getSeasonById(seasonId: number): Promise<SeasonItemDTO> {
+    const state = store.getState();
+
     return requestAxios<null, SeasonItemDTO>(
         "GET",
-        `${PATH}/season-by-id/${seasonId}`
+        `${PATH}/season-by-id/${seasonId}`,
+        undefined,
+        state.auth.user?.token
     );
 }
 

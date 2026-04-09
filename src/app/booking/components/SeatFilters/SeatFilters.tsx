@@ -6,21 +6,22 @@ import { useCallback, useEffect, useState } from "react";
 
 import Loader from "@/components/Loader/Loader";
 import { formatCurrency } from "@/helpers/formatCurrencyHelper";
+import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { useDebounce } from "@/hooks/useDebounce";
 import { PriceRange, ReservationFilters } from "@/models/filters/reservation-filters.dto";
 import { SectionDTO } from "@/models/section.dto";
 import { ZoneDTO } from "@/models/zone.dto";
-import { getSeatsAvailability, getZonesBySchedule } from "@/services/bookingService";
+import { getSeatsAvailability, getZonesBySchedule, getZonesBySeason } from "@/services/bookingService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { resetFilters } from "@/store/slices/eventsFilterSlice";
+import { showGeneralMessage } from "@/store/slices/uiSlice";
 import { mapPricing } from "@/utils/mappers/seatsSectionPrices.mapper";
 
 import PriceRangeFilter from "../PriceRangeFilter/PriceRangeFilter";
 
 import { SeatFiltersProps } from "./SeatFilters.type";
 
-// TODO: Specify if is Event or Season or change the property name and add a type
-export default function SeatFilters({ scheduleId, buttonText, onSectionSelected, onSectionsChange }: SeatFiltersProps) {
+export default function SeatFilters({ scheduleId, seasonId, buttonText, onSectionSelected, onSectionsChange }: SeatFiltersProps) {
     const dispatch = useAppDispatch();
     const bookingMode = useAppSelector(store => store.bookingFlow.bookMode);
     const [filters, setFilters] = useState<ReservationFilters>({
@@ -36,11 +37,20 @@ export default function SeatFilters({ scheduleId, buttonText, onSectionSelected,
     useEffect(() => {
         const loadZones = async () => {
             try {
-                const result = await getZonesBySchedule(scheduleId);
-                setZones(result);
+                if (scheduleId) {
+                    const result = await getZonesBySchedule(scheduleId);
+                    setZones(result);
+                }
+                else if (seasonId) {
+                    const result = await getZonesBySeason(seasonId);
+                    setZones(result);
+                }
             }
-            catch {
-                // TODO: Implement error handler
+            catch (error) {
+                dispatch(showGeneralMessage({
+                    message: getErrorMessage(error),
+                    severity: "error"
+                }));
             }
         };
 
@@ -49,15 +59,15 @@ export default function SeatFilters({ scheduleId, buttonText, onSectionSelected,
         return () => {
             dispatch(resetFilters());
         }
-    }, [scheduleId, dispatch]);
+    }, [scheduleId, seasonId, dispatch]);
 
     useEffect(() => {
         setFilters(prev => ({
             ...prev,
             scheduleId: (!bookingMode || bookingMode === "event") ? scheduleId : undefined,
-            seasonId: (bookingMode === "season" || bookingMode === "renovateSeason") ? scheduleId : undefined
+            seasonId: (bookingMode === "season" || bookingMode === "renovateSeason") ? seasonId : undefined
         }))
-    }, [bookingMode, scheduleId]);
+    }, [bookingMode, scheduleId, seasonId]);
 
     useEffect(() => {
         const loadSections = async () => {
@@ -73,8 +83,11 @@ export default function SeatFilters({ scheduleId, buttonText, onSectionSelected,
                     }
                 }
             }
-            catch {
-                // TODO: Implement error handler
+            catch (error) {
+                dispatch(showGeneralMessage({
+                    message: getErrorMessage(error),
+                    severity: "error"
+                }));
             }
             finally {
                 setLoading(false);

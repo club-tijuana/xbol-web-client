@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
+import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { EventBookingRequest } from "@/models/requests/event-booking-request.dto";
 import { SeasonBookingRequest } from "@/models/requests/season-booking-request.dto";
 import { eventBookSeats, seasonBookSeats, seasonRenovationSeats } from "@/services/bookingService";
@@ -54,14 +55,10 @@ export const eventBook = createAsyncThunk(
             const response = await eventBookSeats(request);
             return response;
         }
-        catch (error: unknown) {
-            let message = "Error al reservar los asientos";
-
-            if (error instanceof Error) {
-                message = error.message;
-            }
-
-            return thunkAPI.rejectWithValue(message);
+        catch (error) {
+            return thunkAPI.rejectWithValue(
+                getErrorMessage(error, "Error al reservar los asientos del evento")
+            );
         }
     }
 );
@@ -76,14 +73,10 @@ export const seasonBook = createAsyncThunk(
             const response = await seasonBookSeats(request);
             return response;
         }
-        catch (error: unknown) {
-            let message = "Error al reservar los asientos";
-
-            if (error instanceof Error) {
-                message = error.message;
-            }
-
-            return thunkAPI.rejectWithValue(message);
+        catch (error) {
+            return thunkAPI.rejectWithValue(
+                getErrorMessage(error, "Error al reservar los asientos de la temporada")
+            );
         }
     }
 );
@@ -98,14 +91,10 @@ export const seasonRenovate = createAsyncThunk(
             const response = await seasonRenovationSeats(request);
             return response;
         }
-        catch (error: unknown) {
-            let message = "Error al renovar la temporada";
-
-            if (error instanceof Error) {
-                message = error.message;
-            }
-
-            return thunkAPI.rejectWithValue(message);
+        catch (error) {
+            return thunkAPI.rejectWithValue(
+                getErrorMessage(error, "Error al renovar los asientos de la temporada")
+            );
         }
     }
 );

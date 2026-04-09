@@ -4,14 +4,17 @@ import { Box, Button, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
+import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { EventItemDTO, mapEventToCardVM } from "@/models/event-item.dto";
 import { getClientFavorites } from "@/services/clientFavoriteEventService";
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { showGeneralMessage } from "@/store/slices/uiSlice";
 
 //----------- CONSTANTS -------------
 const PAGE_SIZE: number = 9;
 
 export default function FavouritesClientWrapper() {
+    const dispatch = useAppDispatch();
     const favouriteIds = useAppSelector(
         state => state.favouriteEvents.eventIds
     );
@@ -35,7 +38,12 @@ export default function FavouritesClientWrapper() {
             if (response) {
                 setFavouriteEvents(prev => [...(prev ?? []), ...response.items]);
             }
-        } catch { }
+        } catch (error) {
+            dispatch(showGeneralMessage({
+                message: getErrorMessage(error),
+                severity: "error"
+            }));
+        }
     };
 
     useEffect(() => {
@@ -47,7 +55,12 @@ export default function FavouritesClientWrapper() {
                     setTotalPages(response.totalPages);
                     setFavouriteEvents(response.items);
                 }
-            } catch { }
+            } catch (error) {
+                dispatch(showGeneralMessage({
+                    message: getErrorMessage(error),
+                    severity: "error"
+                }));
+            }
         };
 
         load();

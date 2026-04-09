@@ -12,14 +12,15 @@ import SeatFilters from "../SeatFilters/SeatFilters";
 
 interface BookingLeftPanelProps {
     mapKey: string;
-    scheduleId: number;
+    scheduleId?: number;
+    seasonId?: number;
     bookingStep: BookingStep;
 
     onSectionSelected?: (section: string) => void;
     onSectionsChange?: (pricing: Pricing) => void;
 }
 
-export default function BookingLeftPanel({ mapKey, scheduleId, bookingStep, onSectionSelected, onSectionsChange }: BookingLeftPanelProps) {
+export default function BookingLeftPanel({ mapKey, scheduleId, seasonId, bookingStep, onSectionSelected, onSectionsChange }: BookingLeftPanelProps) {
     const selectedSeatsDto = useAppSelector(store => store.bookingFlow.selectedSeatsDto);
     const selectedSeats = useAppSelector(store => store.bookingFlow.selectedSeats);
 
@@ -28,7 +29,8 @@ export default function BookingLeftPanel({ mapKey, scheduleId, bookingStep, onSe
             case "selection":
                 return (
                     <SeatFilters
-                        scheduleId={Number(scheduleId)}
+                        scheduleId={scheduleId}
+                        seasonId={seasonId}
                         onSectionSelected={onSectionSelected}
                         onSectionsChange={onSectionsChange}
                         buttonText="Ver"

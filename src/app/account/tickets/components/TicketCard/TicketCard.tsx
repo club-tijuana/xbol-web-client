@@ -73,18 +73,20 @@ export default function TicketCard({ ticket }: TicketCardProps) {
                         </Typography>
 
                         <CardActions sx={{ justifyContent: "space-around" }}>
-                            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                <IconButton
-                                    aria-label="Ver"
-                                    color="primary"
-                                    onClick={handleOpenTicket}
-                                >
-                                    <VisibilityOutlined sx={{ fontSize: 40 }} />
-                                </IconButton>
-                                <Typography variant="bodyXs" color="neutral">
-                                    Ver
-                                </Typography>
-                            </Box>
+                            {!ticket.isPastEvent &&
+                                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                    <IconButton
+                                        aria-label="Ver"
+                                        color="primary"
+                                        onClick={handleOpenTicket}
+                                    >
+                                        <VisibilityOutlined sx={{ fontSize: 40 }} />
+                                    </IconButton>
+                                    <Typography variant="bodyXs" color="neutral">
+                                        Ver
+                                    </Typography>
+                                </Box>
+                            }
                             {(ticket.isSeasonPass && ticket.canRenovateSeasonPass) &&
                                 <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                                     <IconButton

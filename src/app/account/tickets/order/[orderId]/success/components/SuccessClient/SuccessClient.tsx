@@ -1,16 +1,19 @@
 "use client";
 
 import { CalendarTodayOutlined, LocationOnOutlined } from "@mui/icons-material";
-import { Box, Grid, Typography } from "@mui/material";
+import { Alert, Box, Grid, Snackbar, Typography } from "@mui/material";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
 import Loader from "@/components/Loader/Loader";
 import { formatDate } from "@/helpers/formatDateHelper";
+import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { OrderType } from "@/models/enums/order-type.enum";
 import { OrderDTO } from "@/models/order.dto";
 import { SeatDTO } from "@/models/seat.dto";
 import { getOrderSuccess } from "@/services/orderService";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
 
 import TicketSeats from "../../../event/[eventId]/components/TicketSeats/TicketSeats";
 
@@ -21,6 +24,8 @@ interface SuccessClientProps {
 }
 
 export default function SuccessClient({ orderId }: SuccessClientProps) {
+    const dispatch = useAppDispatch();
+    const generalMessage = useAppSelector(state => state.ui.generalMessage);
     const [order, setOrder] = useState<OrderDTO | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [formattedDate, setFormattedDatte] = useState<string>("");
@@ -42,8 +47,11 @@ export default function SuccessClient({ orderId }: SuccessClientProps) {
                 setFormattedDatte(formatDate(response.itemStartDate, "dateTime"))
 
             }
-            catch {
-                // TODO: Handle error
+            catch (error) {
+                dispatch(showGeneralMessage({
+                    message: getErrorMessage(error),
+                    severity: "error"
+                }));
             }
             finally {
                 setIsLoading(false);
@@ -129,6 +137,19 @@ export default function SuccessClient({ orderId }: SuccessClientProps) {
                 </Grid>
             }
             <Loader isLoading={isLoading} />
+
+            <Snackbar
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                open={!!generalMessage.message}
+                autoHideDuration={4000}
+                onClose={() => dispatch(clearGeneralMessage())}>
+                <Alert
+                    severity={generalMessage.severity}
+                    variant="filled"
+                    sx={{ width: "100%" }}>
+                    {generalMessage.message}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 }

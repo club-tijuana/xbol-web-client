@@ -5,11 +5,13 @@ import { Accordion, AccordionDetails, AccordionSummary, Box, Checkbox, Chip, For
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { useEffect, useRef, useState } from "react";
 
+import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { useDebounce } from "@/hooks/useDebounce";
 import { EventCategoryDTO } from "@/models/event-category.dto";
 import { getEventCategories } from "@/services/eventService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setCategories, setRangeDateFrom, setRangeDateTo, setTextFilter, setTrendingEvents } from "@/store/slices/eventsFilterSlice";
+import { showGeneralMessage } from "@/store/slices/uiSlice";
 
 export default function AccordionFilters() {
     const isMounted = useRef(false);
@@ -36,8 +38,11 @@ export default function AccordionFilters() {
                 const result = await getEventCategories();
                 setCategoriesDto(result);
             }
-            catch {
-                // TODO: Implement error handler
+            catch (error) {
+                dispatch(showGeneralMessage({
+                    message: getErrorMessage(error),
+                    severity: "error"
+                }));
             }
         };
 

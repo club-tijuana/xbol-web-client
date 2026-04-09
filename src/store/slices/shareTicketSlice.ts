@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
 
+import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { MyTicketDto } from "@/models/my-ticket.dto";
 import { ShareTicket } from "@/models/requests/share-ticket.dto";
 import { UnshareTicket } from "@/models/requests/unshare-ticket.dto";
@@ -27,36 +27,10 @@ export const share = createAsyncThunk<
         try {
             const response = await shareTicket(payload);
             return response;
-        } catch (error: unknown) { // TODO: Make it a generic handler
-            let message = "Error al compartir ticket";
-
-            if (axios.isAxiosError(error)) {
-                const data = error.response?.data;
-
-                if (typeof data === "string") {
-                    message = data;
-                } else if (
-                    typeof data === "object" &&
-                    data !== null &&
-                    "message" in data &&
-                    typeof (data as { message?: unknown }).message === "string"
-                ) {
-                    message = (data as { message: string }).message;
-                } else if (
-                    typeof data === "object" &&
-                    data !== null &&
-                    "title" in data &&
-                    typeof (data as { title?: unknown }).title === "string"
-                ) {
-                    message = (data as { title: string }).title;
-                } else {
-                    message = error.message;
-                }
-            } else if (error instanceof Error) {
-                message = error.message;
-            }
-
-            return thunkAPI.rejectWithValue(message);
+        } catch (error) {
+            return thunkAPI.rejectWithValue(
+                getErrorMessage(error, "Error al compartir ticket")
+            );
         }
     }
 );
@@ -72,14 +46,10 @@ export const unshare = createAsyncThunk<
             await unshareTicket(payload);
             return;
         }
-        catch (error: unknown) {
-            let message = "Error al dejar de compartir ticket";
-
-            if (error instanceof Error) {
-                message = error.message;
-            }
-
-            return thunkAPI.rejectWithValue(message);
+        catch (error) {
+            return thunkAPI.rejectWithValue(
+                getErrorMessage(error, "Error al dejar de compartir ticket")
+            );
         }
     }
 );

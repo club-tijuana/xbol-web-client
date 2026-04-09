@@ -1,11 +1,12 @@
 "use client";
 
 import { HighlightOffRounded } from "@mui/icons-material";
-import { Box, Button, Card, CardActionArea, CardContent, CardMedia, Grid, IconButton, Skeleton, Typography } from "@mui/material";
+import { Alert, Box, Button, Card, CardActionArea, CardContent, CardMedia, Grid, IconButton, Skeleton, Snackbar, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
+import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { PagedResponse } from "@/models/pagination/paged-response.dto";
 import { PerformerDTO } from "@/models/performer.dto";
 import { mapScheduleToCardVM, ScheduleItemDTO } from "@/models/schedule-item.dto";
@@ -18,6 +19,7 @@ import {
     setTextFilter,
     setPerformerId,
 } from "@/store/slices/eventsFilterSlice";
+import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
 
 import AccordionFilters from "../AccordionFilters/AccordionFilters";
 
@@ -25,6 +27,7 @@ export default function EventsSearch() {
     const dispatch = useAppDispatch();
     const isMounted = useRef(false);
     const router = useRouter();
+    const generalMessage = useAppSelector(state => state.ui.generalMessage);
     const filters = useAppSelector(store => store.eventsFilters.filters);
     const [currentPage, setCurrentPage] = useState<PagedResponse<ScheduleItemDTO>>();
     const [schedules, setSchedules] = useState<EventCardVM[]>([]);
@@ -62,8 +65,11 @@ export default function EventsSearch() {
 
                 setCurrentPage(result.pagedEvents);
             }
-            catch {
-                // TODO: Implement error handler
+            catch (error) {
+                dispatch(showGeneralMessage({
+                    message: getErrorMessage(error),
+                    severity: "error"
+                }));
             }
             finally {
                 setIsLoading(false);
@@ -179,6 +185,19 @@ export default function EventsSearch() {
                     </Typography>
                 </Button>
             }
+
+            <Snackbar
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                open={!!generalMessage.message}
+                autoHideDuration={4000}
+                onClose={() => dispatch(clearGeneralMessage())}>
+                <Alert
+                    severity={generalMessage.severity}
+                    variant="filled"
+                    sx={{ width: "100%" }}>
+                    {generalMessage.message}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 }
