@@ -41,7 +41,7 @@ const getSeasonBookingRequest = (state: RootState): SeasonBookingRequest => {
         clientContact: flow.clientContact!,
         paymentInfoRequest: flow.paymentInfo!,
         holdToken: flow.holdTokenObj?.token,
-        refereceOrderId: flow.referenceOrderId!
+        referenceOrderId: flow.referenceOrderId!
     }
 }
 

@@ -12,7 +12,7 @@ export default function Footer() {
                 <Grid size={{ xs: 12, sm: 6, md: 3, lg: 3, xl: 4 }} className={styles.logoContainer}>
                     <div className={styles.logoContainer}>
                         <Image
-                            src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/logo.png`}
+                            src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/logo.svg`}
                             alt="Logo"
                             objectFit="contain"
                             width={231}
