@@ -44,3 +44,5 @@ export default async function SuccessPage(props: SuccessPageProps) {
         </Box>
     );
 }
+
+export const dynamic = 'force-dynamic';
