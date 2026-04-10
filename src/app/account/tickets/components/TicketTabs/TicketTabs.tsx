@@ -2,6 +2,7 @@
 
 import { Box, Tab, Tabs, useMediaQuery } from "@mui/material";
 import { SyntheticEvent, useState } from "react";
+import { Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { colors } from "@/theme/colors";
@@ -13,6 +14,7 @@ import { TicketTabsProps } from "./TicketTabs.type";
 
 import 'swiper/css';
 import 'swiper/css/pagination';
+import 'swiper/css/navigation';
 
 /* -------------------- CONSTANTS -------------------- */
 const SLIDES_PER_VIEW = {
@@ -133,9 +135,11 @@ export default function TicketTabs({
             {tabs.map((tabKey, index) => (
                 <CustomTabPanel key={tabKey} value={value} index={index}>
                     <Swiper
+                        modules={[Navigation, Pagination]}
                         slidesPerView={slidesPerView}
                         spaceBetween={20}
                         pagination={{ clickable: true }}
+                        navigation
                     >
                         {getTicketsForTab(tabKey).map((ticket, i) => (
                             <SwiperSlide key={`ticket-${i}`}>

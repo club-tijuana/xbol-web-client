@@ -135,3 +135,17 @@ nav {
 input[type="tel"] {
     background-color: white;
 }
+
+.swiper .swiper-button-next,
+.swiper .swiper-button-prev {
+    color: #fa0;
+}
+
+.swiper .swiper-pagination-bullet {
+    background-color: var(--color-text-muted);
+    opacity: 1;
+}
+
+.swiper .swiper-pagination-bullet-active {
+    background-color: #fa0;
+}
