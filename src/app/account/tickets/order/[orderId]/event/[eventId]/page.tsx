@@ -24,3 +24,5 @@ export default async function TicketPage(props: TicketPageProps) {
         />
     );
 }
+
+export const dynamic = 'force-dynamic';
