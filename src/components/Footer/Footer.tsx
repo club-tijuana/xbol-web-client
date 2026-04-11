@@ -12,7 +12,7 @@ export default function Footer() {
                 <Grid size={{ xs: 12, sm: 6, md: 3, lg: 3, xl: 4 }} className={styles.logoContainer}>
                     <div className={styles.logoContainer}>
                         <Image
-                            src="/assets/logo.png"
+                            src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/logo.svg`}
                             alt="Logo"
                             objectFit="contain"
                             width={231}
@@ -43,25 +43,25 @@ export default function Footer() {
                         <Grid size={12} >
                             <div className={styles.iconContainer}>
                                 <Image
-                                    src="/assets/icons/facebook-icon.svg"
+                                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/facebook-icon.svg`}
                                     alt="Facebook"
                                     width={23}
                                     height={23}
                                 />
                                 <Image
-                                    src="/assets/icons/x-icon.svg"
+                                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/x-icon.svg`}
                                     alt="X"
                                     width={23}
                                     height={23}
                                 />
                                 <Image
-                                    src="/assets/icons/instagram-icon.svg"
+                                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/instagram-icon.svg`}
                                     alt="Instagram"
                                     width={23}
                                     height={23}
                                 />
                                 <Image
-                                    src="/assets/icons/youtube-icon.svg"
+                                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/youtube-icon.svg`}
                                     alt="YouTube"
                                     width={23}
                                     height={23}
@@ -71,13 +71,13 @@ export default function Footer() {
                         <Grid size={12} >
                             <div className={styles.downloadContainer}>
                                 <Image
-                                    src="/assets/icons/google-play.svg"
+                                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/google-play.svg`}
                                     alt="YouTube"
                                     width={145}
                                     height={43}
                                 />
                                 <Image
-                                    src="/assets/icons/app-store.svg"
+                                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/app-store.svg`}
                                     alt="YouTube"
                                     width={145}
                                     height={43}

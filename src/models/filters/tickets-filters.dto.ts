@@ -1,8 +1,8 @@
 import { OrderType } from "../enums/order-type.enum";
 
-import { BaseFilters } from "./base-filters.dto";
+import { PaginationFilters } from "./pagination-filters.dto";
 
-export interface TicketsFilters extends BaseFilters {
+export interface TicketsFilters extends PaginationFilters {
     orderType?: OrderType,
     orderId?: number,
     eventId?: number

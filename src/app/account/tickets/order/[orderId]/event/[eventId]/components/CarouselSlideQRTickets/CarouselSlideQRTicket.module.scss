@@ -1,0 +1,21 @@
+.card {
+    border-radius: 10px !important;
+    margin-bottom: 3;
+}
+
+.cardContent {
+    padding: 0 !important;
+    position: relative !important;
+    border-radius: 10px !important;
+    height: 348px;
+    display: grid;
+}
+
+.cardInfo {
+    text-align: center;
+    padding-bottom: 2;
+    z-index: 2;
+    justify-self: center;
+    align-self: flex-end;
+    bottom: 30;
+}

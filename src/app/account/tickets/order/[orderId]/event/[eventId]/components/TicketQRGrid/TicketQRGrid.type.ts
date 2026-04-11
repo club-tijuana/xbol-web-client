@@ -8,4 +8,7 @@ export interface TicketQRGridProps {
 
     title?: string;
     tickets: MyTicketDto[];
+
+    onShare: (ticketId: number) => void;
+    onUnshare: (ticketId: number) => void;
 }

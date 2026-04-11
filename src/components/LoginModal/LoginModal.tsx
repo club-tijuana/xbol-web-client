@@ -40,7 +40,6 @@ export default function LoginModal() {
 
         if (login.fulfilled.match(result)) {
             dispatch(closeLoginModal());
-
             setAlertSeverity("success");
             setAlertMessage("Sesión iniciada");
             setAlertOpen(true);
@@ -63,7 +62,7 @@ export default function LoginModal() {
             <Box className={styles.content}>
                 <Box className={styles.topImage} mt={2}>
                     <Image
-                        src="/assets/logo-dark.svg"
+                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/logo-gold-dark.svg`}
                         alt="Evento"
                         fill
                         className={styles.image}

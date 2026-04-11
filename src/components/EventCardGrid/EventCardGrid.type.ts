@@ -1,26 +1,13 @@
-import { ResponsiveStyleValue } from "@mui/system";
+import { EventCardVM } from "@/models/views/event-card.vm";
+import { SizeVariant, StyleVariant } from "@/types/variants";
 
-import { EventItemDTO } from "@/models/event-item.dto";
-import { ResponsiveNumber } from "@/types/responsive";
-
-// TODO: This component has grown too many visual props.
-// Refactor this component to use variants (large/medium/small) instead of multiple styles props.
 export interface EventCardGridProps {
     title?: string;
-    titleAlign?: CanvasTextAlign;
-    columns: ResponsiveStyleValue<number>;
-    spacing: number;
-    itemSize: number;
-    eventCards: readonly EventItemDTO[];
+    eventCards: readonly EventCardVM[];
 
-    size?: "sm" | "lg";
-    cardTitleAlign?: CanvasTextAlign;
-    cardTitleColor?: string;
-    cardDescriptionAlign?: CanvasTextAlign;
-    cardDescriptionColor?: string;
+    sizeVariant: SizeVariant;
+    styleVariant: StyleVariant;
     showCardBadge?: boolean;
-    cardBadgeType?: "light" | "dark";
     showCardActions?: boolean;
-    cardImageHeights?: ResponsiveNumber;
     showAllButton?: boolean;
 }

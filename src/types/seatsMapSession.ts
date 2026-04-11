@@ -1,0 +1,1 @@
+export type SeatsMapSession = 'continue' | 'manual' | 'none' | 'start';

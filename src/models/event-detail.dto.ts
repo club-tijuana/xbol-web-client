@@ -1,12 +1,25 @@
-import { EventCategory } from "./enums/event-category.enum";
+import { AgeRestriction } from "./enums/age-restriction.enum";
+import { EventCategoryDTO } from "./event-category.dto";
 import { EventScheduleDTO } from "./event-schedule.dto";
 
 export interface EventDetailDTO {
-    id: number;
-    name: string;
-    shortDescription?: string;
-    longDescription?: string;
-    gallery: string[];
-    schedules: EventScheduleDTO[];
-    category: EventCategory;
+  id: number;
+  name: string;
+  shortDescription?: string;
+  longDescription?: string;
+  image: string;
+  addressLine: string;
+  city: string;
+  state: string;
+  country: string;
+  zipCode?: string;
+  fullAddress: string;
+  latitude: number;
+  longitude: number;
+  ageRestriction?: AgeRestriction;
+  securityPolicies?: string;
+  gallery: string[];
+  schedules: EventScheduleDTO[];
+  categories: EventCategoryDTO[];
+  isFavorite: boolean;
 }
