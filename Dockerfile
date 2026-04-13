@@ -6,8 +6,12 @@ WORKDIR /app
 
 ARG NEXT_PUBLIC_API_BASE_URL
 ARG NEXT_PUBLIC_SEATS_WORKSPACE_KEY
+ARG NEXT_PUBLIC_BASE_PATH
+ARG NEXT_PUBLIC_SECRET_BASE_32
 ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
 ENV NEXT_PUBLIC_SEATS_WORKSPACE_KEY=$NEXT_PUBLIC_SEATS_WORKSPACE_KEY
+ENV NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH
+ENV NEXT_PUBLIC_SECRET_BASE_32=$NEXT_PUBLIC_SECRET_BASE_32
 
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -29,9 +33,13 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+RUN addgroup -S -g 1001 nodejs && adduser -S -u 1001 -G nodejs nextjs
+
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
 
 EXPOSE 3000
 
