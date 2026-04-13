@@ -5,6 +5,10 @@ on:
     branches:
       - dev
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -22,14 +26,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install yq
+        uses: dcarbone/install-yq-action@v1.3.1
+        with:
+          version: v4.35.1
+
       - name: Set semantic version
         id: version
         env:
           INFRA_REPO_TOKEN: ${{ secrets.INFRA_CLOUD_REPO_TOKEN }}
         run: |
-          sudo wget -qO /usr/local/bin/yq "https://github.com/mikefarah/yq/releases/download/v4.35.1/yq_linux_amd64"
-          sudo chmod +x /usr/local/bin/yq
-
           if [ -n "$INFRA_REPO_TOKEN" ]; then
             git clone --depth 1 "https://x-access-token:${INFRA_REPO_TOKEN}@github.com/club-tijuana/infra-cloud.git" infra-cloud-version 2>/dev/null || true
 
@@ -44,6 +50,10 @@ jobs:
                 fi
               fi
             fi
+          fi
+          if [ -z "$IMAGE_VERSION" ]; then
+            echo "::error::IMAGE_VERSION could not be resolved from infra-cloud deployment.yaml"
+            exit 1
           fi
           echo "IMAGE_VERSION=${IMAGE_VERSION}" >> $GITHUB_ENV
           echo "✅ Versión para esta ejecución: ${IMAGE_VERSION}"
@@ -63,25 +73,32 @@ jobs:
         with:
           workload_identity_provider: '${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}'
           service_account: '${{ secrets.GCP_SERVICE_ACCOUNT }}'
+          token_format: 'access_token'
 
-      - name: Configure Docker for GCP
-        run: |
-          gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
+      - name: Log in to Artifact Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.GCP_REGION }}-docker.pkg.dev
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Build and Push Docker Image
-        env:
-          NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
-        run: |
-          IMAGE_TAG="${IMAGE_BASE}${IMAGE_NAME}:${IMAGE_VERSION}"
-          echo $IMAGE_VERSION
-          echo $IMAGE_TAG
-          docker build \
-            --no-cache \
-            --build-arg NEXT_PUBLIC_API_BASE_URL="${NEXT_PUBLIC_API_BASE_URL}" \
-            --build-arg NEXT_PUBLIC_SEATS_WORKSPACE_KEY="demo" \
-            --build-arg DOCKER_IMAGE_VERSION="${IMAGE_VERSION}" \
-            -t "${IMAGE_TAG}" .
-          docker push "${IMAGE_TAG}"
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ env.IMAGE_BASE }}${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+            NEXT_PUBLIC_SEATS_WORKSPACE_KEY=${{ vars.NEXT_PUBLIC_SEATS_WORKSPACE_KEY }}
+            NEXT_PUBLIC_BASE_PATH=${{ vars.NEXT_PUBLIC_BASE_PATH }}
+            NEXT_PUBLIC_SECRET_BASE_32=${{ secrets.NEXT_PUBLIC_SECRET_BASE_32 }}
+            DOCKER_IMAGE_VERSION=${{ env.IMAGE_VERSION }}
 
       - name: Update image version in infra-cloud deployment
         env:
@@ -101,14 +118,14 @@ jobs:
           export IMAGE_VERSION
           # Actualiza version imagen del Init container de WebClient
           CURRENT_IMAGE_NET_INIT=$(yq e '.spec.template.spec.initContainers[0].image' "$DEPLOY_FILE")
-          IMAGE_BASE=$(echo "$CURRENT_IMAGE_NET_INIT" | sed 's/:[^:]*$//')
-          NEW_IMAGE="${IMAGE_BASE}:${IMAGE_VERSION}"
+          CURRENT_IMAGE_BASE=$(echo "$CURRENT_IMAGE_NET_INIT" | sed 's/:[^:]*$//')
+          NEW_IMAGE="${CURRENT_IMAGE_BASE}:${IMAGE_VERSION}"
           yq e -i ".spec.template.spec.initContainers[0].image = \"${NEW_IMAGE}\"" "$DEPLOY_FILE"
           echo "✅ Update WebClient init container image (${NEW_IMAGE}) version: ${IMAGE_VERSION}"
           # Actualiza version imagen WebClient
           CURRENT_IMAGE_NET=$(yq e '.spec.template.spec.containers[0].image' "$DEPLOY_FILE")
-          IMAGE_BASE=$(echo "$CURRENT_IMAGE_NET" | sed 's/:[^:]*$//')
-          NEW_IMAGE="${IMAGE_BASE}:${IMAGE_VERSION}"
+          CURRENT_IMAGE_BASE=$(echo "$CURRENT_IMAGE_NET" | sed 's/:[^:]*$//')
+          NEW_IMAGE="${CURRENT_IMAGE_BASE}:${IMAGE_VERSION}"
           yq e -i ".spec.template.spec.containers[0].image = \"${NEW_IMAGE}\"" "$DEPLOY_FILE"
           echo "✅ Update WebClient image (${NEW_IMAGE}) version: ${IMAGE_VERSION}"
           # Commit
