@@ -22,6 +22,8 @@ export default function FullWidthSection({
         px: fullBleed ? 0 : { xs: 2, md: 4, lg: 4, xl: 4 }
     };
 
+    const imageUrl = typeof image === "string" ? image : image?.src;
+
     let before: CSSObject | undefined;
 
     switch (variant) {
@@ -46,7 +48,7 @@ export default function FullWidthSection({
                 left: 0,
                 width: "100%",
                 height: height ? `${height}px` : "300px",
-                backgroundImage: `url('${image}')`,
+                backgroundImage: `url('${imageUrl}')`,
                 backgroundSize: "cover",
                 backgroundPosition: "top",
                 backgroundRepeat: "no-repeat",
@@ -59,7 +61,7 @@ export default function FullWidthSection({
             break;
 
         case "imageFull":
-            sx.backgroundImage = `url('${image}')`;
+            sx.backgroundImage = `url('${imageUrl}')`;
             sx.backgroundSize = "cover";
             sx.backgroundPosition = "center";
             sx.backgroundRepeat = "no-repeat";

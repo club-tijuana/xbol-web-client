@@ -3,6 +3,7 @@ import { Metadata } from "next";
 
 import Advertisement from "@/components/Advertisement/Advertisement";
 import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
+import advertisementImage from "@public/assets/images/advertisement/advertisement.png";
 
 import TicketsClientWrapper from "./components/TicketsClientWrapper/TicketsClientWrapper";
 
@@ -43,7 +44,7 @@ export default async function TicketsPage() {
                 }}
             >
                 <Grid size={{ xs: 2, sm: 2, md: 2, lg: 1, xl: 1 }}>
-                    <Advertisement image={`/assets/images/advertisement/advertisement.png`} />
+                    <Advertisement image={advertisementImage} />
                 </Grid>
                 {/* <Grid size={{ xs: 2, sm: 2, md: 2, lg: 1, xl: 1 }}>
                     <Typography variant="h2" fontWeight={400} color="primary">

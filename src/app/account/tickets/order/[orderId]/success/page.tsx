@@ -5,6 +5,7 @@ import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import FAQ from "@/components/FAQ/FAQ";
 import { mapEventToCardVM } from "@/models/event-item.dto";
 import { getTrendingEvents } from "@/services/eventService";
+import advertisementImage from "@public/assets/images/advertisement/advertisement.png";
 
 import SuccessClient from "./components/SuccessClient/SuccessClient";
 
@@ -27,7 +28,7 @@ export default async function SuccessPage(props: SuccessPageProps) {
 
             <Grid container columns={2} spacing={2} my={3}>
                 <Grid size={1}>
-                    <Advertisement image={`/assets/images/advertisement/advertisement.png`} />
+                    <Advertisement image={advertisementImage} />
                 </Grid>
                 <Grid size={1}>
                     <Typography variant="h2" fontWeight={400} color="primary">

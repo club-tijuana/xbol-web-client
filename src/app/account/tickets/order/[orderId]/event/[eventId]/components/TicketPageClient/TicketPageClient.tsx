@@ -21,6 +21,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { resetStatus } from "@/store/slices/shareTicketSlice";
 import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
 import { colors } from "@/theme/colors";
+import advertisementImage from "@public/assets/images/advertisement/advertisement.png";
 
 import TicketQRTabs from "../TicketQRTabs/TicketQRTabs";
 import TicketSeats from "../TicketSeats/TicketSeats";
@@ -183,7 +184,7 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
                                     <Typography variant="h6" fontWeight={400} color="text" mt={2.5}>
                                         ¿Un amigo no puede acompañarte? ¿Hubo cambio de planes? ¡Conoce nuestro mercado secundario para esos tickets que no podrán ser usados!
                                     </Typography>
-                                    <Advertisement image={`/assets/images/advertisement/advertisement.png`} />
+                                    <Advertisement image={advertisementImage} />
                                 </Box>
                             </Grid>
                             <Grid size={{ lg: 7, xl: 7 }} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "block" } }} mb={3}>

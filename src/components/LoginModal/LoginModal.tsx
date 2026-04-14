@@ -10,6 +10,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { login } from "@/store/slices/authSlice";
 import { closeLoginModal } from "@/store/slices/uiSlice";
 import { colors } from "@/theme/colors";
+import logoGoldDark from "@public/assets/logo-gold-dark.svg";
 
 import styles from "./LoginModal.module.scss";
 
@@ -62,7 +63,7 @@ export default function LoginModal() {
             <Box className={styles.content}>
                 <Box className={styles.topImage} mt={2}>
                     <Image
-                        src={`/assets/logo-gold-dark.svg`}
+                        src={logoGoldDark}
                         alt="Evento"
                         fill
                         className={styles.image}

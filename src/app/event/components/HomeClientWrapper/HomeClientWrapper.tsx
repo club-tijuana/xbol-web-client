@@ -21,6 +21,7 @@ import { getSeasonBanner } from "@/services/seasonService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
 import { colors } from "@/theme/colors";
+import soccerSeparatorLight from "@public/assets/images/separators/soccer-separator-light.png";
 
 export default function HomeClientWrapper() {
   const dispatch = useAppDispatch();
@@ -99,7 +100,7 @@ export default function HomeClientWrapper() {
       {(futbolEvents && futbolEvents.items.length > 0) && (
         <FullWidthSection
           variant="imageFull"
-          image={`/assets/images/separators/soccer-separator-light.png`}
+          image={soccerSeparatorLight}
         >
           <Box sx={{ paddingBottom: 6, paddingTop: 6 }}>
             <EventCardGrid

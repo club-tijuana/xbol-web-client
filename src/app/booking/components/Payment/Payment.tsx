@@ -7,6 +7,7 @@ import { useState } from "react";
 
 import { formatCurrency } from "@/helpers/formatCurrencyHelper";
 import { PaymentMethodDTO } from "@/models/payment-method.dto";
+import paymentsIcon from "@public/assets/icons/payment/payments.svg";
 
 import { PaymentProps } from "./Payment.type";
 
@@ -142,7 +143,7 @@ export default function Payment({ subtotal, taxes, total, currency, onPay }: Pay
                 </Grid>
                 <Grid size={{ xs: 2, sm: 2, md: 1, lg: 1, xl: 1 }} alignContent={"end"}>
                     <Image
-                        src={`/assets/icons/payment/payments.svg`}
+                        src={paymentsIcon}
                         alt="Payment"
                         height={26}
                         width={147}

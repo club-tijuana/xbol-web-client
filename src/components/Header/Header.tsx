@@ -14,6 +14,9 @@ import { setTextFilter } from '@/store/slices/eventsFilterSlice';
 import { resetState as favouriteResetState } from "@/store/slices/favouriteEventSlice";
 import { openLoginModal } from "@/store/slices/uiSlice";
 import { colors } from '@/theme/colors';
+import loginLightIcon from '@public/assets/icons/login-light.svg';
+import loginIcon from '@public/assets/icons/login.svg';
+import logo from '@public/assets/logo.svg';
 
 import styles from "./Header.module.scss";
 import SearchInput from './SearchInput/SearchInput';
@@ -143,7 +146,7 @@ export default function Header() {
                             </IconButton>
                             <Box className={styles.logoContainer}>
                                 <Image
-                                    src={`/assets/logo.svg`}
+                                    src={logo}
                                     alt="Logo"
                                     fill
                                     className={styles.logo}
@@ -179,7 +182,7 @@ export default function Header() {
                                 <Box>
                                     <IconButton onClick={handleAccountClick} color="primary">
                                         <Image
-                                            src={`/assets/icons/login.svg`}
+                                            src={loginIcon}
                                             alt="Login"
                                             width={28.32}
                                             height={31.56}
@@ -217,7 +220,7 @@ export default function Header() {
                                             <Box justifySelf={'end'}>
                                                 <IconButton onClick={handleCloseAccount} sx={{ position: 'relative', right: -20, top: 15 }}>
                                                     <Image
-                                                        src={`/assets/icons/login-light.svg`}
+                                                        src={loginLightIcon}
                                                         alt="Login"
                                                         width={28.32}
                                                         height={31.56}

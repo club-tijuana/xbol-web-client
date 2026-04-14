@@ -25,6 +25,7 @@ import { AgeRestrictionLabels } from "@/models/enums/age-restriction.enum";
 import { EventDetailDTO } from "@/models/event-detail.dto";
 import { getEventDetail } from "@/services/eventService";
 import { colors } from "@/theme/colors";
+import soccerSeparator from "@public/assets/images/separators/soccer-separator.png";
 
 interface EventClientWrapperProps {
   eventId: number;
@@ -121,7 +122,7 @@ export default function EventClientWrapper({
       {event && (
         <FullWidthSection
           variant="imageFixedHeight"
-          image={`/assets/images/separators/soccer-separator.png`}
+          image={soccerSeparator}
           height={630}
         >
           <Grid

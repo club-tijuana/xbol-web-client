@@ -11,6 +11,7 @@ import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
 import { mapEventToCardVM } from "@/models/event-item.dto";
 import { getTrendingEvents } from "@/services/eventService";
 import { colors } from "@/theme/colors";
+import advertisementImage from "@public/assets/images/advertisement/advertisement.png";
 
 import VisitorRegister from "../components/VisitorRegister/VisitorRegister";
 
@@ -46,7 +47,7 @@ export default async function EventDetailPage({ params }: EventPageProps) {
         mb={4}
       >
         <Grid size={1}>
-          <Advertisement image={`/assets/images/advertisement/advertisement.png`} />
+          <Advertisement image={advertisementImage} />
         </Grid>
         <Grid size={1}>
           <Typography variant="h2" fontWeight={400} color="primary">
