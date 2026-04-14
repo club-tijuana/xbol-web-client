@@ -91,8 +91,6 @@ jobs:
           context: .
           push: true
           tags: ${{ env.IMAGE_BASE }}${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
           build-args: |
             NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
             NEXT_PUBLIC_SEATS_WORKSPACE_KEY=${{ vars.NEXT_PUBLIC_SEATS_WORKSPACE_KEY }}
