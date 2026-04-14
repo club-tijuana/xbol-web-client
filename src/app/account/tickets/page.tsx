@@ -43,7 +43,7 @@ export default async function TicketsPage() {
                 }}
             >
                 <Grid size={{ xs: 2, sm: 2, md: 2, lg: 1, xl: 1 }}>
-                    <Advertisement image={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/images/advertisement/advertisement.png`} />
+                    <Advertisement image={`/assets/images/advertisement/advertisement.png`} />
                 </Grid>
                 {/* <Grid size={{ xs: 2, sm: 2, md: 2, lg: 1, xl: 1 }}>
                     <Typography variant="h2" fontWeight={400} color="primary">

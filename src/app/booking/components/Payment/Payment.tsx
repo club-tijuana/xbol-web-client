@@ -142,7 +142,7 @@ export default function Payment({ subtotal, taxes, total, currency, onPay }: Pay
                 </Grid>
                 <Grid size={{ xs: 2, sm: 2, md: 1, lg: 1, xl: 1 }} alignContent={"end"}>
                     <Image
-                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/payment/payments.svg`}
+                        src={`/assets/icons/payment/payments.svg`}
                         alt="Payment"
                         height={26}
                         width={147}

@@ -143,7 +143,7 @@ export default function Header() {
                             </IconButton>
                             <Box className={styles.logoContainer}>
                                 <Image
-                                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/logo.svg`}
+                                    src={`/assets/logo.svg`}
                                     alt="Logo"
                                     fill
                                     className={styles.logo}
@@ -179,7 +179,7 @@ export default function Header() {
                                 <Box>
                                     <IconButton onClick={handleAccountClick} color="primary">
                                         <Image
-                                            src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/login.svg`}
+                                            src={`/assets/icons/login.svg`}
                                             alt="Login"
                                             width={28.32}
                                             height={31.56}
@@ -217,7 +217,7 @@ export default function Header() {
                                             <Box justifySelf={'end'}>
                                                 <IconButton onClick={handleCloseAccount} sx={{ position: 'relative', right: -20, top: 15 }}>
                                                     <Image
-                                                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/login-light.svg`}
+                                                        src={`/assets/icons/login-light.svg`}
                                                         alt="Login"
                                                         width={28.32}
                                                         height={31.56}

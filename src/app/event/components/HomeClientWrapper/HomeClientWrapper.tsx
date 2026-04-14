@@ -99,7 +99,7 @@ export default function HomeClientWrapper() {
       {(futbolEvents && futbolEvents.items.length > 0) && (
         <FullWidthSection
           variant="imageFull"
-          image={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/images/separators/soccer-separator-light.png`}
+          image={`/assets/images/separators/soccer-separator-light.png`}
         >
           <Box sx={{ paddingBottom: 6, paddingTop: 6 }}>
             <EventCardGrid
