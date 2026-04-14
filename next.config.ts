@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
   assetPrefix: process.env.NEXT_PUBLIC_ASSET_PREFIX || '',
   skipMiddlewareUrlNormalize: true,
+  trailingSlash: true,
   output: 'standalone',
   reactCompiler: true,
   images: {
