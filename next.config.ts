@@ -1,5 +1,7 @@
 import type { NextConfig } from 'next';
 
+const adminImageHost = process.env.NEXT_PUBLIC_ADMIN_IMAGE_HOST;
+
 const nextConfig: NextConfig = {
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
   assetPrefix: process.env.NEXT_PUBLIC_ASSET_PREFIX || '',
@@ -29,6 +31,13 @@ const nextConfig: NextConfig = {
         hostname: 'dev.zorbek.software',
         pathname: '/**',
       },
+      ...(adminImageHost
+        ? [{
+            protocol: 'https' as const,
+            hostname: adminImageHost,
+            pathname: '/admin/images/**',
+          }]
+        : []),
     ],
   },
 };
