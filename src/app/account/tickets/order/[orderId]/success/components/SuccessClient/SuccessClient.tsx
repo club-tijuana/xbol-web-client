@@ -1,0 +1,155 @@
+"use client";
+
+import { CalendarTodayOutlined, LocationOnOutlined } from "@mui/icons-material";
+import { Alert, Box, Grid, Snackbar, Typography } from "@mui/material";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+
+import Loader from "@/components/Loader/Loader";
+import { formatDate } from "@/helpers/formatDateHelper";
+import { getErrorMessage } from "@/helpers/getErrorMessage";
+import { OrderType } from "@/models/enums/order-type.enum";
+import { OrderDTO } from "@/models/order.dto";
+import { SeatDTO } from "@/models/seat.dto";
+import { getOrderSuccess } from "@/services/orderService";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
+
+import TicketSeats from "../../../event/[eventId]/components/TicketSeats/TicketSeats";
+
+import styles from "./SuccessClient.module.scss";
+
+interface SuccessClientProps {
+    orderId: string;
+}
+
+export default function SuccessClient({ orderId }: SuccessClientProps) {
+    const dispatch = useAppDispatch();
+    const generalMessage = useAppSelector(state => state.ui.generalMessage);
+    const [order, setOrder] = useState<OrderDTO | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [formattedDate, setFormattedDatte] = useState<string>("");
+    const [seatMap, setSeatMap] = useState<Array<[string, number]>>();
+
+    useEffect(() => {
+        async function load() {
+            setIsLoading(true);
+
+            try {
+                const response = await getOrderSuccess(Number.parseInt(orderId));
+
+                const mapped: [string, number][] = response.itemSeatsLabels
+                    .filter((s): s is SeatDTO & { priceOverride: number } => s.priceOverride !== undefined)
+                    .map(s => [s.externalSeatObjectKey, s.priceOverride]);
+
+                setSeatMap(mapped);
+                setOrder(response);
+                setFormattedDatte(formatDate(response.itemStartDate, "dateTime"))
+
+            }
+            catch (error) {
+                dispatch(showGeneralMessage({
+                    message: getErrorMessage(error),
+                    severity: "error"
+                }));
+            }
+            finally {
+                setIsLoading(false);
+            }
+        }
+
+        load();
+    }, [orderId, dispatch]);
+
+    return (
+        <Box>
+            {order &&
+                <Grid container columns={12} spacing={2}>
+                    <Grid size={5} mb={10}>
+                        <Box py={4}>
+                            <Box>
+                                <Typography variant="hero" color="primary">
+                                    ¡Gracias por tu compra!
+                                </Typography>
+                                <Box display="flex" flexDirection="row">
+                                    {order.orderType === OrderType.SeasonPass &&
+                                        <Box sx={{
+                                            height: "auto",
+                                            width: 250
+                                        }} position="relative" mt={2} mr={2}>
+                                            <Image
+                                                src={order.itemPosterImageUrl}
+                                                alt="Evento"
+                                                fill
+                                                style={{ objectFit: 'cover', borderRadius: 10 }}
+                                            />
+                                        </Box>
+                                    }
+                                    <Box>
+                                        <Typography variant="h3" color="primary" mt={3} mb={3}>
+                                            {order.itemName}
+                                        </Typography>
+                                        <Typography
+                                            variant="h6"
+                                            fontWeight={400}
+                                            color="text"
+                                            sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                                            mb={1}
+                                        >
+                                            <CalendarTodayOutlined color="primary" />
+                                            {formattedDate}
+                                        </Typography>
+                                        <Typography
+                                            variant="h6"
+                                            fontWeight={400}
+                                            color="text"
+                                            sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                                            mb={1}
+                                        >
+                                            <LocationOnOutlined color="primary" />
+                                            {order.itemLocation}
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                            </Box>
+                        </Box>
+                        <TicketSeats
+                            eventKey={order.itemKey}
+                            subTotal={order.subTotal}
+                            totalTaxes={order.totalTaxes}
+                            total={order.total}
+                            currency={order.currency}
+                            seats={order.itemSeats}
+                            selectedSeats={seatMap}
+                            folio={order.folio}
+                        />
+                    </Grid>
+                    <Grid size={7}>
+                        <Box className={styles.posterContainer} mt={5}>
+                            <Image
+                                src={order.itemPosterImageUrl}
+                                alt="Poster"
+                                className={styles.poster}
+                                fill
+                            />
+                        </Box>
+                    </Grid>
+                </Grid>
+            }
+            <Loader isLoading={isLoading} />
+
+            <Snackbar
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                open={!!generalMessage.message}
+                autoHideDuration={4000}
+                onClose={() => dispatch(clearGeneralMessage())}>
+                <Alert
+                    severity={generalMessage.severity}
+                    variant="filled"
+                    sx={{ width: "100%" }}>
+                    {generalMessage.message}
+                </Alert>
+            </Snackbar>
+        </Box>
+    );
+}

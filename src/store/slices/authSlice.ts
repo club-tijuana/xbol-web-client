@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
+import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { AuthDto } from "@/models/auth.dto";
 import { login as loginService } from "@/services/authService";
 
@@ -30,14 +31,10 @@ export const login = createAsyncThunk<
         try {
             const response = await loginService(username, password);
             return response;
-        } catch (error: unknown) {
-            let message = "Error al iniciar sesión";
-
-            if (error instanceof Error) {
-                message = error.message;
-            }
-
-            return thunkAPI.rejectWithValue(message);
+        } catch (error) {
+            return thunkAPI.rejectWithValue(
+                getErrorMessage(error, "Error al iniciar sesión")
+            );
         }
     }
 );

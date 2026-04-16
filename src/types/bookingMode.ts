@@ -1,0 +1,1 @@
+export type BookingMode = "event" | "season" | "renovateSeason";

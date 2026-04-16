@@ -1,0 +1,50 @@
+FROM node:20-alpine AS builder
+
+RUN apk add --no-cache libc6-compat
+
+WORKDIR /app
+
+ARG NEXT_PUBLIC_API_BASE_URL
+ARG NEXT_PUBLIC_SEATS_WORKSPACE_KEY
+ARG NEXT_PUBLIC_BASE_PATH
+ARG NEXT_PUBLIC_ASSET_PREFIX
+ARG NEXT_PUBLIC_ADMIN_IMAGE_HOST
+ARG NEXT_PUBLIC_SECRET_BASE_32
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
+ENV NEXT_PUBLIC_SEATS_WORKSPACE_KEY=$NEXT_PUBLIC_SEATS_WORKSPACE_KEY
+ENV NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH
+ENV NEXT_PUBLIC_ASSET_PREFIX=$NEXT_PUBLIC_ASSET_PREFIX
+ENV NEXT_PUBLIC_ADMIN_IMAGE_HOST=$NEXT_PUBLIC_ADMIN_IMAGE_HOST
+ENV NEXT_PUBLIC_SECRET_BASE_32=$NEXT_PUBLIC_SECRET_BASE_32
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+FROM node:20-alpine AS runner
+
+RUN apk add --no-cache libc6-compat
+
+ARG DOCKER_IMAGE_VERSION
+ENV DOCKER_IMAGE_VERSION=${DOCKER_IMAGE_VERSION}
+
+WORKDIR /app
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
+RUN addgroup -S -g 1001 nodejs && adduser -S -u 1001 -G nodejs nextjs
+
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]
