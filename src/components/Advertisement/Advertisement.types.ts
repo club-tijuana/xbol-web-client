@@ -1,3 +1,5 @@
+import { ImageProps } from "next/image";
+
 export interface AdvertisementProps {
-    image: string;
+    image: ImageProps["src"];
 }

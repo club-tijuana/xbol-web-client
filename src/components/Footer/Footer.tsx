@@ -2,6 +2,13 @@ import { Grid, Stack, Typography } from "@mui/material";
 import Image from "next/image";
 
 import { colors } from "@/theme/colors";
+import appStoreIcon from "@public/assets/icons/app-store.svg";
+import facebookIcon from "@public/assets/icons/facebook-icon.svg";
+import googlePlayIcon from "@public/assets/icons/google-play.svg";
+import instagramIcon from "@public/assets/icons/instagram-icon.svg";
+import xIcon from "@public/assets/icons/x-icon.svg";
+import youtubeIcon from "@public/assets/icons/youtube-icon.svg";
+import logo from "@public/assets/logo.svg";
 
 import styles from "./Footer.module.scss";
 
@@ -12,7 +19,7 @@ export default function Footer() {
                 <Grid size={{ xs: 12, sm: 6, md: 3, lg: 3, xl: 4 }} className={styles.logoContainer}>
                     <div className={styles.logoContainer}>
                         <Image
-                            src="/assets/logo.png"
+                            src={logo}
                             alt="Logo"
                             objectFit="contain"
                             width={231}
@@ -43,25 +50,25 @@ export default function Footer() {
                         <Grid size={12} >
                             <div className={styles.iconContainer}>
                                 <Image
-                                    src="/assets/icons/facebook-icon.svg"
+                                    src={facebookIcon}
                                     alt="Facebook"
                                     width={23}
                                     height={23}
                                 />
                                 <Image
-                                    src="/assets/icons/x-icon.svg"
+                                    src={xIcon}
                                     alt="X"
                                     width={23}
                                     height={23}
                                 />
                                 <Image
-                                    src="/assets/icons/instagram-icon.svg"
+                                    src={instagramIcon}
                                     alt="Instagram"
                                     width={23}
                                     height={23}
                                 />
                                 <Image
-                                    src="/assets/icons/youtube-icon.svg"
+                                    src={youtubeIcon}
                                     alt="YouTube"
                                     width={23}
                                     height={23}
@@ -71,13 +78,13 @@ export default function Footer() {
                         <Grid size={12} >
                             <div className={styles.downloadContainer}>
                                 <Image
-                                    src="/assets/icons/google-play.svg"
+                                    src={googlePlayIcon}
                                     alt="YouTube"
                                     width={145}
                                     height={43}
                                 />
                                 <Image
-                                    src="/assets/icons/app-store.svg"
+                                    src={appStoreIcon}
                                     alt="YouTube"
                                     width={145}
                                     height={43}

@@ -1,94 +1,74 @@
 "use client";
 
-import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
-import { Box, IconButton, Slide, Stack, Typography } from "@mui/material";
-import { useMemo, useState } from "react";
+import { Typography } from "@mui/material";
+import { useEffect, useRef, useState } from "react";
+import { Swiper as SwiperType } from "swiper";
+import { EffectCards, Navigation } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
 
-import { MyTicketDto } from "@/models/my-ticket.dto";
+import TicketQRCard from "../CarouselSlideQRTickets/CarouselSlideQRTicket";
 
-import TicketQRCard from "../TicketQRCard/TicketQRCard";
+import 'swiper/css';
+import 'swiper/css/effect-cards';
+import 'swiper/css/navigation';
 
-interface CarouselQRTicketsProps {
-    tickets: MyTicketDto[];
-}
+import { CarouselQRTicketsProps } from "./CarouselQRTickets.type";
 
-export default function CarouselQRTickets({ tickets }: CarouselQRTicketsProps) {
-    const cardsPerPage = 1;
+export default function CarouselQRTickets({ tickets, isTabActive, onShare, onUnshare }: CarouselQRTicketsProps) {
+    const [activeIndex, setActiveIndex] = useState(0);
 
-    const [currentPage, setCurrentPage] = useState(0);
-    const [slideDirection, setSlideDirection] = useState<"left" | "right">("left");
+    const swiperRef = useRef<SwiperType | null>(null);
 
-    const pages = useMemo(() => {
-        if (!tickets) return [];
+    useEffect(() => {
+        const handleResize = () => {
+            swiperRef.current?.update();
+        };
 
-        return Array.from(
-            { length: Math.ceil(tickets.length / cardsPerPage) },
-            (_, i) =>
-                tickets.slice(i * cardsPerPage, i * cardsPerPage + cardsPerPage)
-        );
-    }, [tickets]);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
-    const currentTickets = pages[currentPage] || [];
-
-    const handleNextPage = () => {
-        setSlideDirection("left");
-        setCurrentPage((prev) => Math.min(prev + 1, pages.length - 1));
+    const handleShareTicket = (ticketToShareId: number) => {
+        onShare(ticketToShareId);
     };
 
-    const handlePrevPage = () => {
-        setSlideDirection("right");
-        setCurrentPage((prev) => Math.max(prev - 1, 0));
+    const handleUnshareTicket = (ticketToUnshareId: number) => {
+        onUnshare(ticketToUnshareId);
     };
 
     return (
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <IconButton
-                onClick={handlePrevPage}
-                disabled={currentPage === 0}
-                sx={{ display: pages.length > 1 ? "block" : "none" }}
+        <>
+            <Swiper
+                effect="cards"
+                grabCursor={true}
+                navigation={true}
+                modules={[EffectCards, Navigation]}
+                onSwiper={(swiper) => { swiperRef.current = swiper; }}
+                onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
+                className={"ticketSwiper"}
             >
-                <ArrowBackIos sx={{ fontSize: 40 }} />
-            </IconButton>
-
-            <Box sx={{ overflow: "hidden" }}>
-                <Slide
-                    key={currentPage}
-                    direction={slideDirection}
-                    in
-                    mountOnEnter
-                    unmountOnExit
-                >
-                    <Stack direction="row" spacing={2} justifyContent="center">
-                        {currentTickets.map((ticket) => (
-                            <Box
-                                key={`${ticket.id}`}
-                                sx={{ width: `${100 / cardsPerPage}%` }}
-                            >
-                                <TicketQRCard ticket={ticket} />
-                            </Box>
-                        ))}
-                    </Stack>
-                </Slide>
-                <Typography
-                    variant="h6"
-                    color="secondary"
-                    sx={{
-                        textAlign: "center",
-                        mt: 1,
-                        fontWeight: 700
-                    }}
-                >
-                    {currentPage + 1} / {pages.length}
-                </Typography>
-            </Box>
-
-            <IconButton
-                onClick={handleNextPage}
-                disabled={currentPage === pages.length - 1}
-                sx={{ display: pages.length > 1 ? "block" : "none" }}
+                {tickets.map((ticket, index) => (
+                    <SwiperSlide key={ticket.id}>
+                        <TicketQRCard
+                            ticket={ticket}
+                            isActive={activeIndex === index && isTabActive}
+                            onShare={handleShareTicket}
+                            onUnshare={handleUnshareTicket}
+                        />
+                    </SwiperSlide>
+                ))}
+            </Swiper>
+            <Typography
+                variant="h6"
+                color="secondary"
+                sx={{
+                    textAlign: "center",
+                    mt: 1,
+                    fontWeight: 700
+                }}
             >
-                <ArrowForwardIos sx={{ fontSize: 40 }} />
-            </IconButton>
-        </Box>
+                {activeIndex + 1} / {tickets.length}
+            </Typography>
+        </>
     );
 }

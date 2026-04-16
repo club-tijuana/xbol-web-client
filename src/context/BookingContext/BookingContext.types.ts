@@ -8,7 +8,7 @@ export interface BookingState {
 }
 
 export interface SeatsioPricing {
-    category: number;
+    category: string;
     price: number;
 }
 

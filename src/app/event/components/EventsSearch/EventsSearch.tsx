@@ -1,0 +1,203 @@
+"use client";
+
+import { HighlightOffRounded } from "@mui/icons-material";
+import { Alert, Box, Button, Card, CardActionArea, CardContent, CardMedia, Grid, IconButton, Skeleton, Snackbar, Typography } from "@mui/material";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+
+import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
+import { getErrorMessage } from "@/helpers/getErrorMessage";
+import { PagedResponse } from "@/models/pagination/paged-response.dto";
+import { PerformerDTO } from "@/models/performer.dto";
+import { mapScheduleToCardVM, ScheduleItemDTO } from "@/models/schedule-item.dto";
+import { EventCardVM } from "@/models/views/event-card.vm";
+import { getFilteredEvents } from "@/services/eventService";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+    resetFilters,
+    setPage,
+    setTextFilter,
+    setPerformerId,
+} from "@/store/slices/eventsFilterSlice";
+import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
+
+import AccordionFilters from "../AccordionFilters/AccordionFilters";
+
+export default function EventsSearch() {
+    const dispatch = useAppDispatch();
+    const isMounted = useRef(false);
+    const router = useRouter();
+    const generalMessage = useAppSelector(state => state.ui.generalMessage);
+    const filters = useAppSelector(store => store.eventsFilters.filters);
+    const [currentPage, setCurrentPage] = useState<PagedResponse<ScheduleItemDTO>>();
+    const [schedules, setSchedules] = useState<EventCardVM[]>([]);
+    const [performers, setPerformers] = useState<PerformerDTO[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        if (!isMounted.current) {
+            isMounted.current = true;
+            return;
+        }
+
+        const filter = async () => {
+            setIsLoading(true);
+
+            try {
+                const result = await getFilteredEvents(filters);
+
+                if (filters.page === 1) {
+                    if (result.pagedEvents.items.length === 1) {
+                        const item = result.pagedEvents.items[0];
+                        router.push(`/event/${item.event.id}`);
+                        dispatch(resetFilters());
+                    }
+
+                    const items = result.pagedEvents.items.map(mapScheduleToCardVM);
+                    setPerformers(result.performers);
+                    setSchedules(items);
+                }
+                else {
+                    const items = result.pagedEvents.items.map(mapScheduleToCardVM);
+                    setPerformers(result.performers);
+                    setSchedules(prev => [...prev, ...items]);
+                }
+
+                setCurrentPage(result.pagedEvents);
+            }
+            catch (error) {
+                dispatch(showGeneralMessage({
+                    message: getErrorMessage(error),
+                    severity: "error"
+                }));
+            }
+            finally {
+                setIsLoading(false);
+            }
+        };
+
+        filter();
+    }, [filters, router, dispatch]);
+
+    const handleLoadMore = () => {
+        if (filters.page !== currentPage?.totalPages) {
+            dispatch(setPage(filters.page + 1));
+        }
+    };
+
+    const handlePerformerClick = (performerId: number | undefined) => {
+        dispatch(setTextFilter(''));
+        dispatch(setPerformerId(performerId));
+    };
+
+    return (
+        <Box textAlign="center">
+            <AccordionFilters />
+
+            {(performers && performers.length > 0) &&
+                <Box>
+                    <Typography variant="h3" textAlign="left" mb={2}>
+                        Artistas
+                    </Typography>
+                    <Grid container columns={4} spacing={3}>
+                        {performers.map((p, index) => (
+                            <Grid key={index} size={1}>
+                                <Card sx={{ position: "relative" }}>
+                                    <IconButton sx={{ position: 'absolute', top: 0, right: 0, zIndex: 2 }} color="primary"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handlePerformerClick(undefined);
+                                        }}
+                                    >
+                                        <HighlightOffRounded />
+                                    </IconButton>
+                                    <CardActionArea onClick={() => handlePerformerClick(p.id)}>
+                                        <CardMedia
+                                            component="img"
+                                            image={p.imageUrl}
+                                            alt={p.name}
+                                        />
+                                        <CardContent>
+                                            <Typography variant="h5" color="text">
+                                                {p.name}
+                                            </Typography>
+                                        </CardContent>
+                                    </CardActionArea>
+                                </Card>
+                            </Grid>
+                        ))}
+                    </Grid>
+                </Box>
+            }
+
+            {(schedules && schedules.length > 0) &&
+                <Box mt={5} display="flex" flexDirection="row" justifyContent="space-between">
+                    <Typography variant="h3" textAlign="left">
+                        Eventos
+                    </Typography>
+                    <Typography variant="h6" textAlign="right">
+                        {schedules.length}/{currentPage?.totalCount}
+                    </Typography>
+                </Box>
+            }
+            <EventCardGrid
+                eventCards={schedules}
+                sizeVariant="lg"
+                styleVariant="schedule"
+                showCardBadge={true}
+                showCardActions={false}
+                showAllButton={false}
+            />
+
+            {isLoading &&
+                <Grid container columns={3} spacing={4}>
+                    <Grid size={1}>
+                        <Skeleton variant="rectangular" sx={{ width: "100%", height: 200 }} />
+                        <Box sx={{ pt: 4 }}>
+                            <Skeleton height={50} />
+                            <Skeleton height={45} width="40%" />
+                            <Skeleton height={45} width="60%" />
+                        </Box>
+                    </Grid>
+                    <Grid size={1}>
+                        <Skeleton variant="rectangular" sx={{ width: "100%", height: 200 }} />
+                        <Box sx={{ pt: 4 }}>
+                            <Skeleton height={50} />
+                            <Skeleton height={45} width="40%" />
+                            <Skeleton height={45} width="60%" />
+                        </Box>
+                    </Grid>
+                    <Grid size={1}>
+                        <Skeleton variant="rectangular" sx={{ width: "100%", height: 200 }} />
+                        <Box sx={{ pt: 4 }}>
+                            <Skeleton height={50} />
+                            <Skeleton height={45} width="40%" />
+                            <Skeleton height={45} width="60%" />
+                        </Box>
+                    </Grid>
+                </Grid>
+            }
+
+            {(filters.page !== currentPage?.totalPages && schedules.length > 0) &&
+                <Button variant="outlined" color="primary" sx={{ my: 4 }} onClick={handleLoadMore}>
+                    <Typography variant="body1" py={1} px={3}>
+                        Ver más
+                    </Typography>
+                </Button>
+            }
+
+            <Snackbar
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                open={!!generalMessage.message}
+                autoHideDuration={4000}
+                onClose={() => dispatch(clearGeneralMessage())}>
+                <Alert
+                    severity={generalMessage.severity}
+                    variant="filled"
+                    sx={{ width: "100%" }}>
+                    {generalMessage.message}
+                </Alert>
+            </Snackbar>
+        </Box>
+    );
+}

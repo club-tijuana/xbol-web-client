@@ -1,10 +1,21 @@
 "use client";
 
 import { Box, useTheme } from "@mui/material";
+import { useEffect } from "react";
+
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { loadFavorites } from "@/store/slices/favouriteEventSlice";
 
 export function LayoutContainer({ children }: { children: React.ReactNode }) {
     const theme = useTheme();
-    console.log("theme.CustomLayout:", theme.customLayout);
+    const dispatch = useAppDispatch();
+    const user = useAppSelector(state => state.auth.user);
+
+    useEffect(() => {
+        if (user) {
+            dispatch(loadFavorites());
+        }
+    }, [user, dispatch]);
 
     return (
         <Box component="main"

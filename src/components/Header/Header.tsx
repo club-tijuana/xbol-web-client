@@ -1,23 +1,25 @@
 "use client";
 
-import { ConfirmationNumberOutlined, CreditCardOutlined, Logout, ShieldOutlined } from '@mui/icons-material';
+import { ConfirmationNumberOutlined, CreditCardOutlined, Logout, ShieldOutlined, Star } from '@mui/icons-material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { AppBar, Box, Button, CssBaseline, Divider, Drawer, Grid, IconButton, List, ListItem, ListItemButton, ListItemText, Popover, Toolbar, Typography } from "@mui/material";
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState } from "react";
 
+import { formatDate } from '@/helpers/formatDateHelper';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { logout } from "@/store/slices/authSlice";
+import { setTextFilter } from '@/store/slices/eventsFilterSlice';
+import { resetState as favouriteResetState } from "@/store/slices/favouriteEventSlice";
 import { openLoginModal } from "@/store/slices/uiSlice";
 import { colors } from '@/theme/colors';
+import loginLightIcon from '@public/assets/icons/login-light.svg';
+import loginIcon from '@public/assets/icons/login.svg';
+import logo from '@public/assets/logo.svg';
 
 import styles from "./Header.module.scss";
 import SearchInput from './SearchInput/SearchInput';
-
-interface Props {
-    window?: () => Window;
-}
 
 const drawerWidth = 240;
 const navItems = [
@@ -27,8 +29,7 @@ const navItems = [
     { title: 'Cuenta', redirectUrl: "/no-content" }
 ];
 
-export default function Header(props: Props) {
-    const { window } = props;
+export default function Header() {
     const pathname = usePathname();
     const [mobileOpen, setMobileOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -36,10 +37,8 @@ export default function Header(props: Props) {
     const dispatch = useAppDispatch();
     const router = useRouter();
     const date = new Date();
-    const formattedDate = Intl.DateTimeFormat("es-MX", {
-        month: 'long',
-        year: 'numeric'
-    }).format(date);
+    const formattedDate = formatDate(date, "monthYear");
+    const [searchText, setSearchText] = useState("");
 
     const handleDrawerToggle = () => {
         setMobileOpen((prevState) => !prevState);
@@ -79,15 +78,25 @@ export default function Header(props: Props) {
         }
 
         dispatch(logout());
+        dispatch(favouriteResetState());
         handleCloseAccount();
         handleGoHome();
+
+        if (pathname === "/") {
+            window.location.reload();
+        }
+    }
+
+    const handleOnFilterEnter = () => {
+        dispatch(setTextFilter(searchText));
+        router.push("/event");
     }
 
     const openAccount = Boolean(anchorEl);
     const idAccount = openAccount ? 'simple-popover' : undefined;
     const isTransparent = pathname === "/" || pathname.startsWith("/event");
     const drawer = (
-        <Box onClick={handleDrawerToggle}
+        <Box
             sx={{
                 textAlign: 'center',
                 backgroundColor: theme => theme.palette.layout.header, height: '100%'
@@ -95,14 +104,19 @@ export default function Header(props: Props) {
             pt={3}
             px={2}
         >
-            <SearchInput />
+            <SearchInput value={searchText} onChange={e => setSearchText(e)} onEnterPress={handleOnFilterEnter} />
             <Divider />
             <List>
                 {navItems.map((item) => {
                     if (item.title === "Boletos" && !client) return null;
                     return (
                         <ListItem key={item.title} disablePadding>
-                            <ListItemButton sx={{ textAlign: 'center' }} onClick={() => handleRedirect(item.redirectUrl)}>
+                            <ListItemButton
+                                sx={{ textAlign: 'center' }}
+                                onClick={() => {
+                                    handleRedirect(item.redirectUrl);
+                                    handleDrawerToggle();
+                                }}>
                                 <ListItemText primary={item.title} sx={{ color: 'white' }} />
                             </ListItemButton>
                         </ListItem>
@@ -112,7 +126,7 @@ export default function Header(props: Props) {
         </Box>
     );
 
-    const containerW = window !== undefined ? () => window().document.body : undefined;
+    const containerW = window !== undefined ? () => window.document.body : undefined;
 
     return (
         <Box>
@@ -132,7 +146,7 @@ export default function Header(props: Props) {
                             </IconButton>
                             <Box className={styles.logoContainer}>
                                 <Image
-                                    src="/assets/logo.png"
+                                    src={logo}
                                     alt="Logo"
                                     fill
                                     className={styles.logo}
@@ -161,14 +175,14 @@ export default function Header(props: Props) {
                             </Box>
                         </Grid>
                         <Grid size={{ md: 3, lg: 3 }} sx={{ display: { xs: 'none', md: 'block' } }}>
-                            <SearchInput />
+                            <SearchInput value={searchText} onChange={e => setSearchText(e)} onEnterPress={handleOnFilterEnter} />
                         </Grid>
                         <Grid size={{ xs: 5, md: 1, lg: 1 }} justifyItems='right'>
                             <Box>
                                 <Box>
                                     <IconButton onClick={handleAccountClick} color="primary">
                                         <Image
-                                            src="/assets/icons/login.svg"
+                                            src={loginIcon}
                                             alt="Login"
                                             width={28.32}
                                             height={31.56}
@@ -206,7 +220,7 @@ export default function Header(props: Props) {
                                             <Box justifySelf={'end'}>
                                                 <IconButton onClick={handleCloseAccount} sx={{ position: 'relative', right: -20, top: 15 }}>
                                                     <Image
-                                                        src="/assets/icons/login-light.svg"
+                                                        src={loginLightIcon}
                                                         alt="Login"
                                                         width={28.32}
                                                         height={31.56}
@@ -229,6 +243,11 @@ export default function Header(props: Props) {
                                                 <Button variant="text" startIcon={<ConfirmationNumberOutlined color='neutral' />} onClick={() => handleRedirect('/account/tickets')}>
                                                     <Typography variant='body1' fontWeight={400} color='neutral'>
                                                         Mis tickets
+                                                    </Typography>
+                                                </Button>
+                                                <Button variant="text" startIcon={<Star color='neutral' />} onClick={() => handleRedirect('/account/favourites')}>
+                                                    <Typography variant='body1' fontWeight={400} color='neutral'>
+                                                        Mis Favoritos
                                                     </Typography>
                                                 </Button>
                                                 <Button variant="text" startIcon={<CreditCardOutlined color='neutral' />}>

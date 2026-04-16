@@ -1,0 +1,27 @@
+services:
+  xbol-web-client:
+    container_name: xbol-web-client
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: "${NEXT_PUBLIC_API_BASE_URL:-https://dev-api.ticketing.pwrticket.mx/api/}"
+        NEXT_PUBLIC_SEATS_WORKSPACE_KEY: "${NEXT_PUBLIC_SEATS_WORKSPACE_KEY:-demo}"
+        NEXT_PUBLIC_BASE_PATH: "${NEXT_PUBLIC_BASE_PATH:-}"
+        NEXT_PUBLIC_ASSET_PREFIX: "${NEXT_PUBLIC_ASSET_PREFIX:-}"
+        NEXT_PUBLIC_SECRET_BASE_32: "${NEXT_PUBLIC_SECRET_BASE_32:-}"
+        DOCKER_IMAGE_VERSION: "${DOCKER_IMAGE_VERSION:-0.0.0.0.99}"
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NEXT_PUBLIC_BASE_PATH=${NEXT_PUBLIC_BASE_PATH:-}
+      - NEXT_PUBLIC_ASSET_PREFIX=${NEXT_PUBLIC_ASSET_PREFIX:-}
+      - DOCKER_IMAGE_VERSION=${DOCKER_IMAGE_VERSION:-0.0.0.0.99}
+    restart: unless-stopped
+    networks:
+      - xbol-network
+
+networks:
+  xbol-network:
+    external: true
