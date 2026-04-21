@@ -1,0 +1,1 @@
+export type DateFormatMode = "monthYear" | "date" | "dateTime" | "time";

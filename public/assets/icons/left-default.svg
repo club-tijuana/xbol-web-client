@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="34.883" height="34.883" viewBox="0 0 34.883 34.883">
+  <g id="Layer_2" data-name="Layer 2" transform="translate(-57 -51.117) rotate(-90)">
+    <g id="Layer_2_copy_9" data-name="Layer 2 copy 9" transform="translate(-86 57)">
+      <g id="_109" data-name="109">
+        <path id="background" d="M17.441,0A17.441,17.441,0,1,1,0,17.441,17.441,17.441,0,0,1,17.441,0Z" fill="#424242"/>
+        <path id="Trazado_80" data-name="Trazado 80" d="M121.719,110.594l-9.191-9.191a1.369,1.369,0,0,0-1.936,0l-9.191,9.191a1.369,1.369,0,1,0,1.936,1.936l6.853-6.853v15.076a1.369,1.369,0,1,0,2.739,0V105.677l6.853,6.853a1.369,1.369,0,1,0,1.936-1.936Z" transform="translate(-94.119 -94.12)" fill="#fff"/>
+      </g>
+    </g>
+  </g>
+</svg>

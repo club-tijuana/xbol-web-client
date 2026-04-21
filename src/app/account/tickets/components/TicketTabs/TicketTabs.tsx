@@ -1,20 +1,50 @@
 "use client";
 
 import { Box, Tab, Tabs } from "@mui/material";
+import Image from "next/image";
 import { SyntheticEvent, useState } from "react";
+import { Navigation, Pagination } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 import { colors } from "@/theme/colors";
 
-import CarouselTickets from "../CarouselTickets/CarouselTickets";
+import TicketCard from "../TicketCard/TicketCard";
 
 import { TicketTabsProps } from "./TicketTabs.type";
 
+import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/navigation';
+
+/* -------------------- CONSTANTS -------------------- */
+const SLIDES_PER_VIEW = {
+    xs: 1,
+    sm: 2,
+    md: 2,
+    lg: 3,
+    xl: 4,
+};
+
+const TAB_KEYS = {
+    SEASON_PASS: "SEASON_PASS",
+    EVENTS: "EVENTS",
+} as const;
+
+type TabKey = typeof TAB_KEYS[keyof typeof TAB_KEYS];
+
+const TAB_LABELS: Record<TabKey, string> = {
+    [TAB_KEYS.SEASON_PASS]: "Season Pass",
+    [TAB_KEYS.EVENTS]: "Tus tickets",
+};
+
+/* -------------------- TYPES -------------------- */
 interface TabPanelProps {
     children?: React.ReactNode;
     index: number;
     value: number;
 }
 
+/* -------------------- COMPONENTS -------------------- */
 function CustomTabPanel(props: TabPanelProps) {
     const { children, value, index, ...other } = props;
 
@@ -36,16 +66,17 @@ export default function TicketTabs({
     mySeasons
 }: TicketTabsProps) {
     const [value, setValue] = useState(0);
-    const tabs = [
-        //...(mySeasons ? ["Tus artistas favoritos"] : []),
-        ...(mySeasons ? ["Season Pass"] : []),
-        ...(myEvents ? ["Tus tickets"] : []),
+    const [hoverPrev, setHoverPrev] = useState(false);
+    const [hoverNext, setHoverNext] = useState(false);
+    const tabs: TabKey[] = [
+        ...(mySeasons ? [TAB_KEYS.SEASON_PASS] : []),
+        ...(myEvents ? [TAB_KEYS.EVENTS] : []),
     ];
 
     const tabStyles = {
         border: "solid",
-        borderColor: colors.light.primary,
-        color: colors.light.primary,
+        borderColor: colors.brand.primary,
+        color: colors.brand.primary,
         borderWidth: 1,
         borderRadius: 15,
         py: 1,
@@ -56,9 +87,20 @@ export default function TicketTabs({
         fontWeight: 400,
         fontSize: 15,
         "&.Mui-selected": {
-            backgroundColor: colors.light.text,
-            color: colors.light.neutral,
+            backgroundColor: colors.brand.tertiary,
+            color: colors.brand.white,
         },
+    };
+
+    const getTicketsForTab = (tabKey: TabKey) => {
+        switch (tabKey) {
+            case TAB_KEYS.SEASON_PASS:
+                return mySeasons ?? [];
+            case TAB_KEYS.EVENTS:
+                return myEvents ?? [];
+            default:
+                return [];
+        }
     };
 
     const handleChange = (event: SyntheticEvent, newValue: number) => {
@@ -69,25 +111,76 @@ export default function TicketTabs({
         <Box sx={{ width: '100%' }}>
             <Box sx={{ typography: 'body1' }}>
                 <Tabs value={value} onChange={handleChange}>
-                    {tabs.map((label, index) => (
-                        <Tab key={index} label={label} sx={tabStyles} />
+                    {tabs.map(tabKey => (
+                        <Tab
+                            key={tabKey}
+                            label={TAB_LABELS[tabKey]}
+                            sx={tabStyles}
+                        />
                     ))}
                 </Tabs>
             </Box>
-            {tabs.map((label, index) => (
-                <CustomTabPanel key={index} value={value} index={index}>
-                    <CarouselTickets
-                        key={index}
-                        tickets={
-                            label === "Tus artistas favoritos"
-                                ? mySeasons
-                                : label === "Season Pass"
-                                    ? mySeasons
-                                    : myEvents
-                        }
-                    />
+            {tabs.map((tabKey, index) => (
+                <CustomTabPanel key={tabKey} value={value} index={index}>
+                    <Swiper
+                        modules={[Navigation, Pagination]}
+                        spaceBetween={20}
+                        pagination={{ clickable: true }}
+                        navigation={{
+                            nextEl: ".custom-next",
+                            prevEl: ".custom-prev",
+                            disabledClass: "swiper-button-disabled",
+                        }}
+                        breakpoints={{
+                            500: {
+                                slidesPerView: SLIDES_PER_VIEW.xs,
+                            },
+                            600: {
+                                slidesPerView: SLIDES_PER_VIEW.sm,
+                            },
+                            1070: {
+                                slidesPerView: SLIDES_PER_VIEW.md,
+                            },
+                            1200: {
+                                slidesPerView: SLIDES_PER_VIEW.lg,
+                            },
+                            1500: {
+                                slidesPerView: SLIDES_PER_VIEW.xl,
+                            },
+                        }}
+                    >
+                        {getTicketsForTab(tabKey).map((ticket, i) => (
+                            <SwiperSlide key={`ticket-${i}`}>
+                                <TicketCard ticket={ticket} />
+                            </SwiperSlide>
+                        ))}
+                    </Swiper>
                 </CustomTabPanel>
             ))}
+
+            <Box
+                className="custom-prev"
+                onMouseEnter={() => setHoverPrev(true)}
+                onMouseLeave={() => setHoverPrev(false)}>
+                <Image
+                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/${hoverPrev ? "left-hover.svg" : "left-default.svg"}`}
+                    alt="Prev"
+                    width={35}
+                    height={35}
+                />
+            </Box>
+
+            <Box
+                className="custom-next"
+                onMouseEnter={() => setHoverNext(true)}
+                onMouseLeave={() => setHoverNext(false)}>
+                <Image
+                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/${hoverNext ? "right-hover.svg" : "right-default.svg"}`}
+                    alt="Next"
+                    width={35}
+                    height={35}
+                />
+            </Box>
         </Box>
     );
 }

@@ -11,6 +11,11 @@ import {
 import storage from "redux-persist/lib/storage";
 
 import authReducer from "./slices/authSlice";
+import bookingFlowReducer from "./slices/bookingFlowSlice";
+import bookingReducer from "./slices/bookingSlice";
+import eventsFiltersReducer from "./slices/eventsFilterSlice";
+import favouriteEventReducer from "./slices/favouriteEventSlice";
+import shareTicketReducer from "./slices/shareTicketSlice";
 import uiReducer from "./slices/uiSlice";
 
 const persistConfig = {
@@ -24,7 +29,12 @@ const persistedAuthReducer = persistReducer(persistConfig, authReducer);
 export const store = configureStore({
     reducer: {
         ui: uiReducer,
-        auth: persistedAuthReducer
+        auth: persistedAuthReducer,
+        booking: bookingReducer,
+        eventsFilters: eventsFiltersReducer,
+        shareTicket: shareTicketReducer,
+        favouriteEvents: favouriteEventReducer,
+        bookingFlow: bookingFlowReducer
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
