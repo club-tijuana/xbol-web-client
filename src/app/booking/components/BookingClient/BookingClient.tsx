@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
+import TicketSeats from "@/app/account/tickets/order/[orderId]/event/[eventId]/components/TicketSeats/TicketSeats";
 import Loader from "@/components/Loader/Loader";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
@@ -26,10 +27,11 @@ import {
 import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
 import { BookingStep } from "@/types/bookingStep";
 
-import BookingLeftPanel from "../BookingLeftPanel/BookingLeftPanel";
 import BookingRightPanel, { BookingRightPanelHandle } from "../BookingRightPanel/BookingRightPanel";
+import ClientInfo from "../ClientInfo/ClientInfo";
 import HoldExpiredModal from "../HoldExpiredModal/HoldExpiredModal";
 import HoldTokenTimer from "../HoldTokenTimer/HoldTokenTimer";
+import SeatFilters from "../SeatFilters/SeatFilters";
 
 import { BookingClientProps } from "./BookingClient.type";
 
@@ -39,12 +41,15 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
     const dispatch = useAppDispatch();
     const mapRef = useRef<BookingRightPanelHandle>(null);
 
+    //const eventBookObj = useAppSelector(state => state.booking.eventBookingRequest);
+    //const seasonBookObj = useAppSelector(state => state.booking.seasonBookingRequest);
     const generalMessage = useAppSelector(state => state.ui.generalMessage);
     const bookingState = useAppSelector(state => state.booking.status);
     const initialSeats = useAppSelector(state => state.bookingFlow.initialSeats);
     const selectedSeats = useAppSelector(store => store.bookingFlow.selectedSeats);
     const renovationType = useAppSelector(store => store.bookingFlow.renovationType);
     const clientContactObj = useAppSelector(store => store.bookingFlow.clientContact);
+    const selectedSeatsDto = useAppSelector(store => store.bookingFlow.selectedSeatsDto);
 
     const [event, setEvent] = useState<EventItemDTO | null>(null);
     const [season, setSeason] = useState<SeasonItemDTO | null>(null);
@@ -60,14 +65,14 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        const controller = new AbortController();
+        let isMounted = true;
 
         async function loadAll() {
             try {
                 setIsLoading(true);
                 let holdTokenResponse: HoldToken | undefined;
                 if (bookingMode === "event" || bookingMode === "season" || renovationType === "changeSeats") {
-                    holdTokenResponse = await holdTokenService(controller.signal);
+                    holdTokenResponse = await holdTokenService();
                 }
 
                 let mapKeyLocal = "";
@@ -81,11 +86,13 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                 }));
                 if (bookingMode === "event") {
                     try {
-                        const eventResponse = await getEventItemBySchedule(Number.parseInt(id), controller.signal);
+                        const eventResponse = await getEventItemBySchedule(Number.parseInt(id));
 
                         if (!eventResponse.eventKey) return;
 
                         mapKeyLocal = eventResponse.eventKey;
+
+                        if (!isMounted) return;
 
                         setEvent(eventResponse);
                         setFormattedDate(formatDate(eventResponse.startDate, "dateTime"));
@@ -94,7 +101,6 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                         await dispatch(setBookKey(eventResponse.eventKey));
                     }
                     catch (error) {
-                        if (controller.signal.aborted) return;
                         dispatch(resetState());
                         dispatch(showGeneralMessage({
                             message: getErrorMessage(error),
@@ -105,11 +111,13 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                 }
                 else {
                     try {
-                        const seasonResponse = await getSeasonById(Number.parseInt(id), controller.signal);
+                        const seasonResponse = await getSeasonById(Number.parseInt(id));
 
                         if (!seasonResponse.externalSeasonKey) return;
 
                         mapKeyLocal = seasonResponse.externalSeasonKey;
+
+                        if (!isMounted) return;
 
                         setSeason(seasonResponse);
                         setFormattedDate(formatDate(seasonResponse.startDate, "dateTime"));
@@ -118,7 +126,6 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                         await dispatch(setBookKey(seasonResponse.externalSeasonKey));
                     }
                     catch (error) {
-                        if (controller.signal.aborted) return;
                         dispatch(resetState());
                         dispatch(showGeneralMessage({
                             message: getErrorMessage(error),
@@ -127,6 +134,8 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                         router.push("/");
                     }
                 }
+
+                if (!isMounted) return;
 
                 if (bookingMode === "event" || bookingMode === "season" || renovationType === "changeSeats") {
                     if (holdTokenResponse && holdTokenResponse?.token) {
@@ -145,7 +154,6 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                 setMapKey(mapKeyLocal);
 
             } catch (error) {
-                if (controller.signal.aborted) return;
                 dispatch(showGeneralMessage({
                     message: getErrorMessage(error),
                     severity: "error"
@@ -154,18 +162,16 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                 router.push("/");
             }
             finally {
-                if (!controller.signal.aborted) {
-                    setIsLoading(false);
-                }
+                setIsLoading(false);
             }
         }
 
         loadAll();
 
         return () => {
-            controller.abort();
+            isMounted = false;
         };
-    }, [id, bookingMode, renovationType, dispatch, router]);
+    }, [id, bookingMode, renovationType, dispatch]);
 
     const handleContinue = async () => {
         switch (bookingStep) {
@@ -273,36 +279,49 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
     };
 
     return (
-        <Grid container columns={12} mt={7} spacing={4} pb={8} sx={{ minHeight: "100vh", alignContent: "start" }}>
+        <Grid container columns={12} mt={20} spacing={4} pb={8} sx={{ minHeight: "100vh", alignContent: "start" }}>
             {holdToken &&
                 <Grid size={12}>
                     <HoldTokenTimer />
                 </Grid>
             }
-            <Grid size={6}>
+            <Grid size={{ xs: 12, lg: 6 }}>
                 {(bookingMode === "event" && event) &&
-                    <Grid container columns={12} mb={4}>
-                        <Grid size={4}>
+                    <Grid container columns={12} mb={{ xs: 0, md: 4 }}>
+                        <Grid size={{ xs: 12, sm: 5, md: 4, lg: 5 }}>
                             <Box sx={{
                                 position: "relative",
-                                height: 126
+                                display: "flex",
+                                justifyContent: "center",
+                                width: "100%",
+                                aspectRatio: "16 / 9",
+                                overflow: "hidden"
                             }}>
                                 <Image
                                     src={event.posterImageUrl}
                                     alt="Evento"
                                     fill
-                                    style={{ objectFit: 'cover', borderRadius: 10 }}
+                                    style={{
+                                        objectFit: 'cover',
+                                        objectPosition: "center",
+                                        borderRadius: 10
+                                    }}
                                 />
                             </Box>
                         </Grid>
-                        <Grid size={7} display={"flex"} flexDirection={"column"} pl={4}>
-                            <Typography variant="hero" color="primary">
+                        <Grid size={{ xs: 7, sm: 7, md: 8, lg: 7 }}
+                            display={"flex"}
+                            flexDirection={"column"}
+                            justifyContent={"center"}
+                            pl={{ xs: 0, sm: 4 }}
+                            mt={{ xs: 3, sm: 0 }}
+                        >
+                            <Typography variant="h1" color="primary">
                                 {event.name}
                             </Typography>
                             <Typography
                                 variant="h6"
-                                fontWeight={400}
-                                color="text"
+                                color="secondary"
                                 sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
                             >
                                 <CalendarTodayOutlined color="primary" />
@@ -310,8 +329,7 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                             </Typography>
                             <Typography
                                 variant="h6"
-                                fontWeight={400}
-                                color="text"
+                                color="secondary"
                                 sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
                             >
                                 <LocationOnOutlined color="primary" />
@@ -333,16 +351,33 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                         />
                     </Box>
                 }
-                <BookingLeftPanel
-                    mapKey={mapKey}
-                    scheduleId={bookingMode === "event" ? Number(id) : undefined}
-                    seasonId={bookingMode !== "event" ? Number(id) : undefined}
-                    bookingStep={bookingStep}
-                    onSectionSelected={(section) => { setSelectedSection(section); }}
-                    onSectionsChange={setSectionsPrices}
-                />
+                {bookingStep === "selection" &&
+                    <Box display={{ xs: "none", lg: "block" }}>
+                        <SeatFilters
+                            scheduleId={bookingMode === "event" ? Number(id) : undefined}
+                            seasonId={bookingMode !== "event" ? Number(id) : undefined}
+                            onSectionSelected={(section) => { setSelectedSection(section); }}
+                            onSectionsChange={setSectionsPrices}
+                            buttonText="Ver tickets"
+                        />
+                    </Box>
+                }
+                {(bookingStep === "payment" && selectedSeatsDto) &&
+                    <Box mt={4}>
+                        <Box>
+                            <TicketSeats
+                                eventKey={mapKey}
+                                seats={selectedSeatsDto}
+                                selectedSeats={selectedSeats}
+                            />
+                        </Box>
+                        <Box mt={4}>
+                            <ClientInfo />
+                        </Box>
+                    </Box>
+                }
             </Grid>
-            <Grid size={6}>
+            <Grid size={{ xs: 12, lg: 6 }}>
                 <Paper elevation={3} className="paperCard" sx={{ backgroundColor: "white" }}>
                     <BookingRightPanel
                         ref={mapRef}
@@ -355,7 +390,8 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                         onPay={handleContinue}
                     />
                 </Paper>
-                <Box mt={2} textAlign="end">
+
+                <Box mt={4} textAlign="end">
                     {bookingStep !== "selection" &&
                         <Button variant="outlined" color="secondary"
                             onClick={() => setBookingStep("selection")} sx={{ mr: 2 }}>
@@ -373,6 +409,18 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                         </Button>
                     }
                 </Box>
+
+                {bookingStep === "selection" &&
+                    <Box display={{ xs: "block", lg: "none" }} mt={5}>
+                        <SeatFilters
+                            scheduleId={bookingMode === "event" ? Number(id) : undefined}
+                            seasonId={bookingMode !== "event" ? Number(id) : undefined}
+                            onSectionSelected={(section) => { setSelectedSection(section); }}
+                            onSectionsChange={setSectionsPrices}
+                            buttonText="Ver tickets"
+                        />
+                    </Box>
+                }
             </Grid>
 
             <HoldExpiredModal />

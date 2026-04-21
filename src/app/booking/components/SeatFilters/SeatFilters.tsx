@@ -95,7 +95,7 @@ export default function SeatFilters({ scheduleId, seasonId, buttonText, onSectio
         };
 
         loadSections();
-    }, [debouncedFilters, onSectionsChange, dispatch]);
+    }, [debouncedFilters, onSectionsChange]);
 
     const handlePriceRangeChange = useCallback((priceRange: PriceRange) => {
         setFilters((prev) => ({
@@ -131,13 +131,14 @@ export default function SeatFilters({ scheduleId, seasonId, buttonText, onSectio
                     expandIcon={
                         <Box display="flex" alignItems="center" gap={1}>
                             <ArrowDownwardOutlined className="arrowIcon" fontSize="small" />
-                            <Typography variant="body2" color="text">
+                            <Typography variant="subtitle1" color="text">
                                 Más cerca
                             </Typography>
                             <TuneOutlined color="primary" />
                         </Box>
                     }
                     sx={{
+                        px: 0,
                         backgroundColor: "white",
                         "& .MuiAccordionSummary-expandIconWrapper": {
                             transform: "none",
@@ -156,13 +157,13 @@ export default function SeatFilters({ scheduleId, seasonId, buttonText, onSectio
                     aria-controls="filters-content"
                     id="filters-header"
                 >
-                    <Typography component="span" variant="h6" fontWeight={400} color="primary">
+                    <Typography component="span" variant="h4" color="primary">
                         Selecciona tus asientos
                     </Typography>
                 </AccordionSummary>
                 <AccordionDetails sx={{ backgroundColor: "white" }}>
                     <Box display="flex" flexDirection="row">
-                        <Typography variant="h6" fontWeight={400} mr={4}>
+                        <Typography variant="subtitle1" color="secondary" mr={4}>
                             Precios
                         </Typography>
                         <PriceRangeFilter
@@ -171,7 +172,7 @@ export default function SeatFilters({ scheduleId, seasonId, buttonText, onSectio
                         />
                     </Box>
                     <Box display="flex" flexDirection="row" mt={3}>
-                        <Typography variant="h6" fontWeight={400} mr={1}>
+                        <Typography variant="subtitle1" color="secondary" mr={1}>
                             Tipo de boleto
                         </Typography>
                         <Stack
@@ -205,29 +206,27 @@ export default function SeatFilters({ scheduleId, seasonId, buttonText, onSectio
                     <Box key={section.id}>
                         <Grid container columns={12} py={3.5}>
                             <Grid size={4}>
-                                <Typography variant="h6" color="primary">
+                                <Typography variant="subtitle2" color="primary">
                                     Sección {section.name}
                                 </Typography>
                             </Grid>
                             <Grid size={3} textAlign={"right"}>
                                 {section.price &&
-                                    <Typography variant="h6" fontWeight={400} color="muted">
+                                    <Typography variant="subtitle2" fontWeight={400} color="secondary">
                                         {formatCurrency(section.price)}
                                     </Typography>
                                 }
-                                <Typography variant="caption" color="muted">
+                                <Typography variant="body1" color="secondary">
                                     + Impuestos
                                 </Typography>
                             </Grid>
                             <Grid size={5} textAlign={"right"}>
-                                <Button variant="outlined" onClick={() => handleSectionSelected(section.name)}>
-                                    <Typography variant="body1" px={1.3} py={1}>
-                                        {buttonText}
-                                    </Typography>
+                                <Button variant="outlined" size="medium" onClick={() => handleSectionSelected(section.name)}>
+                                    {buttonText}
                                 </Button>
                             </Grid>
                         </Grid>
-                        {(index + 1) !== sections.length && <Divider sx={{ borderWidth: 1, borderColor: 'var(--color-text-primary)' }} />}
+                        {(index + 1) !== sections.length && <Divider sx={{ borderWidth: 1, borderColor: 'var(--color-primary)' }} />}
                     </Box>
                 ))}
             </Box>

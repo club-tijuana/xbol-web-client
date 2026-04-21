@@ -18,14 +18,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import FavoriteButton from "@/components/FavoriteButton/FavoriteButton";
-import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
 import { formatCurrency } from "@/helpers/formatCurrencyHelper";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { AgeRestrictionLabels } from "@/models/enums/age-restriction.enum";
 import { EventDetailDTO } from "@/models/event-detail.dto";
 import { getEventDetail } from "@/services/eventService";
 import { colors } from "@/theme/colors";
-import soccerSeparator from "@public/assets/images/separators/soccer-separator.png";
 
 interface EventClientWrapperProps {
   eventId: number;
@@ -48,7 +46,7 @@ export default function EventClientWrapper({
       }
     }
     load();
-  }, [eventId]);
+  }, []);
 
   const handleSeasonRenovate = (scheduleId: number) => {
     router.push(`/booking/${scheduleId}`);
@@ -61,7 +59,11 @@ export default function EventClientWrapper({
           <Box
             sx={{
               position: "relative",
-              height: { xs: 300, sm: 400, md: 439, lg: 539 },
+              display: "flex",
+              justifyContent: "center",
+              width: "100%",
+              aspectRatio: "16 / 9",
+              overflow: "hidden"
             }}
             mb={3}
           >
@@ -84,7 +86,7 @@ export default function EventClientWrapper({
                 "& .MuiChip-label": {
                   fontSize: 20,
                   fontWeight: 400,
-                  color: colors.light.primary,
+                  color: colors.text.primary,
                 },
               }}
             />
@@ -92,21 +94,36 @@ export default function EventClientWrapper({
               src={event.gallery[0]}
               alt="Evento"
               fill
-              style={{ objectFit: "cover", borderRadius: 10 }}
+              style={{
+                objectFit: "cover",
+                objectPosition: "center",
+                borderRadius: 10
+              }}
             />
           </Box>
-          <Typography variant="h3" fontWeight={600} color="primary">
+          <Typography variant="h4" mt={4}>
             Galería
           </Typography>
           <Grid container columns={2} spacing={2} mt={1.2}>
             {event.gallery.map((image, index) => (
-              <Grid size={1} key={index}>
-                <Box sx={{ position: "relative", height: 184 }} mb={3}>
+              <Grid size={{ xs: 2, sm: 1, md: 2, lg: 1 }} key={index}>
+                <Box sx={{
+                  position: "relative",
+                  display: "flex",
+                  justifyContent: "center",
+                  width: "100%",
+                  aspectRatio: "16 / 9",
+                  overflow: "hidden"
+                }} mb={3}>
                   <Image
                     src={image}
                     alt="Evento"
                     fill
-                    style={{ objectFit: "cover", borderRadius: 10 }}
+                    style={{
+                      objectFit: "cover",
+                      objectPosition: "center",
+                      borderRadius: 10
+                    }}
                   />
                 </Box>
               </Grid>
@@ -120,22 +137,18 @@ export default function EventClientWrapper({
   return (
     <Box>
       {event && (
-        <FullWidthSection
-          variant="imageFixedHeight"
-          image={soccerSeparator}
-          height={630}
-        >
+        <Box>
           <Grid
             container
             columns={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 18 }}
-            mt={15}
-            spacing={{ xs: 0, sm: 0, md: 3, lg: 7 }}
+            mt={20}
+            spacing={{ xs: 0, sm: 0, md: 3, lg: 3, xl: 20 }}
           >
             <Grid
               size={{ xs: 10, sm: 10, md: 6, lg: 5, xl: 8 }}
               offset={{ xs: 1, sm: 1, md: 0 }}
             >
-              <Typography variant="hero" color="primary" sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+              <Typography variant="h1" color="primary" sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                 {event.name}
                 <LaunchRoudedIcon
                   color="neutral"
@@ -148,7 +161,7 @@ export default function EventClientWrapper({
                 />
               </Typography>
               <Typography
-                variant="h3"
+                variant="h5"
                 fontWeight={400}
                 mb={1}
                 mt={3}
@@ -156,11 +169,11 @@ export default function EventClientWrapper({
               >
                 Información
               </Typography>
-              <Typography variant="bodyLg" mb={4} color="neutral">
+              <Typography variant="subtitle1" mb={4} color="neutral">
                 {event.longDescription}
               </Typography>
               <Typography
-                variant="h3"
+                variant="h5"
                 fontWeight={400}
                 mb={1}
                 mt={3}
@@ -168,7 +181,7 @@ export default function EventClientWrapper({
               >
                 Dirección del recinto
               </Typography>
-              <Typography variant="bodyLg" mb={4} color="neutral">
+              <Typography variant="subtitle1" mb={4} color="neutral">
                 {event.fullAddress}
               </Typography>
 
@@ -183,18 +196,18 @@ export default function EventClientWrapper({
                 className="paperCard"
                 sx={{ mt: { xs: 0, sm: 0, md: 6 }, mb: 6 }}
               >
-                <Typography variant="h3" color="primary">
+                <Typography variant="h4" color="primary">
                   Boletos
                 </Typography>
                 <Divider
                   sx={{
                     mt: 2,
                     borderWidth: 1,
-                    borderColor: "var(--color-bg-muted)",
+                    borderColor: "var(--color-border-muted)",
                   }}
                 />
                 {event.schedules.map((s) => (
-                  <Accordion key={s.id} elevation={0}>
+                  <Accordion key={s.id} elevation={0} defaultExpanded={event.schedules.length === 1} sx={{ backgroundColor: colors.brand.white }}>
                     <AccordionSummary
                       expandIcon={
                         <Box
@@ -203,21 +216,20 @@ export default function EventClientWrapper({
                           alignItems="center"
                           gap={1}
                         >
-                          <Button variant="outlined" component="div"
+                          <Button variant="outlined" size="medium" component="div"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleSeasonRenovate(s.id);
                             }}>
-                            <Typography variant="body2" py={0.3}>
-                              Ver tickets
-                            </Typography>
+                            Ver tickets
                           </Button>
                           <Box display="flex" flexDirection="row" mt={1}>
                             <ArrowDownwardOutlined
                               className="arrowIcon"
                               fontSize="small"
+                              sx={{ mr: 1 }}
                             />
-                            <Typography variant="body2" color="text">
+                            <Typography variant="body1" color="text">
                               Secciones
                             </Typography>
                           </Box>
@@ -249,10 +261,10 @@ export default function EventClientWrapper({
                         spacing={{ xs: 0, lg: 1 }}
                       >
                         <Grid size={{ xs: 6, sm: 3, md: 3, lg: 2 }}>
-                          <Typography variant="subtitle1" color="primary">
+                          <Typography variant="body1" color="primary">
                             Fecha
                           </Typography>
-                          <Typography variant="subtitle2" fontWeight={400}>
+                          <Typography variant="body1" color="secondary" fontWeight={400}>
                             {formatDate(s.date, "date")}
                           </Typography>
                         </Grid>
@@ -261,10 +273,10 @@ export default function EventClientWrapper({
                           alignContent="start"
                           my={{ xs: 1, sm: 0 }}
                         >
-                          <Typography variant="subtitle1" color="primary">
+                          <Typography variant="body1" color="primary">
                             Hora
                           </Typography>
-                          <Typography variant="subtitle2" fontWeight={400}>
+                          <Typography variant="body1" color="secondary" fontWeight={400}>
                             {formatDate(s.date, "time")}
                           </Typography>
                         </Grid>
@@ -273,10 +285,10 @@ export default function EventClientWrapper({
                           alignContent="start"
                           mt={{ xs: 0, sm: 1 }}
                         >
-                          <Typography variant="subtitle1" color="primary">
+                          <Typography variant="body1" color="primary">
                             Estadio
                           </Typography>
-                          <Typography variant="subtitle2" fontWeight={400}>
+                          <Typography variant="body1" color="secondary" fontWeight={400}>
                             {s.location}
                           </Typography>
                         </Grid>
@@ -286,13 +298,13 @@ export default function EventClientWrapper({
                       <Divider sx={{ mb: 2, borderWidth: 1 }} />
                       <Grid container columns={2} px={8}>
                         <Grid size={1}>
-                          <Typography variant="subtitle1" color="primary">
+                          <Typography variant="body1" color="primary">
                             Sección
                           </Typography>
                         </Grid>
                         <Grid size={1}>
                           <Typography
-                            variant="subtitle1"
+                            variant="body1"
                             color="primary"
                             textAlign="right"
                           >
@@ -306,14 +318,14 @@ export default function EventClientWrapper({
                           <Box key={index}>
                             <Grid container columns={2} px={8}>
                               <Grid size={1}>
-                                <Typography variant="subtitle2" color="text">
+                                <Typography variant="body1" color="secondary">
                                   {section.objects.join(", ")}
                                 </Typography>
                               </Grid>
                               <Grid size={1}>
                                 <Typography
-                                  variant="subtitle2"
-                                  color="text"
+                                  variant="body1"
+                                  color="secondary"
                                   textAlign="right"
                                 >
                                   {formatCurrency(
@@ -336,15 +348,14 @@ export default function EventClientWrapper({
               {ageRestriction &&
                 <Box mb={3}>
                   <Typography
-                    variant="h3"
-                    fontWeight={400}
+                    variant="h5"
                     mb={1}
                     mt={3}
                     color="primary"
                   >
                     Restricciones de edad
                   </Typography>
-                  <Typography variant="bodyLg" mb={4} color="text">
+                  <Typography variant="subtitle1" mb={4} color="secondary">
                     {ageRestriction}
                   </Typography>
                 </Box>
@@ -353,15 +364,14 @@ export default function EventClientWrapper({
               {event.securityPolicies &&
                 <Box mb={3}>
                   <Typography
-                    variant="h3"
-                    fontWeight={400}
+                    variant="h5"
                     mb={1}
                     mt={3}
                     color="primary"
                   >
                     Políticas de seguridad
                   </Typography>
-                  <Typography variant="bodyLg" mb={4} color="text">
+                  <Typography variant="subtitle1" mb={4} color="secondary">
                     {event.securityPolicies}
                   </Typography>
                 </Box>
@@ -375,7 +385,7 @@ export default function EventClientWrapper({
               {Gallery}
             </Grid>
           </Grid>
-        </FullWidthSection>
+        </Box>
       )}
     </Box>
   );

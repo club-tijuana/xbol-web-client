@@ -21,7 +21,7 @@ import {
 } from "@/store/slices/eventsFilterSlice";
 import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
 
-import AccordionFilters from "../AccordionFilters/AccordionFilters";
+import EventsFilters from "../EventsFilters/EventsFilters";
 
 export default function EventsSearch() {
     const dispatch = useAppDispatch();
@@ -91,12 +91,12 @@ export default function EventsSearch() {
     };
 
     return (
-        <Box textAlign="center">
-            <AccordionFilters />
+        <Box>
+            <EventsFilters />
 
             {(performers && performers.length > 0) &&
                 <Box>
-                    <Typography variant="h3" textAlign="left" mb={2}>
+                    <Typography variant="h2" textAlign="left" mb={2}>
                         Artistas
                     </Typography>
                     <Grid container columns={4} spacing={3}>
@@ -118,7 +118,7 @@ export default function EventsSearch() {
                                             alt={p.name}
                                         />
                                         <CardContent>
-                                            <Typography variant="h5" color="text">
+                                            <Typography variant="h5" color="secondary">
                                                 {p.name}
                                             </Typography>
                                         </CardContent>
@@ -132,7 +132,7 @@ export default function EventsSearch() {
 
             {(schedules && schedules.length > 0) &&
                 <Box mt={5} display="flex" flexDirection="row" justifyContent="space-between">
-                    <Typography variant="h3" textAlign="left">
+                    <Typography variant="h2" textAlign="left">
                         Eventos
                     </Typography>
                     <Typography variant="h6" textAlign="right">
@@ -145,7 +145,6 @@ export default function EventsSearch() {
                 sizeVariant="lg"
                 styleVariant="schedule"
                 showCardBadge={true}
-                showCardActions={false}
                 showAllButton={false}
             />
 

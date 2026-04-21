@@ -24,7 +24,7 @@ export default function TicketQRGrid({
 
     return (
         <Box>
-            <Typography variant="h3" color="primary" mb={2.5}>
+            <Typography variant="h4" color="primary" mb={2.5}>
                 {title}
             </Typography>
             <Grid

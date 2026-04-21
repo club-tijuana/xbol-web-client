@@ -18,7 +18,6 @@ export default function Advertisement({ image }: AdvertisementProps) {
                 src={image}
                 alt="Advertisement"
                 fill
-                unoptimized
                 style={{ objectFit: "contain", borderRadius: 10 }}
             />
         </Box>

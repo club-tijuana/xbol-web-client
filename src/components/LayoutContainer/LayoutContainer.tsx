@@ -15,7 +15,7 @@ export function LayoutContainer({ children }: { children: React.ReactNode }) {
         if (user) {
             dispatch(loadFavorites());
         }
-    }, [user, dispatch]);
+    }, [user]);
 
     return (
         <Box component="main"

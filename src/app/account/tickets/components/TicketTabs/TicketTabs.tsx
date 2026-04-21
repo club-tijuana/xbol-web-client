@@ -1,12 +1,12 @@
 "use client";
 
-import { Box, Tab, Tabs, useMediaQuery } from "@mui/material";
+import { Box, Tab, Tabs } from "@mui/material";
+import Image from "next/image";
 import { SyntheticEvent, useState } from "react";
 import { Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { colors } from "@/theme/colors";
-import { theme } from "@/theme/theme";
 
 import TicketCard from "../TicketCard/TicketCard";
 
@@ -18,19 +18,16 @@ import 'swiper/css/navigation';
 
 /* -------------------- CONSTANTS -------------------- */
 const SLIDES_PER_VIEW = {
-    mobile: 1,
-    tablet: 2,
-    desktop: 3,
+    xs: 1,
+    sm: 2,
+    md: 2,
+    lg: 3,
+    xl: 4,
 };
 
 const TAB_KEYS = {
     SEASON_PASS: "SEASON_PASS",
     EVENTS: "EVENTS",
-} as const;
-
-const BREAKPOINTS = {
-    MOBILE: "sm",
-    TABLET: "md",
 } as const;
 
 type TabKey = typeof TAB_KEYS[keyof typeof TAB_KEYS];
@@ -69,26 +66,17 @@ export default function TicketTabs({
     mySeasons
 }: TicketTabsProps) {
     const [value, setValue] = useState(0);
+    const [hoverPrev, setHoverPrev] = useState(false);
+    const [hoverNext, setHoverNext] = useState(false);
     const tabs: TabKey[] = [
         ...(mySeasons ? [TAB_KEYS.SEASON_PASS] : []),
         ...(myEvents ? [TAB_KEYS.EVENTS] : []),
     ];
 
-    const isMobile = useMediaQuery(theme.breakpoints.down(BREAKPOINTS.MOBILE));
-    const isTablet = useMediaQuery(
-        theme.breakpoints.between(BREAKPOINTS.MOBILE, BREAKPOINTS.TABLET)
-    );
-
-    const slidesPerView = isMobile
-        ? SLIDES_PER_VIEW.mobile
-        : isTablet
-            ? SLIDES_PER_VIEW.tablet
-            : SLIDES_PER_VIEW.desktop;
-
     const tabStyles = {
         border: "solid",
-        borderColor: colors.light.primary,
-        color: colors.light.primary,
+        borderColor: colors.brand.primary,
+        color: colors.brand.primary,
         borderWidth: 1,
         borderRadius: 15,
         py: 1,
@@ -99,8 +87,8 @@ export default function TicketTabs({
         fontWeight: 400,
         fontSize: 15,
         "&.Mui-selected": {
-            backgroundColor: colors.light.text,
-            color: colors.light.neutral,
+            backgroundColor: colors.brand.tertiary,
+            color: colors.brand.white,
         },
     };
 
@@ -136,10 +124,30 @@ export default function TicketTabs({
                 <CustomTabPanel key={tabKey} value={value} index={index}>
                     <Swiper
                         modules={[Navigation, Pagination]}
-                        slidesPerView={slidesPerView}
                         spaceBetween={20}
                         pagination={{ clickable: true }}
-                        navigation
+                        navigation={{
+                            nextEl: ".custom-next",
+                            prevEl: ".custom-prev",
+                            disabledClass: "swiper-button-disabled",
+                        }}
+                        breakpoints={{
+                            500: {
+                                slidesPerView: SLIDES_PER_VIEW.xs,
+                            },
+                            600: {
+                                slidesPerView: SLIDES_PER_VIEW.sm,
+                            },
+                            1070: {
+                                slidesPerView: SLIDES_PER_VIEW.md,
+                            },
+                            1200: {
+                                slidesPerView: SLIDES_PER_VIEW.lg,
+                            },
+                            1500: {
+                                slidesPerView: SLIDES_PER_VIEW.xl,
+                            },
+                        }}
                     >
                         {getTicketsForTab(tabKey).map((ticket, i) => (
                             <SwiperSlide key={`ticket-${i}`}>
@@ -149,6 +157,30 @@ export default function TicketTabs({
                     </Swiper>
                 </CustomTabPanel>
             ))}
+
+            <Box
+                className="custom-prev"
+                onMouseEnter={() => setHoverPrev(true)}
+                onMouseLeave={() => setHoverPrev(false)}>
+                <Image
+                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/${hoverPrev ? "left-hover.svg" : "left-default.svg"}`}
+                    alt="Prev"
+                    width={35}
+                    height={35}
+                />
+            </Box>
+
+            <Box
+                className="custom-next"
+                onMouseEnter={() => setHoverNext(true)}
+                onMouseLeave={() => setHoverNext(false)}>
+                <Image
+                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/${hoverNext ? "right-hover.svg" : "right-default.svg"}`}
+                    alt="Next"
+                    width={35}
+                    height={35}
+                />
+            </Box>
         </Box>
     );
 }

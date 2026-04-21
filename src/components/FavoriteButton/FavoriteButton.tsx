@@ -10,13 +10,16 @@ import { toggleFavourite as toggleFavouriteSlice } from "@/store/slices/favourit
 
 interface Props {
   eventId: number;
+  //initialFavorite: boolean;
   colorBorder: SvgIconProps["color"];
 }
 
 export default function FavoriteButton({
   eventId,
+  //initialFavorite,
   colorBorder,
 }: Props) {
+  //const [isFavorite, setIsFavorite] = useState(initialFavorite);
   const dispatch = useAppDispatch();
   const isFavorite = useAppSelector(
     state => !!state.favouriteEvents.eventIds[eventId]

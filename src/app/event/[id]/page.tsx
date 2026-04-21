@@ -11,7 +11,6 @@ import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
 import { mapEventToCardVM } from "@/models/event-item.dto";
 import { getTrendingEvents } from "@/services/eventService";
 import { colors } from "@/theme/colors";
-import advertisementImage from "@public/assets/images/advertisement/advertisement.png";
 
 import VisitorRegister from "../components/VisitorRegister/VisitorRegister";
 
@@ -25,15 +24,28 @@ export default async function EventDetailPage({ params }: EventPageProps) {
   const { id } = await params;
 
   const trendingEvents = await getTrendingEvents({ page: 1, pageSize: 4 });
-  const trendingEventsVM = trendingEvents.items.map(mapEventToCardVM);
+  const trendingEventsVM = trendingEvents.items.map(e =>
+    mapEventToCardVM(e, "monthYear")
+  );
 
   return (
     <Box>
       <VisitorRegister eventId={Number(id)} />
-      <EventClientWrapper eventId={Number(id)} />
+
+      <FullWidthSection
+        variant="imageFixedHeight"
+        image={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/images/separators/soccer-separator.png`}
+        height={630}
+        bottomRounded={true}
+      >
+        <EventClientWrapper eventId={Number(id)} />
+      </FullWidthSection>
+
       <FullWidthSection
         variant="color"
-        backgroundColor={colors.brand.background}
+        backgroundColor={colors.ui.surface}
+        topRounded={true}
+        bottomRounded={true}
       >
         <Box sx={{ px: { xs: 4, sm: 10, md: 10, lg: 20, xl: 20 } }} my={5}>
           <FAQ />
@@ -42,20 +54,19 @@ export default async function EventDetailPage({ params }: EventPageProps) {
       <Grid
         container
         columns={{ xs: 1, sm: 1, md: 2 }}
-        spacing={5}
+        spacing={2}
         mt={5}
         mb={4}
       >
         <Grid size={1}>
-          <Advertisement image={advertisementImage} />
+          <Advertisement image={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/images/advertisement/advertisement.png`} />
         </Grid>
         <Grid size={1}>
-          <Typography variant="h2" fontWeight={400} color="primary">
+          <Typography variant="h3" fontWeight={400} color="primary">
             Otros eventos
           </Typography>
           <EventCardGrid
             eventCards={trendingEventsVM}
-            showCardActions={false}
             sizeVariant="xs"
             styleVariant="default"
           />

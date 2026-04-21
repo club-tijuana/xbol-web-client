@@ -1,68 +1,64 @@
+"use client";
+
 import AddIcon from "@mui/icons-material/Add";
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+
+import { FaqDTO } from "@/models/faq.dto";
+import { getFAQs } from "@/services/faqService";
 
 import styles from "./FAQ.module.scss";
 
 export default function FAQ() {
+    const [faqs, setFaqs] = useState<FaqDTO[]>([]);
+
+    useEffect(() => {
+        async function load() {
+            const response = await getFAQs();
+
+            if (response) {
+                setFaqs(response);
+            }
+        };
+
+        load();
+    }, []);
+
     return (
         <Box>
-            <Typography variant="h3" fontWeight={400} color="primary">
+            <Typography variant="h3" color="primary">
                 Preguntas frecuentes
             </Typography>
-            <Box mt={2}>
-                <Accordion className={styles.question}>
-                    <AccordionSummary
-                        expandIcon={<AddIcon sx={{ color: "var(--color-text-primary)" }} />}
-                        sx={{ padding: 0 }}
-                    >
-                        <Typography variant="h6" fontWeight={400} color="text">
-                            ¿Mis tickets están potegidos?
-                        </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <Typography>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                        </Typography>
-                    </AccordionDetails>
-                </Accordion>
-
-                <Accordion className={styles.question}>
-                    <AccordionSummary
-                        expandIcon={<AddIcon sx={{ color: "var(--color-text-primary)" }} />}
-                        sx={{ padding: 0 }}
-                    >
-                        <Typography variant="h6" fontWeight={400} color="text">
-                            ¿Qué pasa si ya no puedo ir a mi evento?
-                        </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <Typography>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                        </Typography>
-                    </AccordionDetails>
-                </Accordion>
-
-                <Accordion className={styles.question}>
-                    <AccordionSummary
-                        expandIcon={<AddIcon sx={{ color: "var(--color-text-primary)" }} />}
-                        sx={{ padding: 0 }}
-                    >
-                        <Typography variant="h6" fontWeight={400} color="text">
-                            ¿Cómo pedir un reembolso?
-                        </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <Typography>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                        </Typography>
-                    </AccordionDetails>
-                </Accordion>
+            <Box
+                mt={2}
+                display="grid"
+                gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }}
+                gap={2}
+            >
+                {faqs && faqs.length > 0 && faqs.map((faq, i) => (
+                    <Accordion key={i} className={styles.question}
+                        elevation={0}
+                        square
+                        sx={{
+                            "&:before": { display: "none" },
+                        }}>
+                        <AccordionSummary
+                            expandIcon={<AddIcon sx={{ color: "var(--color-primary)" }} />}
+                            sx={{ padding: 0 }}
+                        >
+                            <Typography variant="subtitle1" color="secondary">
+                                {faq.question}
+                            </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <Typography variant="subtitle1" color="secondary">{faq.answer}</Typography>
+                        </AccordionDetails>
+                    </Accordion>
+                ))}
             </Box>
             <Box textAlign="center" mt={5}>
-                <Button variant="outlined" sx={{ py: 1, px: 3 }}>
-                    <Typography variant="body1">
-                        Consultar todas las preguntas frecuentes
-                    </Typography>
+                <Button variant="outlined" size="large" sx={{ py: 1, px: 3 }}>
+                    Consultar todas las preguntas frecuentes
                 </Button>
             </Box>
         </Box>

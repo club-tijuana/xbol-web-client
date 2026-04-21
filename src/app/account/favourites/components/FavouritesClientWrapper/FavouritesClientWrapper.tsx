@@ -67,10 +67,12 @@ export default function FavouritesClientWrapper() {
     }, []);
 
     return (
-        <Box sx={{ minHeight: "100vh" }} pt={10}>
+        <Box sx={{ minHeight: "100vh" }} pt={10} mt={20}>
             <EventCardGrid
                 title="Favoritos"
-                eventCards={filteredEvents.map(mapEventToCardVM)}
+                eventCards={filteredEvents.map(e =>
+                    mapEventToCardVM(e)
+                )}
                 sizeVariant="lg"
                 styleVariant="default"
                 showAllButton={false}

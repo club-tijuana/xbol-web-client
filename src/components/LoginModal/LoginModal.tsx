@@ -10,7 +10,6 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { login } from "@/store/slices/authSlice";
 import { closeLoginModal } from "@/store/slices/uiSlice";
 import { colors } from "@/theme/colors";
-import logoGoldDark from "@public/assets/logo-gold-dark.svg";
 
 import styles from "./LoginModal.module.scss";
 
@@ -63,7 +62,7 @@ export default function LoginModal() {
             <Box className={styles.content}>
                 <Box className={styles.topImage} mt={2}>
                     <Image
-                        src={logoGoldDark}
+                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/logo-gold-dark.svg`}
                         alt="Evento"
                         fill
                         className={styles.image}
@@ -75,7 +74,7 @@ export default function LoginModal() {
                 </Typography>
 
                 <Box className={styles.inputContainer}>
-                    <Typography variant="bodyLg" mb={1} color={'text'} mt={2}>
+                    <Typography variant="caption" mb={1} color={'text'} mt={2}>
                         Correo o número de teléfono
                     </Typography>
                     <FormControl fullWidth variant="filled">
@@ -100,7 +99,7 @@ export default function LoginModal() {
                 </Box>
 
                 <Box mt={3} className={styles.inputContainer}>
-                    <Typography variant="bodyLg" mb={1} color={'text'}>
+                    <Typography variant="caption" mb={1} color={'text'}>
                         Contraseña
                     </Typography>
                     <FormControl fullWidth variant="filled">
@@ -139,7 +138,7 @@ export default function LoginModal() {
                 </Box>
 
                 <Button variant="text" color={'secondary'}>
-                    <Typography variant={'bodyLg'} color={'text'} sx={{ textDecoration: 'underline' }}>
+                    <Typography variant="body1" color={'text'} sx={{ textDecoration: 'underline' }}>
                         ¿Olvidaste tu contraseña?
                     </Typography>
                 </Button>
@@ -150,7 +149,7 @@ export default function LoginModal() {
                         disabled={status === "loading"}
                         sx={{ paddingTop: 1.2, paddingBottom: 1.2 }}
                     >
-                        <Typography variant="body1" color={colors.light.neutral}>
+                        <Typography variant="body1" color={colors.text.neutral}>
                             Iniciar sesión
                         </Typography>
                     </Button>
@@ -159,7 +158,7 @@ export default function LoginModal() {
                         color="secondary"
                         sx={{ marginTop: 1.5, paddingTop: 1.2, paddingBottom: 1.2 }}
                     >
-                        <Typography variant="body1" color={colors.light.neutral}>
+                        <Typography variant="body1" color={colors.text.neutral}>
                             Crea una cuenta
                         </Typography>
                     </Button>

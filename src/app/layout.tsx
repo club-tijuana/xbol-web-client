@@ -28,7 +28,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={openSans.className} style={{ overflowX: "hidden" }}>
-      <body>
+      <body style={{
+        backgroundImage: `url(${process.env.NEXT_PUBLIC_BASE_PATH}/assets/background/pattern.png)`,
+        backgroundSize: 1800
+      }}>
         <MuiProvider>
           <Providers>
             <PickersProvider>

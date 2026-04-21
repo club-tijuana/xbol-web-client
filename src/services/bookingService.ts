@@ -25,31 +25,21 @@ export async function getZonesBySeason(seasonId: number): Promise<ZoneDTO[]> {
     );
 }
 
-export async function getEventItemBySchedule(
-    scheduleId: number,
-    signal?: AbortSignal,
-): Promise<EventItemDTO> {
+export async function getEventItemBySchedule(scheduleId: number): Promise<EventItemDTO> {
     return requestAxios<null, EventItemDTO>(
         "GET",
-        `${PATH}/event-by-schedule/${scheduleId}`,
-        undefined,
-        undefined,
-        { signal }
+        `${PATH}/event-by-schedule/${scheduleId}`
     );
 }
 
-export async function getSeasonById(
-    seasonId: number,
-    signal?: AbortSignal,
-): Promise<SeasonItemDTO> {
+export async function getSeasonById(seasonId: number): Promise<SeasonItemDTO> {
     const state = store.getState();
 
     return requestAxios<null, SeasonItemDTO>(
         "GET",
         `${PATH}/season-by-id/${seasonId}`,
         undefined,
-        state.auth.user?.token,
-        { signal }
+        state.auth.user?.token
     );
 }
 

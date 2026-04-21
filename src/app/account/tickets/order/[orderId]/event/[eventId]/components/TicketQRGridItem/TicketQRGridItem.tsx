@@ -40,29 +40,26 @@ export default function TicketQRGridItem({ ticket, onShare, onUnshare }: TicketQ
                     >
                         <CardContent className={styles.cardContent}>
                             <CardMedia
-                                component="img"
                                 image={ticket.eventImage}
-                                alt="title"
                                 sx={{
-                                    display: 'block',
+                                    aspectRatio: "1 / 1",
                                     borderRadius: 2.5,
-                                    height: 220,
-                                    width: '100%',
-                                    objectFit: 'cover'
+                                    backgroundSize: "cover",
+                                    backgroundPosition: "center",
                                 }}
                             />
 
-                            <Box className={styles.cardInfo}>
-                                <Typography variant="subtitle1" fontWeight={700} color="primary">
+                            <Box className={styles.cardInfo} mt={2}>
+                                <Typography variant="subtitle2">
                                     {ticket.name}
                                 </Typography>
-                                <Typography variant="subtitle2" fontWeight={700}>
+                                <Typography variant="body1" color="secondary">
                                     {formattedDate}
                                 </Typography>
-                                <Typography variant="subtitle2" fontWeight={400}>
+                                <Typography variant="body1" color="secondary">
                                     {ticket.location}
                                 </Typography>
-                                <Typography variant="subtitle2" fontWeight={400}>
+                                <Typography variant="body1" color="secondary">
                                     {'ID: ' + ticket.id}
                                 </Typography>
                                 <CardActions>
@@ -75,7 +72,7 @@ export default function TicketQRGridItem({ ticket, onShare, onUnshare }: TicketQ
                                             >
                                                 <VisibilityOutlined sx={{ fontSize: 30 }} />
                                             </IconButton>
-                                            <Typography variant="bodyXs">
+                                            <Typography variant="caption" color="secondary">
                                                 Ver
                                             </Typography>
                                         </Box>
@@ -87,7 +84,7 @@ export default function TicketQRGridItem({ ticket, onShare, onUnshare }: TicketQ
                                             >
                                                 <AttachMoneyOutlined sx={{ fontSize: 30 }} />
                                             </IconButton>
-                                            <Typography variant="bodyXs">
+                                            <Typography variant="caption" color="secondary">
                                                 Vender
                                             </Typography>
                                         </Box>
@@ -101,7 +98,7 @@ export default function TicketQRGridItem({ ticket, onShare, onUnshare }: TicketQ
                                                 >
                                                     <Share sx={{ fontSize: 30 }} />
                                                 </IconButton>
-                                                <Typography variant="bodyXs">
+                                                <Typography variant="caption" color="secondary">
                                                     Compartir
                                                 </Typography>
                                             </Box>
@@ -115,7 +112,7 @@ export default function TicketQRGridItem({ ticket, onShare, onUnshare }: TicketQ
                                                 >
                                                     <LinkOff sx={{ fontSize: 30 }} />
                                                 </IconButton>
-                                                <Typography variant="bodyXs">
+                                                <Typography variant="caption" color="secondary">
                                                     Dejar de compartir
                                                 </Typography>
                                             </Box>
@@ -132,6 +129,7 @@ export default function TicketQRGridItem({ ticket, onShare, onUnshare }: TicketQ
                         sx={{
                             position: showQR ? "relative" : "absolute",
                             inset: 0,
+                            mt: 5
                         }}
                     >
                         {(ticket.isOwner && ticket.isShared) &&
@@ -148,7 +146,7 @@ export default function TicketQRGridItem({ ticket, onShare, onUnshare }: TicketQ
                                 </Typography>
                             </Box>
                         }
-                        <Box textAlign="center">
+                        <Box textAlign="center" mb={2}>
                             <QRCodeSVG value={payload} size={260} level="L" />
                         </Box>
                         <CardActions sx={{ justifyContent: "center" }}>

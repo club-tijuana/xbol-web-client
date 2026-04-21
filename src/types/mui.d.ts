@@ -33,33 +33,11 @@ declare module "@mui/material/styles" {
     interface TypeText {
         muted: string;
         neutral: string;
-        text: string;
     }
 
     interface TypeTextOptions {
         muted?: string;
         neutral?: string;
-        text: string;
-    }
-
-    interface TypographyVariants {
-        bodyXs: React.CSSProperties;
-        captionLg: React.CSSProperties;
-        labelSm: React.CSSProperties;
-        bodyLg: React.CSSProperties;
-        titleMd: React.CSSProperties;
-        titleXl: React.CSSProperties;
-        hero: React.CSSProperties;
-    }
-
-    interface TypographyVariantsOptions {
-        bodyXs?: React.CSSProperties;
-        captionLg?: React.CSSProperties;
-        labelSm?: React.CSSProperties;
-        bodyLg?: React.CSSProperties;
-        titleMd?: React.CSSProperties;
-        titleXl?: React.CSSProperties;
-        hero?: React.CSSProperties;
     }
 }
 
@@ -76,20 +54,9 @@ declare module "@mui/material/styles" {
 }
 
 declare module "@mui/material/Typography" {
-    interface TypographyPropsVariantOverrides {
-        bodyXs: true;
-        captionLg: true;
-        labelSm: true;
-        bodyLg: true;
-        titleMd: true;
-        titleXl: true;
-        hero: true;
-    }
-
     interface TypographyPropsColorOverrides {
         muted: true;
         neutral: true;
-        text: true;
     }
 }
 

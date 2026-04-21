@@ -14,7 +14,9 @@ export default async function TicketPage(props: TicketPageProps) {
     const { orderId, eventId } = await props.params;
 
     const trendingEvents = await getTrendingEvents({ page: 1, pageSize: 4 });
-    const trendingEventsVM = trendingEvents.items.map(mapEventToCardVM);
+    const trendingEventsVM = trendingEvents.items.map(e =>
+        mapEventToCardVM(e)
+    );
 
     return (
         <TicketPageClient

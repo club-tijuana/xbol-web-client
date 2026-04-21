@@ -1,4 +1,4 @@
-type DateFormatMode = "monthYear" | "date" | "dateTime" | "time";
+import { DateFormatMode } from "@/types/dateFormatMode";
 
 export function formatDate(date: Date | string, mode: DateFormatMode = "dateTime"): string {
     const d = date instanceof Date ? date : new Date(date);
@@ -33,5 +33,11 @@ export function formatDate(date: Date | string, mode: DateFormatMode = "dateTime
             break;
     }
 
-    return new Intl.DateTimeFormat("es-MX", options).format(d);
+    const formatted = new Intl.DateTimeFormat("es-MX", options).format(d);
+
+    if (mode === "monthYear") {
+        return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+    }
+
+    return formatted;
 }

@@ -1,6 +1,6 @@
 import { BaseBookingRequest } from "./base-booking-request.dto";
 
 export interface SeasonBookingRequest extends BaseBookingRequest {
-    seasonKey?: string;
+    seasonKey: string;
     referenceOrderId?: number;
 }

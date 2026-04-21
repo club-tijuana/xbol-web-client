@@ -56,7 +56,7 @@ logs: ## Follow web-client logs
 	${CONTAINER_RUNTIME} logs -f ${DOCKER_FE}
 
 health: ## Check /healthz endpoint
-	@curl -fsS "http://localhost:3000/healthz" && echo "" || echo "Health check failed"
+	@curl -fsS "http://localhost:3000$${NEXT_PUBLIC_BASE_PATH}/healthz" && echo "" || echo "Health check failed"
 
 shell: ## Open a shell in the web-client container
 	${CONTAINER_RUNTIME} exec -it ${DOCKER_FE} sh

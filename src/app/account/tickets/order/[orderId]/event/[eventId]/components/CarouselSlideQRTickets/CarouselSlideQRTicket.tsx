@@ -39,7 +39,7 @@ function TicketAction({ icon, label, onClick }: TicketActionProps) {
             <IconButton color="primary" onClick={onClick}>
                 {icon}
             </IconButton>
-            <Typography variant="bodyXs">
+            <Typography variant="caption" color="secondary">
                 {label}
             </Typography>
         </Box>
@@ -68,20 +68,17 @@ export default function CarouselSlideQRTicket({ ticket, isActive, onShare, onUns
                 <Box>
                     <CardContent className={styles.cardContent}>
                         <CardMedia
-                            component="img"
                             image={ticket.eventImage}
-                            alt="title"
                             sx={{
-                                display: 'block',
+                                aspectRatio: "1 / 1",
                                 borderRadius: 2.5,
-                                height: '100%',
-                                width: '100%',
-                                objectFit: 'cover'
+                                backgroundSize: "cover",
+                                backgroundPosition: "center"
                             }}
                         />
                     </CardContent>
                 </Box>
-                <Box sx={{ backgroundColor: "white", justifySelf: "center" }} mt={3} mb={2}>
+                <Box sx={{ backgroundColor: "white", justifySelf: "center" }} mt={5} mb={2}>
                     <Box textAlign="center" sx={{ position: "relative" }}>
                         {(ticket.isOwner && ticket.isShared) &&
                             <Box sx={sharedBanner}>
@@ -107,19 +104,19 @@ export default function CarouselSlideQRTicket({ ticket, isActive, onShare, onUns
                             }
 
                             <Box className={styles.cardInfo} mt={4} mb={1}>
-                                <Typography variant="subtitle1" fontWeight={700} color="primary">
+                                <Typography variant="subtitle2" color="primary">
                                     {ticket.name}
                                 </Typography>
-                                <Typography variant="subtitle2" fontWeight={700}>
+                                <Typography variant="body1" color="secondary">
                                     {formattedDate}
                                 </Typography>
-                                <Typography variant="subtitle2" fontWeight={400}>
+                                <Typography variant="body1" color="secondary">
                                     {ticket.location}
                                 </Typography>
-                                <Typography variant="subtitle2" fontWeight={400}>
+                                <Typography variant="body2" color="secondary">
                                     {`Sección ${ticket.section}`}
                                 </Typography>
-                                <Typography variant="subtitle2" fontWeight={400}>
+                                <Typography variant="body2" color="secondary">
                                     {`Fila ${ticket.row}, Asiento ${ticket.seat}`}
                                 </Typography>
                             </Box>
@@ -132,7 +129,7 @@ export default function CarouselSlideQRTicket({ ticket, isActive, onShare, onUns
                                     >
                                         <AttachMoneyOutlined sx={{ fontSize: 30 }} />
                                     </IconButton>
-                                    <Typography variant="bodyXs">
+                                    <Typography variant="caption" color="secondary">
                                         Vender
                                     </Typography>
                                 </Box>

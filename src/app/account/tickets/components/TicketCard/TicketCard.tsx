@@ -44,13 +44,16 @@ export default function TicketCard({ ticket }: TicketCardProps) {
 
     return (
         <Box>
-            <Card variant="outlined" sx={{ border: 'none', height: 357, width: "100%" }}>
+            <Card variant="outlined" sx={{ border: 'none' }}>
                 <CardContent className={styles.cardContent}>
                     <CardMedia
-                        component="img"
                         image={eventImage}
-                        alt={name}
-                        sx={{ display: 'block', borderRadius: 2.5, height: '100%', width: '100%' }}
+                        sx={{
+                            aspectRatio: "1 / 1",
+                            borderRadius: 2.5,
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                        }}
                     />
 
                     <Box
@@ -82,7 +85,7 @@ export default function TicketCard({ ticket }: TicketCardProps) {
                                     >
                                         <VisibilityOutlined sx={{ fontSize: 40 }} />
                                     </IconButton>
-                                    <Typography variant="bodyXs" color="neutral">
+                                    <Typography variant="caption" color="neutral">
                                         Ver
                                     </Typography>
                                 </Box>
@@ -96,7 +99,7 @@ export default function TicketCard({ ticket }: TicketCardProps) {
                                     >
                                         <Autorenew sx={{ fontSize: 40 }} />
                                     </IconButton>
-                                    <Typography variant="bodyXs" color="neutral">
+                                    <Typography variant="caption" color="neutral">
                                         Renovar
                                     </Typography>
                                 </Box>
