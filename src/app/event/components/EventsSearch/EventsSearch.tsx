@@ -3,7 +3,7 @@
 import { HighlightOffRounded } from "@mui/icons-material";
 import { Alert, Box, Button, Card, CardActionArea, CardContent, CardMedia, Grid, IconButton, Skeleton, Snackbar, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
@@ -25,7 +25,6 @@ import EventsFilters from "../EventsFilters/EventsFilters";
 
 export default function EventsSearch() {
     const dispatch = useAppDispatch();
-    const isMounted = useRef(false);
     const router = useRouter();
     const generalMessage = useAppSelector(state => state.ui.generalMessage);
     const filters = useAppSelector(store => store.eventsFilters.filters);
@@ -35,11 +34,6 @@ export default function EventsSearch() {
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        if (!isMounted.current) {
-            isMounted.current = true;
-            return;
-        }
-
         const filter = async () => {
             setIsLoading(true);
 
@@ -77,7 +71,7 @@ export default function EventsSearch() {
         };
 
         filter();
-    }, [filters, router, dispatch]);
+    }, [filters]);
 
     const handleLoadMore = () => {
         if (filters.page !== currentPage?.totalPages) {

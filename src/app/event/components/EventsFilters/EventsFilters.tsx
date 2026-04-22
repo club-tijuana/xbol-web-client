@@ -3,7 +3,7 @@
 import { TrendingUp } from "@mui/icons-material";
 import { Box, Checkbox, Chip, FormControl, FormControlLabel, Grid, Input, Stack, Typography } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -15,7 +15,6 @@ import { showGeneralMessage } from "@/store/slices/uiSlice";
 import { colors } from "@/theme/colors";
 
 export default function EventsFilters() {
-    const isMounted = useRef(false);
     const dispatch = useAppDispatch();
     const filters = useAppSelector(store => store.eventsFilters.filters);
 
@@ -29,11 +28,6 @@ export default function EventsFilters() {
     }, [debouncedTextFilter, dispatch]);
 
     useEffect(() => {
-        if (!isMounted.current) {
-            isMounted.current = true;
-            return;
-        }
-
         const getCategories = async () => {
             try {
                 const result = await getEventCategories();
