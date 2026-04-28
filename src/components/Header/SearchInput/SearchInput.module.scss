@@ -12,14 +12,15 @@
     border: none;
     outline: none;
     height: 42px;
-    border-radius: 6px;
+    border-radius: 2rem;
     font-size: 16px;
+    border-color: var(--color-primary);
+    border-width: 1;
+    border-style: solid;
 }
 
 .search:focus {
-    border-bottom: solid var(--color-text-primary) 2px;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
+    border: solid var(--color-primary) 2px;
 }
 
 .searchIcon {
@@ -28,5 +29,5 @@
     top: 25%;
     transform: translate(-50%);
     pointer-events: none;
-    color: var(--color-text-primary);
+    color: var(--color-primary);
 }

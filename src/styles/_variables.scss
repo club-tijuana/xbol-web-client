@@ -1,21 +1,28 @@
 :root {
+  --color-primary: #C89A3A;
+  --color-secondary: #3A3A3A;
+  --color-tertiary: #1F1F1F;
+  --color-white: #FFFFFF;
+
+  /* ===== BACKGROUNDS / UI ===== */
   --color-bg: #FFFFFF;
-  --color-bg-header: #141414;
-  --color-bg-footer: #262626;
-  --color-bg-footer-badge: #C89A3A;
-  --color-bg-muted: #F0F0F0;
-  --color-bg-gray: #EDEDED;
+  --color-surface: #F2F0EA;
+  --color-border: #F2F0EA;
+  --color-border-muted: #9E9E9E;
 
-  --color-surface: #F7F7F7;
-  --color-border: #E0E0E0;
+  /* ===== LAYOUT ===== */
+  --color-header: #1F1F1F;
+  --color-footer: #1F1F1F;
 
-  --color-text-primary: #CC9933;
+  /* ===== TEXT ===== */
+  --color-text-primary: #1F1F1F;
   --color-text-secondary: #5F5F5F;
-  --color-text-tertiary: #262626;
   --color-text-muted: #9E9E9E;
 
-  --color-modal-bg: #F5F5F5;
+  /* ===== ACCENT ===== */
+  --color-accent: #F85E30;
 
+  /* ===== SEMANTIC ===== */
   --color-success: #2E7D32;
   --color-warning: #ED6C02;
   --color-error: #D32F2F;

@@ -1,7 +1,6 @@
-import { EventCategory } from "../enums/event-category.enum";
+import { PaginationFilters } from "./pagination-filters.dto";
+import { TextFilter } from "./text-filter.dto";
 
-import { BaseFilters } from "./base-filters.dto";
-
-export interface EventsFilters extends BaseFilters {
-    eventCategory: EventCategory | null;
+export interface EventsFilters extends PaginationFilters, TextFilter {
+    eventCategoryId?: number;
 }

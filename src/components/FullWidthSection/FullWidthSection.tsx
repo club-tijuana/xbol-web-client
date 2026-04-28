@@ -14,12 +14,23 @@ export default function FullWidthSection({
     image,
     height,
     fullBleed = false,
-    disableMaxWidth = false
+    disableMaxWidth = false,
+    topRounded = false,
+    bottomRounded = false,
+    hideOverflow = true
 }: FullWidthSectionProps) {
 
     const sx: SxProps<Theme> = {
         position: "relative",
+        overflow: hideOverflow ? "hidden" : "visible",
         px: fullBleed ? 0 : { xs: 2, md: 4, lg: 4, xl: 4 }
+    };
+
+    const radiusSx: SxProps<Theme> = {
+        borderTopRightRadius: topRounded ? "80px" : 0,
+        borderTopLeftRadius: topRounded ? "80px" : 0,
+        borderBottomRightRadius: bottomRounded ? "80px" : 0,
+        borderBottomLeftRadius: bottomRounded ? "80px" : 0,
     };
 
     let before: CSSObject | undefined;
@@ -34,7 +45,7 @@ export default function FullWidthSection({
                 width: "100%",
                 height: height ? `${height}px` : "300px",
                 backgroundColor: backgroundColor,
-                zIndex: 0,
+                zIndex: 0
             };
             break;
 
@@ -50,7 +61,7 @@ export default function FullWidthSection({
                 backgroundSize: "cover",
                 backgroundPosition: "top",
                 backgroundRepeat: "no-repeat",
-                zIndex: 0,
+                zIndex: 0
             };
             break;
 
@@ -66,19 +77,33 @@ export default function FullWidthSection({
             break;
     }
 
-    const finalSx: SxProps<Theme> = before ? { ...sx, "&::before": before } : sx;
+    const finalSx: SxProps<Theme> = before
+        ? {
+            ...sx,
+            "&::before": {
+                ...before,
+                ...radiusSx
+            }
+        }
+        : {
+            ...sx,
+            ...radiusSx
+        };
 
     const contentSx: SxProps<Theme> = {
         position: "relative",
         zIndex: 1,
         width: "100%",
         mx: "auto",
-        px: fullBleed ? 0 : { xs: 2, md: 4, lg: 4 },
+        px: fullBleed ? 0 : { xs: 1, md: 4, lg: 4 },
         ...(disableMaxWidth ? {} : { maxWidth: theme.customLayout.contentMaxWidth })
     };
 
     return (
-        <Box className={styles.section} sx={finalSx}>
+        <Box
+            className={styles.section}
+            sx={finalSx}
+        >
             <Box sx={contentSx}>
                 {children}
             </Box>
