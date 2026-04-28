@@ -53,9 +53,9 @@ export default function HomeClientWrapper() {
         ] = await Promise.all([
           getMainEvents(),
           getTrendingEvents({ page: 1, pageSize: 5 }),
-          getEvents({ page: 1, eventCategoryId: 1, pageSize: 3 }),
-          getEvents({ page: 1, eventCategoryId: 2, pageSize: 3 }),
-          getEvents({ page: 1, eventCategoryId: 3, pageSize: 3 }),
+          getEvents({ page: 1, eventCategoryId: 1, pageSize: 4 }),
+          getEvents({ page: 1, eventCategoryId: 2, pageSize: 4 }),
+          getEvents({ page: 1, eventCategoryId: 3, pageSize: 4 }),
           getSeasonBanner()
         ]);
 
