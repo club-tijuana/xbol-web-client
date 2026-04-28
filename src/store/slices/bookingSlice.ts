@@ -21,7 +21,7 @@ const getEventBookingRequest = (state: RootState): EventBookingRequest => {
 
     return {
         eventKey: flow.bookKey!,
-        scheduleId: flow.scheduleId!,
+        eventScheduleId: flow.scheduleId!,
         seats: Object.fromEntries(flow.selectedSeats ?? []),
         ticketType: flow.ticketType!,
         clientContact: flow.clientContact!,
@@ -34,8 +34,8 @@ const getSeasonBookingRequest = (state: RootState): SeasonBookingRequest => {
     const flow = state.bookingFlow;
 
     return {
-        seasonKey: flow.bookKey!,
-        scheduleId: flow.scheduleId!,
+        seasonKey: flow.bookKey,
+        eventScheduleId: flow.scheduleId!,
         seats: Object.fromEntries(flow.selectedSeats ?? []),
         ticketType: flow.ticketType!,
         clientContact: flow.clientContact!,

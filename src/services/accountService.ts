@@ -27,13 +27,6 @@ export async function getMyEvents(
 
     if (!response) return null;
 
-    /* const duplicatedItems = response.items.flatMap((item) =>
-        Array.from({ length: 8 }).map(() => ({
-            ...item,
-            _uiKey: `${item.eventId}-${crypto.randomUUID()}`
-        }))
-    ); */
-
     return {
         ...response,
         items: response.items

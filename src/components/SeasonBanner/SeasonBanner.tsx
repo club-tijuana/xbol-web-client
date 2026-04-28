@@ -19,7 +19,7 @@ export default function SeasonBanner({ seasonItem }: SeasonBannerProps) {
     };
 
     return (
-        <Box my={8} sx={{
+        <Box my={9} sx={{
             position: "relative",
             height: 330
         }}>

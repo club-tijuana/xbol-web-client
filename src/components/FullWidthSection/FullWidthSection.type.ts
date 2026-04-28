@@ -1,4 +1,3 @@
-import { StaticImageData } from "next/image";
 import React from "react";
 
 export type FullWidthSectionVariant =
@@ -13,8 +12,11 @@ export interface FullWidthSectionProps {
     variant?: FullWidthSectionVariant;
 
     backgroundColor?: string;
-    image?: string | StaticImageData;
+    image?: string;
     height?: number;
     fullBleed?: boolean;
     disableMaxWidth?: boolean;
+    topRounded?: boolean;
+    bottomRounded?: boolean;
+    hideOverflow?: boolean;
 }

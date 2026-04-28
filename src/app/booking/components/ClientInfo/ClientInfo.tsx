@@ -70,10 +70,10 @@ export default function ClientInfo() {
 
     return (
         <Paper elevation={3} className="paperCard" sx={{ backgroundColor: "white" }}>
-            <Typography variant="h3" color="primary">
+            <Typography variant="h4" color="primary">
                 Datos del cliente
             </Typography>
-            <Grid container columns={2} spacing={2}>
+            <Grid container columns={2} spacing={2} mt={2}>
                 <Grid size={{ xs: 2, sm: 2, md: 1, lg: 1, xl: 1 }}>
                     <Typography variant="caption" mb={1} color="muted" mt={2}>
                         Nombre

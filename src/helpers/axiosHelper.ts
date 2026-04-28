@@ -15,7 +15,6 @@ export async function requestAxios<TPayload, TResult>(
   options?: {
     isBlob?: boolean;
     params?: Record<string, unknown>;
-    signal?: AbortSignal;
   },
 ): Promise<TResult> {
   const config: AxiosRequestConfig = {
@@ -31,7 +30,6 @@ export async function requestAxios<TPayload, TResult>(
     paramsSerializer: (params) =>
       qs.stringify(params, { arrayFormat: "repeat" }),
     responseType: options?.isBlob ? "blob" : "json",
-    signal: options?.signal,
   };
 
   const response = await axios.request<TResult>(config);

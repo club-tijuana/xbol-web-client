@@ -1,6 +1,7 @@
 "use client";
 
 import { Alert, Box, Grid, Snackbar } from "@mui/material";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
@@ -19,11 +20,12 @@ import {
 } from "@/services/eventService";
 import { getSeasonBanner } from "@/services/seasonService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { setCategories } from "@/store/slices/eventsFilterSlice";
 import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
 import { colors } from "@/theme/colors";
-import soccerSeparatorLight from "@public/assets/images/separators/soccer-separator-light.png";
 
 export default function HomeClientWrapper() {
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const generalMessage = useAppSelector(state => state.ui.generalMessage);
   const [mainEvents, setMainEvents] = useState<PagedResponse<EventItemDTO>>();
@@ -50,10 +52,10 @@ export default function HomeClientWrapper() {
           seasonResponse
         ] = await Promise.all([
           getMainEvents(),
-          getTrendingEvents({ page: 1, pageSize: 6 }),
-          getEvents({ page: 1, eventCategoryId: 1, pageSize: 3 }),
-          getEvents({ page: 1, eventCategoryId: 2, pageSize: 3 }),
-          getEvents({ page: 1, eventCategoryId: 3, pageSize: 3 }),
+          getTrendingEvents({ page: 1, pageSize: 5 }),
+          getEvents({ page: 1, eventCategoryId: 1, pageSize: 4 }),
+          getEvents({ page: 1, eventCategoryId: 2, pageSize: 4 }),
+          getEvents({ page: 1, eventCategoryId: 3, pageSize: 4 }),
           getSeasonBanner()
         ]);
 
@@ -74,7 +76,13 @@ export default function HomeClientWrapper() {
     };
 
     fetchData();
-  }, [dispatch]);
+  }, []);
+
+  const handleGoToFilter = async (categoryId: number) => {
+    await dispatch(setCategories([categoryId]));
+
+    router.push(`/event`);
+  };
 
   return (
     <Box sx={{ minHeight: "100vh" }}>
@@ -84,11 +92,13 @@ export default function HomeClientWrapper() {
         </FullWidthSection>
       )}
       {(trendingEvents && trendingEvents.items.length > 0) && (
-        <Grid container columns={12} mt={6} mb={5}>
+        <Grid container columns={12}>
           <Grid size={12}>
             <EventCardGrid
               title="Eventos destacados"
-              eventCards={trendingEvents.items.map(mapEventToCardVM)}
+              eventCards={trendingEvents.items.map(e =>
+                mapEventToCardVM(e)
+              )}
               sizeVariant="sm"
               styleVariant="default"
               showCardBadge={true}
@@ -99,27 +109,35 @@ export default function HomeClientWrapper() {
 
       {(futbolEvents && futbolEvents.items.length > 0) && (
         <FullWidthSection
-          variant="imageFull"
-          image={soccerSeparatorLight}
+          variant="color"
+          backgroundColor={colors.brand.secondary}
+          topRounded={true}
+          bottomRounded={true}
+          hideOverflow={false}
         >
-          <Box sx={{ paddingBottom: 6, paddingTop: 6 }}>
-            <EventCardGrid
-              title="Fútbol"
-              eventCards={futbolEvents.items.map(mapEventToCardVM)}
-              sizeVariant="lg"
-              styleVariant="dark"
-              showCardBadge={true}
-            />
-          </Box>
+          <EventCardGrid
+            title="Fútbol"
+            eventCards={futbolEvents.items.map(e =>
+              mapEventToCardVM(e)
+            )}
+            sizeVariant="lg"
+            styleVariant="dark"
+            showCardBadge={true}
+            showCardInfo={false}
+            onSeeAllAction={() => handleGoToFilter(1)}
+          />
         </FullWidthSection>
       )}
       {(musicEvents && musicEvents.items.length > 0) && (
-        <Box mt={6} mb={3}>
+        <Box>
           <EventCardGrid
             title="Música"
-            eventCards={musicEvents.items.map(mapEventToCardVM)}
+            eventCards={musicEvents.items.map(e =>
+              mapEventToCardVM(e)
+            )}
             sizeVariant="lg"
             styleVariant="muted"
+            onSeeAllAction={() => handleGoToFilter(2)}
           />
         </Box>
       )}
@@ -131,18 +149,19 @@ export default function HomeClientWrapper() {
       {(theaterEvents && theaterEvents.items.length > 0) && (
         <FullWidthSection
           variant="color"
-          backgroundColor={colors.brand.background}
-          fullBleed={false}
+          backgroundColor={colors.ui.surface}
+          topRounded={true}
+          hideOverflow={false}
         >
-          <Box mt={8} mb={6.5}>
-            <EventCardGrid
-              title="Otros eventos"
-              eventCards={theaterEvents.items.map(mapEventToCardVM)}
-              sizeVariant="md"
-              styleVariant="muted"
-              showCardBadge={true}
-            />
-          </Box>
+          <EventCardGrid
+            title="Teatro"
+            eventCards={theaterEvents.items.map(e =>
+              mapEventToCardVM(e)
+            )}
+            sizeVariant="lg"
+            styleVariant="light"
+            onSeeAllAction={() => handleGoToFilter(3)}
+          />
         </FullWidthSection>
       )}
 

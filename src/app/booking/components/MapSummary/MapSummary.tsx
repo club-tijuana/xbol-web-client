@@ -24,18 +24,18 @@ export default function MapSummary({ seats }: MapSummaryProps) {
                 {seats.map(s => (
                     <Grid size={2} key={s[0]}>
                         <Box display="flex" alignItems="center">
-                            <Typography>
+                            <Typography color="secondary">
                                 {s[0]}
                             </Typography>
                             <Box
                                 sx={{
                                     flexGrow: 1,
                                     borderBottom: "1px solid",
-                                    borderColor: colors.light.primary,
+                                    borderColor: colors.brand.primary,
                                     mx: 1
                                 }}
                             />
-                            <Typography textAlign="right">
+                            <Typography textAlign="right" color="secondary">
                                 {formatCurrency(s[1])}
                             </Typography>
                         </Box>

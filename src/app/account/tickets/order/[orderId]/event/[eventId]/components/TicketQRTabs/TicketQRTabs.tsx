@@ -52,8 +52,8 @@ export default function TicketQRTabs({
 
     const tabStyles = {
         border: "solid",
-        borderColor: colors.light.primary,
-        color: colors.light.primary,
+        borderColor: colors.brand.primary,
+        color: colors.brand.primary,
         borderWidth: 1,
         borderRadius: 15,
         py: 1,
@@ -64,8 +64,8 @@ export default function TicketQRTabs({
         fontWeight: 400,
         fontSize: 15,
         "&.Mui-selected": {
-            backgroundColor: colors.light.text,
-            color: colors.light.neutral,
+            backgroundColor: colors.brand.tertiary,
+            color: colors.text.neutral,
         },
     };
 
@@ -140,14 +140,14 @@ export default function TicketQRTabs({
                     onUnshare={handleUnshareTicket}
                 />
             </CustomTabPanel>
-            <Button variant="contained" sx={{ py: 1.3, px: 4, mr: 3 }}>
-                <Typography variant="body2" color="neutral">
+            <Button variant="contained" size="medium" sx={{ mr: 3 }}>
+                <Typography color="neutral">
                     Agregar a wallet
                 </Typography>
             </Button>
             {value !== 0 &&
-                <Button variant="outlined" sx={{ py: 1.3, px: 4 }}>
-                    <Typography variant="body2" color="primary">
+                <Button variant="outlined" size="medium">
+                    <Typography>
                         Ver todos
                     </Typography>
                 </Button>

@@ -1,7 +1,9 @@
 "use client";
 
 import {
+  CalendarTodayOutlined,
   ConfirmationNumberOutlined,
+  LocationOnOutlined,
   VisibilityOutlined,
 } from "@mui/icons-material";
 import {
@@ -14,7 +16,9 @@ import {
   Chip,
   IconButton,
   SxProps,
+  Theme,
   Typography,
+  TypographyVariant,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -28,7 +32,6 @@ import styles from "./EventCard.module.scss";
 import { EventCardProps } from "./EventCard.type";
 
 /* -------------------- CONSTANTS -------------------- */
-const SMALL_VARIANTS: EventCardProps["sizeVariant"][] = ["xs", "sm"];
 const LARGE_VARIANTS: EventCardProps["sizeVariant"][] = ["md", "lg"];
 
 /* -------------------- CONFIGS -------------------- */
@@ -42,32 +45,74 @@ interface StyleConfig {
   badgeType: BadgeType;
 }
 
-const imageHeightsByVariant: Record<SizeVariant, ResponsiveNumber> = {
-  xs: { xs: 200, sm: 200, md: 180, lg: 130, xl: 140 },
-  sm: { xs: 180, sm: 210, md: 220, lg: 190, xl: 200 },
-  md: { xs: 200, sm: 200, md: 170, lg: 145, xl: 145 },
-  lg: { xs: 240, sm: 170, md: 170, lg: 210, xl: 200 },
+interface CardInfoVariantConfig {
+  titleVariant: TypographyVariant;
+  dateVariant: TypographyVariant;
+  locationVariant: TypographyVariant;
+  imageMb: ResponsiveNumber;
+  titleMb: ResponsiveNumber;
+  titleHeight: string | number;
+}
+
+const cardInfoVariant: Record<SizeVariant, CardInfoVariantConfig> = {
+  xs: {
+    titleVariant: "h4",
+    dateVariant: "subtitle1",
+    locationVariant: "subtitle1",
+    imageMb: 0,
+    titleMb: 1,
+    titleHeight: 61
+  },
+  sm: {
+    titleVariant: "h4",
+    dateVariant: "h5",
+    locationVariant: "h5",
+    imageMb: 2,
+    titleMb: 3,
+    titleHeight: 60
+  },
+  md: {
+    titleVariant: "h4",
+    dateVariant: "h5",
+    locationVariant: "h5",
+    imageMb: 2,
+    titleMb: 2,
+    titleHeight: 60
+  },
+  lg: {
+    titleVariant: "h4",
+    dateVariant: "h5",
+    locationVariant: "h5",
+    imageMb: 2,
+    titleMb: 2,
+    titleHeight: 60
+  },
 };
 
 const styleConfig: Record<StyleVariant, StyleConfig> = {
   default: {
-    titleColor: colors.light.text,
-    descriptionColor: colors.light.text,
+    titleColor: colors.text.primary,
+    descriptionColor: colors.text.tertiary,
     badgeType: "dark",
   },
   muted: {
-    titleColor: colors.light.muted,
-    descriptionColor: colors.light.muted,
+    titleColor: colors.text.primary,
+    descriptionColor: colors.text.tertiary,
     badgeType: "dark",
   },
   dark: {
-    titleColor: colors.light.primary,
-    descriptionColor: colors.light.neutral,
+    titleColor: colors.text.primary,
+    descriptionColor: colors.text.neutral,
     badgeType: "light",
   },
+  light: {
+    titleColor: colors.text.primary,
+    descriptionColor: colors.text.tertiary,
+    badgeType: "dark",
+  },
   schedule: {
-    titleColor: colors.light.text,
-    descriptionColor: colors.light.text,
+    titleColor: colors.text.tertiary,
+    descriptionColor: colors.text.tertiary,
     badgeType: "dark",
   },
 };
@@ -79,23 +124,51 @@ const actionStyle: SxProps = {
   justifyContent: "center",
 };
 
+const getChipStyle = (
+  badgeType: BadgeType
+): SxProps<Theme> => ({
+  position: "relative",
+  bottom: 0,
+  right: 0,
+  top: 0,
+  maxWidth: "100%",
+  width: "100%",
+  fontWeight: 400,
+  fontSize: "20px",
+  color: "white",
+  borderTopRightRadius: 10,
+  borderTopLeftRadius: 10,
+  borderBottomRightRadius: 0,
+  borderBottomLeftRadius: 0,
+  height: 45,
+  paddingLeft: 1.3,
+  paddingRight: 1.3,
+  "& .MuiChip-label": {
+    fontSize: "20px",
+    fontWeight: 400,
+    color:
+      badgeType === "light"
+        ? colors.text.tertiary
+        : colors.text.primary,
+  },
+});
+
 /* -------------------- COMPONENT -------------------- */
 export default function EventCard({
   eventCard,
   sizeVariant,
   styleVariant,
   showBadge = false,
-  showActions = true,
+  showInfo = true,
 }: EventCardProps) {
   const router = useRouter();
   const { posterImageUrl, name, startDate, location, categories } = eventCard;
 
   const [mouseOver, setMouseOver] = useState(false);
 
-  const currentSizeConfig = imageHeightsByVariant[sizeVariant];
   const currentStyleConfig = styleConfig[styleVariant];
+  const currentCardInfoVariant = cardInfoVariant[sizeVariant];
 
-  const isSmall = SMALL_VARIANTS.includes(sizeVariant);
   const isLarge = LARGE_VARIANTS.includes(sizeVariant);
 
   const handleClick = () => {
@@ -110,7 +183,7 @@ export default function EventCard({
   };
 
   return (
-    <Card className={styles.card}>
+    <Card className={styles.card} sx={{ position: "relative" }}>
       <Box
         position={"relative"}
         onMouseEnter={() => setMouseOver(true)}
@@ -144,112 +217,101 @@ export default function EventCard({
             </Box>
           </Box>
         )}
-        <CardMedia
-          onClick={
-            !showActions && styleVariant !== "schedule" ? handleClick : () => { }
-          }
-          component="img"
-          image={posterImageUrl}
-          alt={name}
-          sx={{
-            height: currentSizeConfig,
-            borderRadius: 1,
-            cursor: showActions ? "auto" : "pointer",
-          }}
-        />
         {showBadge && (
           <Chip
             label={categories[0].displayName}
             color={
               currentStyleConfig.badgeType === "light" ? "primary" : "secondary"
             }
-            sx={{
-              position: "absolute",
-              bottom: 0,
-              right: 0,
-              maxWidth: "100%",
-              width: isSmall ? "100%" : "auto",
-              fontWeight: 400,
-              fontSize: 22,
-              color: "white",
-              borderRadius: 1,
-              height: 45,
-              paddingLeft: 1.3,
-              paddingRight: 1.3,
-              "& .MuiChip-label": {
-                fontSize: isLarge ? 22 : 20,
-                fontWeight: 400,
-                color:
-                  currentStyleConfig.badgeType === "light"
-                    ? colors.light.neutral
-                    : colors.light.primary,
-              },
-            }}
+            sx={getChipStyle(currentStyleConfig.badgeType)}
           />
         )}
-      </Box>
-      <CardContent>
-        <Typography
-          variant="h3"
-          fontWeight={700}
-          color={currentStyleConfig.titleColor}
-          className={`${styles.title}`}
-          textAlign={isSmall ? "center" : "left"}
+        <CardMedia
+          onClick={styleVariant !== "schedule" ? handleClick : () => { }}
+          image={posterImageUrl}
           sx={{
-            height: 60,
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            lineHeight: 1.2,
+            aspectRatio: (sizeVariant === "xs" || sizeVariant === "sm") ? "1 / 1" : "16 / 9",
+            borderTopRightRadius: showBadge ? 0 : 10,
+            borderTopLeftRadius: showBadge ? 0 : 10,
+            borderBottomRightRadius: 10,
+            borderBottomLeftRadius: 10,
+            cursor: "auto",
+            mb: currentCardInfoVariant.imageMb,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
           }}
-        >
-          {name}
-        </Typography>
-        {isLarge && (
+        />
+      </Box>
+      {showInfo &&
+        <CardContent sx={{ px: 0 }}>
           <Typography
-            variant="h4"
-            fontWeight={400}
-            color={currentStyleConfig.descriptionColor}
-            textAlign="left"
-          >
-            {startDate}
-          </Typography>
-        )}
-        {isLarge && (
-          <Typography
-            variant="h4"
-            fontWeight={400}
-            color={currentStyleConfig.descriptionColor}
-            textAlign="left"
-          >
-            {location}
-          </Typography>
-        )}
-      </CardContent>
-      {showActions && (
-        <CardActions sx={{ paddingTop: 0 }}>
-          <Box
+            variant={currentCardInfoVariant.titleVariant}
+            color={currentStyleConfig.titleColor}
+            className={`${styles.title}`}
+            textAlign={"left"}
+            mb={currentCardInfoVariant.titleMb}
             sx={{
-              display: "flex",
-              width: "100%",
-              alignItems: "center",
-              justifyContent: isLarge ? "space-between" : "center",
-              gap: isLarge ? 0 : 2,
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              lineHeight: 1.2,
+              height: currentCardInfoVariant.titleHeight,
             }}
           >
-            <Button variant="outlined" onClick={handleClick}>
-              Ver tickets
-            </Button>
+            {name}
+          </Typography>
+          {showInfo && (
+            <Typography
+              variant={currentCardInfoVariant.dateVariant}
+              color={currentStyleConfig.descriptionColor}
+              textAlign="left"
+              display={"flex"}
+              alignItems={"center"}
+            >
+              <CalendarTodayOutlined color="primary" sx={{ mr: 1 }} />
+              {startDate}
+            </Typography>
+          )}
+          {showInfo && (
+            <Typography
+              variant={currentCardInfoVariant.locationVariant}
+              color={currentStyleConfig.descriptionColor}
+              textAlign="left"
+              display={"flex"}
+              alignItems={"center"}
+            >
+              <LocationOnOutlined color="primary" sx={{ mr: 1 }} />
+              {location}
+            </Typography>
+          )}
+        </CardContent>
+      }
+      <CardActions sx={{ paddingTop: 0, px: 0, }}>
+        <Box
+          display="flex"
+          width="100%"
+          alignItems="center"
+          justifyContent="space-between"
+          gap={isLarge ? 0 : 3}
+        >
+          <Button variant="outlined" size="medium" onClick={handleClick}>
+            Ver tickets
+          </Button>
 
+          <Box sx={{
+            position: sizeVariant === "xs" ? "absolute" : "static",
+            right: 2,
+            top: 2
+          }}>
             <FavoriteButton
               eventId={eventCard.eventId}
               colorBorder="primary"
             />
           </Box>
-        </CardActions>
-      )}
+        </Box>
+      </CardActions>
     </Card>
   );
 }

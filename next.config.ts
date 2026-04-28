@@ -33,10 +33,10 @@ const nextConfig: NextConfig = {
       },
       ...(adminImageHost
         ? [{
-            protocol: 'https' as const,
-            hostname: adminImageHost,
-            pathname: '/admin/images/**',
-          }]
+          protocol: 'https' as const,
+          hostname: adminImageHost,
+          pathname: '/admin/images/**',
+        }]
         : []),
     ],
   },

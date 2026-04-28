@@ -3,7 +3,7 @@
 import { HighlightOffRounded } from "@mui/icons-material";
 import { Alert, Box, Button, Card, CardActionArea, CardContent, CardMedia, Grid, IconButton, Skeleton, Snackbar, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
@@ -21,11 +21,10 @@ import {
 } from "@/store/slices/eventsFilterSlice";
 import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
 
-import AccordionFilters from "../AccordionFilters/AccordionFilters";
+import EventsFilters from "../EventsFilters/EventsFilters";
 
 export default function EventsSearch() {
     const dispatch = useAppDispatch();
-    const isMounted = useRef(false);
     const router = useRouter();
     const generalMessage = useAppSelector(state => state.ui.generalMessage);
     const filters = useAppSelector(store => store.eventsFilters.filters);
@@ -35,11 +34,6 @@ export default function EventsSearch() {
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        if (!isMounted.current) {
-            isMounted.current = true;
-            return;
-        }
-
         const filter = async () => {
             setIsLoading(true);
 
@@ -77,7 +71,7 @@ export default function EventsSearch() {
         };
 
         filter();
-    }, [filters, router, dispatch]);
+    }, [filters]);
 
     const handleLoadMore = () => {
         if (filters.page !== currentPage?.totalPages) {
@@ -91,12 +85,12 @@ export default function EventsSearch() {
     };
 
     return (
-        <Box textAlign="center">
-            <AccordionFilters />
+        <Box>
+            <EventsFilters />
 
             {(performers && performers.length > 0) &&
                 <Box>
-                    <Typography variant="h3" textAlign="left" mb={2}>
+                    <Typography variant="h2" textAlign="left" mb={2}>
                         Artistas
                     </Typography>
                     <Grid container columns={4} spacing={3}>
@@ -118,7 +112,7 @@ export default function EventsSearch() {
                                             alt={p.name}
                                         />
                                         <CardContent>
-                                            <Typography variant="h5" color="text">
+                                            <Typography variant="h5" color="secondary">
                                                 {p.name}
                                             </Typography>
                                         </CardContent>
@@ -132,7 +126,7 @@ export default function EventsSearch() {
 
             {(schedules && schedules.length > 0) &&
                 <Box mt={5} display="flex" flexDirection="row" justifyContent="space-between">
-                    <Typography variant="h3" textAlign="left">
+                    <Typography variant="h2" textAlign="left">
                         Eventos
                     </Typography>
                     <Typography variant="h6" textAlign="right">
@@ -145,7 +139,6 @@ export default function EventsSearch() {
                 sizeVariant="lg"
                 styleVariant="schedule"
                 showCardBadge={true}
-                showCardActions={false}
                 showAllButton={false}
             />
 

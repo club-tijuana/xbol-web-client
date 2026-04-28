@@ -1,6 +1,7 @@
 "use client";
 
-import { Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Swiper as SwiperType } from "swiper";
 import { EffectCards, Navigation } from "swiper/modules";
@@ -12,10 +13,15 @@ import 'swiper/css';
 import 'swiper/css/effect-cards';
 import 'swiper/css/navigation';
 
+import styles from "./CarouselQRTickets.module.scss";
 import { CarouselQRTicketsProps } from "./CarouselQRTickets.type";
 
 export default function CarouselQRTickets({ tickets, isTabActive, onShare, onUnshare }: CarouselQRTicketsProps) {
     const [activeIndex, setActiveIndex] = useState(0);
+    const [hoverPrev, setHoverPrev] = useState(false);
+    const [hoverNext, setHoverNext] = useState(false);
+    const prevRef = useRef(null);
+    const nextRef = useRef(null);
 
     const swiperRef = useRef<SwiperType | null>(null);
 
@@ -37,15 +43,22 @@ export default function CarouselQRTickets({ tickets, isTabActive, onShare, onUns
     };
 
     return (
-        <>
+        <Box position={"relative"}>
             <Swiper
                 effect="cards"
-                grabCursor={true}
-                navigation={true}
+                navigation={{
+                    disabledClass: "swiper-button-disabled",
+                }}
                 modules={[EffectCards, Navigation]}
                 onSwiper={(swiper) => { swiperRef.current = swiper; }}
                 onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
                 className={"ticketSwiper"}
+                onBeforeInit={(swiper) => {
+                    if (typeof swiper.params.navigation !== "boolean" && swiper.params.navigation) {
+                        swiper.params.navigation.prevEl = prevRef.current;
+                        swiper.params.navigation.nextEl = nextRef.current;
+                    }
+                }}
             >
                 {tickets.map((ticket, index) => (
                     <SwiperSlide key={ticket.id}>
@@ -57,7 +70,36 @@ export default function CarouselQRTickets({ tickets, isTabActive, onShare, onUns
                         />
                     </SwiperSlide>
                 ))}
+
+                <Box
+                    ref={prevRef}
+                    className={styles.ticketPrev}
+                    onMouseEnter={() => setHoverPrev(true)}
+                    onMouseLeave={() => setHoverPrev(false)}>
+                    <Image
+                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/${hoverPrev ? "left-hover.svg" : "left-default.svg"}`}
+                        alt="Prev"
+                        width={35}
+                        height={35}
+                    />
+                </Box>
+
+                <Box
+                    ref={nextRef}
+                    className={styles.ticketNext}
+                    onMouseEnter={() => setHoverNext(true)}
+                    onMouseLeave={() => setHoverNext(false)}>
+                    <Image
+                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/${hoverNext ? "right-hover.svg" : "right-default.svg"}`}
+                        alt="Next"
+                        width={35}
+                        height={35}
+                    />
+                </Box>
             </Swiper>
+
+
+
             <Typography
                 variant="h6"
                 color="secondary"
@@ -69,6 +111,6 @@ export default function CarouselQRTickets({ tickets, isTabActive, onShare, onUns
             >
                 {activeIndex + 1} / {tickets.length}
             </Typography>
-        </>
+        </Box>
     );
 }

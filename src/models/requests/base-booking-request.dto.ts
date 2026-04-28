@@ -4,7 +4,7 @@ import { ClientInfoRequest } from "./client-info-request.dto";
 import { PaymentInfoRequest } from "./payment-info-request.dto";
 
 export interface BaseBookingRequest {
-    scheduleId: number,
+    eventScheduleId: number,
     seats: unknown,
     holdToken?: string;
     ticketType: ItemType;

@@ -2,7 +2,6 @@ import { CategoryFilter, Pricing } from "@seatsio/seatsio-react";
 
 import { SeatsMapSession } from "@/types/seatsMapSession";
 
-
 export interface SeatsMapProps {
     eventKey: string;
     holdToken?: string;

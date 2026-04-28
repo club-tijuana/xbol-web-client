@@ -22,7 +22,7 @@ interface BookingFlowState {
     selectedSeatsDto: MyEventSeatDTO[] | undefined;
     selectedSeats?: Array<[string, number]>;
     initialSeats?: Array<[string, number]>;
-    bookKey?: string;
+    bookKey: string;
     ticketType?: ItemType;
     clientContact?: ClientInfoRequest;
     paymentInfo?: PaymentInfoRequest;
@@ -35,6 +35,7 @@ const initialState: BookingFlowState = {
     selectedSeatsDto: undefined,
     selectedSeats: undefined,
     holdTokenObj: undefined,
+    bookKey: ''
 };
 
 export const expireHoldToken = createAsyncThunk<

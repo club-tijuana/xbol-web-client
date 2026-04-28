@@ -7,7 +7,7 @@ import { useState } from "react";
 
 import { formatCurrency } from "@/helpers/formatCurrencyHelper";
 import { PaymentMethodDTO } from "@/models/payment-method.dto";
-import paymentsIcon from "@public/assets/icons/payment/payments.svg";
+import { colors } from "@/theme/colors";
 
 import { PaymentProps } from "./Payment.type";
 
@@ -54,10 +54,10 @@ export default function Payment({ subtotal, taxes, total, currency, onPay }: Pay
 
     return (
         <Box>
-            <Typography variant="h3" color="primary">
+            <Typography variant="h4" color="primary">
                 Datos de pago
             </Typography>
-            <Grid container columns={2} spacing={2}>
+            <Grid container columns={2} spacing={2} mt={2}>
                 <Grid size={{ xs: 2, sm: 2, md: 1, lg: 1, xl: 1 }}>
                     <Typography variant="caption" mb={1} color="muted" mt={2}>
                         Nombre del titular
@@ -143,7 +143,7 @@ export default function Payment({ subtotal, taxes, total, currency, onPay }: Pay
                 </Grid>
                 <Grid size={{ xs: 2, sm: 2, md: 1, lg: 1, xl: 1 }} alignContent={"end"}>
                     <Image
-                        src={paymentsIcon}
+                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/payment/payments.svg`}
                         alt="Payment"
                         height={26}
                         width={147}
@@ -153,34 +153,34 @@ export default function Payment({ subtotal, taxes, total, currency, onPay }: Pay
 
             <Divider sx={{ my: 4, borderWidth: 1, borderColor: 'var(--color-text-muted)' }} />
 
-            <Grid container columns={6} spacing={2}>
-                <Grid size={1} offset={4} textAlign="right">
-                    <Typography variant="subtitle1" color="primary">
+            <Grid container columns={4} spacing={3}>
+                <Grid size={1} offset={2} textAlign="right">
+                    <Typography variant="body2" color="primary">
                         Subtotal
                     </Typography>
                 </Grid>
                 <Grid size={1} textAlign="right">
-                    <Typography variant="subtitle1" fontWeight={400} color="text">
+                    <Typography variant="body1" color="secondary">
                         {formatCurrency(subtotal, currency)}
                     </Typography>
                 </Grid>
-                <Grid size={1} offset={4} textAlign="right">
-                    <Typography variant="subtitle1" color="primary">
+                <Grid size={1} offset={2} textAlign="right">
+                    <Typography variant="body2" color="primary">
                         Impuestos
                     </Typography>
                 </Grid>
                 <Grid size={1} textAlign="right">
-                    <Typography variant="subtitle1" fontWeight={400} color="text">
+                    <Typography variant="body1" color="secondary">
                         {formatCurrency(taxes, currency)}
                     </Typography>
                 </Grid>
-                <Grid size={1} offset={4} textAlign="right">
-                    <Typography variant="subtitle1" color="primary">
+                <Grid size={1} offset={2} textAlign="right">
+                    <Typography variant="body2" color="primary">
                         Total
                     </Typography>
                 </Grid>
                 <Grid size={1} textAlign="right">
-                    <Typography variant="subtitle1" fontWeight={400} color="text">
+                    <Typography variant="body1" color="secondary">
                         {formatCurrency(total, currency)}
                     </Typography>
                 </Grid>
@@ -197,6 +197,7 @@ export default function Payment({ subtotal, taxes, total, currency, onPay }: Pay
                             onChange={(e) => setAcceptedTerms(e.target.checked)}
                         />
                     }
+                    sx={{ color: colors.text.muted }}
                     label="Acepto las condiciones de compra"
                 />
                 <Button variant="contained" color="primary" sx={{ px: 5.5, py: 1.3 }} onClick={handlePay} disabled={!acceptedTerms}>

@@ -17,8 +17,6 @@ import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice"
 
 import TicketSeats from "../../../event/[eventId]/components/TicketSeats/TicketSeats";
 
-import styles from "./SuccessClient.module.scss";
-
 interface SuccessClientProps {
     orderId: string;
 }
@@ -59,40 +57,49 @@ export default function SuccessClient({ orderId }: SuccessClientProps) {
         }
 
         load();
-    }, [orderId, dispatch]);
+    }, [orderId]);
 
     return (
-        <Box>
+        <Box mt={20}>
             {order &&
                 <Grid container columns={12} spacing={2}>
-                    <Grid size={5} mb={10}>
+                    <Grid size={{ xs: 12, lg: 5 }} mb={{ xs: 0, lg: 6 }}>
                         <Box py={4}>
                             <Box>
-                                <Typography variant="hero" color="primary">
+                                <Typography variant="h1" color="primary">
                                     ¡Gracias por tu compra!
                                 </Typography>
-                                <Box display="flex" flexDirection="row">
+                                <Box display="flex" flexDirection="row" mt={2}>
                                     {order.orderType === OrderType.SeasonPass &&
                                         <Box sx={{
-                                            height: "auto",
-                                            width: 250
+                                            position: "relative",
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            width: "100%",
+                                            height: "100%",
+                                            aspectRatio: "16 / 9",
+                                            overflow: "hidden",
+                                            maxWidth: 250,
                                         }} position="relative" mt={2} mr={2}>
                                             <Image
                                                 src={order.itemPosterImageUrl}
                                                 alt="Evento"
                                                 fill
-                                                style={{ objectFit: 'cover', borderRadius: 10 }}
+                                                style={{
+                                                    objectFit: 'cover',
+                                                    objectPosition: "center",
+                                                    borderRadius: 10
+                                                }}
                                             />
                                         </Box>
                                     }
                                     <Box>
-                                        <Typography variant="h3" color="primary" mt={3} mb={3}>
+                                        <Typography variant="h4" color="primary" mt={3} mb={3}>
                                             {order.itemName}
                                         </Typography>
                                         <Typography
-                                            variant="h6"
-                                            fontWeight={400}
-                                            color="text"
+                                            variant="h5"
+                                            color="secondary"
                                             sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
                                             mb={1}
                                         >
@@ -100,9 +107,8 @@ export default function SuccessClient({ orderId }: SuccessClientProps) {
                                             {formattedDate}
                                         </Typography>
                                         <Typography
-                                            variant="h6"
-                                            fontWeight={400}
-                                            color="text"
+                                            variant="h5"
+                                            color="secondary"
                                             sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
                                             mb={1}
                                         >
@@ -124,13 +130,27 @@ export default function SuccessClient({ orderId }: SuccessClientProps) {
                             folio={order.folio}
                         />
                     </Grid>
-                    <Grid size={7}>
-                        <Box className={styles.posterContainer} mt={5}>
+                    <Grid size={{ xs: 12, lg: 7 }}>
+                        <Box
+                            mt={{ xs: 4, lg: 5 }}
+                            mb={{ xs: 4, lg: 0 }}
+                            sx={{
+                                position: "relative",
+                                display: "flex",
+                                justifyContent: "center",
+                                width: "100%",
+                                aspectRatio: "16 / 9",
+                                overflow: "hidden"
+                            }}
+                        >
                             <Image
                                 src={order.itemPosterImageUrl}
                                 alt="Poster"
-                                className={styles.poster}
                                 fill
+                                style={{
+                                    objectFit: "cover",
+                                    objectPosition: "center"
+                                }}
                             />
                         </Box>
                     </Grid>

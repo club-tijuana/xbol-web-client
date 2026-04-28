@@ -1,7 +1,7 @@
 "use client";
 
 import { SeatingChart, SeatsioSeatingChart, SelectableObject } from "@seatsio/seatsio-react";
-import { forwardRef, useImperativeHandle, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 
 import { MyEventSeatDTO } from "@/models/my-event-seat.dto";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -13,7 +13,7 @@ import { SeatsMapProps } from "./SeatsMap.type";
 
 /* -------------------- CONSTANTS -------------------- */
 const MAX_SEATS_SELECTION: number = 12;
-const DISABLED_SELECTED_SEAT_COLOR: string = "#902748";
+const DISABLED_SELECTED_SEAT_COLOR: string = "#F85E30";
 
 export interface SeatsMapHandle {
     getSelectedSeats: () => Array<[string, number]>;
@@ -41,10 +41,13 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
         onSeatsChange
     }, ref) => {
         const dispatch = useAppDispatch();
+        const initSeats = useAppSelector(store => store.bookingFlow.initialSeats);
         const orderLeftSeats = useAppSelector(store => store.bookingFlow.orderLeftSeats);
+        const initializedRef = useRef(false);
         const chartRef = useRef<SeatingChart | null>(null);
         const [isLoading, setIsLoading] = useState(false);
-        const selectedSeatsRef = useRef<Array<[string, number]>>(initialSeats ?? []);
+        const [currentSelectedSeats, setCurrentSelectedSeats] = useState<[string, number][]>(initialSeats ?? []);
+        const selectedSeatsRef = useRef<Array<[string, number]>>([]);
         const chartConfig = eventKey
             ? { holdToken, eventKey }
             : null;
@@ -71,6 +74,41 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
             };
         };
 
+        useEffect(() => {
+            initializedRef.current = false;
+        }, [eventKey]);
+
+        useEffect(() => {
+            selectedSeatsRef.current = currentSelectedSeats;
+
+            if (onSeatsChange) {
+                onSeatsChange();
+            }
+        }, [currentSelectedSeats]);
+
+        useEffect(() => {
+            if (!chartRef.current) return;
+
+            const newSeats = initSeats ?? [];
+
+            chartRef.current.clearSelection?.();
+            chartRef.current.deselectObjects(
+                currentSelectedSeats.map(s => s[0])
+            );
+
+            if (newSeats.length) {
+                chartRef.current.doSelectObjects(newSeats.map(s => s[0]));
+            }
+
+            setCurrentSelectedSeats(newSeats);
+
+        }, [initSeats]);
+
+        useEffect(() => {
+            if (chartRef && chartRef.current && selectedSection) {
+                chartRef.current.zoomToSection(selectedSection);
+            }
+        }, [selectedSection]);
 
         useImperativeHandle(ref, () => ({
             getSelectedSeats: () => selectedSeatsRef.current,
@@ -89,8 +127,7 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
                 if (!chartRef.current) return;
 
                 chartRef.current.deselectObjects(selectedSeatsRef.current.map(s => s[0]));
-                selectedSeatsRef.current = [];
-                onSeatsChange?.();
+                setCurrentSelectedSeats([]);
             }
         }));
 
@@ -98,52 +135,50 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
             chartRef.current = chart;
 
             if (selectedSection) chart.zoomToSection(selectedSection);
+            //if (initialSeats) chart.zoomToObjects(initialSeats.map(s => s[0]));
 
-            const seedSeats = initialSeats ?? [];
-
-            if (seedSeats.length && initialSelectedSeats) {
-                chart.doSelectObjects(initialSelectedSeats);
-                chart.zoomToObjects(initialSelectedSeats);
+            if (!initializedRef.current && initialSeats && initialSeats.length > 0) {
+                initializedRef.current = true;
             }
 
-            selectedSeatsRef.current = seedSeats;
+            if (initialSeats?.length && initialSelectedSeats) {
+                chart.doSelectObjects(initialSelectedSeats).catch(() => { });
+                chart.zoomToObjects(initialSelectedSeats);
+            }
 
             setIsLoading(false);
         };
 
         const handleSelected = (obj: SelectableObject) => {
-            if (selectedSeatsRef.current.some(s => s[0] === obj.label)) return;
+            const seatLabels = currentSelectedSeats.map(s => s[0]);
 
-            const next: [string, number][] = [
-                ...selectedSeatsRef.current,
-                [obj.label, getSeatPrice(obj)]
-            ];
+            if (seatLabels?.includes(obj.label)) return;
 
-            selectedSeatsRef.current = next;
+            setCurrentSelectedSeats(prev => [...prev, [
+                obj.label,
+                getSeatPrice(obj)
+            ]]);
 
             if (mode === "normal") {
-                dispatch(setSeats(next));
+                dispatch(setSeats([...currentSelectedSeats, [obj.label, getSeatPrice(obj)]]));
             }
-
-            onSeatsChange?.();
         };
 
         const handleDeselected = (obj: SelectableObject) => {
-            if (obj.objectType !== "Seat") return;
+            if (!obj.labels.section) return;
 
-            const next = selectedSeatsRef.current.filter(s => s[0] !== obj.label);
-
-            selectedSeatsRef.current = next;
+            setCurrentSelectedSeats(prev => prev.filter(s => s[0] !== obj.label));
 
             if (mode === "normal") {
-                dispatch(setSeats(next));
+                dispatch(setSeats([...currentSelectedSeats.filter(s => s[0] !== obj.label)]));
             }
-
-            onSeatsChange?.();
+            if (onSeatsChange) {
+                onSeatsChange();
+            }
         };
 
         const handleHoldTokenExpired = () => {
-            // TODO: dispatch expireHoldToken from bookingFlowSlice and surface HoldExpiredModal when seats.io fires onHoldTokenExpired
+            //dispatch(expireHoldToken());
         };
 
         const getSeatPrice = (obj: SelectableObject): number => {
@@ -154,11 +189,12 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
 
         return (
             <div>
+
                 {chartConfig && (
                     <SeatsioSeatingChart
-                        key={`${(!blockSameSeats ? holdToken : "map")}-${JSON.stringify(initialSeats)}`}
+                        key={`${(!blockSameSeats ? holdToken : "map")}-${JSON.stringify(initSeats)}`}
                         workspaceKey={process.env.NEXT_PUBLIC_SEATS_WORKSPACE_KEY}
-                        holdToken={!blockSameSeats ? holdToken : ""}
+                        holdToken={(!blockSameSeats && mode !== "print") ? holdToken : ""}
                         event={eventKey}
                         region="na"
                         pricing={pricing}
@@ -178,37 +214,50 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
                         extraConfig={{
                             allowedSeats: initialSeats?.map(s => s[0]) ?? [],
                             mapBlockSameSeats: blockSameSeats,
-                            mapDisabledSelectedColor: DISABLED_SELECTED_SEAT_COLOR
+                            mapDisabledSelectedColor: DISABLED_SELECTED_SEAT_COLOR,
+                            viewMode: mode
                         }}
-                        objectColor={(object: SelectableObject, defaultColor, extraConfig) => {
-                            if (!extraConfig.mapBlockSameSeats) {
+                        objectColor={(object: any, defaultColor, extraConfig) => {
+                            if (extraConfig.mapBlockSameSeats || extraConfig.viewMode === "print") {
+                                const type =
+                                    typeof object.objectType === "function"
+                                        ? object.objectType()
+                                        : object.objectType;
+
+                                if (!extraConfig.allowedSeats?.length) {
+                                    return defaultColor;
+                                }
+
+                                if (type === "Seat" && extraConfig.allowedSeats.includes(object.labels.displayedLabel)) {
+                                    return extraConfig.mapDisabledSelectedColor;
+                                }
+
                                 return defaultColor;
                             }
-
-                            if (!extraConfig.allowedSeats?.length) {
+                            else {
                                 return defaultColor;
                             }
-
-                            if (object.objectType === "Seat" && extraConfig.allowedSeats.includes(object.labels.displayedLabel)) {
-                                return extraConfig.mapDisabledSelectedColor;
-                            }
-
-                            return defaultColor;
                         }}
-                        isObjectVisible={(object: SelectableObject, extraConfig) => {
-                            if (!extraConfig.mapBlockSameSeats) {
+                        isObjectVisible={(object: any, extraConfig) => {
+                            if (extraConfig.mapBlockSameSeats) {
+                                const type =
+                                    typeof object.objectType === "function"
+                                        ? object.objectType()
+                                        : object.objectType;
+
+                                if (!extraConfig.allowedSeats?.length) {
+                                    return true;
+                                }
+
+                                if (type === "Seat") {
+                                    return extraConfig.allowedSeats.includes(object.labels.displayedLabel);
+                                }
+
+                                return type === "row" || type === "section";
+                            }
+                            else {
                                 return true;
                             }
-
-                            if (!extraConfig.allowedSeats?.length) {
-                                return true;
-                            }
-
-                            if (object.objectType === "Seat") {
-                                return extraConfig.allowedSeats.includes(object.labels.displayedLabel);
-                            }
-
-                            return object.objectType === "section";
                         }}
                     />
                 )}

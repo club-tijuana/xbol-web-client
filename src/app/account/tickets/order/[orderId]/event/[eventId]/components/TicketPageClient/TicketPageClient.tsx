@@ -1,5 +1,6 @@
 "use client";
 
+import { CalendarTodayOutlined, LocationOnOutlined } from "@mui/icons-material";
 import { Alert, Box, Grid, Snackbar, Typography } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -21,7 +22,6 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { resetStatus } from "@/store/slices/shareTicketSlice";
 import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
 import { colors } from "@/theme/colors";
-import advertisementImage from "@public/assets/images/advertisement/advertisement.png";
 
 import TicketQRTabs from "../TicketQRTabs/TicketQRTabs";
 import TicketSeats from "../TicketSeats/TicketSeats";
@@ -34,7 +34,11 @@ interface EventSectionProps {
 const EventSection = ({ eventImage }: EventSectionProps) => (
     <Box sx={{
         position: "relative",
-        height: 539
+        display: "flex",
+        justifyContent: "center",
+        width: "100%",
+        aspectRatio: "16 / 9",
+        overflow: "hidden"
     }}
         mb={2.5}
     >
@@ -43,7 +47,11 @@ const EventSection = ({ eventImage }: EventSectionProps) => (
                 src={eventImage}
                 alt="Evento"
                 fill
-                style={{ objectFit: 'cover', borderRadius: 10 }}
+                style={{
+                    objectFit: 'cover',
+                    objectPosition: "center",
+                    borderRadius: 10
+                }}
             />
         }
     </Box>
@@ -128,26 +136,39 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
             {(detail && tickets) &&
                 <FullWidthSection
                     variant="colorFixedHeight"
-                    backgroundColor={colors.brand.background}
+                    backgroundColor={colors.ui.surface}
+                    bottomRounded={true}
                     height={670}
                 >
-                    <Box mt={5}>
-                        <Typography variant="h6" fontWeight={400} color="primary" mb={1} textAlign='right'>
+                    <Box mt={20}>
+                        <Typography variant="h6" color="primary" mb={1} textAlign='right'>
                             {`Folio ${detail?.folio}`}
                         </Typography>
                         <Grid container columns={12} spacing={6}>
                             <Grid size={{ xs: 12, sm: 12, md: 12, lg: 5, xl: 5 }}>
-                                <Typography variant="hero" color="primary" mb={4}>
+                                <Typography variant="h1" color="primary" mb={4}>
                                     {`Detalles > ${detail?.name}`}
                                 </Typography>
-                                <Box mb={3}>
-                                    <Typography variant="h2" fontWeight={600} color="primary" mb={1}>
+                                <Box mb={5}>
+                                    <Typography variant="h4" color="primary" mb={3}>
                                         {detail?.name}
                                     </Typography>
-                                    <Typography variant="h6" fontWeight={700} color="muted">
+                                    <Typography
+                                        variant="h5"
+                                        color="secondary"
+                                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                                        mb={1}
+                                    >
+                                        <CalendarTodayOutlined color="primary" />
                                         {getDateFormat()}
                                     </Typography>
-                                    <Typography variant="h6" fontWeight={400}>
+                                    <Typography
+                                        variant="h5"
+                                        color="secondary"
+                                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                                        mb={1}
+                                    >
+                                        <LocationOnOutlined color="primary" />
                                         {detail?.location}
                                     </Typography>
                                 </Box>
@@ -178,13 +199,13 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
                                 </Box>
 
                                 <Box my={6}>
-                                    <Typography variant="h3" color="primary">
+                                    <Typography variant="h4" color="primary">
                                         ¡Haz feliz a otro fan!
                                     </Typography>
-                                    <Typography variant="h6" fontWeight={400} color="text" mt={2.5}>
+                                    <Typography variant="subtitle1" color="secondary" mt={2.5}>
                                         ¿Un amigo no puede acompañarte? ¿Hubo cambio de planes? ¡Conoce nuestro mercado secundario para esos tickets que no podrán ser usados!
                                     </Typography>
-                                    <Advertisement image={advertisementImage} />
+                                    <Advertisement image={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/images/advertisement/advertisement.png`} />
                                 </Box>
                             </Grid>
                             <Grid size={{ lg: 7, xl: 7 }} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "block" } }} mb={3}>
@@ -200,25 +221,37 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
                 </FullWidthSection>
             }
 
-            <FullWidthSection variant="color" backgroundColor={colors.brand.background}>
-                <Box sx={{ px: { xs: 4, sm: 10, md: 10, lg: 20, xl: 39 } }} my={5}>
-                    <FAQ />
-                </Box>
+            <FullWidthSection
+                variant="color"
+                backgroundColor={colors.ui.background}
+            >
+                <FullWidthSection
+                    variant="color"
+                    backgroundColor={colors.ui.surface}
+                    topRounded={true}
+                    bottomRounded={true}
+                >
+                    <Box sx={{ px: { xs: 4, sm: 10, md: 10, lg: 20, xl: 39 } }} my={5}>
+                        <FAQ />
+                    </Box>
+                </FullWidthSection>
+
+                <Grid container columns={12} mt={6}>
+                    <Grid size={12}>
+                        <Typography variant="h2" fontWeight={600} color="primary" align="center">
+                            Eventos destacados
+                        </Typography>
+                        <EventCardGrid
+                            eventCards={trendingEvents}
+                            sizeVariant="sm"
+                            styleVariant="default"
+                            showCardBadge={true}
+                        />
+                    </Grid>
+                </Grid>
             </FullWidthSection>
 
-            <Grid container columns={12} mt={6}>
-                <Grid size={{ xs: 12, sm: 12, md: 8, lg: 9, xl: 9 }} offset={{ xs: 0, sm: 0, md: 2, lg: 2, xl: 2 }}>
-                    <Typography variant="h2" fontWeight={600} color="primary" align="center">
-                        Eventos destacados
-                    </Typography>
-                    <EventCardGrid
-                        eventCards={trendingEvents}
-                        sizeVariant="xs"
-                        styleVariant="default"
-                        showCardActions={false}
-                    />
-                </Grid>
-            </Grid>
+
 
             <Snackbar
                 anchorOrigin={{ vertical: "top", horizontal: "right" }}
