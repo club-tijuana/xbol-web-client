@@ -1,5 +1,9 @@
 import type { NextConfig } from 'next';
 
+import { validatePublicEnv } from './src/config/env';
+
+validatePublicEnv(process.env);
+
 const adminImageHost = process.env.NEXT_PUBLIC_ADMIN_IMAGE_HOST;
 
 const nextConfig: NextConfig = {
