@@ -31,7 +31,17 @@ There is no test runner configured.
 
 ## Environment variables
 
-All client-exposed variables use the `NEXT_PUBLIC_` prefix and are inlined at build time. `env.d.ts` is the source of truth for required keys.
+All client-exposed variables use the `NEXT_PUBLIC_` prefix and are inlined at build time. Zod schemas exported from `src/config/envContracts.ts` are the source of truth for supported keys: `publicEnv` for browser/build-time values and `serverEnv` for server-runtime values. Runtime wrappers live in `src/config/env.ts` and `src/config/serverEnv.ts`.
+
+Export the generated JSON Schema after changing environment contracts:
+
+```bash
+npm run schema:export
+npm run schema:check
+```
+
+The generated `src/config/env.schema.json` is consumed by the XBOL secrets
+browser alongside the ASP `appsettings.schema.json` files.
 
 | Variable                          | Purpose                                                                                                                                                                                    | Example                                    |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------ |
@@ -46,6 +56,7 @@ All client-exposed variables use the `NEXT_PUBLIC_` prefix and are inlined at bu
 | `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Optional Firebase storage bucket from the web app config. | `boletera-qa.firebasestorage.app` |
 | `NEXT_PUBLIC_BASE_PATH`           | Feeds Next's `basePath` — prefixes application routes. Leave empty when the gateway strips the subpath before forwarding to the upstream (current APISIX setup). Populate only if the app must answer at a subpath without upstream stripping.                                                  | `` (current deploy)                        |
 | `NEXT_PUBLIC_ASSET_PREFIX`        | Feeds Next's `assetPrefix` — prefixes asset URLs (`_next/static`, `_next/image`, etc.) without prefixing routes. Set to the public subpath the gateway exposes so the browser requests assets through the gateway.                                                                              | `` (local) / `/client` (deployed)          |
+| `NEXT_PUBLIC_ADMIN_IMAGE_HOST`    | Optional hostname added to Next image optimization for admin-served event media under `/admin/images/**`.                                                               | `dev-web.pwrticket.mx`                     |
 | `NEXT_PUBLIC_SECRET_BASE_32`      | Base32 secret for the QR ticket TOTP timer (`src/hooks/useQrTimer.ts`). Required only for the My Tickets QR flow.                                                                          | (issued per environment)                   |
 
 Server-only variables:
@@ -79,9 +90,10 @@ Client-exposed `NEXT_PUBLIC_*` variables are inlined at **build time**, so they 
 - `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
 - `NEXT_PUBLIC_BASE_PATH`
 - `NEXT_PUBLIC_ASSET_PREFIX`
+- `NEXT_PUBLIC_ADMIN_IMAGE_HOST`
 - `NEXT_PUBLIC_SECRET_BASE_32`
 
-Server-only Firebase Admin SDK variables are read at **runtime** by the standalone Next.js server:
+Server-only values are read at **runtime** by the standalone Next.js server:
 
 - `FIREBASE_SERVICE_ACCOUNT_JSON`
 - `FIREBASE_SESSION_COOKIE_NAME`
@@ -116,11 +128,14 @@ Shape:
   "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET": "boletera-qa.firebasestorage.app",
   "NEXT_PUBLIC_BASE_PATH": "",
   "NEXT_PUBLIC_ASSET_PREFIX": "/client",
+  "NEXT_PUBLIC_ADMIN_IMAGE_HOST": "dev-web.pwrticket.mx",
   "NEXT_PUBLIC_SECRET_BASE_32": "<base32 TOTP secret>",
   "FIREBASE_SERVICE_ACCOUNT_JSON": "<single-line service account JSON>",
   "FIREBASE_SESSION_COOKIE_NAME": "xbol_client_session"
 }
 ```
+
+`FIREBASE_SESSION_COOKIE_SECURE` is omitted from deployed HTTPS secrets so the server uses its production default. Set it only for local HTTP container verification.
 
 To update:
 

@@ -3,6 +3,7 @@
 import { SeatingChart, SeatsioSeatingChart, SelectableObject } from "@seatsio/seatsio-react";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 
+import { publicEnv } from "@/config/env";
 import { MyEventSeatDTO } from "@/models/my-event-seat.dto";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setSeats } from "@/store/slices/bookingFlowSlice";
@@ -193,7 +194,7 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
                 {chartConfig && (
                     <SeatsioSeatingChart
                         key={`${(!blockSameSeats ? holdToken : "map")}-${JSON.stringify(initSeats)}`}
-                        workspaceKey={process.env.NEXT_PUBLIC_SEATS_WORKSPACE_KEY}
+                        workspaceKey={publicEnv.NEXT_PUBLIC_SEATS_WORKSPACE_KEY}
                         holdToken={(!blockSameSeats && mode !== "print") ? holdToken : ""}
                         event={eventKey}
                         region="na"
