@@ -27,12 +27,18 @@ const LOGO_WIDTH = 30;
 const LOGO_HEIGHT = 30;
 const MY_ACCOUNT_POPOVER_WIDTH = 287;
 
+interface NavItem {
+    title: string;
+    redirectUrl: string;
+    requiresAuth?: boolean;
+}
+
 const navItems = [
     { title: 'Home', redirectUrl: "/" },
-    { title: 'Boletos', redirectUrl: "/account/tickets" },
-    { title: 'Vender', redirectUrl: "/no-content" },
-    { title: 'Cuenta', redirectUrl: "/no-content" }
-];
+    { title: 'Boletos', redirectUrl: "/account/tickets", requiresAuth: true },
+    { title: 'Vender', redirectUrl: "/no-content", requiresAuth: true },
+    { title: 'Cuenta', redirectUrl: "/account", requiresAuth: true }
+] satisfies NavItem[];
 
 const sxActions: SxProps<Theme> = {
     padding: 0,
@@ -49,6 +55,8 @@ export default function Header() {
     const date = new Date();
     const formattedDate = formatDate(date, "monthYear");
     const [searchText, setSearchText] = useState("");
+    const isAuthenticated = client !== null;
+    const visibleNavItems = navItems.filter(item => !item.requiresAuth || isAuthenticated);
 
     const handleDrawerToggle = () => {
         setMobileOpen((prevState) => !prevState);
@@ -59,7 +67,7 @@ export default function Header() {
     }
 
     const handleAccountClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        if (client === null) {
+        if (!isAuthenticated) {
             dispatch(openLoginModal());
         }
         else {
@@ -83,7 +91,7 @@ export default function Header() {
     }
 
     const handleLogout = async () => {
-        if (client === null) {
+        if (!isAuthenticated) {
             return;
         }
 
@@ -118,8 +126,7 @@ export default function Header() {
             <SearchInput value={searchText} onChange={e => setSearchText(e)} onEnterPress={handleOnFilterEnter} />
             <Divider />
             <List>
-                {navItems.map((item) => {
-                    if (item.title === "Boletos" && !client) return null;
+                {visibleNavItems.map((item) => {
                     return (
                         <ListItem key={item.title} disablePadding>
                             <ListItemButton
@@ -189,8 +196,7 @@ export default function Header() {
                                         xl: 4
                                     }
                                 }}>
-                                    {navItems.map((item) => {
-                                        if ((item.title === "Boletos") && !client) return null;
+                                    {visibleNavItems.map((item) => {
                                         return (
                                             <Button key={item.title} variant='text' sx={{ color: '#F0F0F0', px: 2 }} onClick={() => handleRedirect(item.redirectUrl)}>
                                                 <Typography variant='h5'>
