@@ -1,13 +1,14 @@
 "use client";
 
 import { Theme } from '@emotion/react';
-import { ConfirmationNumberOutlined, CreditCardOutlined, Logout, ShieldOutlined, Star } from '@mui/icons-material';
+import { ConfirmationNumberOutlined, CreditCardOutlined, Logout, MarkEmailReadOutlined, ShieldOutlined, Star } from '@mui/icons-material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { AppBar, Box, Button, CssBaseline, Divider, Drawer, Grid, IconButton, List, ListItem, ListItemButton, ListItemText, Popover, SxProps, Toolbar, Typography } from "@mui/material";
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState } from "react";
 
+import { canUseVerifiedClientFeatures } from '@/helpers/authStateHelper';
 import { formatDate } from '@/helpers/formatDateHelper';
 import { logout as logoutService } from '@/services/authService';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -56,7 +57,8 @@ export default function Header() {
     const formattedDate = formatDate(date, "monthYear");
     const [searchText, setSearchText] = useState("");
     const isAuthenticated = client !== null;
-    const visibleNavItems = navItems.filter(item => !item.requiresAuth || isAuthenticated);
+    const isVerifiedClient = canUseVerifiedClientFeatures(client);
+    const visibleNavItems = navItems.filter(item => !item.requiresAuth || isVerifiedClient);
 
     const handleDrawerToggle = () => {
         setMobileOpen((prevState) => !prevState);
@@ -271,44 +273,60 @@ export default function Header() {
                                                     {formattedDate}
                                                 </Typography>
                                                 <Box mt={2}>
-                                                    <Button
-                                                        variant="text"
-                                                        startIcon={<ConfirmationNumberOutlined color='neutral' />}
-                                                        onClick={() => handleRedirect('/account/tickets')}
-                                                        sx={sxActions}
-                                                    >
-                                                        <Typography variant='body1' color='neutral'>
-                                                            Mis tickets
-                                                        </Typography>
-                                                    </Button>
-                                                    <Button
-                                                        variant="text"
-                                                        startIcon={<Star color='neutral' />}
-                                                        onClick={() => handleRedirect('/account/favourites')}
-                                                        sx={sxActions}
-                                                    >
-                                                        <Typography variant='body1' color='neutral'>
-                                                            Mis Favoritos
-                                                        </Typography>
-                                                    </Button>
-                                                    <Button
-                                                        variant="text"
-                                                        startIcon={<CreditCardOutlined color='neutral' />}
-                                                        sx={sxActions}
-                                                    >
-                                                        <Typography variant='body1' color='neutral'>
-                                                            Métodos de pago
-                                                        </Typography>
-                                                    </Button>
-                                                    <Button
-                                                        variant="text"
-                                                        startIcon={<ShieldOutlined color='neutral' />}
-                                                        sx={sxActions}
-                                                    >
-                                                        <Typography variant='body1' color='neutral'>
-                                                            Privacidad
-                                                        </Typography>
-                                                    </Button>
+                                                    {isVerifiedClient &&
+                                                        <>
+                                                            <Button
+                                                                variant="text"
+                                                                startIcon={<ConfirmationNumberOutlined color='neutral' />}
+                                                                onClick={() => handleRedirect('/account/tickets')}
+                                                                sx={sxActions}
+                                                            >
+                                                                <Typography variant='body1' color='neutral'>
+                                                                    Mis tickets
+                                                                </Typography>
+                                                            </Button>
+                                                            <Button
+                                                                variant="text"
+                                                                startIcon={<Star color='neutral' />}
+                                                                onClick={() => handleRedirect('/account/favourites')}
+                                                                sx={sxActions}
+                                                            >
+                                                                <Typography variant='body1' color='neutral'>
+                                                                    Mis Favoritos
+                                                                </Typography>
+                                                            </Button>
+                                                            <Button
+                                                                variant="text"
+                                                                startIcon={<CreditCardOutlined color='neutral' />}
+                                                                sx={sxActions}
+                                                            >
+                                                                <Typography variant='body1' color='neutral'>
+                                                                    Métodos de pago
+                                                                </Typography>
+                                                            </Button>
+                                                            <Button
+                                                                variant="text"
+                                                                startIcon={<ShieldOutlined color='neutral' />}
+                                                                sx={sxActions}
+                                                            >
+                                                                <Typography variant='body1' color='neutral'>
+                                                                    Privacidad
+                                                                </Typography>
+                                                            </Button>
+                                                        </>
+                                                    }
+                                                    {client !== null && !isVerifiedClient &&
+                                                        <Button
+                                                            variant="text"
+                                                            startIcon={<MarkEmailReadOutlined color='neutral' />}
+                                                            onClick={() => handleRedirect('/register/verify-email')}
+                                                            sx={sxActions}
+                                                        >
+                                                            <Typography variant='body1' color='neutral'>
+                                                                Verificar correo
+                                                            </Typography>
+                                                        </Button>
+                                                    }
                                                     {client !== null &&
                                                         <Button
                                                             variant="text"
