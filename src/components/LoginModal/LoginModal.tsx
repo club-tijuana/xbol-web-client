@@ -3,6 +3,7 @@
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Alert, AlertColor, Backdrop, Box, Button, CircularProgress, Dialog, FormControl, IconButton, Input, InputAdornment, Snackbar, Typography } from "@mui/material";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { RootState } from "@/store";
@@ -15,6 +16,7 @@ import styles from "./LoginModal.module.scss";
 
 export default function LoginModal() {
     const dispatch = useAppDispatch();
+    const router = useRouter();
     const open = useAppSelector((state: RootState) => state.ui.loginModalOpen);
 
     const [username, setUsername] = useState("");
@@ -35,11 +37,23 @@ export default function LoginModal() {
         event.preventDefault();
     };
 
-    const handleLogin = async () => {
+    const handleLogin = async (event?: React.FormEvent<HTMLFormElement>) => {
+        event?.preventDefault();
+
+        if (status === "loading") {
+            return;
+        }
+
         const result = await dispatch(login({ username, password }));
 
         if (login.fulfilled.match(result)) {
             dispatch(closeLoginModal());
+
+            if (result.payload.emailVerified === false || result.payload.verificationStatus === "pending") {
+                router.push("/register/verify-email");
+                return;
+            }
+
             setAlertSeverity("success");
             setAlertMessage("Sesión iniciada");
             setAlertOpen(true);
@@ -54,12 +68,17 @@ export default function LoginModal() {
         }
     };
 
+    const handleRegister = () => {
+        dispatch(closeLoginModal());
+        router.push("/register");
+    };
+
     return (
         <Dialog
             open={open}
             onClose={() => dispatch(closeLoginModal())}
             slotProps={{ paper: { className: styles.modal } }}>
-            <Box className={styles.content}>
+            <Box component="form" className={styles.content} onSubmit={handleLogin}>
                 <Box className={styles.topImage} mt={2}>
                     <Image
                         src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/logo-gold-dark.svg`}
@@ -83,6 +102,7 @@ export default function LoginModal() {
                             type={'text'}
                             className={styles.inputCustom}
                             inputProps={{
+                                "aria-label": "Correo electrónico",
                                 style: {
                                     textAlign: 'center',
                                     fontSize: 16
@@ -108,6 +128,7 @@ export default function LoginModal() {
                             type={showPassword ? 'text' : 'password'}
                             className={styles.inputCustom}
                             inputProps={{
+                                "aria-label": "Contraseña",
                                 style: {
                                     textAlign: 'center',
                                     fontSize: 16
@@ -121,6 +142,7 @@ export default function LoginModal() {
                             endAdornment={
                                 <InputAdornment position="end">
                                     <IconButton
+                                        type="button"
                                         aria-label={
                                             showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
                                         }
@@ -137,29 +159,25 @@ export default function LoginModal() {
                     </FormControl>
                 </Box>
 
-                <Button variant="text" color={'secondary'}>
+                <Button type="button" variant="text" color={'secondary'}>
                     <Typography variant="body1" color={'text'} sx={{ textDecoration: 'underline' }}>
                         ¿Olvidaste tu contraseña?
                     </Typography>
                 </Button>
+                <Button type="button" variant="text" color={'secondary'} onClick={handleRegister}>
+                    <Typography variant="body1" color={'text'} sx={{ textDecoration: 'underline' }}>
+                        Crear cuenta
+                    </Typography>
+                </Button>
                 <Box className={styles.actionContainer} mt={5}>
                     <Button
+                        type="submit"
                         variant="contained"
-                        onClick={handleLogin}
                         disabled={status === "loading"}
                         sx={{ paddingTop: 1.2, paddingBottom: 1.2 }}
                     >
                         <Typography variant="body1" color={colors.text.neutral}>
                             Iniciar sesión
-                        </Typography>
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="secondary"
-                        sx={{ marginTop: 1.5, paddingTop: 1.2, paddingBottom: 1.2 }}
-                    >
-                        <Typography variant="body1" color={colors.text.neutral}>
-                            Crea una cuenta
                         </Typography>
                     </Button>
                 </Box>

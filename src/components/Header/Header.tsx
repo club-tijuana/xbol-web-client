@@ -9,6 +9,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useState } from "react";
 
 import { formatDate } from '@/helpers/formatDateHelper';
+import { logout as logoutService } from '@/services/authService';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { logout } from "@/store/slices/authSlice";
 import { setTextFilter } from '@/store/slices/eventsFilterSlice';
@@ -81,11 +82,12 @@ export default function Header() {
         handleCloseAccount();
     }
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         if (client === null) {
             return;
         }
 
+        await logoutService();
         dispatch(logout());
         dispatch(favouriteResetState());
         handleCloseAccount();
