@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { defaultWhiteLabelId, whiteLabelIds } from "./whiteLabel/configs.ts";
+
 const githubActionsEnvironments = ["GCP_DEV", "GCP_QA"] as const;
 
 type EnvExposure = "public-build-time" | "server-runtime";
@@ -53,6 +55,14 @@ export const DEFAULT_SESSION_COOKIE_NAME = "xbol_client_session";
 const requiredString = (name: string) =>
   z.string().trim().min(1, `${name} is required.`);
 
+const emptyStringToUndefined = (value: unknown) => {
+  if (typeof value === "string" && value.trim() === "") {
+    return undefined;
+  }
+
+  return value;
+};
+
 const publicEnvShape = {
   NEXT_PUBLIC_API_BASE_URL: requiredString("NEXT_PUBLIC_API_BASE_URL").pipe(
     z.url({
@@ -85,6 +95,10 @@ const publicEnvShape = {
   NEXT_PUBLIC_ASSET_PREFIX: z.string().optional(),
   NEXT_PUBLIC_ADMIN_IMAGE_HOST: z.string().optional(),
   NEXT_PUBLIC_SECRET_BASE_32: z.string().optional(),
+  NEXT_PUBLIC_WHITE_LABEL: z.preprocess(
+    emptyStringToUndefined,
+    z.enum(whiteLabelIds).optional().default(defaultWhiteLabelId),
+  ),
 };
 
 export const publicEnvMetadata = {
@@ -119,6 +133,7 @@ export const publicEnvMetadata = {
   NEXT_PUBLIC_ASSET_PREFIX: publicBuildTimeEnv("variable", "repository"),
   NEXT_PUBLIC_ADMIN_IMAGE_HOST: publicBuildTimeEnv("variable", "environment"),
   NEXT_PUBLIC_SECRET_BASE_32: publicBuildTimeEnv("secret", "repository"),
+  NEXT_PUBLIC_WHITE_LABEL: publicBuildTimeEnv("variable", "environment"),
 } satisfies Record<keyof typeof publicEnvShape, EnvMetadata>;
 
 export const publicEnvSchema = z.object(publicEnvShape).meta({
@@ -155,13 +170,7 @@ const serverEnvShape = {
     .optional()
     .default(DEFAULT_SESSION_COOKIE_NAME),
   FIREBASE_SESSION_COOKIE_SECURE: z.preprocess(
-    (value) => {
-      if (typeof value === "string" && value.trim() === "") {
-        return undefined;
-      }
-
-      return value;
-    },
+    emptyStringToUndefined,
     z
       .enum(["true", "false"])
       .transform((value) => value === "true")

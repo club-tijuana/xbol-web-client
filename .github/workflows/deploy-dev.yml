@@ -110,6 +110,7 @@ jobs:
             NEXT_PUBLIC_ASSET_PREFIX=${{ vars.NEXT_PUBLIC_ASSET_PREFIX }}
             NEXT_PUBLIC_ADMIN_IMAGE_HOST=${{ vars.NEXT_PUBLIC_ADMIN_IMAGE_HOST }}
             NEXT_PUBLIC_SECRET_BASE_32=${{ secrets.NEXT_PUBLIC_SECRET_BASE_32 }}
+            NEXT_PUBLIC_WHITE_LABEL=${{ vars.NEXT_PUBLIC_WHITE_LABEL }}
             DOCKER_IMAGE_VERSION=${{ env.IMAGE_VERSION }}
 
       - name: Update image version in infra-cloud deployment

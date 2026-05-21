@@ -1,8 +1,6 @@
 import type { z } from "zod";
 
-import {
-  publicEnvSchema,
-} from "./envContracts";
+import { publicEnvSchema } from "./envContracts";
 
 export {
   publicEnvMetadata,
@@ -36,4 +34,5 @@ export const publicEnv = validatePublicEnv({
   NEXT_PUBLIC_ASSET_PREFIX: process.env.NEXT_PUBLIC_ASSET_PREFIX,
   NEXT_PUBLIC_ADMIN_IMAGE_HOST: process.env.NEXT_PUBLIC_ADMIN_IMAGE_HOST,
   NEXT_PUBLIC_SECRET_BASE_32: process.env.NEXT_PUBLIC_SECRET_BASE_32,
+  NEXT_PUBLIC_WHITE_LABEL: process.env.NEXT_PUBLIC_WHITE_LABEL,
 });

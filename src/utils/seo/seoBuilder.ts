@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import { whiteLabel } from "@/config/whiteLabel";
+
 interface SeoOptions {
     title: string;
     description: string;
@@ -25,7 +27,7 @@ export function buildSeoMetadata({
             title,
             description,
             url,
-            siteName: "PWRTicket",
+            siteName: whiteLabel.brandName,
             images: [
                 {
                     url: image,
