@@ -1,0 +1,26 @@
+.tocLink,
+.activeTocLink {
+    box-sizing: border-box;
+    display: block;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    padding: 6px 0 6px 14px;
+    text-decoration: none;
+}
+
+.toc {
+    border-left: 1px solid var(--color-border);
+}
+
+.tocLink,
+.activeTocLink {
+    border-left: 2px solid transparent;
+    color: var(--color-secondary);
+    margin-left: -1px;
+}
+
+.activeTocLink {
+    border-left-color: var(--color-primary);
+    color: var(--color-primary);
+    font-weight: 600;
+}

@@ -1,14 +1,16 @@
 "use client";
 
 import { Theme } from '@emotion/react';
-import { ConfirmationNumberOutlined, CreditCardOutlined, Logout, ShieldOutlined, Star } from '@mui/icons-material';
+import { ConfirmationNumberOutlined, CreditCardOutlined, Logout, MarkEmailReadOutlined, ShieldOutlined, Star } from '@mui/icons-material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { AppBar, Box, Button, CssBaseline, Divider, Drawer, Grid, IconButton, List, ListItem, ListItemButton, ListItemText, Popover, SxProps, Toolbar, Typography } from "@mui/material";
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState } from "react";
 
+import { canUseVerifiedClientFeatures } from '@/helpers/authStateHelper';
 import { formatDate } from '@/helpers/formatDateHelper';
+import { logout as logoutService } from '@/services/authService';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { logout } from "@/store/slices/authSlice";
 import { setTextFilter } from '@/store/slices/eventsFilterSlice';
@@ -26,12 +28,18 @@ const LOGO_WIDTH = 30;
 const LOGO_HEIGHT = 30;
 const MY_ACCOUNT_POPOVER_WIDTH = 287;
 
+interface NavItem {
+    title: string;
+    redirectUrl: string;
+    requiresAuth?: boolean;
+}
+
 const navItems = [
     { title: 'Home', redirectUrl: "/" },
-    { title: 'Boletos', redirectUrl: "/account/tickets" },
-    { title: 'Vender', redirectUrl: "/no-content" },
-    { title: 'Cuenta', redirectUrl: "/no-content" }
-];
+    { title: 'Boletos', redirectUrl: "/account/tickets", requiresAuth: true },
+    { title: 'Vender', redirectUrl: "/no-content", requiresAuth: true },
+    { title: 'Cuenta', redirectUrl: "/account", requiresAuth: true }
+] satisfies NavItem[];
 
 const sxActions: SxProps<Theme> = {
     padding: 0,
@@ -48,6 +56,9 @@ export default function Header() {
     const date = new Date();
     const formattedDate = formatDate(date, "monthYear");
     const [searchText, setSearchText] = useState("");
+    const isAuthenticated = client !== null;
+    const isVerifiedClient = canUseVerifiedClientFeatures(client);
+    const visibleNavItems = navItems.filter(item => !item.requiresAuth || isVerifiedClient);
 
     const handleDrawerToggle = () => {
         setMobileOpen((prevState) => !prevState);
@@ -58,7 +69,7 @@ export default function Header() {
     }
 
     const handleAccountClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        if (client === null) {
+        if (!isAuthenticated) {
             dispatch(openLoginModal());
         }
         else {
@@ -81,11 +92,12 @@ export default function Header() {
         handleCloseAccount();
     }
 
-    const handleLogout = () => {
-        if (client === null) {
+    const handleLogout = async () => {
+        if (!isAuthenticated) {
             return;
         }
 
+        await logoutService();
         dispatch(logout());
         dispatch(favouriteResetState());
         handleCloseAccount();
@@ -116,8 +128,7 @@ export default function Header() {
             <SearchInput value={searchText} onChange={e => setSearchText(e)} onEnterPress={handleOnFilterEnter} />
             <Divider />
             <List>
-                {navItems.map((item) => {
-                    if (item.title === "Boletos" && !client) return null;
+                {visibleNavItems.map((item) => {
                     return (
                         <ListItem key={item.title} disablePadding>
                             <ListItemButton
@@ -187,8 +198,7 @@ export default function Header() {
                                         xl: 4
                                     }
                                 }}>
-                                    {navItems.map((item) => {
-                                        if ((item.title === "Boletos") && !client) return null;
+                                    {visibleNavItems.map((item) => {
                                         return (
                                             <Button key={item.title} variant='text' sx={{ color: '#F0F0F0', px: 2 }} onClick={() => handleRedirect(item.redirectUrl)}>
                                                 <Typography variant='h5'>
@@ -263,44 +273,60 @@ export default function Header() {
                                                     {formattedDate}
                                                 </Typography>
                                                 <Box mt={2}>
-                                                    <Button
-                                                        variant="text"
-                                                        startIcon={<ConfirmationNumberOutlined color='neutral' />}
-                                                        onClick={() => handleRedirect('/account/tickets')}
-                                                        sx={sxActions}
-                                                    >
-                                                        <Typography variant='body1' color='neutral'>
-                                                            Mis tickets
-                                                        </Typography>
-                                                    </Button>
-                                                    <Button
-                                                        variant="text"
-                                                        startIcon={<Star color='neutral' />}
-                                                        onClick={() => handleRedirect('/account/favourites')}
-                                                        sx={sxActions}
-                                                    >
-                                                        <Typography variant='body1' color='neutral'>
-                                                            Mis Favoritos
-                                                        </Typography>
-                                                    </Button>
-                                                    <Button
-                                                        variant="text"
-                                                        startIcon={<CreditCardOutlined color='neutral' />}
-                                                        sx={sxActions}
-                                                    >
-                                                        <Typography variant='body1' color='neutral'>
-                                                            Métodos de pago
-                                                        </Typography>
-                                                    </Button>
-                                                    <Button
-                                                        variant="text"
-                                                        startIcon={<ShieldOutlined color='neutral' />}
-                                                        sx={sxActions}
-                                                    >
-                                                        <Typography variant='body1' color='neutral'>
-                                                            Privacidad
-                                                        </Typography>
-                                                    </Button>
+                                                    {isVerifiedClient &&
+                                                        <>
+                                                            <Button
+                                                                variant="text"
+                                                                startIcon={<ConfirmationNumberOutlined color='neutral' />}
+                                                                onClick={() => handleRedirect('/account/tickets')}
+                                                                sx={sxActions}
+                                                            >
+                                                                <Typography variant='body1' color='neutral'>
+                                                                    Mis tickets
+                                                                </Typography>
+                                                            </Button>
+                                                            <Button
+                                                                variant="text"
+                                                                startIcon={<Star color='neutral' />}
+                                                                onClick={() => handleRedirect('/account/favourites')}
+                                                                sx={sxActions}
+                                                            >
+                                                                <Typography variant='body1' color='neutral'>
+                                                                    Mis Favoritos
+                                                                </Typography>
+                                                            </Button>
+                                                            <Button
+                                                                variant="text"
+                                                                startIcon={<CreditCardOutlined color='neutral' />}
+                                                                sx={sxActions}
+                                                            >
+                                                                <Typography variant='body1' color='neutral'>
+                                                                    Métodos de pago
+                                                                </Typography>
+                                                            </Button>
+                                                            <Button
+                                                                variant="text"
+                                                                startIcon={<ShieldOutlined color='neutral' />}
+                                                                sx={sxActions}
+                                                            >
+                                                                <Typography variant='body1' color='neutral'>
+                                                                    Privacidad
+                                                                </Typography>
+                                                            </Button>
+                                                        </>
+                                                    }
+                                                    {client !== null && !isVerifiedClient &&
+                                                        <Button
+                                                            variant="text"
+                                                            startIcon={<MarkEmailReadOutlined color='neutral' />}
+                                                            onClick={() => handleRedirect('/register/verify-email')}
+                                                            sx={sxActions}
+                                                        >
+                                                            <Typography variant='body1' color='neutral'>
+                                                                Verificar correo
+                                                            </Typography>
+                                                        </Button>
+                                                    }
                                                     {client !== null &&
                                                         <Button
                                                             variant="text"

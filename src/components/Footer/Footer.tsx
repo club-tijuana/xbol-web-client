@@ -1,9 +1,18 @@
 import { Grid, Stack, Typography } from "@mui/material";
 import Image from "next/image";
+import Link from "next/link";
 
 import { colors } from "@/theme/colors";
 
 import styles from "./Footer.module.scss";
+
+const legalLinks = [
+    { label: "Información de la empresa", href: "/legal#contacto" },
+    { label: "Términos y condiciones", href: "/legal#terminos" },
+    { label: "Entrega de boletos", href: "/legal#entrega" },
+    { label: "Cancelaciones y reembolsos", href: "/legal#reembolsos" },
+    { label: "Privacidad", href: "/legal#privacidad" },
+] as const;
 
 export default function Footer() {
     return (
@@ -22,18 +31,29 @@ export default function Footer() {
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6, md: 5, lg: 5, xl: 4 }}>
                     <Grid container columns={12} className={styles.stackContainer}>
-                        <Grid size={6} display="flex" justifyContent="center">
+                        <Grid size={{ xs: 6, sm: 4 }} display="flex" justifyContent="center">
                             <Stack spacing={1} className={styles.stack}>
                                 <Typography variant="body1" color={colors.text.neutral}>Eventos</Typography>
                                 <Typography variant="body1" color={colors.text.neutral}>Teatro</Typography>
                                 <Typography variant="body1" color={colors.text.neutral}>Música</Typography>
                             </Stack>
                         </Grid>
-                        <Grid size={6} display="flex" justifyContent="center">
+                        <Grid size={{ xs: 6, sm: 4 }} display="flex" justifyContent="center">
                             <Stack spacing={1} className={styles.stack}>
                                 <Typography variant="body1" color={colors.text.neutral}>Deporte</Typography>
                                 <Typography variant="body1" color={colors.text.neutral}>Centro de ayuda</Typography>
                                 <Typography variant="body1" color={colors.text.neutral}>Quienes somos</Typography>
+                            </Stack>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 4 }} display="flex" justifyContent="center">
+                            <Stack spacing={1} className={styles.stack}>
+                                {legalLinks.map((link) => (
+                                    <Link key={link.href} href={link.href} className={styles.footerLink}>
+                                        <Typography variant="body1" color={colors.text.neutral}>
+                                            {link.label}
+                                        </Typography>
+                                    </Link>
+                                ))}
                             </Stack>
                         </Grid>
                     </Grid>
