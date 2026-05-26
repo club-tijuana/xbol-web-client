@@ -10,6 +10,11 @@ export async function getMyEvents(
     filters: TicketsFilters
 ): Promise<PagedResponse<MyEventDTO> | null> {
     const state = store.getState();
+    const token = state.auth.user?.token;
+
+    if (!token) {
+        return null;
+    }
 
     const params = {
         page: filters.page,
@@ -21,7 +26,7 @@ export async function getMyEvents(
         "GET",
         "clients/my-events",
         undefined,
-        state.auth.user?.token,
+        token,
         { params }
     );
 
@@ -36,17 +41,27 @@ export async function getMyEvents(
 
 export async function getMyEventDetail(eventId: number, orderId: number): Promise<MyEventDetailDTO | null> {
     const state = store.getState();
+    const token = state.auth.user?.token;
+
+    if (!token) {
+        return null;
+    }
 
     return await requestAxios<null, MyEventDetailDTO>(
         "GET",
         `clients/my-event/${eventId}/${orderId}`,
         null,
-        state.auth.user?.token
+        token
     );
 }
 
 export async function getMyEventTickets(filters: TicketsFilters): Promise<PagedResponse<MyTicketDto> | null> {
     const state = store.getState();
+    const token = state.auth.user?.token;
+
+    if (!token) {
+        return null;
+    }
 
     const params = {
         page: filters.page,
@@ -59,7 +74,7 @@ export async function getMyEventTickets(filters: TicketsFilters): Promise<PagedR
         "GET",
         "clients/my-event-tickets",
         undefined,
-        state.auth.user?.token,
+        token,
         { params }
     );
 }
