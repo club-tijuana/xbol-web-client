@@ -4,14 +4,10 @@ import { Alert, Button, CircularProgress, Paper, Stack, Typography } from "@mui/
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { AuthDto } from "@/models/auth.dto";
+import { isEmailVerified } from "@/helpers/authStateHelper";
 import { refreshEmailVerificationStatus, sendVerificationEmail } from "@/services/authService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setUser } from "@/store/slices/authSlice";
-
-function isEmailVerified(user: AuthDto | null): boolean {
-    return user?.emailVerified === true || user?.verificationStatus === "verified";
-}
 
 export default function EmailVerificationStatus() {
     const dispatch = useAppDispatch();
