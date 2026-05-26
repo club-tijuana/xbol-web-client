@@ -1,9 +1,9 @@
-name: Build and Push to GCP (QA)
+name: Build and Push to GCP (PROD)
 
 on:
-  pull_request:
+  push:
     branches:
-      - qa
+      - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -12,10 +12,10 @@ concurrency:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    environment: GCP_QA
+    environment: GCP_PROD
 
     env:
-      IMAGE_NAME: qa-xbol-web-client
+      IMAGE_NAME: xbol-web-client
       IMAGE_BASE: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/club-tijuana-docker-repo/
 
     permissions:
@@ -39,7 +39,7 @@ jobs:
           if [ -n "$INFRA_REPO_TOKEN" ]; then
             git clone --depth 1 "https://x-access-token:${INFRA_REPO_TOKEN}@github.com/club-tijuana/infra-cloud.git" infra-cloud-version 2>/dev/null || true
 
-            DEPLOY_FILE="infra-cloud-version/workloads/boletera/qa/xbol-web-client/deployment.yaml"
+            DEPLOY_FILE="infra-cloud-version/workloads/boletera/prod/xbol-web-client/deployment.yaml"
             if [ -f "$DEPLOY_FILE" ]; then
               CURRENT_IMAGE_GET_VERSION=$(yq e '.spec.template.spec.containers[0].image' "$DEPLOY_FILE" 2>/dev/null || true)
               if [ -n "$CURRENT_IMAGE_GET_VERSION" ]; then
@@ -94,7 +94,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+            NEXT_PUBLIC_API_BASE_URL=${{ vars.NEXT_PUBLIC_API_BASE_URL }}
             NEXT_PUBLIC_SEATS_WORKSPACE_KEY=${{ vars.NEXT_PUBLIC_SEATS_WORKSPACE_KEY }}
             NEXT_PUBLIC_FIREBASE_API_KEY=${{ vars.NEXT_PUBLIC_FIREBASE_API_KEY }}
             NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ vars.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
@@ -118,7 +118,7 @@ jobs:
             echo "⚠️ INFRA_CLOUD_REPO_TOKEN no configurado, se omite actualización"
             exit 0
           fi
-          DEPLOY_FILE="workloads/boletera/qa/xbol-web-client/deployment.yaml"
+          DEPLOY_FILE="workloads/boletera/prod/xbol-web-client/deployment.yaml"
           git clone --depth 1 "https://x-access-token:${INFRA_REPO_TOKEN}@github.com/club-tijuana/infra-cloud.git" infra-cloud
           cd infra-cloud
           if [ ! -f "$DEPLOY_FILE" ]; then
@@ -142,6 +142,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add "$DEPLOY_FILE"
-          git diff --staged --quiet && echo "Sin cambios" || git commit -m "chore(qa-xbol-web-client): actualizar imagen a ${IMAGE_VERSION}"
+          git diff --staged --quiet && echo "Sin cambios" || git commit -m "chore(xbol-web-client): actualizar imagen a ${IMAGE_VERSION}"
           git push
           echo "✅ Image version updated."
