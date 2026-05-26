@@ -1,54 +1,26 @@
 import "server-only";
 
-import { z } from "zod";
+import type { z } from "zod";
 
-export const DEFAULT_SESSION_COOKIE_NAME = "xbol_client_session";
+import {
+  serverEnvSchema,
+} from "./envContracts";
 
-const serviceAccountJsonError =
-  "FIREBASE_SERVICE_ACCOUNT_JSON is required for Firebase Admin SDK session cookies.";
+export {
+  DEFAULT_SESSION_COOKIE_NAME,
+  serverEnvMetadata,
+  serverEnvSchema,
+} from "./envContracts";
 
-const serviceAccountJsonSchema = z
-  .string({
-    message: serviceAccountJsonError,
-  })
-  .trim()
-  .min(1, serviceAccountJsonError)
-  .refine((value) => {
-    try {
-      const parsed: unknown = JSON.parse(value);
-
-      return typeof parsed === "object" && parsed !== null;
-    } catch {
-      return false;
-    }
-  }, "FIREBASE_SERVICE_ACCOUNT_JSON must be a valid single-line JSON object.");
-
-const firebaseAdminEnvSchema = z.object({
-  FIREBASE_SERVICE_ACCOUNT_JSON: serviceAccountJsonSchema,
+const firebaseAdminEnvSchema = serverEnvSchema.pick({
+  FIREBASE_SERVICE_ACCOUNT_JSON: true,
+});
+const sessionCookieEnvSchema = serverEnvSchema.pick({
+  FIREBASE_SESSION_COOKIE_NAME: true,
+  FIREBASE_SESSION_COOKIE_SECURE: true,
 });
 
-const sessionCookieEnvSchema = z.object({
-  FIREBASE_SESSION_COOKIE_NAME: z
-    .string()
-    .trim()
-    .min(1, "FIREBASE_SESSION_COOKIE_NAME cannot be empty.")
-    .optional()
-    .default(DEFAULT_SESSION_COOKIE_NAME),
-  FIREBASE_SESSION_COOKIE_SECURE: z.preprocess(
-    (value) => {
-      if (typeof value === "string" && value.trim() === "") {
-        return undefined;
-      }
-
-      return value;
-    },
-    z
-      .enum(["true", "false"])
-      .transform((value) => value === "true")
-      .optional(),
-  ),
-});
-
+export type ServerEnv = z.infer<typeof serverEnvSchema>;
 export type FirebaseAdminEnv = z.infer<typeof firebaseAdminEnvSchema>;
 export type SessionCookieEnv = z.infer<typeof sessionCookieEnvSchema>;
 
