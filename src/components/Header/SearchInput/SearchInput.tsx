@@ -3,8 +3,9 @@
 import { Search } from "@mui/icons-material";
 
 import styles from "./SearchInput.module.scss";
+import { SearchInputProps } from "./SearchInput.type";
 
-export default function SearchInput() {
+export default function SearchInput({ value, onChange, onEnterPress }: SearchInputProps) {
     return (
         <div className={styles.inputContainer}>
             <Search
@@ -12,8 +13,15 @@ export default function SearchInput() {
             />
             <input
                 type="text"
+                value={value}
                 placeholder="Buscar"
                 className={styles.search}
+                onChange={(e) => onChange ? onChange(e.currentTarget.value) : {}}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                        onEnterPress?.();
+                    }
+                }}
             />
         </div>
     );

@@ -1,62 +1,24 @@
 "use client";
 
-import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
-import { Box, IconButton, Slide, Stack } from "@mui/material";
+import { Box } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
+import { Autoplay, EffectCoverflow, Navigation, Pagination } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 import styles from "./EventCarousel.module.scss";
 import { EventCarouselProps } from "./EventCarousel.types";
 
+import 'swiper/css';
+import 'swiper/css/effect-fade';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+
 export default function EventCarousel({ events }: EventCarouselProps) {
     const router = useRouter();
-    const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-    const [currentPage, setCurrentPage] = useState(0);
-    const [slideDirection, setSlideDirection] = useState<"left" | "right">("left");
-
-    const itemsPerPage = 1;
-
-    const pages = useMemo(() => {
-        if (!events) return [];
-        return Array.from(
-            { length: Math.ceil(events.length / itemsPerPage) },
-            (_, i) =>
-                events.slice(i * itemsPerPage, i * itemsPerPage + itemsPerPage)
-        );
-    }, [events]);
-
-    const currentItems = pages[currentPage] || [];
-
-    useEffect(() => {
-        let interval: ReturnType<typeof setInterval> | undefined;;
-        if (isAutoPlaying) {
-            interval = setInterval(() => {
-                setCurrentPage((prev) => (prev === pages.length - 1 ? 0 : prev + 1));
-            }, 5000);
-        }
-
-        return () => clearInterval(interval);
-    }, [isAutoPlaying, pages.length]);
-
-    const handleMouseEnter = () => setIsAutoPlaying(false);
-    const handleMouseLeave = () => setIsAutoPlaying(true);
-
-    const handleNextPage = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        setSlideDirection("left");
-        setCurrentPage((prev) =>
-            prev === pages.length - 1 ? 0 : prev + 1
-        );
-    };
-
-    const handlePrevPage = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        setSlideDirection("right");
-        setCurrentPage((prev) =>
-            prev === 0 ? pages.length - 1 : prev - 1
-        );
-    };
+    const [hoverPrev, setHoverPrev] = useState(false);
+    const [hoverNext, setHoverNext] = useState(false);
 
     const handleClick = (eventId: number) => {
         if (!eventId) {
@@ -67,52 +29,77 @@ export default function EventCarousel({ events }: EventCarouselProps) {
     }
 
     return (
-        <div
-            className={styles.carouselContainer}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-        >
-            <IconButton
-                onClick={(e) => handlePrevPage(e)}
-                sx={{ zIndex: 2 }}
-                color="primary"
+        <Box>
+            <Swiper
+                spaceBetween={0}
+                effect="coverflow"
+                navigation={{
+                    nextEl: ".custom-next",
+                    prevEl: ".custom-prev",
+                    disabledClass: "swiper-button-disabled",
+                }}
+                pagination={{
+                    clickable: true
+                }}
+                modules={[Autoplay, EffectCoverflow, Navigation, Pagination]}
+                loop={true}
+                autoplay={{
+                    delay: 3000,
+                }}
             >
-                <ArrowBackIos sx={{ fontSize: 40 }} />
-            </IconButton>
-            <Box className={styles.carouselSlide}
-                sx={{ width: "100%", overflow: "hidden" }}
-                onClick={() => handleClick(events[currentPage].id)}
-            >
-                <Slide
-                    direction={slideDirection}
-                    in
-                    mountOnEnter
-                    unmountOnExit
-                >
-                    <Stack direction="row" spacing={2} justifyContent="center">
-                        {currentItems.map((item) => (
-                            <Box
-                                key={`${item.id}`}
-                                sx={{ width: `${100 / itemsPerPage}%` }}
-                            >
-                                <Image
-                                    src={events[currentPage].bannerImageUrl}
-                                    alt={events[currentPage].name}
-                                    fill
-                                    className={styles.image}
-                                />
-                            </Box>
-                        ))}
-                    </Stack>
-                </Slide>
+                {events.map((event, index) => (
+                    <SwiperSlide key={index}>
+                        <Box
+                            key={`${event.id}`}
+                            sx={{
+                                position: "relative",
+                                display: "flex",
+                                justifyContent: "center",
+                                width: "100%",
+                                aspectRatio: "16 / 9",
+                                overflow: "hidden"
+                            }}
+                        >
+                            <Image
+                                onClick={() => handleClick(event.id)}
+                                src={event.bannerImageUrl}
+                                alt={event.name}
+                                fill
+                                className={styles.image}
+                                style={{
+                                    objectFit: "cover",
+                                    objectPosition: "center",
+                                    cursor: "pointer"
+                                }}
+                            />
+                        </Box>
+                    </SwiperSlide>
+                ))}
+            </Swiper>
+
+            <Box
+                className="custom-prev"
+                onMouseEnter={() => setHoverPrev(true)}
+                onMouseLeave={() => setHoverPrev(false)}>
+                <Image
+                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/${hoverPrev ? "left-hover.svg" : "left-default.svg"}`}
+                    alt="Prev"
+                    width={35}
+                    height={35}
+                />
             </Box>
-            <IconButton
-                onClick={(e) => handleNextPage(e)}
-                sx={{ zIndex: 2 }}
-                color="primary"
-            >
-                <ArrowForwardIos sx={{ fontSize: 40 }} />
-            </IconButton>
-        </div>
+
+            <Box
+                className="custom-next"
+                onMouseEnter={() => setHoverNext(true)}
+                onMouseLeave={() => setHoverNext(false)}>
+                <Image
+                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/${hoverNext ? "right-hover.svg" : "right-default.svg"}`}
+                    alt="Next"
+                    width={35}
+                    height={35}
+                />
+            </Box>
+        </Box>
     );
 }

@@ -1,56 +1,74 @@
 "use client";
 
-import { Box, Divider, Grid, Paper, Typography } from "@mui/material";
+import { Box, Button, Divider, Grid, Paper, SxProps, Typography } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 import SeatsMap from "@/components/SeatsMap/SeatsMap";
+import { formatCurrency } from "@/helpers/formatCurrencyHelper";
 
 import { TicketSeatsProps } from "./TicketSeats.type";
 
+/* -------------------- CONSTANTS -------------------- */
+const SCALE = 0.8;
+const COMPENSATED_WIDTH = `${100 / SCALE}%`;
+const OFFSET_Y = -70;
 
-export default function TicketSeats({ eventKey, subTotal, totalTaxes, total, currency, seats, selectedSeats }: TicketSeatsProps) {
-    const scale = 0.8;
-    const compensatedWidth = `${100 / scale}%`;
-    const offsetY = -70;
+/* -------------------- STYLES -------------------- */
+const contentStyle: SxProps = {
+    position: "relative",
+    width: "100%",
+    height: 120,
+    borderStyle: 'solid',
+    borderColor: 'var(--color-text-primary)',
+    borderWidth: 1,
+    borderRadius: '15px',
+    overflow: 'hidden',
+};
+
+/* -------------------- COMPONENT -------------------- */
+export default function TicketSeats({ eventKey, subTotal, totalTaxes, total, currency, seats, selectedSeats, folio }: TicketSeatsProps) {
+    const router = useRouter();
+
+    const handleGoToMyTickets = () => {
+        router.push(`/account/tickets`);
+    }
 
     return (
         <Paper elevation={3} className="paperCard"
         >
-            <Typography variant="h3" color="primary">
-                Tus asientos
-            </Typography>
-            <Grid container columns={12} mt={2}>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Typography variant="h4" color="primary">
+                    Tus asientos
+                </Typography>
+                {folio &&
+                    <Typography variant="body2" color="primary">
+                        Folio {folio}
+                    </Typography>
+                }
+            </Box>
+            <Grid container columns={12} mt={3.5}>
                 <Grid size={4}>
-                    <Box sx={{
-                        position: "relative",
-                        width: "100%",
-                        height: 120,
-                        borderStyle: 'solid',
-                        borderColor: 'var(--color-text-primary)',
-                        borderWidth: 1,
-                        borderRadius: '15px',
-                        overflow: 'hidden',
-                    }}
-                    >
+                    <Box sx={contentStyle}>
                         <Box
                             sx={{
-                                transform: `scale(${scale}) translateY(${offsetY}px)`,
+                                transform: `scale(${SCALE}) translateY(${OFFSET_Y}px)`,
                                 transformOrigin: "top left",
-                                width: compensatedWidth,
-                                height: "100%",
+                                width: COMPENSATED_WIDTH,
+                                height: "100%"
                             }}
                         >
-                            <SeatsMap eventKey={eventKey} selectedObjects={selectedSeats} mode="print" />
+                            <SeatsMap eventKey={eventKey} initialSeats={selectedSeats} mode="print" session="continue" />
                         </Box>
                     </Box>
                 </Grid>
                 <Grid size={8}>
                     <Box ml={8} display="flex" flexDirection="column" justifyContent="center" height="100%">
                         {seats.map((seat, index) => (
-                            <Box key={index}>
-                                <Typography variant="body1" color="muted">
+                            <Box key={index} mb={2}>
+                                <Typography variant="body1" color="secondary">
                                     {`Sección ${seat.section}`}
                                 </Typography>
-                                <Typography variant="body2" color="muted">
+                                <Typography variant="caption" color="muted">
                                     {`Asientos: ${seat.seats}`}
                                 </Typography>
                             </Box>
@@ -59,52 +77,76 @@ export default function TicketSeats({ eventKey, subTotal, totalTaxes, total, cur
                 </Grid>
             </Grid>
 
-            <Divider sx={{ my: 4, borderWidth: 1, borderColor: 'var(--color-text-primary)' }} />
+            {subTotal !== undefined &&
+                <Divider sx={{ mb: 3, mt: 5, borderWidth: 1, borderTop: "none", borderColor: 'var(--color-tertiary)' }} />
+            }
 
-            <Grid container columns={4}>
-                <Grid size={1} offset={2}>
-                    <Typography variant="subtitle1" fontWeight={400} color="primary" textAlign="right">
-                        Subtotal
-                    </Typography>
+            {subTotal !== undefined &&
+                <Grid container columns={4}>
+                    <Grid size={1} offset={2}>
+                        <Typography variant="body2" color="primary" textAlign="right">
+                            Subtotal
+                        </Typography>
+                    </Grid>
+                    <Grid size={1}>
+                        <Typography variant="body1" color="secondary" textAlign="right">
+                            {formatCurrency(subTotal, currency)}
+                        </Typography>
+                    </Grid>
                 </Grid>
-                <Grid size={1}>
-                    <Typography variant="subtitle1" fontWeight={400} color="muted" textAlign="right">
-                        {`${new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(subTotal)} ${currency}`}
-                    </Typography>
+            }
+            {totalTaxes !== undefined &&
+                <Grid container columns={4} mt={3}>
+                    <Grid size={1} offset={2}>
+                        <Typography variant="body2" color="primary" textAlign="right">
+                            Impuestos
+                        </Typography>
+                    </Grid>
+                    <Grid size={1}>
+                        <Typography variant="body1" color="secondary" textAlign="right">
+                            {formatCurrency(totalTaxes, currency)}
+                        </Typography>
+                    </Grid>
                 </Grid>
-                <Grid size={1} offset={2}>
-                    <Typography variant="subtitle1" fontWeight={400} color="primary" textAlign="right">
-                        Impuestos
-                    </Typography>
+            }
+            {total !== undefined &&
+                <Grid container columns={4} mt={3}>
+                    <Grid size={1} offset={2}>
+                        <Typography variant="body2" color="primary" textAlign="right">
+                            Total
+                        </Typography>
+                    </Grid>
+                    <Grid size={1}>
+                        <Typography variant="body1" color="secondary" textAlign="right">
+                            {formatCurrency(total, currency)}
+                        </Typography>
+                    </Grid>
                 </Grid>
-                <Grid size={1}>
-                    <Typography variant="subtitle1" fontWeight={400} color="muted" textAlign="right">
-                        {`${new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(totalTaxes)} ${currency}`}
-                    </Typography>
-                </Grid>
-                <Grid size={1} offset={2}>
-                    <Typography variant="subtitle1" fontWeight={400} color="primary" textAlign="right">
-                        Total
-                    </Typography>
-                </Grid>
-                <Grid size={1}>
-                    <Typography variant="subtitle1" fontWeight={400} color="muted" textAlign="right">
-                        {`${new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(total)} ${currency}`}
-                    </Typography>
-                </Grid>
-            </Grid>
+            }
 
-            <Divider sx={{ my: 4, borderWidth: 1, borderColor: 'var(--color-text-primary)' }} />
+            {subTotal !== undefined &&
+                <>
+                    <Divider sx={{ my: 3, borderWidth: 1, borderTop: "none", borderColor: 'var(--color-tertiary)' }} />
 
-            <Typography variant="h4" fontWeight={400} color="muted" mb={1}>
-                Acceso a tus boletos
-            </Typography>
-            <Typography variant="h6" fontWeight={400} color="text" mb={2}>
-                Tus boletos electrónicos han sido enviados a tu correo electrónico registrado.
-            </Typography>
-            <Typography variant="h6" fontWeight={400} color="text">
-                También puedes descargarlos desde tu cuenta en la sección “Mis Tickets”
-            </Typography>
+                    <Typography variant="h4" color="primary" mb={1}>
+                        Acceso a tus boletos
+                    </Typography>
+                    <Typography variant="subtitle1" color="secondary" mb={2}>
+                        Tus boletos electrónicos han sido enviados a tu correo electrónico registrado.
+                    </Typography>
+                    <Typography variant="subtitle1" color="secondary">
+                        También puedes descargarlos desde tu cuenta en la sección “Mis Tickets”
+                    </Typography>
+
+                    {folio &&
+                        <Box textAlign={"center"} mt={3}>
+                            <Button variant="outlined" size="medium" onClick={handleGoToMyTickets}>
+                                Ir a mis tickets
+                            </Button>
+                        </Box>
+                    }
+                </>
+            }
         </Paper>
     );
 }

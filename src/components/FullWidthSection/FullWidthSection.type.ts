@@ -16,4 +16,7 @@ export interface FullWidthSectionProps {
     height?: number;
     fullBleed?: boolean;
     disableMaxWidth?: boolean;
+    topRounded?: boolean;
+    bottomRounded?: boolean;
+    hideOverflow?: boolean;
 }
