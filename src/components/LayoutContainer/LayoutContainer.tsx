@@ -3,6 +3,7 @@
 import { Box, useTheme } from "@mui/material";
 import { useEffect } from "react";
 
+import { canUseVerifiedClientFeatures } from "@/helpers/authStateHelper";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { loadFavorites } from "@/store/slices/favouriteEventSlice";
 
@@ -12,10 +13,10 @@ export function LayoutContainer({ children }: { children: React.ReactNode }) {
     const user = useAppSelector(state => state.auth.user);
 
     useEffect(() => {
-        if (user) {
+        if (canUseVerifiedClientFeatures(user)) {
             dispatch(loadFavorites());
         }
-    }, [user]);
+    }, [dispatch, user]);
 
     return (
         <Box component="main"

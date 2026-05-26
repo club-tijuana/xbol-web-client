@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "schema:export": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types scripts/export-env-schema.mjs",
+    "schema:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types scripts/export-env-schema.mjs --check",
+    "schema:contracts": "node scripts/check-env-schema-contracts.mjs"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

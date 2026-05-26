@@ -3,8 +3,10 @@
 import { generate } from "otplib";
 import { useEffect, useRef, useState } from "react";
 
+import { publicEnv } from "@/config/env";
+
 /* -------------------- CONSTANTS -------------------- */
-const SECRET_BASE_32 = process.env.NEXT_PUBLIC_SECRET_BASE_32;
+const SECRET_BASE_32 = publicEnv.NEXT_PUBLIC_SECRET_BASE_32;
 const STEP_SECONDS = 30;
 const MILLISECONDS_IN_SECOND = 1000;
 const PERCENTAGE_MAX = 100;
@@ -41,6 +43,11 @@ export function useQrTimer({
                 intervalRef.current = null;
             }
             lastWindowRef.current = null;
+            onGenerate("");
+            return;
+        }
+
+        if (!SECRET_BASE_32) {
             onGenerate("");
             return;
         }
