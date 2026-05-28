@@ -33,6 +33,11 @@ const nextConfig: NextConfig = {
         hostname: 'dev.zorbek.software',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'storage.googleapis.com',
+        pathname: '/**',
+      },
       ...(adminImageHost
         ? [{
           protocol: 'https' as const,
