@@ -23,11 +23,10 @@ App runs at <http://localhost:3000>.
 ### Build & Lint
 
 ```bash
+npm test        # Node unit tests
 npm run build   # production build (output: standalone)
 npm run lint    # ESLint: next/core-web-vitals + typescript + import order
 ```
-
-There is no test runner configured.
 
 ## Environment variables
 
@@ -51,7 +50,7 @@ browser alongside the ASP `appsettings.schema.json` files.
 | `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Firebase auth domain for Client auth. | `boletera-qa.firebaseapp.com` |
 | `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Firebase project id for Client auth. | `boletera-qa` |
 | `NEXT_PUBLIC_FIREBASE_APP_ID` | Firebase web app id for Client Web. | `1:313175547904:web:...` |
-| `NEXT_PUBLIC_FIREBASE_TENANT_ID` | Google Cloud Identity Platform tenant id for Client identities. | `client-44m3w` |
+| `NEXT_PUBLIC_FIREBASE_PHONE_AUTH_TESTING` | Enables Firebase's documented fictional-number phone auth integration path for local/integration testing. Never enable in production. | `true` locally, `false`/unset deployed |
 | `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Optional Firebase messaging sender id from the web app config. | `313175547904` |
 | `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Optional Firebase storage bucket from the web app config. | `boletera-qa.firebasestorage.app` |
 | `NEXT_PUBLIC_BASE_PATH`           | Feeds Next's `basePath` — prefixes application routes. Leave empty when the gateway strips the subpath before forwarding to the upstream (current APISIX setup). Populate only if the app must answer at a subpath without upstream stripping.                                                  | `` (current deploy)                        |
@@ -65,7 +64,7 @@ Server-only variables:
 | -------------------------------- | -------------------------------------------------------------------------------------------------------- | ---------------------- |
 | `FIREBASE_SERVICE_ACCOUNT_JSON`  | Firebase service account JSON content for the Admin SDK session-cookie route handlers.                    | `{"type":"service_account",...}` |
 | `FIREBASE_SESSION_COOKIE_NAME`   | Optional HttpOnly session cookie name override.                                                          | `xbol_client_session`  |
-| `FIREBASE_SESSION_COOKIE_SECURE` | Optional local HTTP override for the cookie `Secure` flag. Leave unset in deployed HTTPS environments.   | `false`                |
+| `FIREBASE_SESSION_COOKIE_SECURE` | Optional non-production HTTP override for the cookie `Secure` flag. Production always forces `Secure=true`. | `false`                |
 
 For local development, put the service account JSON in `.env.development` as a single-line value:
 
@@ -85,7 +84,6 @@ Client-exposed `NEXT_PUBLIC_*` variables are inlined at **build time**, so they 
 - `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
 - `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
 - `NEXT_PUBLIC_FIREBASE_APP_ID`
-- `NEXT_PUBLIC_FIREBASE_TENANT_ID`
 - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
 - `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
 - `NEXT_PUBLIC_BASE_PATH`
@@ -123,7 +121,6 @@ Shape:
   "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN": "boletera-qa.firebaseapp.com",
   "NEXT_PUBLIC_FIREBASE_PROJECT_ID": "boletera-qa",
   "NEXT_PUBLIC_FIREBASE_APP_ID": "<Firebase Web SDK app id>",
-  "NEXT_PUBLIC_FIREBASE_TENANT_ID": "client-44m3w",
   "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "313175547904",
   "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET": "boletera-qa.firebasestorage.app",
   "NEXT_PUBLIC_BASE_PATH": "",
@@ -135,7 +132,10 @@ Shape:
 }
 ```
 
-`FIREBASE_SESSION_COOKIE_SECURE` is omitted from deployed HTTPS secrets so the server uses its production default. Set it only for local HTTP container verification.
+Do not add `NEXT_PUBLIC_FIREBASE_PHONE_AUTH_TESTING` to deployed environment or
+GitHub Actions configuration. It is a local-only Client Web setting for Firebase
+fictional-number testing. `FIREBASE_SESSION_COOKIE_SECURE=false` is ignored in
+production; production responses always set the session cookie with `Secure=true`.
 
 To update:
 

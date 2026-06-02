@@ -20,15 +20,15 @@ export interface AuthMeResponse {
 }
 
 export interface RegisterRequest {
-    email: string;
-    password: string;
+    identifier: string;
+    identifierCountryCode?: string;
+    password?: string;
     fullName: string;
-    phoneNumber?: string;
 }
 
 export interface RegisterResponse {
     firebaseUid: string;
-    customToken: string;
+    customToken?: string | null;
     client: ClientProfileDto;
     onboardingStatus: string;
     verificationStatus?: string;

@@ -16,14 +16,16 @@ const createSessionSchema = z.object({
 
 function getCookieOptions() {
   const sessionCookieEnv = getSessionCookieEnv();
+  const secure = process.env.NODE_ENV === "production"
+    ? true
+    : sessionCookieEnv.FIREBASE_SESSION_COOKIE_SECURE ?? false;
 
   return {
     httpOnly: true,
     maxAge: SESSION_COOKIE_EXPIRES_IN_MS / 1000,
     path: process.env.NEXT_PUBLIC_BASE_PATH || "/",
     sameSite: "lax" as const,
-    secure: sessionCookieEnv.FIREBASE_SESSION_COOKIE_SECURE
-      ?? process.env.NODE_ENV === "production",
+    secure,
   };
 }
 

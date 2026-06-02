@@ -225,7 +225,7 @@ export default function ShareTicketDialog({ ticketId, open, variant, orderType, 
                                     setClient(prev => ({
                                         ...prev,
                                         phone: phoneNumber?.nationalNumber ?? "",
-                                        phoneIsoCode: phoneNumber ? `+${phoneNumber.countryCallingCode}` : "",
+                                        phoneIsoCode: phoneNumber?.country ?? "",
                                         phoneCode: phoneNumber ? `+${phoneNumber.countryCallingCode}` : "",
                                         fullPhone: value
                                     }));

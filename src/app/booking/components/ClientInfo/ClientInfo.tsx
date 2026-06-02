@@ -159,7 +159,7 @@ export default function ClientInfo() {
                             setClient(prev => ({
                                 ...prev,
                                 phoneNumber: phoneNumber?.nationalNumber ?? "",
-                                phoneIsoCode: phoneNumber ? `+${phoneNumber.countryCallingCode}` : "",
+                                phoneIsoCode: phoneNumber?.country ?? "",
                                 phoneCode: phoneNumber ? `+${phoneNumber.countryCallingCode}` : "",
                                 fullPhone: value
                             }));

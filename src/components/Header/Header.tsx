@@ -315,7 +315,7 @@ export default function Header() {
                                                             </Button>
                                                         </>
                                                     }
-                                                    {client !== null && !isVerifiedClient &&
+                                                    {client?.clientId && !isVerifiedClient &&
                                                         <Button
                                                             variant="text"
                                                             startIcon={<MarkEmailReadOutlined color='neutral' />}

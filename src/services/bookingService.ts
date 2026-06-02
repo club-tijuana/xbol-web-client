@@ -52,25 +52,34 @@ export async function getSeatsAvailability(filters: ReservationFilters): Promise
 }
 
 export async function eventBookSeats(request: EventBookingRequest): Promise<BookingResult> {
+    const state = store.getState();
+
     return requestAxios<EventBookingRequest, BookingResult>(
         "POST",
         `${PATH}/event/book-seats`,
-        request
+        request,
+        state.auth.user?.token
     );
 }
 
 export async function seasonBookSeats(request: SeasonBookingRequest): Promise<BookingResult> {
+    const state = store.getState();
+
     return requestAxios<SeasonBookingRequest, BookingResult>(
         "POST",
         `${PATH}/season/book-season`,
-        request
+        request,
+        state.auth.user?.token
     );
 }
 
 export async function seasonRenovationSeats(request: SeasonBookingRequest): Promise<BookingResult> {
+    const state = store.getState();
+
     return requestAxios<SeasonBookingRequest, BookingResult>(
         "POST",
         `${PATH}/season/renovate-season`,
-        request
+        request,
+        state.auth.user?.token
     );
 }
