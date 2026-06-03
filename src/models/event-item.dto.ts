@@ -2,6 +2,7 @@ import { formatDate } from "@/helpers/formatDateHelper";
 import { DateFormatMode } from "@/types/dateFormatMode";
 
 import { EventCategoryDTO } from "./event-category.dto";
+import { EventMediaSetDTO, mediaUrl } from "./media.dto";
 import { EventCardVM } from "./views/event-card.vm";
 
 export interface EventItemDTO {
@@ -14,11 +15,18 @@ export interface EventItemDTO {
     eventKey?: string;
     categories: EventCategoryDTO[];
     isFavorite: boolean;
+    media?: EventMediaSetDTO | null;
 }
+
+export const getEventBannerImageUrl = (event: EventItemDTO): string =>
+    mediaUrl(event.media?.banner) ?? event.bannerImageUrl;
+
+export const getEventPosterImageUrl = (event: EventItemDTO): string =>
+    mediaUrl(event.media?.banner) ?? event.posterImageUrl;
 
 export const mapEventToCardVM = (e: EventItemDTO, dateMode?: DateFormatMode): EventCardVM => ({
     eventId: e.id,
-    posterImageUrl: e.posterImageUrl,
+    posterImageUrl: getEventPosterImageUrl(e),
     name: e.name,
     startDate: formatDate(e.startDate, dateMode ?? "date"),
     location: e.location,

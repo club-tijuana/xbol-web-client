@@ -28,7 +28,10 @@ export async function getZonesBySeason(seasonId: number): Promise<ZoneDTO[]> {
 export async function getEventItemBySchedule(scheduleId: number): Promise<EventItemDTO> {
     return requestAxios<null, EventItemDTO>(
         "GET",
-        `${PATH}/event-by-schedule/${scheduleId}`
+        `${PATH}/event-by-schedule/${scheduleId}`,
+        undefined,
+        undefined,
+        { params: { includeMedia: true } }
     );
 }
 
@@ -39,7 +42,8 @@ export async function getSeasonById(seasonId: number): Promise<SeasonItemDTO> {
         "GET",
         `${PATH}/season-by-id/${seasonId}`,
         undefined,
-        state.auth.user?.token
+        state.auth.user?.token,
+        { params: { includeMedia: true } }
     );
 }
 

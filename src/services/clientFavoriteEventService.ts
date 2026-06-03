@@ -28,7 +28,8 @@ export async function getClientFavorites(
 
   const params = {
     page: page,
-    pageSize: pageSize
+    pageSize: pageSize,
+    includeMedia: true
   };
 
   return requestAxios<null, PagedResponse<EventItemDTO>>(

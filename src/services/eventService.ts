@@ -19,6 +19,7 @@ export async function getMainEvents(): Promise<PagedResponse<EventItemDTO>> {
     "events/main",
     null,
     state.auth.user?.token,
+    { params: { includeMedia: true } },
   );
 }
 
@@ -39,7 +40,7 @@ export async function getEvents(
     "events",
     undefined,
     state.auth.user?.token,
-    { params },
+    { params: { ...params, includeMedia: true } },
   );
 }
 
@@ -60,7 +61,9 @@ export async function getFilteredEvents(
   return requestAxios<
     SearchEventsFilters,
     FilteredEventsResponse<PerformerDTO, ScheduleItemDTO>
-  >("GET", "events/filtered-events", undefined, undefined, { params });
+  >("GET", "events/filtered-events", undefined, undefined, {
+    params: { ...params, includeMedia: true },
+  });
 }
 
 export async function getEventDetail(id: number): Promise<EventDetailDTO> {
@@ -70,6 +73,7 @@ export async function getEventDetail(id: number): Promise<EventDetailDTO> {
     `events\\${id}`,
     null,
     state.auth.user?.token,
+    { params: { includeMedia: true } },
   );
 }
 
@@ -105,6 +109,7 @@ export async function getTrendingEvents(
       params: {
         page: filters.page,
         pageSize: filters.pageSize,
+        includeMedia: true,
       },
     },
   );

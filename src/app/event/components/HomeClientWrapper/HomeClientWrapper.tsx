@@ -10,9 +10,12 @@ import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
 import Loader from "@/components/Loader/Loader";
 import SeasonBanner from "@/components/SeasonBanner/SeasonBanner";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
+import { EventCatalogItemType } from "@/models/enums/event-catalog-item-type.enum";
+import { EventCatalogItemDTO, mapEventCatalogItemToCardVM } from "@/models/event-catalog-item.dto";
 import { EventItemDTO, mapEventToCardVM } from "@/models/event-item.dto";
 import { PagedResponse } from "@/models/pagination/paged-response.dto";
 import { SeasonItemDTO } from "@/models/season-item.dto";
+import { getEventCatalog } from "@/services/eventCatalogService";
 import {
   getEvents,
   getMainEvents,
@@ -36,6 +39,8 @@ export default function HomeClientWrapper() {
   const [musicEvents, setMusicEvents] = useState<PagedResponse<EventItemDTO>>();
   const [theaterEvents, setTheaterEvents] =
     useState<PagedResponse<EventItemDTO>>();
+  const [bundleCatalog, setBundleCatalog] =
+    useState<PagedResponse<EventCatalogItemDTO>>();
   const [seasonBanner, setSeasonBanner] = useState<SeasonItemDTO>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -49,6 +54,7 @@ export default function HomeClientWrapper() {
           futbolResponse,
           musicResponse,
           theaterResponse,
+          bundleCatalogResponse,
           seasonResponse
         ] = await Promise.all([
           getMainEvents(),
@@ -56,6 +62,12 @@ export default function HomeClientWrapper() {
           getEvents({ page: 1, eventCategoryId: 1, pageSize: 4 }),
           getEvents({ page: 1, eventCategoryId: 2, pageSize: 4 }),
           getEvents({ page: 1, eventCategoryId: 3, pageSize: 4 }),
+          getEventCatalog({
+            itemType: EventCatalogItemType.Bundle,
+            page: 1,
+            pageSize: 4,
+            upcoming: true,
+          }),
           getSeasonBanner()
         ]);
 
@@ -64,6 +76,7 @@ export default function HomeClientWrapper() {
         setFutbolEvents(futbolResponse);
         setMusicEvents(musicResponse);
         setTheaterEvents(theaterResponse);
+        setBundleCatalog(bundleCatalogResponse);
         setSeasonBanner(seasonResponse);
       } catch (error) {
         dispatch(showGeneralMessage({
@@ -76,7 +89,7 @@ export default function HomeClientWrapper() {
     };
 
     fetchData();
-  }, []);
+  }, [dispatch]);
 
   const handleGoToFilter = async (categoryId: number) => {
     await dispatch(setCategories([categoryId]));
@@ -145,6 +158,21 @@ export default function HomeClientWrapper() {
       {seasonBanner &&
         <SeasonBanner seasonItem={seasonBanner} />
       }
+
+      {(bundleCatalog && bundleCatalog.items.length > 0) && (
+        <Box>
+          <EventCardGrid
+            title="Paquetes"
+            eventCards={bundleCatalog.items.map(item =>
+              mapEventCatalogItemToCardVM(item)
+            )}
+            sizeVariant="lg"
+            styleVariant="muted"
+            showCardBadge={false}
+            showAllButton={false}
+          />
+        </Box>
+      )}
 
       {(theaterEvents && theaterEvents.items.length > 0) && (
         <FullWidthSection

@@ -11,6 +11,7 @@ export async function getSeasonBanner(): Promise<SeasonItemDTO | undefined> {
         "GET",
         `${PATH}`,
         undefined,
-        state.auth.user?.token
+        state.auth.user?.token,
+        { params: { includeMedia: true } }
     );
 }

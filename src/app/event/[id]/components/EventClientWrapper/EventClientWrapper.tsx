@@ -21,7 +21,7 @@ import FavoriteButton from "@/components/FavoriteButton/FavoriteButton";
 import { formatCurrency } from "@/helpers/formatCurrencyHelper";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { AgeRestrictionLabels } from "@/models/enums/age-restriction.enum";
-import { EventDetailDTO } from "@/models/event-detail.dto";
+import { EventDetailDTO, getEventDetailGalleryUrls, getEventDetailImageUrl, getEventDetailSponsorUrls } from "@/models/event-detail.dto";
 import { getEventDetail } from "@/services/eventService";
 import { colors } from "@/theme/colors";
 
@@ -51,6 +51,10 @@ export default function EventClientWrapper({
   const handleSeasonRenovate = (scheduleId: number) => {
     router.push(`/booking/${scheduleId}`);
   }
+
+  const detailImage = event ? getEventDetailImageUrl(event) : "";
+  const galleryImages = event ? getEventDetailGalleryUrls(event) : [];
+  const sponsorImages = event ? getEventDetailSponsorUrls(event) : [];
 
   const Gallery = (
     <>
@@ -91,7 +95,7 @@ export default function EventClientWrapper({
               }}
             />
             <Image
-              src={event.gallery[0]}
+              src={detailImage}
               alt="Evento"
               fill
               style={{
@@ -105,7 +109,7 @@ export default function EventClientWrapper({
             Galería
           </Typography>
           <Grid container columns={2} spacing={2} mt={1.2}>
-            {event.gallery.map((image, index) => (
+            {galleryImages.map((image, index) => (
               <Grid size={{ xs: 2, sm: 1, md: 2, lg: 1 }} key={index}>
                 <Box sx={{
                   position: "relative",
@@ -129,6 +133,38 @@ export default function EventClientWrapper({
               </Grid>
             ))}
           </Grid>
+          {sponsorImages.length > 0 && (
+            <>
+              <Typography variant="h4" mt={2}>
+                Patrocinadores
+              </Typography>
+              <Grid container columns={4} spacing={2} mt={1.2}>
+                {sponsorImages.map((image, index) => (
+                  <Grid size={{ xs: 2, sm: 1, md: 2, lg: 1 }} key={index}>
+                    <Box sx={{
+                      position: "relative",
+                      display: "flex",
+                      justifyContent: "center",
+                      width: "100%",
+                      aspectRatio: "16 / 9",
+                      overflow: "hidden"
+                    }} mb={3}>
+                      <Image
+                        src={image}
+                        alt="Patrocinador"
+                        fill
+                        style={{
+                          objectFit: "contain",
+                          objectPosition: "center",
+                          borderRadius: 10
+                        }}
+                      />
+                    </Box>
+                  </Grid>
+                ))}
+              </Grid>
+            </>
+          )}
         </>
       )}
     </>
