@@ -44,6 +44,7 @@ export default function ClientInfo() {
     const dispatch = useAppDispatch();
     const accountInfo = useAppSelector(store => store.auth.user);
     const [client, setClient] = useState<ClientInfoRequest>({
+        fullName: [accountInfo?.firstName, accountInfo?.lastName].filter(Boolean).join(" "),
         firstName: accountInfo?.firstName ?? "",
         lastName: accountInfo?.lastName ?? "",
         email: accountInfo?.username ?? "",
