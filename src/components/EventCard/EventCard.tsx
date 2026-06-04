@@ -175,7 +175,7 @@ export default function EventCard({
     const id = eventCard.eventId;
     if (!id) return;
 
-    router.push(`/event/${id}`);
+    router.push(eventCard.detailHref ?? `/event/${id}`);
   };
 
   const handleBuyTickets = () => {

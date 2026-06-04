@@ -12,8 +12,8 @@ import Loader from "@/components/Loader/Loader";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { ItemType } from "@/models/enums/item-type.enum";
-import { EventItemDTO } from "@/models/event-item.dto";
-import { SeasonItemDTO } from "@/models/season-item.dto";
+import { EventItemDTO, getEventPosterImageUrl } from "@/models/event-item.dto";
+import { SeasonItemDTO, getSeasonBannerImageUrl } from "@/models/season-item.dto";
 import { getEventItemBySchedule, getSeasonById } from "@/services/bookingService";
 import { holdToken as holdTokenService } from "@/services/holdService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -298,7 +298,7 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                                 overflow: "hidden"
                             }}>
                                 <Image
-                                    src={event.posterImageUrl}
+                                    src={getEventPosterImageUrl(event)}
                                     alt="Evento"
                                     fill
                                     style={{
@@ -344,7 +344,7 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                         height: 180,
                     }}>
                         <Image
-                            src={season.bannerImageUrl}
+                            src={getSeasonBannerImageUrl(season)}
                             alt="Season"
                             fill
                             style={{ objectFit: "cover" }}

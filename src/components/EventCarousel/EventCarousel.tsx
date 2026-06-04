@@ -7,6 +7,8 @@ import { useState } from "react";
 import { Autoplay, EffectCoverflow, Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
+import { getEventBannerImageUrl } from "@/models/event-item.dto";
+
 import styles from "./EventCarousel.module.scss";
 import { EventCarouselProps } from "./EventCarousel.types";
 
@@ -62,7 +64,7 @@ export default function EventCarousel({ events }: EventCarouselProps) {
                         >
                             <Image
                                 onClick={() => handleClick(event.id)}
-                                src={event.bannerImageUrl}
+                                src={getEventBannerImageUrl(event)}
                                 alt={event.name}
                                 fill
                                 className={styles.image}

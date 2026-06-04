@@ -4,6 +4,7 @@ import { Box } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
+import { getSeasonBannerImageUrl } from "@/models/season-item.dto";
 import { useAppDispatch } from "@/store/hooks";
 import { setBookMode } from "@/store/slices/bookingFlowSlice";
 
@@ -24,7 +25,7 @@ export default function SeasonBanner({ seasonItem }: SeasonBannerProps) {
             height: 330
         }}>
             <Image
-                src={seasonItem.bannerImageUrl}
+                src={getSeasonBannerImageUrl(seasonItem)}
                 alt="Season"
                 fill
                 style={{ objectFit: "cover", cursor: "pointer" }}
