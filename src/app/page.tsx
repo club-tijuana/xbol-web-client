@@ -1,8 +1,19 @@
+import { Box, Grid } from "@mui/material";
 import { Metadata } from "next";
+import Image from "next/image";
 
+import ErrorNotifier from "@/components/ErrorNotifier/ErrorNotifier";
+import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
+import EventCarousel from "@/components/EventCarousel/EventCarousel";
+import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
+import SeasonBanner from "@/components/SeasonBanner/SeasonBanner";
 import { whiteLabel } from "@/config/whiteLabel";
-
-import HomeClientWrapper from "./event/components/HomeClientWrapper/HomeClientWrapper";
+import { EventCatalogItemType } from "@/models/enums/event-catalog-item-type.enum";
+import { mapEventCatalogItemToCardVM } from "@/models/event-catalog-item.dto";
+import { mapEventToCardVM } from "@/models/event-item.dto";
+import { getEventCatalog } from "@/services/eventCatalogService";
+import { getEvents, getMainEvents, getTrendingEvents, getUpcomingEvents } from "@/services/eventService";
+import { colors } from "@/theme/colors";
 
 export const metadata: Metadata = {
   title: `Compra boletos para conciertos, fútbol y teatro | ${whiteLabel.brandName}`,
@@ -14,7 +25,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: `Eventos en vivo | ${whiteLabel.brandName}`,
     description:
-      "Compra boletos para conciertos, fútbol y teatro. Vive la experiencia.",
+      "Compra tickets para conciertos, fútbol y teatro. Vive la experiencia.",
     url: "https://dev.com",
     siteName: whiteLabel.brandName,
     images: [
@@ -36,14 +47,200 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function Home() {
+interface HomeProps {
+  searchParams: Promise<{
+    error?: string
+  }>;
+}
+
+export default async function Home({ searchParams }: HomeProps) {
+  const results = await Promise.allSettled([
+    getMainEvents(),
+    getTrendingEvents({ page: 1, pageSize: 4 }),
+    getEvents({ page: 1, eventCategoryId: 1, pageSize: 4 }),
+    getEvents({ page: 1, eventCategoryId: 2, pageSize: 4 }),
+    getEvents({ page: 1, eventCategoryId: 3, pageSize: 4 }),
+    getUpcomingEvents({ page: 1, pageSize: 4 }),
+    getEventCatalog({
+      itemType: EventCatalogItemType.Bundle,
+      page: 1,
+      pageSize: 4,
+      upcoming: true
+    })
+  ]);
+
+  const { error } = await searchParams;
+
+  const [
+    mainEventsResult,
+    trendingEventsResult,
+    futbolEventsResult,
+    musicEventsResult,
+    theaterEventsResult,
+    upcomingEventsResult,
+    bundleCatalogResult
+  ] = results;
+
+  const mainEvents =
+    mainEventsResult.status === "fulfilled"
+      ? mainEventsResult.value
+      : null;
+
+  const trendingEvents =
+    trendingEventsResult.status === "fulfilled"
+      ? trendingEventsResult.value
+      : null;
+
+  const futbolEvents =
+    futbolEventsResult.status === "fulfilled"
+      ? futbolEventsResult.value
+      : null;
+
+  const musicEvents =
+    musicEventsResult.status === "fulfilled"
+      ? musicEventsResult.value
+      : null;
+
+  const theaterEvents =
+    theaterEventsResult.status === "fulfilled"
+      ? theaterEventsResult.value
+      : null;
+
+  const upcomingEvents =
+    upcomingEventsResult.status === "fulfilled"
+      ? upcomingEventsResult.value
+      : null;
+
+  const bundleCatalog =
+    bundleCatalogResult.status === "fulfilled"
+      ? bundleCatalogResult.value
+      : null;
+
+  const hasErrors = results.some(r => r.status === "rejected");
+
   return (
     <div>
+      <ErrorNotifier show={hasErrors || !!error} errorMessage={error} />
+
       <main>
-        {
-          <HomeClientWrapper></HomeClientWrapper>
-        }
+        <Box sx={{ minHeight: "100vh" }}>
+          {(mainEvents && mainEvents.items.length > 0) && (
+            <FullWidthSection fullBleed={true} disableMaxWidth={true}>
+              <EventCarousel events={mainEvents.items} />
+            </FullWidthSection>
+          )}
+          {(upcomingEvents && upcomingEvents.items.length > 0) && (
+            <Grid container columns={12}>
+              <Grid size={12}>
+                <EventCardGrid
+                  title="Próximos eventos"
+                  eventCards={upcomingEvents.items.map(e =>
+                    mapEventToCardVM(e)
+                  )}
+                  sizeVariant="sm"
+                  styleVariant="default"
+                  showCardBadge={true}
+                />
+              </Grid>
+            </Grid>
+          )}
+
+          {(futbolEvents && futbolEvents.items.length > 0) && (
+            <FullWidthSection
+              variant="color"
+              backgroundColor={colors.brand.secondary}
+              topRounded={true}
+              bottomRounded={true}
+              hideOverflow={false}
+            >
+              <EventCardGrid
+                title="Fútbol"
+                eventCards={futbolEvents.items.map(e =>
+                  mapEventToCardVM(e)
+                )}
+                sizeVariant="lg"
+                styleVariant="dark"
+                showCardBadge={true}
+                showCardInfo={false}
+              />
+            </FullWidthSection>
+          )}
+          {(musicEvents && musicEvents.items.length > 0) && (
+            <Box>
+              <EventCardGrid
+                title="Música"
+                eventCards={musicEvents.items.map(e =>
+                  mapEventToCardVM(e)
+                )}
+                sizeVariant="lg"
+                styleVariant="muted"
+              />
+            </Box>
+          )}
+
+          {(theaterEvents && theaterEvents.items.length > 0) && (
+            <FullWidthSection
+              variant="color"
+              backgroundColor={colors.ui.surface}
+              topRounded={true}
+              hideOverflow={false}
+            >
+              <EventCardGrid
+                title="Teatro"
+                eventCards={theaterEvents.items.map(e =>
+                  mapEventToCardVM(e)
+                )}
+                sizeVariant="lg"
+                styleVariant="light"
+              />
+            </FullWidthSection>
+          )}
+
+          {(trendingEvents && trendingEvents.items.length > 0) && (
+            <Grid container columns={12}>
+              <Grid size={12}>
+                <EventCardGrid
+                  title="Otros eventos"
+                  eventCards={trendingEvents.items.map(e =>
+                    mapEventToCardVM(e)
+                  )}
+                  sizeVariant="lg"
+                  styleVariant="default"
+                  showCardBadge={true}
+                />
+              </Grid>
+            </Grid>
+          )}
+
+          <SeasonBanner />
+
+          {(bundleCatalog && bundleCatalog.items.length > 0) && (
+            <Box>
+              <EventCardGrid
+                title="Paquetes"
+                eventCards={bundleCatalog.items.map(item =>
+                  mapEventCatalogItemToCardVM(item)
+                )}
+                sizeVariant="lg"
+                styleVariant="muted"
+                showCardBadge={false}
+                showAllButton={false}
+              />
+            </Box>
+          )}
+        </Box>
       </main>
+      <div className="whatsappBubble">
+        <a rel="noreferrer" href="https://api.whatsapp.com/send?phone=6641234567" target="_blank" style={{ position: "absolute", bottom: 0 }}>
+          <Image
+            loading="lazy"
+            width="60"
+            height="60"
+            src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/whatsapp.svg`}
+            alt="Hello Kitty - Whatsapp"
+          />
+        </a>
+      </div>
     </div>
   );
 }

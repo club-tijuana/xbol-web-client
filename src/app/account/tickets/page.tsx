@@ -1,7 +1,10 @@
-import { Box, Grid } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import { Metadata } from "next";
 
 import Advertisement from "@/components/Advertisement/Advertisement";
+import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
+import { mapEventToCardVM } from "@/models/event-item.dto";
+import { getTrendingEvents } from "@/services/eventService";
 import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
 
 import TicketsClientWrapper from "./components/TicketsClientWrapper/TicketsClientWrapper";
@@ -22,8 +25,10 @@ export function generateMetadata(): Metadata {
 }
 
 export default async function TicketsPage() {
-    // const trendingEvents = await getTrendingEvents({ page: 1, pageSize: 4 });
-    // const trendingEventsVM = trendingEvents.items.map(mapEventToCardVM);
+    const trendingEvents = await getTrendingEvents({ page: 1, pageSize: 4 });
+    const trendingEventsVM = trendingEvents.items.map(e =>
+        mapEventToCardVM(e, 'monthYear')
+    );
 
     return (
         <Box mt={13} sx={{
@@ -45,7 +50,7 @@ export default async function TicketsPage() {
                 <Grid size={{ xs: 2, sm: 2, md: 2, lg: 1, xl: 1 }}>
                     <Advertisement image={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/images/advertisement/advertisement.png`} />
                 </Grid>
-                {/* <Grid size={{ xs: 2, sm: 2, md: 2, lg: 1, xl: 1 }}>
+                <Grid size={{ xs: 2, sm: 2, md: 2, lg: 1, xl: 1 }}>
                     <Typography variant="h2" fontWeight={400} color="primary">
                         Otros eventos
                     </Typography>
@@ -53,9 +58,8 @@ export default async function TicketsPage() {
                         eventCards={trendingEventsVM}
                         sizeVariant="xs"
                         styleVariant="default"
-                        showCardActions={false}
                     />
-                </Grid> */}
+                </Grid>
             </Grid>
         </Box>
     );

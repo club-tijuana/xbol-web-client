@@ -4,12 +4,12 @@ import { Alert, Snackbar } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import BookingClient from "@/app/booking/components/BookingClient/BookingClient";
+import BookingSeasonClient from "@/app/booking/components/BookingSeasonClient/BookingSeasonClient";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { SeasonToRenovateDTO } from "@/models/season-to-renovate.dto";
 import { getOrderToRenovate } from "@/services/orderService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setBookHoldToken, setBookMode, setInitialSeats, setOrderLeftSeats, setRenovationType, setSeasonRelatedOrderId } from "@/store/slices/bookingFlowSlice";
+import { setBookHoldToken, setBookMode, setInitialSeats, setOrderLeftSeats, setOriginalSeats, setRenovationType, setSeasonRelatedOrderId, setSeats } from "@/store/slices/bookingFlowSlice";
 import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
 
 interface RenovationClientWrapperProps {
@@ -44,6 +44,8 @@ export default function RenovationClientWrapper({ orderId }: RenovationClientWra
                         );
 
                     await dispatch(setInitialSeats(prevSeats));
+                    await dispatch(setSeats(prevSeats));
+                    await dispatch(setOriginalSeats(prevSeats));
                     await dispatch(setOrderLeftSeats(prevSeats.length));
                 }
 
@@ -65,7 +67,7 @@ export default function RenovationClientWrapper({ orderId }: RenovationClientWra
     return (
         <>
             {(seasonToRenovate && initialSeats) &&
-                <BookingClient id={seasonToRenovate.seasonId.toString()} bookingMode="renovateSeason" />
+                <BookingSeasonClient id={seasonToRenovate.seasonId.toString()} isRenovation={true} />
             }
 
             <Snackbar

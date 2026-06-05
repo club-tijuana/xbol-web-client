@@ -10,7 +10,7 @@ import {
     signInWithEmailAndPassword,
     signInWithPhoneNumber,
     signOut,
-    User,
+    User
 } from "firebase/auth";
 
 import { publicEnv } from "@/config/env";
@@ -107,6 +107,11 @@ export async function loginWithFirebasePhoneCode(
     return mapFirebaseUser(credential.user);
 }
 
+export async function sendFirebasePasswordResetEmail(email: string): Promise<void> {
+    const auth = getFirebaseAuth();
+    await sendPasswordResetEmail(auth, email);
+}
+
 export async function sendCurrentFirebaseUserEmailVerification(): Promise<void> {
     const auth = getFirebaseAuth();
     await auth.authStateReady();
@@ -120,10 +125,6 @@ export async function sendCurrentFirebaseUserEmailVerification(): Promise<void> 
     }
 
     await sendEmailVerification(auth.currentUser);
-}
-
-export async function sendFirebasePasswordResetEmail(email: string): Promise<void> {
-    await sendPasswordResetEmail(getFirebaseAuth(), email);
 }
 
 export async function refreshCurrentFirebaseUser(): Promise<AuthenticatedAuthDto> {

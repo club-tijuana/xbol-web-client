@@ -9,16 +9,14 @@ import { PagedResponse } from "@/models/pagination/paged-response.dto";
 import { PerformerDTO } from "@/models/performer.dto";
 import { EventViewRequestDTO } from "@/models/requests/event-view-request.dto";
 import { ScheduleItemDTO } from "@/models/schedule-item.dto";
-import { store } from "@/store";
+import { SeoMetadataDTO } from "@/models/seo-metadata";
 
 export async function getMainEvents(): Promise<PagedResponse<EventItemDTO>> {
-  const state = store.getState();
-
   return requestAxios<null, PagedResponse<EventItemDTO>>(
     "GET",
     "events/main",
     null,
-    state.auth.user?.token,
+    undefined,
     { params: { includeMedia: true } },
   );
 }
@@ -26,8 +24,6 @@ export async function getMainEvents(): Promise<PagedResponse<EventItemDTO>> {
 export async function getEvents(
   filters: EventsFilters,
 ): Promise<PagedResponse<EventItemDTO>> {
-  const state = store.getState();
-
   const params = {
     page: filters.page,
     pageSize: filters.pageSize,
@@ -39,7 +35,7 @@ export async function getEvents(
     "GET",
     "events",
     undefined,
-    state.auth.user?.token,
+    undefined,
     { params: { ...params, includeMedia: true } },
   );
 }
@@ -67,12 +63,11 @@ export async function getFilteredEvents(
 }
 
 export async function getEventDetail(id: number): Promise<EventDetailDTO> {
-  const state = store.getState();
   return requestAxios<null, EventDetailDTO>(
     "GET",
     `events\\${id}`,
     null,
-    state.auth.user?.token,
+    undefined,
     { params: { includeMedia: true } },
   );
 }
@@ -98,13 +93,11 @@ export async function registerEventView(eventId: number, visitorId: string) {
 export async function getTrendingEvents(
   filters: EventsFilters,
 ): Promise<PagedResponse<EventItemDTO>> {
-  const state = store.getState();
-
   return requestAxios<EventsFilters, PagedResponse<EventItemDTO>>(
     "GET",
     "events/trending-events",
     undefined,
-    state.auth.user?.token,
+    undefined,
     {
       params: {
         page: filters.page,
@@ -112,5 +105,29 @@ export async function getTrendingEvents(
         includeMedia: true,
       },
     },
+  );
+}
+
+export async function getEventMetadataByScheduleIdAsync(id: number): Promise<SeoMetadataDTO> {
+  return requestAxios<null, SeoMetadataDTO>(
+    "GET",
+    `events/${id}/metadata`
+  );
+}
+
+export async function getUpcomingEvents(
+  filters: EventsFilters,
+): Promise<PagedResponse<EventItemDTO>> {
+  const params = {
+    page: filters.page,
+    pageSize: filters.pageSize
+  };
+
+  return requestAxios<EventsFilters, PagedResponse<EventItemDTO>>(
+    "GET",
+    "events/upcoming-events",
+    undefined,
+    undefined,
+    { params },
   );
 }

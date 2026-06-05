@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 import { AuthDto } from "@/models/auth.dto";
 import { clearClientAuthentication, hydrateAuthProfile } from "@/services/authService";
-import { mapFirebaseUser, onClientAuthTokenChanged } from "@/services/firebaseClient";
+import { logoutFromFirebase, mapFirebaseUser, onClientAuthTokenChanged } from "@/services/firebaseClient";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { logout, setUser } from "@/store/slices/authSlice";
 
@@ -15,6 +15,7 @@ export default function AuthStateBridge() {
     useEffect(() => {
         return onClientAuthTokenChanged(async (user) => {
             if (!user) {
+                //await logoutFromFirebase();
                 dispatch(logout());
                 return;
             }
@@ -34,6 +35,7 @@ export default function AuthStateBridge() {
 
             if (!authProfile) {
                 await clearClientAuthentication();
+                //await logoutFromFirebase();
                 dispatch(logout());
                 return;
             }

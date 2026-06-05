@@ -9,6 +9,7 @@ export interface OrderDTO {
     subTotal: number;
     totalFees: number;
     totalTaxes: number;
+    discount: number;
     total: number;
     currency: string;
     itemName: string;

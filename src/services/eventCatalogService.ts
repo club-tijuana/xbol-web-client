@@ -14,7 +14,7 @@ export async function getEventCatalog(
     "event-catalog",
     undefined,
     state.auth.user?.token,
-    { params: filters },
+    { params: filters as Record<string, unknown> }
   );
 }
 

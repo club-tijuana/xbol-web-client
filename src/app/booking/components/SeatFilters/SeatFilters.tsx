@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowDownwardOutlined, TuneOutlined } from "@mui/icons-material";
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Chip, Divider, Grid, Paper, Stack, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Divider, Grid, Paper, Typography } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 
 import Loader from "@/components/Loader/Loader";
@@ -9,7 +9,6 @@ import { formatCurrency } from "@/helpers/formatCurrencyHelper";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { useDebounce } from "@/hooks/useDebounce";
 import { PriceRange, ReservationFilters } from "@/models/filters/reservation-filters.dto";
-import { SectionDTO } from "@/models/section.dto";
 import { ZoneDTO } from "@/models/zone.dto";
 import { getSeatsAvailability, getZonesBySchedule, getZonesBySeason } from "@/services/bookingService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -21,7 +20,7 @@ import PriceRangeFilter from "../PriceRangeFilter/PriceRangeFilter";
 
 import { SeatFiltersProps } from "./SeatFilters.type";
 
-export default function SeatFilters({ scheduleId, seasonId, buttonText, onSectionSelected, onSectionsChange }: SeatFiltersProps) {
+export default function SeatFilters({ scheduleId, seasonId, buttonText, onZoneChange, onZoneSelected }: SeatFiltersProps) {
     const dispatch = useAppDispatch();
     const bookingMode = useAppSelector(store => store.bookingFlow.bookMode);
     const [filters, setFilters] = useState<ReservationFilters>({
@@ -29,7 +28,6 @@ export default function SeatFilters({ scheduleId, seasonId, buttonText, onSectio
         seasonId: (bookingMode === "season" || bookingMode === "renovateSeason") ? scheduleId : undefined
     });
     const [loading, setLoading] = useState(false);
-    const [sections, setSections] = useState<SectionDTO[]>([]);
     const [zones, setZones] = useState<ZoneDTO[]>([]);
 
     const debouncedFilters = useDebounce(filters, 600);
@@ -74,12 +72,12 @@ export default function SeatFilters({ scheduleId, seasonId, buttonText, onSectio
             setLoading(true);
             try {
                 const result = await getSeatsAvailability(debouncedFilters);
-                setSections(result.sections);
+                setZones(result.zones);
 
-                if (onSectionsChange) {
+                if (onZoneChange) {
                     const sectionPrices = mapPricing(result);
                     if (sectionPrices) {
-                        onSectionsChange(sectionPrices);
+                        onZoneChange(sectionPrices);
                     }
                 }
             }
@@ -95,7 +93,7 @@ export default function SeatFilters({ scheduleId, seasonId, buttonText, onSectio
         };
 
         loadSections();
-    }, [debouncedFilters, onSectionsChange]);
+    }, [debouncedFilters, onZoneChange]);
 
     const handlePriceRangeChange = useCallback((priceRange: PriceRange) => {
         setFilters((prev) => ({
@@ -104,24 +102,8 @@ export default function SeatFilters({ scheduleId, seasonId, buttonText, onSectio
         }));
     }, []);
 
-    const handleZoneChange = (zoneId: number) => {
-        let _zoneId: number | undefined;
-
-        if (zoneId === filters.zoneId) {
-            _zoneId = undefined;
-        }
-        else {
-            _zoneId = zoneId;
-        }
-
-        setFilters((prev) => ({
-            ...prev,
-            zoneId: _zoneId
-        }));
-    };
-
-    const handleSectionSelected = (section: string) => {
-        onSectionSelected?.(section);
+    const handleZoneSelected = (zoneLabel: string) => {
+        onZoneSelected?.(zoneLabel);
     };
 
     return (
@@ -171,49 +153,21 @@ export default function SeatFilters({ scheduleId, seasonId, buttonText, onSectio
                             onChange={handlePriceRangeChange}
                         />
                     </Box>
-                    <Box display="flex" flexDirection="row" mt={3}>
-                        <Typography variant="subtitle1" color="secondary" mr={1}>
-                            Tipo de boleto
-                        </Typography>
-                        <Stack
-                            direction="row"
-                            spacing={2}
-                            sx={{
-                                overflowX: "auto"
-                            }}
-                        >
-                            {zones.map(zone => (
-                                <Chip
-                                    key={zone.id}
-                                    label={zone.name}
-                                    variant={(filters.zoneId && filters.zoneId === zone.id) ? "filled" : "outlined"}
-                                    color={(filters.zoneId && filters.zoneId === zone.id) ? "primary" : "default"}
-                                    clickable={true}
-                                    onClick={() => handleZoneChange(zone.id)}
-                                    sx={{
-                                        color: (filters.zoneId && filters.zoneId === zone.id) ? "white" : "black",
-                                        padding: 2,
-                                        fontSize: 16
-                                    }}
-                                />
-                            ))}
-                        </Stack>
-                    </Box>
                 </AccordionDetails>
             </Accordion>
             <Box sx={{ backgroundColor: "white" }}>
-                {sections?.filter(section => section.price !== null).map((section, index) => (
-                    <Box key={section.id}>
-                        <Grid container columns={12} py={3.5}>
+                {zones?.filter(zone => zone.price !== null).map((zone, index) => (
+                    <Box key={zone.id}>
+                        <Grid container columns={12} pb={3.5}>
                             <Grid size={4}>
                                 <Typography variant="subtitle2" color="primary">
-                                    Sección {section.name}
+                                    {zone.name}
                                 </Typography>
                             </Grid>
                             <Grid size={3} textAlign={"right"}>
-                                {section.price &&
+                                {zone.price &&
                                     <Typography variant="subtitle2" fontWeight={400} color="secondary">
-                                        {formatCurrency(section.price)}
+                                        {formatCurrency(zone.price)}
                                     </Typography>
                                 }
                                 <Typography variant="body1" color="secondary">
@@ -221,12 +175,12 @@ export default function SeatFilters({ scheduleId, seasonId, buttonText, onSectio
                                 </Typography>
                             </Grid>
                             <Grid size={5} textAlign={"right"}>
-                                <Button variant="outlined" size="medium" onClick={() => handleSectionSelected(section.name)}>
+                                <Button variant="outlined" size="medium" onClick={() => handleZoneSelected(zone.displayName)}>
                                     {buttonText}
                                 </Button>
                             </Grid>
                         </Grid>
-                        {(index + 1) !== sections.length && <Divider sx={{ borderWidth: 1, borderColor: 'var(--color-primary)' }} />}
+                        {(index + 1) !== zones.length && <Divider sx={{ borderWidth: 1, borderColor: 'var(--color-primary)' }} />}
                     </Box>
                 ))}
             </Box>

@@ -1,17 +1,36 @@
 "use client";
 
 import { Alert, AlertColor, Box, Button, Checkbox, Divider, FormControl, FormControlLabel, Grid, Input, Snackbar, Typography } from "@mui/material";
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import Script from "next/script";
 import { useState } from "react";
 
+import Loader from "@/components/Loader/Loader";
 import { formatCurrency } from "@/helpers/formatCurrencyHelper";
+import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { PaymentMethodDTO } from "@/models/payment-method.dto";
+import { payOrderAsync } from "@/services/paymentLinkService";
+import { useAppDispatch } from "@/store/hooks";
+import { setBookPaymentInfo } from "@/store/slices/bookingFlowSlice";
+import { showGeneralMessage } from "@/store/slices/uiSlice";
 import { colors } from "@/theme/colors";
 
 import { PaymentProps } from "./Payment.type";
 
-export default function Payment({ subtotal, taxes, total, currency, onPay }: PaymentProps) {
+export default function Payment({
+    subtotal,
+    taxes,
+    fees,
+    discount,
+    total,
+    currency,
+    paymentLinkCode,
+    showTotals = true,
+    onPay
+}: PaymentProps) {
+    const router = useRouter();
+    const dispatch = useAppDispatch();
     const [acceptedTerms, setAcceptedTerms] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethodDTO>({
         ownerName: "",
@@ -23,6 +42,8 @@ export default function Payment({ subtotal, taxes, total, currency, onPay }: Pay
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("success");
+    const [sessionId, setSessionId] = useState<number>(0);
+    const [loading, setLoading] = useState<boolean>(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -33,13 +54,8 @@ export default function Payment({ subtotal, taxes, total, currency, onPay }: Pay
         }));
     };
 
-    const handlePay = () => {
-        if (
-            !paymentMethod.ownerName
-            || !paymentMethod.cardNumber
-            || !paymentMethod.expirationMonth
-            || !paymentMethod.expirationYear
-        ) {
+    const handlePay = async () => {
+        /* if (!paymentMethod.ownerName) {
             setSnackbarSeverity("warning");
             setSnackbarMessage("Es necesario capturar la información de pago");
             setOpenSnackbar(true);
@@ -47,13 +63,81 @@ export default function Payment({ subtotal, taxes, total, currency, onPay }: Pay
             return;
         }
 
+        if (!window.PaymentSession) {
+            setSnackbarSeverity("error");
+            setSnackbarMessage("No fue posible inicializar el formulario de pago");
+            setOpenSnackbar(true);
+
+            return;
+        }
+
+        window.PaymentSession.updateSessionFromForm("card"); */
+        console.log("TOTAL: " + total);
+        await dispatch(setBookPaymentInfo({
+            cardAmount: total
+        }));
+
         if (onPay) {
             onPay();
         }
+        else if (paymentLinkCode) {
+            try {
+                setLoading(true);
+                const response = await payOrderAsync(paymentLinkCode, { cardAmount: total });
+
+                router.push(`/account/tickets/order/${response}/success`);
+            }
+            catch (error) {
+                dispatch(showGeneralMessage({
+                    message: getErrorMessage(error),
+                    severity: "error"
+                }));
+            }
+            finally {
+                setLoading(false);
+            }
+        }
+    }
+
+    const configurePaymentSession = () => {
+        if (!window.PaymentSession || !sessionId) {
+            return;
+        }
+
+        window.PaymentSession.configure({
+            session: sessionId,
+            fields: {
+                card: {
+                    number: "#cardNumber",
+                    securityCode: "#securityCode",
+                    expiryMonth: "#expiryMonth",
+                    expiryYear: "#expiryYear",
+                    nameOnCard: "#ownerName"
+                }
+            },
+            callbacks: {
+                initialized: (response: any) => {
+                    console.log(response);
+                },
+                formSessionUpdate: async (response: any) => {
+                    console.log(response);
+
+                    if (response.status === "ok") {
+                        if (onPay) {
+                            await onPay();
+                        }
+                    }
+                }
+            }
+        });
     }
 
     return (
         <Box>
+            <Script src={`https://evopaymentsmexico.gateway.mastercard.com/form/version/100/merchant/TEST2020ECOMM27/session.js`}
+                strategy="afterInteractive"
+                onLoad={configurePaymentSession} />
+
             <Typography variant="h4" color="primary">
                 Datos de pago
             </Typography>
@@ -81,20 +165,7 @@ export default function Payment({ subtotal, taxes, total, currency, onPay }: Pay
                     <Typography variant="caption" mb={1} color="muted" mt={2}>
                         Numero de tarjeta
                     </Typography>
-                    <FormControl fullWidth variant="filled">
-                        <Input
-                            id="cardNumber"
-                            name="cardNumber"
-                            type={'text'}
-                            inputProps={{ style: { fontSize: 16 } }}
-                            sx={{
-                                backgroundColor: 'white',
-                                '&:after': { borderBottom: '2px solid var(--color-text-primary)' },
-                            }}
-                            value={paymentMethod.cardNumber}
-                            onChange={handleChange}
-                        />
-                    </FormControl>
+                    <Box id="cardNumber" />
                 </Grid>
                 <Grid size={{ xs: 2, sm: 2, md: 1, lg: 1, xl: 1 }}>
                     <Typography variant="caption" mb={1} color="muted" mt={2}>
@@ -102,44 +173,18 @@ export default function Payment({ subtotal, taxes, total, currency, onPay }: Pay
                     </Typography>
                     <Grid container columns={2} spacing={2}>
                         <Grid size={1}>
-                            <DatePicker
-                                views={['month']}
-                                format="MM"
-                                value={
-                                    paymentMethod.expirationMonth
-                                        ? new Date(2025, paymentMethod.expirationMonth - 1, 1)
-                                        : null
-                                }
-                                onChange={(date) => {
-                                    if (date) {
-                                        setPaymentMethod(prev => ({
-                                            ...prev,
-                                            expirationMonth: date.getMonth() + 1
-                                        }));
-                                    }
-                                }}
-                            />
+                            <Box id="expiryMonth" />
                         </Grid>
                         <Grid size={1}>
-                            <DatePicker
-                                views={['year']}
-                                format="yyyy"
-                                value={
-                                    paymentMethod.expirationYear
-                                        ? new Date(paymentMethod.expirationYear, 0, 1)
-                                        : null
-                                }
-                                onChange={(date) => {
-                                    if (date) {
-                                        setPaymentMethod(prev => ({
-                                            ...prev,
-                                            expirationYear: date.getFullYear()
-                                        }));
-                                    }
-                                }}
-                            />
+                            <Box id="expiryYear" />
                         </Grid>
                     </Grid>
+                </Grid>
+                <Grid size={{ xs: 2, sm: 2, md: 1, lg: 1, xl: 1 }}>
+                    <Typography variant="caption" mb={1} color="muted" mt={2}>
+                        CVV
+                    </Typography>
+                    <Box id="securityCode" />
                 </Grid>
                 <Grid size={{ xs: 2, sm: 2, md: 1, lg: 1, xl: 1 }} alignContent={"end"}>
                     <Image
@@ -153,40 +198,65 @@ export default function Payment({ subtotal, taxes, total, currency, onPay }: Pay
 
             <Divider sx={{ my: 4, borderWidth: 1, borderColor: 'var(--color-text-muted)' }} />
 
-            <Grid container columns={4} spacing={3}>
-                <Grid size={1} offset={2} textAlign="right">
-                    <Typography variant="body2" color="primary">
-                        Subtotal
-                    </Typography>
-                </Grid>
-                <Grid size={1} textAlign="right">
-                    <Typography variant="body1" color="secondary">
-                        {formatCurrency(subtotal, currency)}
-                    </Typography>
-                </Grid>
-                <Grid size={1} offset={2} textAlign="right">
-                    <Typography variant="body2" color="primary">
-                        Impuestos
-                    </Typography>
-                </Grid>
-                <Grid size={1} textAlign="right">
-                    <Typography variant="body1" color="secondary">
-                        {formatCurrency(taxes, currency)}
-                    </Typography>
-                </Grid>
-                <Grid size={1} offset={2} textAlign="right">
-                    <Typography variant="body2" color="primary">
-                        Total
-                    </Typography>
-                </Grid>
-                <Grid size={1} textAlign="right">
-                    <Typography variant="body1" color="secondary">
-                        {formatCurrency(total, currency)}
-                    </Typography>
-                </Grid>
-            </Grid>
+            {showTotals &&
+                <Box>
+                    <Grid container columns={4} spacing={3}>
+                        <Grid size={1} offset={2} textAlign="right">
+                            <Typography variant="body2" color="primary">
+                                Subtotal
+                            </Typography>
+                        </Grid>
+                        <Grid size={1} textAlign="right">
+                            <Typography variant="body1" color="secondary">
+                                {formatCurrency(subtotal ?? 0, currency)}
+                            </Typography>
+                        </Grid>
+                        <Grid size={1} offset={2} textAlign="right">
+                            <Typography variant="body2" color="primary">
+                                Comisiones
+                            </Typography>
+                        </Grid>
+                        <Grid size={1} textAlign="right">
+                            <Typography variant="body1" color="secondary">
+                                {formatCurrency(fees ?? 0, currency)}
+                            </Typography>
+                        </Grid>
+                        <Grid size={1} offset={2} textAlign="right">
+                            <Typography variant="body2" color="primary">
+                                Impuestos
+                            </Typography>
+                        </Grid>
+                        <Grid size={1} textAlign="right">
+                            <Typography variant="body1" color="secondary">
+                                {formatCurrency(taxes ?? 0, currency)}
+                            </Typography>
+                        </Grid>
+                        <Grid size={1} offset={2} textAlign="right">
+                            <Typography variant="body2" color="primary">
+                                Descuentos
+                            </Typography>
+                        </Grid>
+                        <Grid size={1} textAlign="right">
+                            <Typography variant="body1" color="secondary">
+                                {formatCurrency(discount ?? 0, currency)}
+                            </Typography>
+                        </Grid>
+                        <Grid size={1} offset={2} textAlign="right">
+                            <Typography variant="body2" color="primary">
+                                Total
+                            </Typography>
+                        </Grid>
+                        <Grid size={1} textAlign="right">
+                            <Typography variant="body1" color="secondary">
+                                {formatCurrency(total ?? 0, currency)}
+                            </Typography>
+                        </Grid>
+                    </Grid>
 
-            <Divider sx={{ my: 4, borderWidth: 1, borderColor: 'var(--color-text-muted)' }} />
+                    <Divider sx={{ my: 4, borderWidth: 1, borderColor: 'var(--color-text-muted)' }} />
+                </Box>
+            }
+
 
             <Box display="flex" justifyContent="space-between" alignItems="center">
                 <FormControlLabel
@@ -219,6 +289,8 @@ export default function Payment({ subtotal, taxes, total, currency, onPay }: Pay
                     {snackbarMessage}
                 </Alert>
             </Snackbar>
+
+            <Loader isLoading={loading} />
         </Box>
     );
 }

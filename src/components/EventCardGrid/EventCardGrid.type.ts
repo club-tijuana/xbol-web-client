@@ -10,6 +10,4 @@ export interface EventCardGridProps {
     showCardBadge?: boolean;
     showCardInfo?: boolean;
     showAllButton?: boolean;
-
-    onSeeAllAction?: () => void;
 }

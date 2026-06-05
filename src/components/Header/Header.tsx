@@ -10,7 +10,7 @@ import { useState } from "react";
 
 import { canUseVerifiedClientFeatures } from '@/helpers/authStateHelper';
 import { formatDate } from '@/helpers/formatDateHelper';
-import { logout as logoutService } from '@/services/authService';
+import { logoutFromFirebase } from '@/services/firebaseClient';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { logout } from "@/store/slices/authSlice";
 import { setTextFilter } from '@/store/slices/eventsFilterSlice';
@@ -97,7 +97,7 @@ export default function Header() {
             return;
         }
 
-        await logoutService();
+        await logoutFromFirebase();
         dispatch(logout());
         dispatch(favouriteResetState());
         handleCloseAccount();
@@ -251,7 +251,7 @@ export default function Header() {
                                                 width={MY_ACCOUNT_POPOVER_WIDTH}
                                                 justifyItems={'start'}>
                                                 <Box justifySelf={'end'}>
-                                                    <IconButton onClick={handleCloseAccount} sx={{ position: 'relative', right: -20, top: 15 }}>
+                                                    <IconButton onClick={handleCloseAccount} sx={{ position: 'relative', right: -10, top: 10 }}>
                                                         <Image
                                                             src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/login-light.svg`}
                                                             alt="Login"
@@ -272,7 +272,11 @@ export default function Header() {
                                                 <Typography variant='subtitle1' color='neutral'>
                                                     {formattedDate}
                                                 </Typography>
-                                                <Box mt={2}>
+                                                <Box mt={2} sx={{
+                                                    flexDirection: "column",
+                                                    display: "flex",
+                                                    alignItems: "flex-start"
+                                                }}>
                                                     {isVerifiedClient &&
                                                         <>
                                                             <Button

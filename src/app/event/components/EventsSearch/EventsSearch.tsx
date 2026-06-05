@@ -1,9 +1,9 @@
 "use client";
 
 import { HighlightOffRounded } from "@mui/icons-material";
-import { Alert, Box, Button, Card, CardActionArea, CardContent, CardMedia, Grid, IconButton, Skeleton, Snackbar, Typography } from "@mui/material";
+import { Alert, Box, Button, Card, CardActionArea, CardContent, CardMedia, Grid, IconButton, Skeleton, Snackbar, SxProps, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
@@ -20,12 +20,27 @@ import {
     setPerformerId,
 } from "@/store/slices/eventsFilterSlice";
 import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
+import { colors } from "@/theme/colors";
 
 import EventsFilters from "../EventsFilters/EventsFilters";
 
+/* -------------------- CONSTANTS -------------------- */
+const FALLBACK_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE ?? "";
+
+const skeletonStyle: SxProps = {
+    width: "100%",
+    height: 290,
+    backgroundColor: colors.brand.tertiary,
+    opacity: 0.1
+};
+
+const skeletonColorStyle: SxProps = {
+    backgroundColor: colors.brand.tertiary,
+    opacity: 0.1
+}
+
 export default function EventsSearch() {
     const dispatch = useAppDispatch();
-    const isMounted = useRef(false);
     const router = useRouter();
     const generalMessage = useAppSelector(state => state.ui.generalMessage);
     const filters = useAppSelector(store => store.eventsFilters.filters);
@@ -35,11 +50,6 @@ export default function EventsSearch() {
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        if (!isMounted.current) {
-            isMounted.current = true;
-            return;
-        }
-
         const filter = async () => {
             setIsLoading(true);
 
@@ -77,7 +87,7 @@ export default function EventsSearch() {
         };
 
         filter();
-    }, [filters, router, dispatch]);
+    }, [filters, dispatch, router]);
 
     const handleLoadMore = () => {
         if (filters.page !== currentPage?.totalPages) {
@@ -114,7 +124,7 @@ export default function EventsSearch() {
                                     <CardActionArea onClick={() => handlePerformerClick(p.id)}>
                                         <CardMedia
                                             component="img"
-                                            image={p.imageUrl}
+                                            image={p.imageUrl?.trim() || FALLBACK_IMAGE}
                                             alt={p.name}
                                         />
                                         <CardContent>
@@ -149,29 +159,37 @@ export default function EventsSearch() {
             />
 
             {isLoading &&
-                <Grid container columns={3} spacing={4}>
+                <Grid container columns={4} spacing={2}>
                     <Grid size={1}>
-                        <Skeleton variant="rectangular" sx={{ width: "100%", height: 200 }} />
+                        <Skeleton variant="rectangular" sx={{ width: "100%", height: 290 }} style={{ backgroundColor: colors.brand.tertiary, opacity: 0.1 }} />
                         <Box sx={{ pt: 4 }}>
-                            <Skeleton height={50} />
-                            <Skeleton height={45} width="40%" />
-                            <Skeleton height={45} width="60%" />
+                            <Skeleton height={50} sx={skeletonColorStyle} />
+                            <Skeleton height={45} width="40%" sx={skeletonColorStyle} />
+                            <Skeleton height={45} width="60%" sx={skeletonColorStyle} />
                         </Box>
                     </Grid>
                     <Grid size={1}>
-                        <Skeleton variant="rectangular" sx={{ width: "100%", height: 200 }} />
+                        <Skeleton variant="rectangular" sx={skeletonStyle} />
                         <Box sx={{ pt: 4 }}>
-                            <Skeleton height={50} />
-                            <Skeleton height={45} width="40%" />
-                            <Skeleton height={45} width="60%" />
+                            <Skeleton height={50} sx={skeletonColorStyle} />
+                            <Skeleton height={45} width="40%" sx={skeletonColorStyle} />
+                            <Skeleton height={45} width="60%" sx={skeletonColorStyle} />
                         </Box>
                     </Grid>
                     <Grid size={1}>
-                        <Skeleton variant="rectangular" sx={{ width: "100%", height: 200 }} />
+                        <Skeleton variant="rectangular" sx={skeletonStyle} />
                         <Box sx={{ pt: 4 }}>
-                            <Skeleton height={50} />
-                            <Skeleton height={45} width="40%" />
-                            <Skeleton height={45} width="60%" />
+                            <Skeleton height={50} sx={skeletonColorStyle} />
+                            <Skeleton height={45} width="40%" sx={skeletonColorStyle} />
+                            <Skeleton height={45} width="60%" sx={skeletonColorStyle} />
+                        </Box>
+                    </Grid>
+                    <Grid size={1}>
+                        <Skeleton variant="rectangular" sx={skeletonStyle} />
+                        <Box sx={{ pt: 4 }}>
+                            <Skeleton height={50} sx={skeletonColorStyle} />
+                            <Skeleton height={45} width="40%" sx={skeletonColorStyle} />
+                            <Skeleton height={45} width="60%" sx={skeletonColorStyle} />
                         </Box>
                     </Grid>
                 </Grid>

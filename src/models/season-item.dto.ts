@@ -6,6 +6,9 @@ export interface SeasonItemDTO {
     startDate: Date;
     externalSeasonKey: string;
     media?: MediaSetDTO | null;
+    isRenewal: boolean;
+    isPreSale: boolean;
+    isGeneralSale: boolean;
 }
 
 export const getSeasonBannerImageUrl = (season: SeasonItemDTO): string =>

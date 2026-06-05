@@ -8,9 +8,13 @@ import { useCallback, useState } from "react";
 
 import { formatDate } from "@/helpers/formatDateHelper";
 import { useQrTimer } from "@/hooks/useQrTimer";
+import { TicketTypeLabels } from "@/models/enums/ticket-type.enum";
 
 import styles from "./CarouselSlideQRTicket.module.scss";
 import { CarouselSlideQRTicketProps } from "./CarouselSlideQRTicket.type";
+
+/* -------------------- CONSTANTS -------------------- */
+const FALLBACK_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE ?? "";
 
 type TicketActionProps = {
     icon: ReactNode;
@@ -68,7 +72,7 @@ export default function CarouselSlideQRTicket({ ticket, isActive, onShare, onUns
                 <Box>
                     <CardContent className={styles.cardContent}>
                         <CardMedia
-                            image={ticket.eventImage}
+                            image={ticket.eventImage.trim() || FALLBACK_IMAGE}
                             sx={{
                                 aspectRatio: "1 / 1",
                                 borderRadius: 2.5,
@@ -118,6 +122,26 @@ export default function CarouselSlideQRTicket({ ticket, isActive, onShare, onUns
                                 </Typography>
                                 <Typography variant="body2" color="secondary">
                                     {`Fila ${ticket.row}, Asiento ${ticket.seat}`}
+                                </Typography>
+                                <Typography variant="body2" color="primary" mt={2}>
+                                    Tipo
+                                </Typography>
+                                <Typography variant="body1" color="secondary">
+                                    {TicketTypeLabels[ticket.type]}
+                                </Typography>
+                                <Typography variant="body2" color="primary" mt={2}>
+                                    Orden
+                                </Typography>
+                                <Typography variant="body1" color="secondary">
+                                    {ticket.orderReference}
+                                </Typography>
+                                <Typography variant="body2" color="primary" mt={2}>
+                                    {/* TODO: Add currency */}
+                                    Precio
+                                </Typography>
+                                <Typography variant="body1" color="secondary">
+                                    {/* TODO: Add currency */}
+                                    {`${ticket.pricePaid} MXN`}
                                 </Typography>
                             </Box>
 

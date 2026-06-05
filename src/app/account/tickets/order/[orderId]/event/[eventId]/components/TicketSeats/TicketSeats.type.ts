@@ -5,6 +5,7 @@ export interface TicketSeatsProps {
     subTotal?: number;
     totalFees?: number;
     totalTaxes?: number;
+    discount?: number;
     total?: number;
     currency?: string;
     seats: Array<MyEventSeatDTO>;

@@ -11,6 +11,9 @@ import { useQrTimer } from "@/hooks/useQrTimer";
 import styles from "./TicketQRGridItem.module.scss";
 import { TicketQRGridItemProps } from "./TicketQRGridItem.type";
 
+/* -------------------- CONSTANTS -------------------- */
+const FALLBACK_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE ?? "";
+
 export default function TicketQRGridItem({ ticket, onShare, onUnshare }: TicketQRGridItemProps) {
     const [showQR, setShowQR] = useState(false);
     const [payload, setPayload] = useState("");
@@ -40,7 +43,7 @@ export default function TicketQRGridItem({ ticket, onShare, onUnshare }: TicketQ
                     >
                         <CardContent className={styles.cardContent}>
                             <CardMedia
-                                image={ticket.eventImage}
+                                image={ticket.eventImage.trim() || FALLBACK_IMAGE}
                                 sx={{
                                     aspectRatio: "1 / 1",
                                     borderRadius: 2.5,

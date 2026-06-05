@@ -15,7 +15,7 @@ import {
     refreshCurrentFirebaseUser,
     sendCurrentFirebaseUserEmailVerification,
     sendFirebasePasswordResetEmail,
-    sendPhoneSignInCode,
+    sendPhoneSignInCode
 } from "@/services/firebaseClient";
 import { getSessionApiPath } from "@/services/sessionApiPath";
 
@@ -315,6 +315,14 @@ export async function loginPhone(
 
         await clearClientAuthentication();
         throw error;
+    }
+}
+
+export async function sendForgotPasswordEmail(username: string): Promise<void> {
+    try {
+        await sendFirebasePasswordResetEmail(username);
+    } catch (error) {
+        throw new Error(getErrorMessage(error, "Error al enviar el correo de recuperación de contraseña."));
     }
 }
 

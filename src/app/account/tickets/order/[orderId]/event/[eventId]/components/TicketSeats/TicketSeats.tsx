@@ -11,13 +11,13 @@ import { TicketSeatsProps } from "./TicketSeats.type";
 /* -------------------- CONSTANTS -------------------- */
 const SCALE = 0.8;
 const COMPENSATED_WIDTH = `${100 / SCALE}%`;
-const OFFSET_Y = -70;
+const OFFSET_Y = -110;
 
 /* -------------------- STYLES -------------------- */
 const contentStyle: SxProps = {
     position: "relative",
     width: "100%",
-    height: 120,
+    height: 170,
     borderStyle: 'solid',
     borderColor: 'var(--color-text-primary)',
     borderWidth: 1,
@@ -26,7 +26,7 @@ const contentStyle: SxProps = {
 };
 
 /* -------------------- COMPONENT -------------------- */
-export default function TicketSeats({ eventKey, subTotal, totalTaxes, total, currency, seats, selectedSeats, folio }: TicketSeatsProps) {
+export default function TicketSeats({ eventKey, subTotal, totalFees, totalTaxes, discount, total, currency, seats, selectedSeats, folio }: TicketSeatsProps) {
     const router = useRouter();
 
     const handleGoToMyTickets = () => {
@@ -57,7 +57,7 @@ export default function TicketSeats({ eventKey, subTotal, totalTaxes, total, cur
                                 height: "100%"
                             }}
                         >
-                            <SeatsMap eventKey={eventKey} initialSeats={selectedSeats} mode="print" session="continue" />
+                            <SeatsMap eventKey={eventKey} initialSeats={selectedSeats} mode="print" />
                         </Box>
                     </Box>
                 </Grid>
@@ -95,6 +95,20 @@ export default function TicketSeats({ eventKey, subTotal, totalTaxes, total, cur
                     </Grid>
                 </Grid>
             }
+            {totalFees !== undefined &&
+                <Grid container columns={4} mt={3}>
+                    <Grid size={1} offset={2}>
+                        <Typography variant="body2" color="primary" textAlign="right">
+                            Comisiones
+                        </Typography>
+                    </Grid>
+                    <Grid size={1}>
+                        <Typography variant="body1" color="secondary" textAlign="right">
+                            {formatCurrency(totalFees, currency)}
+                        </Typography>
+                    </Grid>
+                </Grid>
+            }
             {totalTaxes !== undefined &&
                 <Grid container columns={4} mt={3}>
                     <Grid size={1} offset={2}>
@@ -105,6 +119,20 @@ export default function TicketSeats({ eventKey, subTotal, totalTaxes, total, cur
                     <Grid size={1}>
                         <Typography variant="body1" color="secondary" textAlign="right">
                             {formatCurrency(totalTaxes, currency)}
+                        </Typography>
+                    </Grid>
+                </Grid>
+            }
+            {discount !== undefined &&
+                <Grid container columns={4} mt={3}>
+                    <Grid size={1} offset={2}>
+                        <Typography variant="body2" color="primary" textAlign="right">
+                            Descuentos
+                        </Typography>
+                    </Grid>
+                    <Grid size={1}>
+                        <Typography variant="body1" color="secondary" textAlign="right">
+                            {formatCurrency(discount, currency)}
                         </Typography>
                     </Grid>
                 </Grid>
@@ -129,10 +157,10 @@ export default function TicketSeats({ eventKey, subTotal, totalTaxes, total, cur
                     <Divider sx={{ my: 3, borderWidth: 1, borderTop: "none", borderColor: 'var(--color-tertiary)' }} />
 
                     <Typography variant="h4" color="primary" mb={1}>
-                        Acceso a tus boletos
+                        Acceso a tus tickets
                     </Typography>
                     <Typography variant="subtitle1" color="secondary" mb={2}>
-                        Tus boletos electrónicos han sido enviados a tu correo electrónico registrado.
+                        Tus tickets electrónicos han sido enviados a tu correo electrónico registrado.
                     </Typography>
                     <Typography variant="subtitle1" color="secondary">
                         También puedes descargarlos desde tu cuenta en la sección “Mis Tickets”

@@ -1,4 +1,5 @@
 import { Box, Grid, Typography } from "@mui/material";
+import { Metadata } from "next";
 
 import Advertisement from "@/components/Advertisement/Advertisement";
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
@@ -6,7 +7,9 @@ import FAQ from "@/components/FAQ/FAQ";
 import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
 import { mapEventToCardVM } from "@/models/event-item.dto";
 import { getTrendingEvents } from "@/services/eventService";
+import { getOrderMetadata } from "@/services/orderService";
 import { colors } from "@/theme/colors";
+import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
 
 import SuccessClient from "./components/SuccessClient/SuccessClient";
 
@@ -14,6 +17,23 @@ interface SuccessPageProps {
     params: Promise<{
         orderId: string;
     }>;
+}
+
+export async function generateMetadata(
+    { params }: SuccessPageProps
+): Promise<Metadata> {
+    const { orderId } = await params;
+    const orderIdNumber = Number(orderId);
+
+    const orderMetadata = await getOrderMetadata(orderIdNumber);
+
+    return buildSeoMetadata({
+        title: orderMetadata.title,
+        description: orderMetadata.description ?? "",
+        url: "",
+        image: orderMetadata.imageUrl,
+        type: "website"
+    });
 }
 
 export default async function SuccessPage(props: SuccessPageProps) {

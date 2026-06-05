@@ -3,7 +3,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { RegisterRequest } from "@/models/auth-profile.dto";
 import { AuthDto } from "@/models/auth.dto";
-import { login as loginService, register as registerService } from "@/services/authService";
+import { login as loginService, register as registerService, sendForgotPasswordEmail as forgotPaswordEmail } from "@/services/authService";
 
 
 interface LoginPayload {
@@ -14,12 +14,14 @@ interface LoginPayload {
 interface AuthState {
     user: AuthDto | null;
     status: "idle" | "loading" | "success" | "error";
+    forgotPasswordStatus: "idle" | "loading" | "success" | "error";
     error?: string;
 }
 
 const initialState: AuthState = {
     user: null,
-    status: "idle"
+    status: "idle",
+    forgotPasswordStatus: "idle"
 };
 
 export const login = createAsyncThunk<
@@ -35,6 +37,23 @@ export const login = createAsyncThunk<
         } catch (error) {
             return thunkAPI.rejectWithValue(
                 getErrorMessage(error, "Error al iniciar sesión")
+            );
+        }
+    }
+);
+
+export const sendForgotPasswordEmail = createAsyncThunk<
+    undefined,
+    string,
+    { rejectValue: string }
+>(
+    "auth/forgotPasswordEmail",
+    async (username, thinkAPI) => {
+        try {
+            await forgotPaswordEmail(username);
+        } catch (error) {
+            return thinkAPI.rejectWithValue(
+                getErrorMessage(error, "Error al enviar el correo de recuperación de contraseña.")
             );
         }
     }
@@ -100,6 +119,18 @@ const authSlice = createSlice({
                 state.status = "error";
                 state.error = action.payload;
                 state.user = null;
+            })
+            .addCase(sendForgotPasswordEmail.pending, (state) => {
+                state.forgotPasswordStatus = "loading";
+                state.error = undefined;
+            })
+            .addCase(sendForgotPasswordEmail.fulfilled, (state) => {
+                state.forgotPasswordStatus = "success";
+                state.error = undefined;
+            })
+            .addCase(sendForgotPasswordEmail.rejected, (state, action) => {
+                state.forgotPasswordStatus = "error";
+                state.error = action.payload;
             });
     }
 });

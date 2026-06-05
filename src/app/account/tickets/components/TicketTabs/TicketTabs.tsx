@@ -63,7 +63,9 @@ function CustomTabPanel(props: TabPanelProps) {
 
 export default function TicketTabs({
     myEvents,
-    mySeasons
+    mySeasons,
+    onEventLoadMore,
+    onSeasonLoadMore
 }: TicketTabsProps) {
     const [value, setValue] = useState(0);
     const [hoverPrev, setHoverPrev] = useState(false);
@@ -127,10 +129,11 @@ export default function TicketTabs({
                         spaceBetween={20}
                         pagination={{ clickable: true }}
                         navigation={{
-                            nextEl: ".custom-next",
-                            prevEl: ".custom-prev",
-                            disabledClass: "swiper-button-disabled",
+                            nextEl: ".tickets-custom-next",
+                            prevEl: ".tickets-custom-prev",
                         }}
+                        watchOverflow={false}
+                        onReachEnd={tabKey === "EVENTS" ? onEventLoadMore : onSeasonLoadMore}
                         breakpoints={{
                             500: {
                                 slidesPerView: SLIDES_PER_VIEW.xs,
@@ -148,39 +151,39 @@ export default function TicketTabs({
                                 slidesPerView: SLIDES_PER_VIEW.xl,
                             },
                         }}
+                        style={{ overflow: "initial" }}
                     >
                         {getTicketsForTab(tabKey).map((ticket, i) => (
                             <SwiperSlide key={`ticket-${i}`}>
                                 <TicketCard ticket={ticket} />
                             </SwiperSlide>
                         ))}
+                        <Box
+                            className="tickets-custom-prev"
+                            onMouseEnter={() => setHoverPrev(true)}
+                            onMouseLeave={() => setHoverPrev(false)}>
+                            <Image
+                                src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/${hoverPrev ? "left-hover.svg" : "left-default.svg"}`}
+                                alt="Prev"
+                                width={35}
+                                height={35}
+                            />
+                        </Box>
+
+                        <Box
+                            className="tickets-custom-next"
+                            onMouseEnter={() => setHoverNext(true)}
+                            onMouseLeave={() => setHoverNext(false)}>
+                            <Image
+                                src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/${hoverNext ? "right-hover.svg" : "right-default.svg"}`}
+                                alt="Next"
+                                width={35}
+                                height={35}
+                            />
+                        </Box>
                     </Swiper>
                 </CustomTabPanel>
             ))}
-
-            <Box
-                className="custom-prev"
-                onMouseEnter={() => setHoverPrev(true)}
-                onMouseLeave={() => setHoverPrev(false)}>
-                <Image
-                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/${hoverPrev ? "left-hover.svg" : "left-default.svg"}`}
-                    alt="Prev"
-                    width={35}
-                    height={35}
-                />
-            </Box>
-
-            <Box
-                className="custom-next"
-                onMouseEnter={() => setHoverNext(true)}
-                onMouseLeave={() => setHoverNext(false)}>
-                <Image
-                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/${hoverNext ? "right-hover.svg" : "right-default.svg"}`}
-                    alt="Next"
-                    width={35}
-                    height={35}
-                />
-            </Box>
         </Box>
     );
 }

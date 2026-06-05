@@ -4,7 +4,7 @@ import { CalendarTodayOutlined, LocationOnOutlined } from "@mui/icons-material";
 import { Alert, Box, Grid, Snackbar, Typography } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import Advertisement from "@/components/Advertisement/Advertisement";
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
@@ -28,34 +28,41 @@ import TicketSeats from "../TicketSeats/TicketSeats";
 
 import { TicketPageClientProps } from "./TicketPageClient.type";
 
+//----------- CONSTANTS -------------
+const PAGE_SIZE: number = 10;
+const FALLBACK_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE ?? "";
+
 interface EventSectionProps {
     eventImage?: string;
 }
-const EventSection = ({ eventImage }: EventSectionProps) => (
-    <Box sx={{
-        position: "relative",
-        display: "flex",
-        justifyContent: "center",
-        width: "100%",
-        aspectRatio: "16 / 9",
-        overflow: "hidden"
-    }}
-        mb={2.5}
-    >
-        {eventImage &&
+const EventSection = ({ eventImage }: EventSectionProps) => {
+    return (
+        <Box sx={{
+            position: "relative",
+            display: "flex",
+            justifyContent: "center",
+            width: "100%",
+            aspectRatio: "16 / 9",
+            overflow: "hidden"
+        }}
+            mb={2.5}
+        >
             <Image
-                src={eventImage}
+                src={eventImage?.trim() || FALLBACK_IMAGE}
                 alt="Evento"
                 fill
+                onError={(e) => {
+                    e.currentTarget.src = FALLBACK_IMAGE;
+                }}
                 style={{
                     objectFit: 'cover',
                     objectPosition: "center",
                     borderRadius: 10
                 }}
             />
-        }
-    </Box>
-);
+        </Box>
+    );
+};
 
 export default function TicketPageClient({ orderId, eventId, trendingEvents }: TicketPageClientProps) {
     const router = useRouter();
@@ -66,18 +73,22 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
     const [snackbarMessage, setSnackbarMessage] = useState<string>("");
     const status = useAppSelector(store => store.shareTicket.status);
     const generalMessage = useAppSelector(state => state.ui.generalMessage);
+    const [currentPage, setCurrentPage] = useState<number>(1);
     const dispatch = useAppDispatch();
+    const isFetchingRef = useRef(false);
 
     useEffect(() => {
         async function load() {
+            isFetchingRef.current = true;
+
             try {
                 const detailResponse = await getMyEventDetail(eventId, orderId);
                 const ticketsResponse = await getMyEventTickets({
-                    page: 1,
-                    pageSize: 10,
+                    page: currentPage,
+                    pageSize: PAGE_SIZE,
                     orderId: orderId,
                     eventId: eventId,
-                }); // TODO: Add get next page handler
+                });
 
                 if (detailResponse) {
                     setDetail(detailResponse);
@@ -98,6 +109,9 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
                 }));
 
                 router.push(`/account/tickets`);
+            }
+            finally {
+                isFetchingRef.current = false;
             }
         }
 
@@ -130,6 +144,66 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
             return "";
         }
     }
+
+    const loadMoreTickets = async (loadAll: boolean = false) => {
+        if (isFetchingRef.current) {
+            return;
+        }
+
+        isFetchingRef.current = true;
+
+        try {
+            const nextPage = loadAll ? 1 : currentPage + 1;
+
+            const ticketsResponse = await getMyEventTickets({
+                page: nextPage,
+                pageSize: loadAll ? 100 : PAGE_SIZE,
+                orderId,
+                eventId,
+            });
+
+            if (!ticketsResponse || ticketsResponse.items.length === 0) {
+                return;
+            }
+
+            setCurrentPage(ticketsResponse.page);
+
+            setTickets(prev => {
+                if (!prev) {
+                    return prev;
+                }
+
+                if (loadAll) {
+                    return {
+                        ...ticketsResponse
+                    };
+                }
+
+                const existingIds = new Set(prev.items.map(i => i.id));
+
+                const newItems = ticketsResponse.items.filter(
+                    i => !existingIds.has(i.id)
+                );
+
+                return {
+                    ...prev,
+                    items: [...prev.items, ...newItems],
+                    page: ticketsResponse.page,
+                    totalPages: ticketsResponse.totalPages,
+                    totalCount: ticketsResponse.totalCount
+                };
+            });
+        }
+        catch (error) {
+            dispatch(showGeneralMessage({
+                message: getErrorMessage(error),
+                severity: "error"
+            }));
+        }
+        finally {
+            isFetchingRef.current = false;
+        }
+    };
 
     return (
         <Box>
@@ -174,7 +248,7 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
                                 </Box>
 
                                 <Box sx={{ display: { xs: "block", sm: "block", md: "block", lg: "none" } }} mb={5}>
-                                    <EventSection eventImage={detail?.eventImage} />
+                                    <EventSection eventImage={detail.eventImage} />
                                 </Box>
 
                                 {detail &&
@@ -193,7 +267,14 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
                                 <Box sx={{ display: { xs: "block", sm: "block", md: "block", lg: "none" } }} mt={5}>
                                     <Grid container columns={{ xs: 4, sm: 5, md: 5 }} justifyContent="center">
                                         <Grid size={"grow"} justifyContent="center">
-                                            {tickets && <TicketQRTabs tickets={tickets.items} />}
+                                            {tickets &&
+                                                <TicketQRTabs
+                                                    tickets={tickets.items}
+                                                    canLoadMore={tickets.page < tickets.totalPages}
+                                                    onLoadMore={loadMoreTickets}
+                                                    onLoadAll={() => loadMoreTickets(true)}
+                                                />
+                                            }
                                         </Grid>
                                     </Grid>
                                 </Box>
@@ -209,10 +290,17 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
                                 </Box>
                             </Grid>
                             <Grid size={{ lg: 7, xl: 7 }} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "block" } }} mb={3}>
-                                <EventSection eventImage={detail?.eventImage} />
+                                <EventSection eventImage={detail.eventImage} />
                                 <Grid container columns={5} justifyContent="center">
                                     <Grid size={5}>
-                                        {tickets && <TicketQRTabs tickets={tickets.items} />}
+                                        {tickets &&
+                                            <TicketQRTabs
+                                                tickets={tickets.items}
+                                                canLoadMore={tickets.page < tickets.totalPages}
+                                                onLoadMore={loadMoreTickets}
+                                                onLoadAll={() => loadMoreTickets(true)}
+                                            />
+                                        }
                                     </Grid>
                                 </Grid>
                             </Grid>
@@ -279,7 +367,7 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
                 </Alert>
             </Snackbar>
 
-            <Loader isLoading={status === "loading"} />
+            <Loader isLoading={(status === "loading" || isFetchingRef.current)} />
         </Box >
     );
 }

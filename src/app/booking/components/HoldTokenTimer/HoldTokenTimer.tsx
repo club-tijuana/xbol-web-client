@@ -3,9 +3,11 @@
 import { Alert, AlertTitle, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { expireHoldToken } from "@/store/slices/bookingFlowSlice";
 
 export default function HoldTokenTimer() {
+    const dispatch = useAppDispatch();
     const holdTokenObj = useAppSelector(state => state.bookingFlow.holdTokenObj);
     const holdTokenStatus = useAppSelector(state => state.bookingFlow.holdTokenObj?.status);
 
@@ -23,6 +25,7 @@ export default function HoldTokenTimer() {
         const interval = setInterval(() => {
             setTimeLeft(prev => {
                 if (prev <= 1) {
+                    dispatch(expireHoldToken({ type: "auto" }));
                     clearInterval(interval);
                     return 0;
                 }

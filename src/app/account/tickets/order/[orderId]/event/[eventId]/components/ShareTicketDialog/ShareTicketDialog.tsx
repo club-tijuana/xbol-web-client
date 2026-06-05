@@ -3,13 +3,15 @@
 import { Box, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, Grid, Input, TextField, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import Button from '@mui/material/Button';
 import { forwardRef, useEffect, useState } from "react";
-import PhoneInput, { DefaultInputComponentProps, parsePhoneNumber } from "react-phone-number-input";
+import PhoneInput, { Country, DefaultInputComponentProps, parsePhoneNumber } from "react-phone-number-input";
 import es from 'react-phone-number-input/locale/es'
 
 import 'react-phone-number-input/style.css'
 import { OrderType } from "@/models/enums/order-type.enum";
+import { PhoneRegionCodeResponse } from "@/models/phone-region-code-response.dto";
 import { ShareTicket } from "@/models/requests/share-ticket.dto";
 import { UnshareTicket } from "@/models/requests/unshare-ticket.dto";
+import { getPhoneRegionCodes } from "@/services/phoneNumbersService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { resetStatus, share, unshare } from "@/store/slices/shareTicketSlice";
 
@@ -49,9 +51,9 @@ export default function ShareTicketDialog({ ticketId, open, variant, orderType, 
     const [client, setClient] = useState<ShareTicket>({
         ticketId: ticketId,
         email: "",
+        fullPhone: "",
         phone: "",
-        phoneCode: "",
-        phoneIsoCode: "",
+        phoneRegionCodeId: undefined,
         applyToEntireSeason: false
     });
     const [unshareReq, setUnshareReq] = useState<UnshareTicket>({
@@ -60,14 +62,30 @@ export default function ShareTicketDialog({ ticketId, open, variant, orderType, 
     });
     const [toggleValue, setToggleValue] = useState<boolean>(false);
     const [phoneValue, setPhoneValue] = useState<string | undefined>();
+    const [phoneRegionCodes, setPhoneRegionCodes] = useState<PhoneRegionCodeResponse[]>();
+    const [allowedRegionCodes, setAllowedRegionCodes] = useState<Country[]>();
+
+    useEffect(() => {
+        const loadRegionCodes = async () => {
+            const response = await getPhoneRegionCodes();
+            setPhoneRegionCodes(response);
+
+            const allowed = response?.map(rc =>
+                rc.regionCode.toUpperCase()
+            ) as Country[];
+            setAllowedRegionCodes(allowed);
+        };
+
+        loadRegionCodes();
+    }, []);
 
     useEffect(() => {
         if (shareTicketState.status === "success") {
             if (variant === "share") {
-                onClose(`Boleto compartido con el Cliente con correo ${client.email} y teléfono ${client.phoneCode}${client.phone}`, "success");
+                onClose(`Ticket compartido con el Cliente con correo ${client.email} y teléfono ${client.fullPhone}`, "success");
             }
             else if (variant === "unshare") {
-                onClose(`El boleto se ha dejado de compartir`, "success");
+                onClose(`El ticket se ha dejado de compartir`, "success");
             }
         }
         else if (shareTicketState.status === "error") {
@@ -92,8 +110,8 @@ export default function ShareTicketDialog({ ticketId, open, variant, orderType, 
                 ticketId: 0,
                 email: "",
                 phone: "",
-                phoneCode: "",
-                phoneIsoCode: "",
+                fullPhone: "",
+                phoneRegionCodeId: undefined,
                 applyToEntireSeason: false
             });
 
@@ -137,26 +155,52 @@ export default function ShareTicketDialog({ ticketId, open, variant, orderType, 
         setToggleValue(newValue);
     };
 
+    const handlePhoneChange = (value?: string) => {
+        if (!value) {
+            setClient(prev => ({
+                ...prev,
+                phone: "",
+                fullPhone: "",
+                phoneRegionCodeId: undefined
+            }));
+
+            return;
+        }
+
+        const parsed = parsePhoneNumber(value);
+
+        const matchedRegion = phoneRegionCodes?.find(
+            x => x.regionCode === parsed?.country
+        );
+
+        setClient(prev => ({
+            ...prev,
+            phoneRegionCodeId: matchedRegion?.id,
+            phone: parsed?.nationalNumber ?? "",
+            fullPhone: value
+        }));
+    };
+
     return (
         <Dialog open={open}>
             <DialogTitle>
-                {variant === "share" ? "Compartir boleto" : "Dejar de compartir boleto"}
+                {variant === "share" ? "Compartir ticket" : "Dejar de compartir ticket"}
             </DialogTitle>
             <DialogContent>
                 <Box>
                     {variant === "share" ?
                         <Box>
                             <Typography variant="body1" color="muted" fontWeight={600}>
-                                Estás a punto de compartir este boleto.
+                                Estás a punto de compartir este ticket.
                             </Typography>
                             <Typography mt={1} color="muted">
-                                Le darás acceso a este boleto a la persona que estás ingresando.
+                                Le darás acceso a este ticket a la persona que estás ingresando.
                             </Typography >
                             <Typography mt={1} color="muted">
                                 Esa persona debe tener una cuenta registrada para poder verlo y utilizarlo.
                             </Typography >
                             <Typography mt={1} color="muted">
-                                Ten en cuenta que, mientras esté compartido, podrá acceder a la información del boleto como si fuera suyo.
+                                Ten en cuenta que, mientras esté compartido, podrá acceder a la información del ticket como si fuera suyo.
                             </Typography>
                             <Typography mt={1} color="muted">
                                 Puedes dejar de compartirlo en cualquier momento desde tu cuenta.
@@ -165,10 +209,10 @@ export default function ShareTicketDialog({ ticketId, open, variant, orderType, 
                         :
                         <Box>
                             <Typography variant="body1" color="text" fontWeight={600}>
-                                Estás a punto de dejar de compartir este boleto.
+                                Estás a punto de dejar de compartir este ticket.
                             </Typography>
                             <Typography mt={1}>
-                                Al continuar, la persona con la que lo compartiste perderá el acceso de inmediato y ya no podrá ver ni utilizar este boleto.
+                                Al continuar, la persona con la que lo compartiste perderá el acceso de inmediato y ya no podrá ver ni utilizar este ticket.
                             </Typography>
                             <Typography mt={1}>
                                 Esta acción no se puede deshacer automáticamente; si deseas volver a compartirlo, tendrás que hacerlo nuevamente.
@@ -199,11 +243,20 @@ export default function ShareTicketDialog({ ticketId, open, variant, orderType, 
                             </FormControl>
 
                         </Grid>
-                        <Grid size={1}>
-                            <Typography variant="body1" mb={1} color="muted">
-                                Teléfono
-                            </Typography>
-                            <PhoneInput
+                        {(phoneRegionCodes && allowedRegionCodes) &&
+                            <Grid size={1}>
+                                <Typography variant="body1" mb={1} color="muted">
+                                    Teléfono
+                                </Typography>
+                                <PhoneInput
+                                    defaultCountry={DEFAULT_PHONE_COUNTRY}
+                                    countries={allowedRegionCodes}
+                                    value={phoneValue}
+                                    onChange={handlePhoneChange}
+                                    labels={es}
+                                    inputComponent={PhoneTextField}
+                                />
+                                {/* <PhoneInput
                                 defaultCountry={DEFAULT_PHONE_COUNTRY}
                                 value={phoneValue}
                                 onChange={(value) => {
@@ -232,8 +285,9 @@ export default function ShareTicketDialog({ ticketId, open, variant, orderType, 
                                 }}
                                 labels={es}
                                 inputComponent={PhoneTextField}
-                            />
-                        </Grid>
+                            /> */}
+                            </Grid>
+                        }
                     </Grid>
                 }
                 {orderType === OrderType.SeasonPass &&
@@ -243,7 +297,7 @@ export default function ShareTicketDialog({ ticketId, open, variant, orderType, 
                             value={toggleValue}
                             exclusive
                             onChange={handleToggleChange}>
-                            <ToggleButton value={false}>Aplicar solo el boleto</ToggleButton>
+                            <ToggleButton value={false}>Aplicar solo el ticket</ToggleButton>
                             <ToggleButton value={true}>Aplicar a toda la temporada</ToggleButton>
                         </ToggleButtonGroup>
                     </Box>
