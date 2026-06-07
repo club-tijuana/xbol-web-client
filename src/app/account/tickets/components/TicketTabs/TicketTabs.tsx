@@ -71,8 +71,8 @@ export default function TicketTabs({
     const [hoverPrev, setHoverPrev] = useState(false);
     const [hoverNext, setHoverNext] = useState(false);
     const tabs: TabKey[] = [
-        ...(mySeasons ? [TAB_KEYS.SEASON_PASS] : []),
-        ...(myEvents ? [TAB_KEYS.EVENTS] : []),
+        TAB_KEYS.SEASON_PASS,
+        TAB_KEYS.EVENTS,
     ];
 
     const tabStyles = {
@@ -131,6 +131,19 @@ export default function TicketTabs({
                         navigation={{
                             nextEl: ".tickets-custom-next",
                             prevEl: ".tickets-custom-prev",
+                        }}
+                        watchOverflow={false}
+                        onReachEnd={() => {
+                            if (tabKey === "EVENTS") {
+                                if (onEventLoadMore) {
+                                    onEventLoadMore();
+                                }
+                            }
+                            else {
+                                if (onSeasonLoadMore) {
+                                    onSeasonLoadMore();
+                                }
+                            }
                         }}
                         watchOverflow={false}
                         onReachEnd={tabKey === "EVENTS" ? onEventLoadMore : onSeasonLoadMore}

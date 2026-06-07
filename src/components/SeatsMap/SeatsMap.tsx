@@ -200,7 +200,7 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
                 hydratingSelectionRef.current = true;
 
                 setTimeout(() => {
-                    chart.trySelectObjects(initialSelectedSeats).catch(() => { }).finally(() => {
+                    chart.trySelectObjects(initialSelectedSeats).catch().finally(() => {
                         setTimeout(() => {
                             hydratingSelectionRef.current = false;
                         }, 500);
@@ -242,14 +242,15 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
 
             if (!obj.labels.section) return;
 
-            setCurrentSelectedSeats(prev => {
-                const updated = prev.filter(s => s[0] !== obj.label);
+            const updated = selectedSeatsRef.current.filter(
+                s => s[0] !== obj.label
+            );
 
-                selectedSeatsRef.current = updated;
-                dispatch(setSeats(updated));
+            selectedSeatsRef.current = updated;
 
-                return updated;
-            });
+            setCurrentSelectedSeats(updated);
+
+            dispatch(setSeats(updated));
         };
 
         const getSeatPrice = (obj: SelectableObject): number => {

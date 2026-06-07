@@ -12,9 +12,11 @@ export interface MyTicketDto {
     code: string;
     type: TicketType;
     pricePaid: number;
+    additionalCharges: number;
     section: string;
     row: string;
     seat: string;
+    mainGate: string;
     qr: string;
     canShare: boolean;
     isShared: boolean;

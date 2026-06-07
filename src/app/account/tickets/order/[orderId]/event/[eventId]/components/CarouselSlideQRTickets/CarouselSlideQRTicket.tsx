@@ -124,6 +124,12 @@ export default function CarouselSlideQRTicket({ ticket, isActive, onShare, onUns
                                     {`Fila ${ticket.row}, Asiento ${ticket.seat}`}
                                 </Typography>
                                 <Typography variant="body2" color="primary" mt={2}>
+                                    Puerta principal
+                                </Typography>
+                                <Typography variant="body1" color="secondary">
+                                    {ticket.mainGate ?? "Cualquier puerta"}
+                                </Typography>
+                                <Typography variant="body2" color="primary" mt={2}>
                                     Tipo
                                 </Typography>
                                 <Typography variant="body1" color="secondary">
@@ -134,6 +140,14 @@ export default function CarouselSlideQRTicket({ ticket, isActive, onShare, onUns
                                 </Typography>
                                 <Typography variant="body1" color="secondary">
                                     {ticket.orderReference}
+                                </Typography>
+                                <Typography variant="body2" color="primary" mt={2}>
+                                    {/* TODO: Add currency */}
+                                    Cargos adicionales
+                                </Typography>
+                                <Typography variant="body1" color="secondary">
+                                    {/* TODO: Add currency */}
+                                    {`${ticket.additionalCharges ?? 0} MXN`}
                                 </Typography>
                                 <Typography variant="body2" color="primary" mt={2}>
                                     {/* TODO: Add currency */}

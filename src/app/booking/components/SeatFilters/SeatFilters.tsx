@@ -8,6 +8,7 @@ import Loader from "@/components/Loader/Loader";
 import { formatCurrency } from "@/helpers/formatCurrencyHelper";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { useDebounce } from "@/hooks/useDebounce";
+import { ItemType } from "@/models/enums/item-type.enum";
 import { PriceRange, ReservationFilters } from "@/models/filters/reservation-filters.dto";
 import { ZoneDTO } from "@/models/zone.dto";
 import { getSeatsAvailability, getZonesBySchedule, getZonesBySeason } from "@/services/bookingService";
@@ -23,6 +24,7 @@ import { SeatFiltersProps } from "./SeatFilters.type";
 export default function SeatFilters({ scheduleId, seasonId, buttonText, onZoneChange, onZoneSelected }: SeatFiltersProps) {
     const dispatch = useAppDispatch();
     const bookingMode = useAppSelector(store => store.bookingFlow.bookMode);
+    const itemType = useAppSelector(store => store.bookingFlow.ticketType);
     const [filters, setFilters] = useState<ReservationFilters>({
         scheduleId: (!bookingMode || bookingMode === "event") ? scheduleId : undefined,
         seasonId: (bookingMode === "season" || bookingMode === "renovateSeason") ? scheduleId : undefined
@@ -62,10 +64,10 @@ export default function SeatFilters({ scheduleId, seasonId, buttonText, onZoneCh
     useEffect(() => {
         setFilters(prev => ({
             ...prev,
-            scheduleId: (!bookingMode || bookingMode === "event") ? scheduleId : undefined,
-            seasonId: (bookingMode === "season" || bookingMode === "renovateSeason") ? seasonId : undefined
+            scheduleId: (itemType === ItemType.Ticket) ? scheduleId : undefined,
+            seasonId: (itemType === ItemType.SeasonPass) ? seasonId : undefined
         }))
-    }, [bookingMode, scheduleId, seasonId]);
+    }, [itemType, scheduleId, seasonId]);
 
     useEffect(() => {
         const loadSections = async () => {

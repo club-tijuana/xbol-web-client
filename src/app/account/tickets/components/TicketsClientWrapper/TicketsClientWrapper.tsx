@@ -17,6 +17,7 @@ const PAGE_SIZE: number = 10;
 
 export default function TicketsClientWrapper() {
     const generalMessage = useAppSelector(state => state.ui.generalMessage);
+    const token = useAppSelector(state => state.auth.user?.token);
     const dispatch = useAppDispatch();
 
     const [myEvents, setMyEvents] = useState<MyEventDTO[]>([]);
@@ -26,49 +27,27 @@ export default function TicketsClientWrapper() {
     const isFetchingRef = useRef(false);
 
     useEffect(() => {
+        if (!token) {
+            return;
+        }
+
         async function load() {
             isFetchingRef.current = true;
 
             try {
                 const events = await getMyEvents({ page: currentEventsPage, pageSize: PAGE_SIZE, orderType: OrderType.Ticket });
-                const seasons = await getMyEvents({ page: 1, pageSize: PAGE_SIZE, orderType: OrderType.SeasonPass });
+                const seasons = await getMyEvents({ page: currentSeasonPage, pageSize: PAGE_SIZE, orderType: OrderType.SeasonPass });
 
-            setMyEvents(events?.items ?? []);
-            setMySeasons(seasons?.items ?? []);
-        }
+                setMyEvents(events?.items ?? []);
+                setMySeasons(seasons?.items ?? []);
+            }
             finally {
                 isFetchingRef.current = false;
             }
         }
 
         load();
-    }, []);
-
-    const loadMoreEvents = async () => {
-        if (isFetchingRef.current) {
-            return;
-        }
-
-        isFetchingRef.current = true;
-
-        try {
-            const response = await getMyEvents({ page: (currentEventsPage + 1), pageSize: PAGE_SIZE, orderType: OrderType.Ticket });
-
-            if (response) {
-                setCurrentEventsPage(prev => prev + 1);
-                setMyEvents(prev => [...(prev ?? []), ...response.items])
-            }
-        }
-        catch (error) {
-            dispatch(showGeneralMessage({
-                message: getErrorMessage(error),
-                severity: "error"
-            }));
-        }
-        finally {
-            isFetchingRef.current = false;
-        }
-    };
+    }, [token]);
 
     const loadMoreSeasons = async () => {
         if (isFetchingRef.current) {
@@ -83,6 +62,32 @@ export default function TicketsClientWrapper() {
             if (response) {
                 setCurrentSeasonPage(prev => prev + 1);
                 setMySeasons(prev => [...(prev ?? []), ...response.items])
+            }
+        }
+        catch (error) {
+            dispatch(showGeneralMessage({
+                message: getErrorMessage(error),
+                severity: "error"
+            }));
+        }
+        finally {
+            isFetchingRef.current = false;
+        }
+    };
+
+    const loadMoreEvents = async () => {
+        if (isFetchingRef.current) {
+            return;
+        }
+
+        isFetchingRef.current = true;
+
+        try {
+            const response = await getMyEvents({ page: (currentEventsPage + 1), pageSize: PAGE_SIZE, orderType: OrderType.Ticket });
+
+            if (response) {
+                setCurrentEventsPage(prev => prev + 1);
+                setMyEvents(prev => [...(prev ?? []), ...response.items])
             }
         }
         catch (error) {

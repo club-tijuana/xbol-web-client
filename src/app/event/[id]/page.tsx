@@ -126,34 +126,38 @@ export default async function EventDetailPage({ params }: EventPageProps) {
               }}
             />
           </Box>
-          <Typography variant="h4" mt={4}>
-            Galería
-          </Typography>
-          <Grid container columns={2} spacing={2} mt={1.2}>
-            {event.gallery.map((image, index) => (
-              <Grid size={{ xs: 2, sm: 1, md: 2, lg: 1 }} key={index}>
-                <Box sx={{
-                  position: "relative",
-                  display: "flex",
-                  justifyContent: "center",
-                  width: "100%",
-                  aspectRatio: "16 / 9",
-                  overflow: "hidden"
-                }} mb={3}>
-                  <Image
-                    src={image.trim() || FALLBACK_IMAGE}
-                    alt="Evento"
-                    fill
-                    style={{
-                      objectFit: "cover",
-                      objectPosition: "center",
-                      borderRadius: 10
-                    }}
-                  />
-                </Box>
+          {event.gallery && event.gallery.length > 0 &&
+            <Box>
+              <Typography variant="h4" mt={4}>
+                Galería
+              </Typography>
+              <Grid container columns={2} spacing={2} mt={1.2}>
+                {event.gallery.map((image, index) => (
+                  <Grid size={{ xs: 2, sm: 1, md: 2, lg: 1 }} key={index}>
+                    <Box sx={{
+                      position: "relative",
+                      display: "flex",
+                      justifyContent: "center",
+                      width: "100%",
+                      aspectRatio: "16 / 9",
+                      overflow: "hidden"
+                    }} mb={3}>
+                      <Image
+                        src={image.trim() || FALLBACK_IMAGE}
+                        alt="Evento"
+                        fill
+                        style={{
+                          objectFit: "cover",
+                          objectPosition: "center",
+                          borderRadius: 10
+                        }}
+                      />
+                    </Box>
+                  </Grid>
+                ))}
               </Grid>
-            ))}
-          </Grid>
+            </Box>
+          }
         </>
       )}
     </>
@@ -219,8 +223,6 @@ export default async function EventDetailPage({ params }: EventPageProps) {
                     {event.fullAddress}
                   </Typography>
 
-
-
                   <Box sx={{ display: { sm: "block", md: "none" } }} mt={4}>
                     {Gallery}
                   </Box>
@@ -263,7 +265,7 @@ export default async function EventDetailPage({ params }: EventPageProps) {
                                   sx={{ mr: 1 }}
                                 />
                                 <Typography variant="body1" color="text">
-                                  Secciones
+                                  Zonas
                                 </Typography>
                               </Box>
                             </Box>
@@ -332,7 +334,7 @@ export default async function EventDetailPage({ params }: EventPageProps) {
                           <Grid container columns={2} px={8}>
                             <Grid size={1}>
                               <Typography variant="body1" color="primary">
-                                Sección
+                                Zona
                               </Typography>
                             </Grid>
                             <Grid size={1}>

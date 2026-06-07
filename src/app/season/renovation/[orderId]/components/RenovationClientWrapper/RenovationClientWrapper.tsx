@@ -19,11 +19,16 @@ interface RenovationClientWrapperProps {
 export default function RenovationClientWrapper({ orderId }: RenovationClientWrapperProps) {
     const router = useRouter();
     const dispatch = useAppDispatch();
+    const token = useAppSelector(state => state.auth.user?.token);
     const initialSeats = useAppSelector(store => store.bookingFlow.initialSeats);
     const generalMessage = useAppSelector(state => state.ui.generalMessage);
     const [seasonToRenovate, setSeasonToRenovate] = useState<SeasonToRenovateDTO | null>(null);
 
     useEffect(() => {
+        if (!token) {
+            return;
+        }
+
         async function loadSeason() {
             try {
                 const season = await getOrderToRenovate(orderId);
@@ -62,7 +67,7 @@ export default function RenovationClientWrapper({ orderId }: RenovationClientWra
         };
 
         loadSeason();
-    }, [orderId, dispatch, router]);
+    }, [orderId, dispatch, router, token]);
 
     return (
         <>

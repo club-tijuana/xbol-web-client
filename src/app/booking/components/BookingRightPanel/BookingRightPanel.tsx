@@ -63,7 +63,7 @@ const BookingRightPanel = forwardRef<BookingRightPanelHandle, BookingRightPanelP
             const _taxes = 0;
             let _total = 0;
 
-            if (initialSeats && initialSeats.length > 0) {
+            /* if (initialSeats && initialSeats.length > 0) {
                 initialSeats?.forEach(s => {
                     _subtotal += s[1];
                     _total += s[1];
@@ -74,7 +74,11 @@ const BookingRightPanel = forwardRef<BookingRightPanelHandle, BookingRightPanelP
                     _subtotal += s[1];
                     _total += s[1];
                 });
-            }
+            } */
+            selectedSeats?.forEach(s => {
+                _subtotal += s[1];
+                _total += s[1];
+            });
 
             return {
                 subtotal: _subtotal,

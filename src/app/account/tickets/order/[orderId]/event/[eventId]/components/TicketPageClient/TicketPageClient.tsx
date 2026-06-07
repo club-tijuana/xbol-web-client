@@ -65,6 +65,7 @@ const EventSection = ({ eventImage }: EventSectionProps) => {
 };
 
 export default function TicketPageClient({ orderId, eventId, trendingEvents }: TicketPageClientProps) {
+    const token = useAppSelector(state => state.auth.user?.token);
     const router = useRouter();
     const state = store.getState();
     const [detail, setDetail] = useState<MyEventDetailDTO | null>(null);
@@ -79,6 +80,10 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
 
     useEffect(() => {
         async function load() {
+            if (!token) {
+                return;
+            }
+
             isFetchingRef.current = true;
 
             try {
@@ -123,7 +128,7 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
             dispatch(resetStatus());
             load();
         }
-    }, [orderId, eventId, status, dispatch, router]);
+    }, [orderId, eventId, status, dispatch, router, token]);
 
     useEffect(() => {
         if (state.shareTicket.error) {

@@ -37,6 +37,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
     const dispatch = useAppDispatch();
     const mapRef = useRef<BookingRightPanelHandle>(null);
 
+    const accountInfo = useAppSelector(store => store.auth.user);
     const generalMessage = useAppSelector(state => state.ui.generalMessage);
     const bookingState = useAppSelector(state => state.booking.status);
     const selectedSeats = useAppSelector(store => store.bookingFlow.selectedSeats);
@@ -134,6 +135,8 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
     const handleContinue = async () => {
         switch (bookingStep) {
             case "selection":
+                setIsLoading(true);
+
                 let seats: [string, number][] | undefined;
 
                 if (isRenovation) {
@@ -160,21 +163,28 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                     setSeatsDto(seatsDto);
                 }
 
-                const tokenCreated = await getHoldToken();
+                if (!season?.isRenewal) {
+                    const tokenCreated = await getHoldToken();
 
-                if (!tokenCreated) {
-                    return;
+                    if (!tokenCreated) {
+                        return;
+                    }
                 }
 
                 setBookingStep("payment");
+                setIsLoading(false);
                 break;
             case "payment":
+                setIsLoading(true);
+
                 if (
-                    !clientContactObj?.firstName
-                    || !clientContactObj?.lastName
-                    || !clientContactObj?.email
-                    || !clientContactObj?.phoneNumber
+                    !accountInfo &&
+                    (!clientContactObj?.firstName
+                        || !clientContactObj?.lastName
+                        || !clientContactObj?.email
+                        || !clientContactObj?.phoneNumber)
                 ) {
+                    setIsLoading(false);
                     setSnackbarSeverity("warning");
                     setSnackbarMessage("Es necesario capturar la información del cliente");
                     setOpenSnackbar(true);
@@ -217,6 +227,8 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                         setOpenSnackbar(true);
                     }
                 }
+
+                setIsLoading(false);
                 break;
         }
 
@@ -312,7 +324,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                         />
                     </Box>
                 }
-                {(bookingStep === "payment") &&
+                {(bookingStep === "payment" && accountInfo == null) &&
                     <Box mt={4}>
                         <Box>
                             <TicketSeats
