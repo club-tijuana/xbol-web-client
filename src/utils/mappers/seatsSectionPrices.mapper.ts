@@ -4,10 +4,10 @@ import { SeatAvailabilityDTO } from "@/models/seat-availability.dto";
 
 export const mapPricing = (data: SeatAvailabilityDTO): Pricing => {
     const zonePrices = data.zones
-        .filter(s => s.price != null && s.price !== undefined)
-        .map(s => ({
-            category: s.displayName,
-            price: s.price as number
+        .filter(z => z.price != null && z.price !== undefined)
+        .map(z => ({
+            category: z.displayName,
+            price: z.price as number
         }));
 
     const seatPrices = data.seatOverrides

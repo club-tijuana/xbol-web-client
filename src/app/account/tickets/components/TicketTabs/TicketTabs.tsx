@@ -145,8 +145,6 @@ export default function TicketTabs({
                                 }
                             }
                         }}
-                        watchOverflow={false}
-                        onReachEnd={tabKey === "EVENTS" ? onEventLoadMore : onSeasonLoadMore}
                         breakpoints={{
                             500: {
                                 slidesPerView: SLIDES_PER_VIEW.xs,

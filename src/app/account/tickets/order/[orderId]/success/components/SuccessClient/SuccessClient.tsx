@@ -10,7 +10,7 @@ import { formatDate } from "@/helpers/formatDateHelper";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { OrderType } from "@/models/enums/order-type.enum";
 import { OrderDTO } from "@/models/order.dto";
-import { SeatDTO } from "@/models/seat.dto";
+import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
 import { getOrderSuccess } from "@/services/orderService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
@@ -26,12 +26,13 @@ interface SuccessClientProps {
 
 export default function SuccessClient({ orderId }: SuccessClientProps) {
     const dispatch = useAppDispatch();
+    const token = useAppSelector(state => state.auth.user?.token);
     const generalMessage = useAppSelector(state => state.ui.generalMessage);
     const user = useAppSelector(state => state.auth.user);
     const [order, setOrder] = useState<OrderDTO | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [formattedDate, setFormattedDatte] = useState<string>("");
-    const [seatMap, setSeatMap] = useState<Array<[string, number]>>();
+    const [seatMap, setSeatMap] = useState<Array<BookingSeatRequest>>();
 
     useEffect(() => {
         async function load() {
@@ -40,9 +41,13 @@ export default function SuccessClient({ orderId }: SuccessClientProps) {
             try {
                 const response = await getOrderSuccess(Number.parseInt(orderId));
 
-                const mapped: [string, number][] = response.itemSeatsLabels
-                    .filter((s): s is SeatDTO & { priceOverride: number } => s.priceOverride !== undefined)
-                    .map(s => [s.externalSeatObjectKey, s.priceOverride]);
+                const mapped: BookingSeatRequest[] = response.itemSeatsLabels.map(
+                    seat => ({
+                        seatKey: seat.externalSeatObjectKey,
+                        seatPrice: seat.priceOverride ?? 0,
+                        priceListItemId: seat.priceListItemId ?? 0
+                    })
+                );
 
                 setSeatMap(mapped);
                 setOrder(response);
@@ -61,7 +66,7 @@ export default function SuccessClient({ orderId }: SuccessClientProps) {
         }
 
         load();
-    }, [orderId]);
+    }, [orderId, token]);
 
     return (
         <Box mt={20}>
@@ -134,7 +139,7 @@ export default function SuccessClient({ orderId }: SuccessClientProps) {
                                 totalFees={order.totalFees}
                                 discount={order.discount}
                                 total={order.total}
-                                currency={order.currency}
+                                currency={"MXN"}
                                 seats={order.itemSeats}
                                 selectedSeats={seatMap}
                                 folio={order.folio}

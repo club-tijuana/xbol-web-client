@@ -6,6 +6,7 @@ import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from "reac
 
 import SeatsMap, { SeatsMapHandle } from "@/components/SeatsMap/SeatsMap";
 import { MyEventSeatDTO } from "@/models/my-event-seat.dto";
+import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setRenovationType } from "@/store/slices/bookingFlowSlice";
 import { BookingMode } from "@/types/bookingMode";
@@ -15,7 +16,7 @@ import MapSummary from "../MapSummary/MapSummary";
 import Payment from "../Payment/Payment";
 
 export interface BookingRightPanelHandle {
-    getSelectedSeats: () => Array<[string, number]>;
+    getSelectedSeats: () => Array<BookingSeatRequest>;
     getSelectedSeatsDto: () => MyEventSeatDTO[];
     clearSelection: () => void;
 }
@@ -50,7 +51,7 @@ const BookingRightPanel = forwardRef<BookingRightPanelHandle, BookingRightPanelP
         const selectedSeats = useAppSelector(store => store.bookingFlow.selectedSeats);
         const renovationType = useAppSelector(store => store.bookingFlow.renovationType);
 
-        const [mapSelectionSummary, setMapSelectionSummary] = useState<[string, number][] | undefined>();
+        const [mapSelectionSummary, setMapSelectionSummary] = useState<BookingSeatRequest[] | undefined>();
 
         useImperativeHandle(ref, () => ({
             getSelectedSeats: () => mapRef.current?.getSelectedSeats() ?? [],
@@ -76,8 +77,8 @@ const BookingRightPanel = forwardRef<BookingRightPanelHandle, BookingRightPanelP
                 });
             } */
             selectedSeats?.forEach(s => {
-                _subtotal += s[1];
-                _total += s[1];
+                _subtotal += s.seatPrice;
+                _total += s.seatPrice;
             });
 
             return {

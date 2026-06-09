@@ -2,9 +2,11 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { HoldToken } from "@seatsio/seatsio-react";
 
 import { ItemType } from "@/models/enums/item-type.enum";
+import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
 import { ClientInfoRequest } from "@/models/requests/client-info-request.dto";
 import { PaymentInfoRequest } from "@/models/requests/payment-info-request.dto";
 import { ReleaseSeatsByKeyRequest } from "@/models/requests/release-seats-by-key-request.dto";
+import { SeatAvailabilityDTO } from "@/models/seat-availability.dto";
 import { releaseSeats } from "@/services/holdService";
 import { BookingMode } from "@/types/bookingMode";
 import { RenovationType } from "@/types/renovationType";
@@ -22,15 +24,16 @@ interface BookingFlowState {
     bookMode?: BookingMode;
     renovationType?: RenovationType;
     holdTokenObj?: HoldTokenState;
-    selectedSeats?: Array<[string, number]>;
-    initialSeats?: Array<[string, number]>;
+    selectedSeats?: Array<BookingSeatRequest>;
+    initialSeats?: Array<BookingSeatRequest>;
     bookKey: string;
     ticketType?: ItemType;
     clientContact?: ClientInfoRequest;
     paymentInfo?: PaymentInfoRequest;
     referenceOrderId?: number;
     orderLeftSeats?: number;
-    originalSeats?: Array<[string, number]>;
+    originalSeats?: Array<BookingSeatRequest>;
+    seatAvailability?: SeatAvailabilityDTO;
 }
 
 const initialState: BookingFlowState = {
@@ -51,7 +54,7 @@ export const expireHoldToken = createAsyncThunk<
 
         const token = state.holdTokenObj?.token;
         const bookKey = state.bookKey;
-        const seatsLabels = state.selectedSeats?.map(s => s[0]);
+        const seatsLabels = state.selectedSeats?.map(s => s.seatKey);
         const newSeats = state.selectedSeats;
 
         if (!newSeats) {
@@ -98,7 +101,7 @@ const bookingFlowSlice = createSlice({
             const tokenState: HoldTokenState = { token: action.payload.token, expiresInSeconds: action.payload.expiresInSeconds, status: "active" };
             state.holdTokenObj = tokenState;
         },
-        setSeats: (state, action: PayloadAction<Array<[string, number]>>) => {
+        setSeats: (state, action: PayloadAction<Array<BookingSeatRequest>>) => {
             state.selectedSeats = action.payload;
         },
         setBookKey: (state, action: PayloadAction<string>) => {
@@ -119,13 +122,13 @@ const bookingFlowSlice = createSlice({
         setRenovationType: (state, action: PayloadAction<RenovationType>) => {
             state.renovationType = action.payload;
         },
-        setInitialSeats: (state, action: PayloadAction<Array<[string, number]>>) => {
+        setInitialSeats: (state, action: PayloadAction<Array<BookingSeatRequest>>) => {
             state.initialSeats = action.payload;
         },
         setOrderLeftSeats: (state, action: PayloadAction<number>) => {
             state.orderLeftSeats = action.payload;
         },
-        setOriginalSeats: (state, action: PayloadAction<Array<[string, number]>>) => {
+        setOriginalSeats: (state, action: PayloadAction<Array<BookingSeatRequest>>) => {
             state.originalSeats = action.payload;
         },
         manualExpireHoldToken: (state) => {
@@ -137,6 +140,9 @@ const bookingFlowSlice = createSlice({
         },
         clearHoldToken: (state) => {
             state.holdTokenObj = undefined;
+        },
+        setSeatAvailability: (state, action: PayloadAction<SeatAvailabilityDTO>) => {
+            state.seatAvailability = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -169,6 +175,7 @@ export const {
     setOrderLeftSeats,
     setOriginalSeats,
     manualExpireHoldToken,
-    clearHoldToken
+    clearHoldToken,
+    setSeatAvailability
 } = bookingFlowSlice.actions;
 export default bookingFlowSlice.reducer;

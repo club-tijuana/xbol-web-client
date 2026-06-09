@@ -6,7 +6,6 @@ import { SeasonBookingRequest } from "@/models/requests/season-booking-request.d
 import { eventBookSeats, seasonBookSeats, seasonRenovationSeats } from "@/services/bookingService";
 
 import { RootState } from "..";
-import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
 
 interface BookingState {
     status: "idle" | "loading" | "success" | "error";
@@ -20,16 +19,10 @@ const initialState: BookingState = {
 const getEventBookingRequest = (state: RootState): EventBookingRequest => {
     const flow = state.bookingFlow;
 
-    const mappedSeats: BookingSeatRequest[] = Array.from(flow.selectedSeats ?? []).map(([seatKey, seatPrice]) => ({
-        seatKey,
-        seatPrice,
-        priceListItemId: 0 // Should get this from the price list
-    }));
-
     return {
         eventKey: flow.bookKey!,
         eventScheduleId: flow.scheduleId!,
-        seats: mappedSeats,
+        seats: flow.selectedSeats ?? [],
         ticketType: flow.ticketType!,
         clientContact: flow.clientContact!,
         paymentInfoRequest: flow.paymentInfo!,
@@ -41,16 +34,10 @@ const getEventBookingRequest = (state: RootState): EventBookingRequest => {
 const getSeasonBookingRequest = (state: RootState): SeasonBookingRequest => {
     const flow = state.bookingFlow;
 
-    const mappedSeats: BookingSeatRequest[] = Array.from(flow.selectedSeats ?? []).map(([seatKey, seatPrice]) => ({
-        seatKey,
-        seatPrice,
-        priceListItemId: 0 // Should get this from the price list
-    }));
-
     return {
         seasonKey: flow.bookKey,
         eventScheduleId: flow.scheduleId!,
-        seats: mappedSeats,
+        seats: flow.selectedSeats ?? [],
         ticketType: flow.ticketType!,
         clientContact: flow.clientContact!,
         paymentInfoRequest: flow.paymentInfo!,

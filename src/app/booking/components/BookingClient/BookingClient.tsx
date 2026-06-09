@@ -20,6 +20,9 @@ import { holdSeats } from "@/services/holdService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { expireHoldToken, setBookHoldToken, setBookKey, setBookTicketType, setSeats } from "@/store/slices/bookingFlowSlice";
 import {
+    resetState as resetStateFlow
+} from "@/store/slices/bookingFlowSlice";
+import {
     resetState,
     eventBook,
 } from "@/store/slices/bookingSlice";
@@ -77,6 +80,9 @@ export default function BookingClient({ id }: BookingClientProps) {
                     expiresInSeconds: 0,
                     expiresAt: ''
                 }));
+
+                await dispatch(resetState());
+                await dispatch(resetStateFlow());
 
                 try {
                     const eventResponse = await getEventItemBySchedule(Number.parseInt(id));
@@ -229,7 +235,7 @@ export default function BookingClient({ id }: BookingClientProps) {
             return; // Add handler
         }
 
-        const selectedLabels = selectedSeats.map(s => s[0]);
+        const selectedLabels = selectedSeats.map(s => s.seatKey);
 
         if (selectedLabels && selectedLabels.length > 0) {
             const holdRequest: HoldSeatsActionRequest = {
@@ -370,7 +376,7 @@ export default function BookingClient({ id }: BookingClientProps) {
                     <Box display={{ xs: "block", lg: "none" }} mt={5}>
                         <SeatFilters
                             scheduleId={Number(id)}
-                            onZoneSelected={(zoneLabel) => { setSelectedZone(zoneLabel) }}
+                            onZoneSelected={(zoneId) => { setSelectedZone(zoneId) }}
                             onZoneChange={setZonesPrices}
                             buttonText="Ver tickets"
                         />

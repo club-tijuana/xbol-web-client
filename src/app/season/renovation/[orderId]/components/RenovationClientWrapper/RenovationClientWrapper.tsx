@@ -6,10 +6,12 @@ import { useEffect, useState } from "react";
 
 import BookingSeasonClient from "@/app/booking/components/BookingSeasonClient/BookingSeasonClient";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
+import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
 import { SeasonToRenovateDTO } from "@/models/season-to-renovate.dto";
 import { getOrderToRenovate } from "@/services/orderService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setBookHoldToken, setBookMode, setInitialSeats, setOrderLeftSeats, setOriginalSeats, setRenovationType, setSeasonRelatedOrderId, setSeats } from "@/store/slices/bookingFlowSlice";
+import { resetState as resetStateFlow, setBookHoldToken, setBookMode, setInitialSeats, setOrderLeftSeats, setOriginalSeats, setRenovationType, setSeasonRelatedOrderId, setSeats } from "@/store/slices/bookingFlowSlice";
+import { resetState } from "@/store/slices/bookingSlice";
 import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
 
 interface RenovationClientWrapperProps {
@@ -31,6 +33,9 @@ export default function RenovationClientWrapper({ orderId }: RenovationClientWra
 
         async function loadSeason() {
             try {
+                await dispatch(resetState());
+                await dispatch(resetStateFlow());
+
                 const season = await getOrderToRenovate(orderId);
 
                 await dispatch(setBookMode("renovateSeason"));
@@ -43,10 +48,13 @@ export default function RenovationClientWrapper({ orderId }: RenovationClientWra
                 }));
 
                 if (season.previousSeatPrices) {
-                    const prevSeats = season.previousSeatPrices
-                        .map(seat =>
-                            [seat.externalSeatObjectKey, seat.priceOverride] as [string, number]
-                        );
+                    const prevSeats: BookingSeatRequest[] = season.previousSeatPrices.map(
+                        seat => ({
+                            seatKey: seat.externalSeatObjectKey,
+                            seatPrice: seat.priceOverride ?? 0,
+                            priceListItemId: seat.priceListItemId ?? 0
+                        })
+                    );
 
                     await dispatch(setInitialSeats(prevSeats));
                     await dispatch(setSeats(prevSeats));

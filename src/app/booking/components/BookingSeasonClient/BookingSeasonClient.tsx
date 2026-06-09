@@ -11,12 +11,14 @@ import Loader from "@/components/Loader/Loader";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { ItemType } from "@/models/enums/item-type.enum";
 import { MyEventSeatDTO } from "@/models/my-event-seat.dto";
+import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
 import { HoldSeatsActionRequest } from "@/models/requests/hold-seats-action-request.dto";
 import { SeasonItemDTO } from "@/models/season-item.dto";
 import { getSeasonById } from "@/services/bookingService";
 import { holdSeats } from "@/services/holdService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { clearHoldToken, expireHoldToken, resetState, setBookHoldToken, setBookKey, setBookTicketType, setRenovationType, setSeats } from "@/store/slices/bookingFlowSlice";
+import { clearHoldToken, expireHoldToken, resetState as resetStateFlow, setBookHoldToken, setBookKey, setBookTicketType, setRenovationType, setSeats } from "@/store/slices/bookingFlowSlice";
+import { resetState } from "@/store/slices/bookingSlice";
 import { seasonBook, seasonRenovate } from "@/store/slices/bookingSlice";
 import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
 import { BookingStep } from "@/types/bookingStep";
@@ -66,6 +68,8 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                 let mapKeyLocal = "";
 
                 if (!isRenovation) {
+                    await dispatch(resetState());
+                    await dispatch(resetStateFlow());
                     await dispatch(setSeats([]));
                 }
 
@@ -137,7 +141,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
             case "selection":
                 setIsLoading(true);
 
-                let seats: [string, number][] | undefined;
+                let seats: BookingSeatRequest[] | undefined;
 
                 if (isRenovation) {
                     seats = mapRef.current?.getSelectedSeats();
@@ -262,7 +266,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
             return false; // TODO: Add handler
         }
 
-        const selectedLabels = selectedSeats.map(s => s[0]);
+        const selectedLabels = selectedSeats.map(s => s.seatKey);
 
         const holdRequest: HoldSeatsActionRequest = {
             eventKey: mapKey,

@@ -1,4 +1,5 @@
 import { MyEventSeatDTO } from "@/models/my-event-seat.dto";
+import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
 
 export interface TicketSeatsProps {
     eventKey: string;
@@ -9,6 +10,6 @@ export interface TicketSeatsProps {
     total?: number;
     currency?: string;
     seats: Array<MyEventSeatDTO>;
-    selectedSeats?: Array<[string, number]>;
+    selectedSeats?: Array<BookingSeatRequest>;
     folio?: string;
 }

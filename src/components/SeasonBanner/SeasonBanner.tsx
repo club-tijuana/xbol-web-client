@@ -7,22 +7,24 @@ import { useEffect, useState } from "react";
 
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { SeasonItemDTO } from "@/models/season-item.dto";
-import { getSeasonBanner } from "@/services/seasonService";
 import { getSeasonBannerImageUrl } from "@/models/season-item.dto";
-import { useAppDispatch } from "@/store/hooks";
+import { getSeasonBanner } from "@/services/seasonService";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setBookMode } from "@/store/slices/bookingFlowSlice";
 import { showGeneralMessage } from "@/store/slices/uiSlice";
 import { colors } from "@/theme/colors";
 
-//----------- CONSTANTS -------------
-const FALLBACK_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE ?? "";
-
 export default function SeasonBanner() {
     const dispatch = useAppDispatch();
+    const token = useAppSelector(state => state.auth.user?.token);
     const router = useRouter();
     const [seasonBanner, setSeasonBanner] = useState<SeasonItemDTO>();
 
     useEffect(() => {
+        if (!token) {
+            return;
+        }
+
         const loadSeason = async () => {
             try {
                 const response = await getSeasonBanner();
@@ -40,7 +42,7 @@ export default function SeasonBanner() {
         };
 
         loadSeason();
-    }, []);
+    }, [token]);
 
     const handleSeasonClick = () => {
         if (!seasonBanner) {

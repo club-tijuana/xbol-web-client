@@ -10,6 +10,7 @@ import Loader from "@/components/Loader/Loader";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { OrderDTO } from "@/models/order.dto";
+import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
 import { getEventMetadataByPaymentCodeAsync, getOrderToPayAsync } from "@/services/paymentLinkService";
 import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
 
@@ -51,10 +52,12 @@ export default async function PaymentLinkPage({ params }: PageProps) {
         redirect(`/?error=${encodeURIComponent(errorMessage)}`);
     }
 
-    const selectedSeats =
-        orderToPay?.itemSeatsLabels?.map(seat =>
-            [seat.externalSeatObjectKey, seat.priceOverride] as [string, number]
-        ) ?? [];
+    const selectedSeats: BookingSeatRequest[] =
+        orderToPay?.itemSeatsLabels?.map(seat => ({
+            seatKey: seat.externalSeatObjectKey,
+            seatPrice: seat.priceOverride ?? 0,
+            priceListItemId: seat.priceListItemId ?? 0
+        })) ?? [];
 
     return (
         <Box my={20} sx={{ minHeight: '100vh' }}>

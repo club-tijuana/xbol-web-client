@@ -13,6 +13,7 @@ import { PriceRange, ReservationFilters } from "@/models/filters/reservation-fil
 import { ZoneDTO } from "@/models/zone.dto";
 import { getSeatsAvailability, getZonesBySchedule, getZonesBySeason } from "@/services/bookingService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { setSeatAvailability } from "@/store/slices/bookingFlowSlice";
 import { resetFilters } from "@/store/slices/eventsFilterSlice";
 import { showGeneralMessage } from "@/store/slices/uiSlice";
 import { mapPricing } from "@/utils/mappers/seatsSectionPrices.mapper";
@@ -75,11 +76,12 @@ export default function SeatFilters({ scheduleId, seasonId, buttonText, onZoneCh
             try {
                 const result = await getSeatsAvailability(debouncedFilters);
                 setZones(result.zones);
+                dispatch(setSeatAvailability(result));
 
                 if (onZoneChange) {
-                    const sectionPrices = mapPricing(result);
-                    if (sectionPrices) {
-                        onZoneChange(sectionPrices);
+                    const zonePrices = mapPricing(result);
+                    if (zonePrices) {
+                        onZoneChange(zonePrices);
                     }
                 }
             }
@@ -160,7 +162,7 @@ export default function SeatFilters({ scheduleId, seasonId, buttonText, onZoneCh
             <Box sx={{ backgroundColor: "white" }}>
                 {zones?.filter(zone => zone.price !== null).map((zone, index) => (
                     <Box key={zone.id}>
-                        <Grid container columns={12} pb={3.5}>
+                        <Grid container columns={7} pb={3.5}>
                             <Grid size={4}>
                                 <Typography variant="subtitle2" color="primary">
                                     {zone.name}
@@ -176,11 +178,11 @@ export default function SeatFilters({ scheduleId, seasonId, buttonText, onZoneCh
                                     + Impuestos
                                 </Typography>
                             </Grid>
-                            <Grid size={5} textAlign={"right"}>
+                            {/* <Grid size={5} textAlign={"right"}>
                                 <Button variant="outlined" size="medium" onClick={() => handleZoneSelected(zone.displayName)}>
                                     {buttonText}
                                 </Button>
-                            </Grid>
+                            </Grid> */}
                         </Grid>
                         {(index + 1) !== zones.length && <Divider sx={{ borderWidth: 1, borderColor: 'var(--color-primary)' }} />}
                     </Box>
