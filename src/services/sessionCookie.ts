@@ -3,7 +3,6 @@ import { DecodedIdToken } from "firebase-admin/auth";
 import { splitName } from "@/helpers/splitNameHelper";
 import { AuthDto } from "@/models/auth.dto";
 import { getRootAuth } from "@/services/firebaseAdmin";
-import { assertRootFirebaseDecodedToken } from "@/services/firebaseRootToken";
 
 type SessionCookieUser = Omit<AuthDto, "token">;
 
@@ -30,7 +29,6 @@ export function mapDecodedTokenToSessionUser(
 export async function createSessionCookie(idToken: string): Promise<string> {
   const auth = getRootAuth();
   const decodedToken = await auth.verifyIdToken(idToken, true);
-  assertRootFirebaseDecodedToken(decodedToken);
   const signInAgeSeconds = Date.now() / 1000 - decodedToken.auth_time;
 
   if (signInAgeSeconds > MAX_RECENT_SIGN_IN_AGE_SECONDS) {
@@ -49,7 +47,6 @@ export async function verifySessionCookie(
     sessionCookie,
     true,
   );
-  assertRootFirebaseDecodedToken(decodedToken);
 
   return mapDecodedTokenToSessionUser(decodedToken);
 }
