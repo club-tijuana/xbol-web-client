@@ -23,6 +23,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { eventImageOrDefault } from "@/models/event-image";
 import { colors } from "@/theme/colors";
 import { ResponsiveNumber } from "@/types/responsive";
 
@@ -33,7 +34,6 @@ import { EventCardProps } from "./EventCard.type";
 
 /* -------------------- CONSTANTS -------------------- */
 const LARGE_VARIANTS: EventCardProps["sizeVariant"][] = ["md", "lg"];
-const FALLBACK_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE ?? "";
 
 /* -------------------- CONFIGS -------------------- */
 type SizeVariant = EventCardProps["sizeVariant"];
@@ -229,7 +229,7 @@ export default function EventCard({
         )}
         <CardMedia
           onClick={styleVariant !== "schedule" ? handleClick : () => { }}
-          image={posterImageUrl.trim() || FALLBACK_IMAGE}
+          image={eventImageOrDefault(posterImageUrl)}
           sx={{
             aspectRatio: (sizeVariant === "xs" || sizeVariant === "sm") ? "1 / 1" : "16 / 9",
             borderTopRightRadius: showBadge ? 0 : 10,

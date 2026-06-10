@@ -5,12 +5,10 @@ import { Box, Card, CardActions, CardContent, CardMedia, IconButton, SxProps, Ty
 import { useRouter } from "next/navigation";
 
 import { formatDate } from "@/helpers/formatDateHelper";
+import { eventImageOrDefault } from "@/models/event-image";
 
 import styles from "./TicketCard.module.scss";
 import { TicketCardProps } from "./TicketCard.type";
-
-/* -------------------- CONSTANTS -------------------- */
-const FALLBACK_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE ?? "";
 
 const overlayStyle = (isActive: boolean): SxProps => ({
     position: 'absolute',
@@ -50,7 +48,7 @@ export default function TicketCard({ ticket }: TicketCardProps) {
             <Card variant="outlined" sx={{ border: 'none' }}>
                 <CardContent className={styles.cardContent}>
                     <CardMedia
-                        image={eventImage.trim() || FALLBACK_IMAGE}
+                        image={eventImageOrDefault(eventImage)}
                         sx={{
                             aspectRatio: "1 / 1",
                             borderRadius: 2.5,

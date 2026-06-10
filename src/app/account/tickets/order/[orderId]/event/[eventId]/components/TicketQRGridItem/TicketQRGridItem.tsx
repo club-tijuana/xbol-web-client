@@ -7,12 +7,10 @@ import { useCallback, useState } from "react";
 
 import { formatDate } from "@/helpers/formatDateHelper";
 import { useQrTimer } from "@/hooks/useQrTimer";
+import { eventImageOrDefault } from "@/models/event-image";
 
 import styles from "./TicketQRGridItem.module.scss";
 import { TicketQRGridItemProps } from "./TicketQRGridItem.type";
-
-/* -------------------- CONSTANTS -------------------- */
-const FALLBACK_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE ?? "";
 
 export default function TicketQRGridItem({ ticket, onShare, onUnshare }: TicketQRGridItemProps) {
     const [showQR, setShowQR] = useState(false);
@@ -43,7 +41,7 @@ export default function TicketQRGridItem({ ticket, onShare, onUnshare }: TicketQ
                     >
                         <CardContent className={styles.cardContent}>
                             <CardMedia
-                                image={ticket.eventImage.trim() || FALLBACK_IMAGE}
+                                image={eventImageOrDefault(ticket.eventImage)}
                                 sx={{
                                     aspectRatio: "1 / 1",
                                     borderRadius: 2.5,

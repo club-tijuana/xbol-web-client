@@ -17,9 +17,6 @@ import 'swiper/css/effect-fade';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
-//----------- CONSTANTS -------------
-const FALLBACK_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE ?? "";
-
 export default function EventCarousel({ events }: EventCarouselProps) {
     const router = useRouter();
     const [hoverPrev, setHoverPrev] = useState(false);

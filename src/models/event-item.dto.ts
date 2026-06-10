@@ -2,10 +2,9 @@ import { formatDate } from "@/helpers/formatDateHelper";
 import { DateFormatMode } from "@/types/dateFormatMode";
 
 import { EventCategoryDTO } from "./event-category.dto";
+import { eventImageOrDefault } from "./event-image";
 import { EventMediaSetDTO, mediaUrl } from "./media.dto";
 import { EventCardVM } from "./views/event-card.vm";
-
-const FALLBACK_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE ?? "";
 
 export interface EventItemDTO {
     id: number;
@@ -21,14 +20,10 @@ export interface EventItemDTO {
 }
 
 export const getEventBannerImageUrl = (event: EventItemDTO): string =>
-    mediaUrl(event.media?.banner) ||
-    event.bannerImageUrl?.trim() ||
-    FALLBACK_IMAGE;
+    eventImageOrDefault(mediaUrl(event.media?.banner) || event.bannerImageUrl);
 
 export const getEventPosterImageUrl = (event: EventItemDTO): string =>
-    mediaUrl(event.media?.banner) ||
-    event.posterImageUrl?.trim() ||
-    FALLBACK_IMAGE;
+    eventImageOrDefault(mediaUrl(event.media?.banner) || event.posterImageUrl);
 
 export const mapEventToCardVM = (e: EventItemDTO, dateMode?: DateFormatMode): EventCardVM => ({
     eventId: e.id,

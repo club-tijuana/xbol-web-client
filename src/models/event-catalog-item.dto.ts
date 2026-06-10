@@ -2,6 +2,7 @@ import { formatDate } from "@/helpers/formatDateHelper";
 import { BundleType } from "@/models/enums/bundle-type.enum";
 import { EventCatalogItemType } from "@/models/enums/event-catalog-item-type.enum";
 import { EventCategoryDTO } from "@/models/event-category.dto";
+import { eventImageOrDefault } from "@/models/event-image";
 import { MediaSetDTO, mediaUrl } from "@/models/media.dto";
 import { EventCardVM } from "@/models/views/event-card.vm";
 
@@ -27,22 +28,24 @@ export interface EventCatalogItemDTO {
 
 export function getEventCatalogPosterImageUrl(
   item: EventCatalogItemDTO,
-): string | undefined {
-  return mediaUrl(item.media?.logo)
-    ?? mediaUrl(item.media?.banner)
-    ?? item.posterImageUrl
-    ?? item.bannerImageUrl
-    ?? undefined;
+): string {
+  return eventImageOrDefault(
+    mediaUrl(item.media?.logo)
+    || mediaUrl(item.media?.banner)
+    || item.posterImageUrl
+    || item.bannerImageUrl,
+  );
 }
 
 export function getEventCatalogBannerImageUrl(
   item: EventCatalogItemDTO,
-): string | undefined {
-  return mediaUrl(item.media?.banner)
-    ?? mediaUrl(item.media?.logo)
-    ?? item.bannerImageUrl
-    ?? item.posterImageUrl
-    ?? undefined;
+): string {
+  return eventImageOrDefault(
+    mediaUrl(item.media?.banner)
+    || mediaUrl(item.media?.logo)
+    || item.bannerImageUrl
+    || item.posterImageUrl,
+  );
 }
 
 export function mapEventCatalogItemToCardVM(
@@ -53,7 +56,7 @@ export function mapEventCatalogItemToCardVM(
     detailHref: item.itemType === EventCatalogItemType.Bundle
       ? `/bundle/${item.id}`
       : `/event/${item.id}`,
-    posterImageUrl: getEventCatalogPosterImageUrl(item) ?? "",
+    posterImageUrl: getEventCatalogPosterImageUrl(item),
     name: item.name,
     startDate: formatDate(new Date(item.scheduledStartDate), "date"),
     location: item.venueName ?? "",

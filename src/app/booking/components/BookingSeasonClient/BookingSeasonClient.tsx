@@ -10,10 +10,11 @@ import TicketSeats from "@/app/account/tickets/order/[orderId]/event/[eventId]/c
 import Loader from "@/components/Loader/Loader";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { ItemType } from "@/models/enums/item-type.enum";
+import { eventImageOrDefault } from "@/models/event-image";
 import { MyEventSeatDTO } from "@/models/my-event-seat.dto";
 import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
 import { HoldSeatsActionRequest } from "@/models/requests/hold-seats-action-request.dto";
-import { SeasonItemDTO } from "@/models/season-item.dto";
+import { getSeasonBannerImageUrl, SeasonItemDTO } from "@/models/season-item.dto";
 import { getSeasonById } from "@/services/bookingService";
 import { holdSeats } from "@/services/holdService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -30,9 +31,6 @@ import HoldTokenTimer from "../HoldTokenTimer/HoldTokenTimer";
 import SeatFilters from "../SeatFilters/SeatFilters";
 
 import { BookingSeasonClientProps } from "./BookingSeasonClient.type";
-
-//----------- CONSTANTS -------------
-const FALLBACK_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE ?? "";
 
 export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonClientProps) {
     const router = useRouter();
@@ -302,11 +300,11 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                                 overflow: "hidden"
                             }}>
                                 <Image
-                                    src={season.bannerImageUrl.trim() || FALLBACK_IMAGE}
+                                    src={getSeasonBannerImageUrl(season)}
                                     alt="Season"
                                     fill
                                     onError={(e) => {
-                                        e.currentTarget.src = FALLBACK_IMAGE;
+                                        e.currentTarget.src = eventImageOrDefault();
                                     }}
                                     style={{
                                         objectFit: 'cover',

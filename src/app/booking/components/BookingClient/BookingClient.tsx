@@ -12,6 +12,7 @@ import Loader from "@/components/Loader/Loader";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { ItemType } from "@/models/enums/item-type.enum";
+import { eventImageOrDefault } from "@/models/event-image";
 import { EventItemDTO, getEventPosterImageUrl } from "@/models/event-item.dto";
 import { MyEventSeatDTO } from "@/models/my-event-seat.dto";
 import { HoldSeatsActionRequest } from "@/models/requests/hold-seats-action-request.dto";
@@ -36,9 +37,6 @@ import HoldTokenTimer from "../HoldTokenTimer/HoldTokenTimer";
 import SeatFilters from "../SeatFilters/SeatFilters";
 
 import { BookingClientProps } from "./BookingClient.type";
-
-//----------- CONSTANTS -------------
-const FALLBACK_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE ?? "";
 
 /* -------------------- COMPONENT -------------------- */
 export default function BookingClient({ id }: BookingClientProps) {
@@ -276,7 +274,7 @@ export default function BookingClient({ id }: BookingClientProps) {
                                     alt="Evento"
                                     fill
                                     onError={(e) => {
-                                        e.currentTarget.src = FALLBACK_IMAGE;
+                                        e.currentTarget.src = eventImageOrDefault();
                                     }}
                                     style={{
                                         objectFit: 'cover',

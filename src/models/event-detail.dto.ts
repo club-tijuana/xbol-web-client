@@ -1,5 +1,6 @@
 import { AgeRestriction } from "./enums/age-restriction.enum";
 import { EventCategoryDTO } from "./event-category.dto";
+import { eventImageOrDefault } from "./event-image";
 import { EventScheduleDTO } from "./event-schedule.dto";
 import { EventMediaSetDTO, mediaUrl } from "./media.dto";
 
@@ -27,7 +28,7 @@ export interface EventDetailDTO {
 }
 
 export const getEventDetailImageUrl = (event: EventDetailDTO): string =>
-  mediaUrl(event.media?.banner) ?? event.image;
+  eventImageOrDefault(mediaUrl(event.media?.banner) || event.image);
 
 export const getEventDetailGalleryUrls = (event: EventDetailDTO): string[] => {
   const mediaGallery = event.media?.gallery

@@ -1,3 +1,4 @@
+import { eventImageOrDefault } from "./event-image";
 import { MediaSetDTO, mediaUrl } from "./media.dto";
 
 export interface SeasonItemDTO {
@@ -12,4 +13,4 @@ export interface SeasonItemDTO {
 }
 
 export const getSeasonBannerImageUrl = (season: SeasonItemDTO): string =>
-    mediaUrl(season.media?.banner) ?? season.bannerImageUrl;
+    eventImageOrDefault(mediaUrl(season.media?.banner) || season.bannerImageUrl);

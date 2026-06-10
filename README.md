@@ -56,6 +56,7 @@ browser alongside the ASP `appsettings.schema.json` files.
 | `NEXT_PUBLIC_BASE_PATH`           | Feeds Next's `basePath` — prefixes application routes. Leave empty when the gateway strips the subpath before forwarding to the upstream (current APISIX setup). Populate only if the app must answer at a subpath without upstream stripping.                                                  | `` (current deploy)                        |
 | `NEXT_PUBLIC_ASSET_PREFIX`        | Feeds Next's `assetPrefix` — prefixes asset URLs (`_next/static`, `_next/image`, etc.) without prefixing routes. Set to the public subpath the gateway exposes so the browser requests assets through the gateway.                                                                              | `` (local) / `/client` (deployed)          |
 | `NEXT_PUBLIC_ADMIN_IMAGE_HOST`    | Optional hostname added to Next image optimization for admin-served event media under `/admin/images/**`.                                                               | `dev-web.pwrticket.mx`                     |
+| `NEXT_PUBLIC_DEFAULT_EVENT_IMAGE` | Default event image shown when an event has no configured image. Leave unset to use `/assets/eventDefault/default.png`; deployment overrides are passed through as provided. | `/client/assets/eventDefault/default.png` |
 | `NEXT_PUBLIC_SECRET_BASE_32`      | Base32 secret for the QR ticket TOTP timer (`src/hooks/useQrTimer.ts`). Required only for the My Tickets QR flow.                                                                          | (issued per environment)                   |
 
 Server-only variables:
@@ -89,6 +90,7 @@ Client-exposed `NEXT_PUBLIC_*` variables are inlined at **build time**, so they 
 - `NEXT_PUBLIC_BASE_PATH`
 - `NEXT_PUBLIC_ASSET_PREFIX`
 - `NEXT_PUBLIC_ADMIN_IMAGE_HOST`
+- `NEXT_PUBLIC_DEFAULT_EVENT_IMAGE`
 - `NEXT_PUBLIC_SECRET_BASE_32`
 
 Server-only values are read at **runtime** by the standalone Next.js server:
@@ -126,6 +128,7 @@ Shape:
   "NEXT_PUBLIC_BASE_PATH": "",
   "NEXT_PUBLIC_ASSET_PREFIX": "/client",
   "NEXT_PUBLIC_ADMIN_IMAGE_HOST": "dev-web.pwrticket.mx",
+  "NEXT_PUBLIC_DEFAULT_EVENT_IMAGE": "/client/assets/eventDefault/default.png",
   "NEXT_PUBLIC_SECRET_BASE_32": "<base32 TOTP secret>",
   "FIREBASE_SERVICE_ACCOUNT_JSON": "<single-line service account JSON>",
   "FIREBASE_SESSION_COOKIE_NAME": "xbol_client_session"

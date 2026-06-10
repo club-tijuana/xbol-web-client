@@ -13,6 +13,7 @@ import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
 import Loader from "@/components/Loader/Loader";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
+import { eventImageOrDefault } from "@/models/event-image";
 import { MyEventDetailDTO } from "@/models/my-event-detail.dto";
 import { MyTicketDto } from "@/models/my-ticket.dto";
 import { PagedResponse } from "@/models/pagination/paged-response.dto";
@@ -30,7 +31,6 @@ import { TicketPageClientProps } from "./TicketPageClient.type";
 
 //----------- CONSTANTS -------------
 const PAGE_SIZE: number = 10;
-const FALLBACK_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE ?? "";
 
 interface EventSectionProps {
     eventImage?: string;
@@ -48,11 +48,11 @@ const EventSection = ({ eventImage }: EventSectionProps) => {
             mb={2.5}
         >
             <Image
-                src={eventImage?.trim() || FALLBACK_IMAGE}
+                src={eventImageOrDefault(eventImage)}
                 alt="Evento"
                 fill
                 onError={(e) => {
-                    e.currentTarget.src = FALLBACK_IMAGE;
+                    e.currentTarget.src = eventImageOrDefault();
                 }}
                 style={{
                     objectFit: 'cover',

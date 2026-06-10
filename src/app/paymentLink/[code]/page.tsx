@@ -9,13 +9,11 @@ import Payment from "@/app/booking/components/Payment/Payment";
 import Loader from "@/components/Loader/Loader";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
+import { eventImageOrDefault } from "@/models/event-image";
 import { OrderDTO } from "@/models/order.dto";
 import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
 import { getEventMetadataByPaymentCodeAsync, getOrderToPayAsync } from "@/services/paymentLinkService";
 import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
-
-//----------- CONSTANTS -------------
-const FALLBACK_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE ?? "";
 
 interface PageProps {
     params: Promise<{
@@ -73,9 +71,9 @@ export default async function PaymentLinkPage({ params }: PageProps) {
                             aspectRatio: "16 / 9",
                             overflow: "hidden",
                             maxWidth: 250,
-                        }} position="relative" mt={2} mr={2}>
+                            }} position="relative" mt={2} mr={2}>
                             <Image
-                                src={orderToPay.itemPosterImageUrl.trim() || FALLBACK_IMAGE}
+                                src={eventImageOrDefault(orderToPay.itemPosterImageUrl)}
                                 alt="Evento"
                                 fill
                                 style={{

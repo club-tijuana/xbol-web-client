@@ -24,6 +24,8 @@ import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
 import { formatCurrency } from "@/helpers/formatCurrencyHelper";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { AgeRestrictionLabels } from "@/models/enums/age-restriction.enum";
+import { getEventDetailGalleryUrls, getEventDetailImageUrl } from "@/models/event-detail.dto";
+import { eventImageOrDefault } from "@/models/event-image";
 import { mapEventToCardVM } from "@/models/event-item.dto";
 import { getEventDetail, getTrendingEvents } from "@/services/eventService";
 import { colors } from "@/theme/colors";
@@ -32,9 +34,6 @@ import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
 import VisitorRegister from "../components/VisitorRegister/VisitorRegister";
 
 import styles from "./page.module.scss";
-
-//----------- CONSTANTS -------------
-const FALLBACK_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE ?? "";
 
 interface EventPageProps {
   params: Promise<{ id: string }>;
@@ -56,7 +55,7 @@ export async function generateMetadata(
     title: event.name,
     description: event.shortDescription ?? "",
     url: "",
-    image: event.image,
+    image: getEventDetailImageUrl(event),
     type: "website"
   });
 }
@@ -74,6 +73,7 @@ export default async function EventDetailPage({ params }: EventPageProps) {
   const ageRestriction = event.ageRestriction
     ? AgeRestrictionLabels[event.ageRestriction]
     : "";
+  const galleryUrls = getEventDetailGalleryUrls(event);
 
   const Gallery = (
     <>
@@ -116,7 +116,7 @@ export default async function EventDetailPage({ params }: EventPageProps) {
               />
             }
             <Image
-              src={event.image.trim() || FALLBACK_IMAGE}
+              src={getEventDetailImageUrl(event)}
               alt="Evento"
               fill
               style={{
@@ -126,13 +126,13 @@ export default async function EventDetailPage({ params }: EventPageProps) {
               }}
             />
           </Box>
-          {event.gallery && event.gallery.length > 0 &&
+          {galleryUrls.length > 0 &&
             <Box>
               <Typography variant="h4" mt={4}>
                 Galería
               </Typography>
               <Grid container columns={2} spacing={2} mt={1.2}>
-                {event.gallery.map((image, index) => (
+                {galleryUrls.map((image, index) => (
                   <Grid size={{ xs: 2, sm: 1, md: 2, lg: 1 }} key={index}>
                     <Box sx={{
                       position: "relative",
@@ -142,8 +142,8 @@ export default async function EventDetailPage({ params }: EventPageProps) {
                       aspectRatio: "16 / 9",
                       overflow: "hidden"
                     }} mb={3}>
-                      <Image
-                        src={image.trim() || FALLBACK_IMAGE}
+	                      <Image
+	                        src={eventImageOrDefault(image)}
                         alt="Evento"
                         fill
                         style={{

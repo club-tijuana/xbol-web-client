@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 
 import EventCardGrid from "@/components/EventCardGrid/EventCardGrid";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
+import { eventImageOrDefault } from "@/models/event-image";
 import { PagedResponse } from "@/models/pagination/paged-response.dto";
 import { PerformerDTO } from "@/models/performer.dto";
 import { mapScheduleToCardVM, ScheduleItemDTO } from "@/models/schedule-item.dto";
@@ -25,8 +26,6 @@ import { colors } from "@/theme/colors";
 import EventsFilters from "../EventsFilters/EventsFilters";
 
 /* -------------------- CONSTANTS -------------------- */
-const FALLBACK_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE ?? "";
-
 const skeletonStyle: SxProps = {
     width: "100%",
     height: 290,
@@ -124,7 +123,7 @@ export default function EventsSearch() {
                                     <CardActionArea onClick={() => handlePerformerClick(p.id)}>
                                         <CardMedia
                                             component="img"
-                                            image={p.imageUrl?.trim() || FALLBACK_IMAGE}
+                                            image={eventImageOrDefault(p.imageUrl)}
                                             alt={p.name}
                                         />
                                         <CardContent>

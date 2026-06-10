@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { DEFAULT_EVENT_IMAGE } from "./defaults.ts";
 import { defaultWhiteLabelId, whiteLabelIds } from "./whiteLabel/configs.ts";
 
 const githubActionsEnvironments = ["GCP_DEV", "GCP_QA"] as const;
@@ -106,6 +107,10 @@ const publicEnvShape = {
   NEXT_PUBLIC_BASE_PATH: z.string().optional(),
   NEXT_PUBLIC_ASSET_PREFIX: z.string().optional(),
   NEXT_PUBLIC_ADMIN_IMAGE_HOST: z.string().optional(),
+  NEXT_PUBLIC_DEFAULT_EVENT_IMAGE: z.preprocess(
+    emptyStringToUndefined,
+    z.string().optional().default(DEFAULT_EVENT_IMAGE),
+  ),
   NEXT_PUBLIC_SECRET_BASE_32: z.string().optional(),
   NEXT_PUBLIC_WHITE_LABEL: z.preprocess(
     emptyStringToUndefined,
@@ -141,6 +146,10 @@ export const publicEnvMetadata = {
   NEXT_PUBLIC_BASE_PATH: publicBuildTimeEnv("variable", "environment"),
   NEXT_PUBLIC_ASSET_PREFIX: publicBuildTimeEnv("variable", "repository"),
   NEXT_PUBLIC_ADMIN_IMAGE_HOST: publicBuildTimeEnv("variable", "environment"),
+  NEXT_PUBLIC_DEFAULT_EVENT_IMAGE: publicBuildTimeEnv(
+    "variable",
+    "environment",
+  ),
   NEXT_PUBLIC_SECRET_BASE_32: publicBuildTimeEnv("secret", "repository"),
   NEXT_PUBLIC_WHITE_LABEL: publicBuildTimeEnv("variable", "environment"),
 } satisfies Record<keyof typeof publicEnvShape, EnvMetadata>;

@@ -9,6 +9,7 @@ import Loader from "@/components/Loader/Loader";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { OrderType } from "@/models/enums/order-type.enum";
+import { eventImageOrDefault } from "@/models/event-image";
 import { OrderDTO } from "@/models/order.dto";
 import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
 import { getOrderSuccess } from "@/services/orderService";
@@ -16,9 +17,6 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
 
 import TicketSeats from "../../../event/[eventId]/components/TicketSeats/TicketSeats";
-
-//----------- CONSTANTS -------------
-const FALLBACK_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE ?? "";
 
 interface SuccessClientProps {
     orderId: string;
@@ -91,11 +89,11 @@ export default function SuccessClient({ orderId }: SuccessClientProps) {
                                             maxWidth: 250,
                                         }} position="relative" mt={2} mr={2}>
                                             <Image
-                                                src={order.itemPosterImageUrl.trim() || FALLBACK_IMAGE}
+                                                src={eventImageOrDefault(order.itemPosterImageUrl)}
                                                 alt="Evento"
                                                 fill
                                                 onError={(e) => {
-                                                    e.currentTarget.src = FALLBACK_IMAGE;
+                                                    e.currentTarget.src = eventImageOrDefault();
                                                 }}
                                                 style={{
                                                     objectFit: 'cover',
@@ -167,11 +165,11 @@ export default function SuccessClient({ orderId }: SuccessClientProps) {
                             }}
                         >
                             <Image
-                                src={order.itemPosterImageUrl.trim() || FALLBACK_IMAGE}
+                                src={eventImageOrDefault(order.itemPosterImageUrl)}
                                 alt="Poster"
                                 fill
                                 onError={(e) => {
-                                    e.currentTarget.src = FALLBACK_IMAGE;
+                                    e.currentTarget.src = eventImageOrDefault();
                                 }}
                                 style={{
                                     objectFit: "cover",

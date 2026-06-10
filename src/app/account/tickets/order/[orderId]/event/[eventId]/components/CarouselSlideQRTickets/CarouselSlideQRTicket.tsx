@@ -9,12 +9,10 @@ import { useCallback, useState } from "react";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { useQrTimer } from "@/hooks/useQrTimer";
 import { TicketTypeLabels } from "@/models/enums/ticket-type.enum";
+import { eventImageOrDefault } from "@/models/event-image";
 
 import styles from "./CarouselSlideQRTicket.module.scss";
 import { CarouselSlideQRTicketProps } from "./CarouselSlideQRTicket.type";
-
-/* -------------------- CONSTANTS -------------------- */
-const FALLBACK_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE ?? "";
 
 type TicketActionProps = {
     icon: ReactNode;
@@ -72,7 +70,7 @@ export default function CarouselSlideQRTicket({ ticket, isActive, onShare, onUns
                 <Box>
                     <CardContent className={styles.cardContent}>
                         <CardMedia
-                            image={ticket.eventImage.trim() || FALLBACK_IMAGE}
+                            image={eventImageOrDefault(ticket.eventImage)}
                             sx={{
                                 aspectRatio: "1 / 1",
                                 borderRadius: 2.5,
