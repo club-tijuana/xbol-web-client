@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { persistStore, persistReducer } from "redux-persist";
+import { persistStore, persistReducer, createTransform } from "redux-persist";
 import {
     FLUSH,
     REHYDRATE,
@@ -11,6 +11,7 @@ import {
 import storage from "redux-persist/lib/storage";
 
 import authReducer from "./slices/authSlice";
+import { AuthDto } from "@/models/auth.dto";
 import bookingFlowReducer from "./slices/bookingFlowSlice";
 import bookingReducer from "./slices/bookingSlice";
 import eventsFiltersReducer from "./slices/eventsFilterSlice";
@@ -18,10 +19,24 @@ import favouriteEventReducer from "./slices/favouriteEventSlice";
 import shareTicketReducer from "./slices/shareTicketSlice";
 import uiReducer from "./slices/uiSlice";
 
+const stripPersistedAuthToken = createTransform<AuthDto | null, AuthDto | null>(
+    (user) => {
+        if (!user) {
+            return user;
+        }
+
+        const { token: _token, ...userWithoutToken } = user;
+        return userWithoutToken;
+    },
+    (user) => user,
+    { whitelist: ["user"] },
+);
+
 const persistConfig = {
     key: "auth",
     storage,
     whitelist: ["user"],
+    transforms: [stripPersistedAuthToken],
 };
 
 const persistedAuthReducer = persistReducer(persistConfig, authReducer);

@@ -2,12 +2,14 @@
 
 import { FormControl, Grid, Input, Paper, TextField, Typography } from "@mui/material";
 import { forwardRef, useEffect, useState } from "react";
-import PhoneInput, { DefaultInputComponentProps, parsePhoneNumber } from "react-phone-number-input";
+import PhoneInput, { DefaultInputComponentProps, parsePhoneNumber, Country } from "react-phone-number-input";
 import es from 'react-phone-number-input/locale/es'
 
 import 'react-phone-number-input/style.css'
 import { useDebounce } from "@/hooks/useDebounce";
+import { PhoneRegionCodeResponse } from "@/models/phone-region-code-response.dto";
 import { ClientInfoRequest } from "@/models/requests/client-info-request.dto";
+import { getPhoneRegionCodes } from "@/services/phoneNumbersService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setBookClientContact } from "@/store/slices/bookingFlowSlice";
 
@@ -43,7 +45,12 @@ export default function ClientInfo() {
     const [phoneValue, setPhoneValue] = useState<string | undefined>();
     const dispatch = useAppDispatch();
     const accountInfo = useAppSelector(store => store.auth.user);
+
+    const [phoneRegionCodes, setPhoneRegionCodes] = useState<PhoneRegionCodeResponse[]>();
+    const [allowedRegionCodes, setAllowedRegionCodes] = useState<Country[]>();
     const [client, setClient] = useState<ClientInfoRequest>({
+        id: accountInfo?.clientId,
+        fullName: [accountInfo?.firstName, accountInfo?.lastName].filter(Boolean).join(" "),
         firstName: accountInfo?.firstName ?? "",
         lastName: accountInfo?.lastName ?? "",
         email: accountInfo?.username ?? "",
@@ -51,6 +58,20 @@ export default function ClientInfo() {
     });
 
     const debounceClient = useDebounce(client, 600);
+
+    useEffect(() => {
+        const loadRegionCodes = async () => {
+            const response = await getPhoneRegionCodes();
+            setPhoneRegionCodes(response);
+
+            const allowed = response?.map(rc =>
+                rc.regionCode.toUpperCase()
+            ) as Country[];
+            setAllowedRegionCodes(allowed);
+        };
+
+        loadRegionCodes();
+    }, []);
 
     useEffect(() => {
         dispatch(setBookClientContact({
@@ -65,6 +86,35 @@ export default function ClientInfo() {
         setClient(prev => ({
             ...prev,
             [name]: value
+        }));
+    };
+
+    const handlePhoneChange = (value?: string) => {
+        if (!value) {
+            setClient(prev => ({
+                ...prev,
+                phoneNumber: "",
+                phoneIsoCode: "",
+                phoneCode: "",
+                fullPhone: ""
+            }));
+
+            return;
+        }
+
+        const parsed = parsePhoneNumber(value);
+
+        const matchedRegion = phoneRegionCodes?.find(
+            x => x.regionCode === parsed?.country
+        );
+
+        setClient(prev => ({
+            ...prev,
+            phoneRegionCodeId: matchedRegion?.id,
+            phoneNumber: parsed?.nationalNumber ?? "",
+            phoneIsoCode: parsed?.country ?? "",
+            phoneCode: parsed ? `+${parsed.countryCallingCode}` : "",
+            fullPhone: value
         }));
     };
 
@@ -133,41 +183,21 @@ export default function ClientInfo() {
                         />
                     </FormControl>
                 </Grid>
-                <Grid size={{ xs: 2, sm: 2, md: 1, lg: 1, xl: 1 }}>
-                    <Typography variant="body1" mb={1} color="muted">
-                        Teléfono
-                    </Typography>
-                    <PhoneInput
-                        defaultCountry={DEFAULT_PHONE_COUNTRY}
-                        value={phoneValue}
-                        onChange={(value) => {
-                            setPhoneValue(value);
-
-                            if (!value) {
-                                setClient(prev => ({
-                                    ...prev,
-                                    phoneNumber: "",
-                                    phoneIsoCode: "",
-                                    phoneCode: "",
-                                    fullPhone: ""
-                                }));
-                                return;
-                            }
-
-                            const phoneNumber = parsePhoneNumber(value);
-
-                            setClient(prev => ({
-                                ...prev,
-                                phoneNumber: phoneNumber?.nationalNumber ?? "",
-                                phoneIsoCode: phoneNumber ? `+${phoneNumber.countryCallingCode}` : "",
-                                phoneCode: phoneNumber ? `+${phoneNumber.countryCallingCode}` : "",
-                                fullPhone: value
-                            }));
-                        }}
-                        labels={es}
-                        inputComponent={PhoneTextField}
-                    />
-                </Grid>
+                {(phoneRegionCodes && allowedRegionCodes) &&
+                    <Grid size={{ xs: 2, sm: 2, md: 1, lg: 1, xl: 1 }}>
+                        <Typography variant="body1" mb={1} color="muted">
+                            Teléfono
+                        </Typography>
+                        <PhoneInput
+                            defaultCountry={DEFAULT_PHONE_COUNTRY}
+                            countries={allowedRegionCodes}
+                            value={phoneValue}
+                            onChange={handlePhoneChange}
+                            labels={es}
+                            inputComponent={PhoneTextField}
+                        />
+                    </Grid>
+                }
             </Grid>
         </Paper>
     );

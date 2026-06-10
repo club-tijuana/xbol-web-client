@@ -3,11 +3,11 @@ import { Pricing } from "@seatsio/seatsio-react";
 import { SeatAvailabilityDTO } from "@/models/seat-availability.dto";
 
 export const mapPricing = (data: SeatAvailabilityDTO): Pricing => {
-    const sectionPrices = data.sections
-        .filter(s => s.price != null && s.price !== undefined)
-        .map(s => ({
-            category: s.displayName,
-            price: s.price as number
+    const zonePrices = data.zones
+        .filter(z => z.price != null && z.price !== undefined)
+        .map(z => ({
+            category: z.displayName,
+            price: z.price as number
         }));
 
     const seatPrices = data.seatOverrides
@@ -18,6 +18,6 @@ export const mapPricing = (data: SeatAvailabilityDTO): Pricing => {
         }));
 
     return {
-        prices: [...sectionPrices, ...seatPrices]
+        prices: [...zonePrices, ...seatPrices]
     };
 };

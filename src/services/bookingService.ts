@@ -28,7 +28,10 @@ export async function getZonesBySeason(seasonId: number): Promise<ZoneDTO[]> {
 export async function getEventItemBySchedule(scheduleId: number): Promise<EventItemDTO> {
     return requestAxios<null, EventItemDTO>(
         "GET",
-        `${PATH}/event-by-schedule/${scheduleId}`
+        `${PATH}/event-by-schedule/${scheduleId}`,
+        undefined,
+        undefined,
+        { params: { includeMedia: true } }
     );
 }
 
@@ -39,7 +42,8 @@ export async function getSeasonById(seasonId: number): Promise<SeasonItemDTO> {
         "GET",
         `${PATH}/season-by-id/${seasonId}`,
         undefined,
-        state.auth.user?.token
+        state.auth.user?.token,
+        { params: { includeMedia: true } }
     );
 }
 
@@ -52,25 +56,34 @@ export async function getSeatsAvailability(filters: ReservationFilters): Promise
 }
 
 export async function eventBookSeats(request: EventBookingRequest): Promise<BookingResult> {
+    const state = store.getState();
+
     return requestAxios<EventBookingRequest, BookingResult>(
         "POST",
         `${PATH}/event/book-seats`,
-        request
+        request,
+        state.auth.user?.token
     );
 }
 
 export async function seasonBookSeats(request: SeasonBookingRequest): Promise<BookingResult> {
+    const state = store.getState();
+
     return requestAxios<SeasonBookingRequest, BookingResult>(
         "POST",
         `${PATH}/season/book-season`,
-        request
+        request,
+        state.auth.user?.token
     );
 }
 
 export async function seasonRenovationSeats(request: SeasonBookingRequest): Promise<BookingResult> {
+    const state = store.getState();
+
     return requestAxios<SeasonBookingRequest, BookingResult>(
         "POST",
         `${PATH}/season/renovate-season`,
-        request
+        request,
+        state.auth.user?.token
     );
 }

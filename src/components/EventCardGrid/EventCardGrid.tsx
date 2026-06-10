@@ -1,7 +1,10 @@
 "use client";
 
 import { Box, Button, Grid, Typography } from "@mui/material";
+import { useRouter } from "next/navigation";
 
+import { useAppDispatch } from "@/store/hooks";
+import { setCategories } from "@/store/slices/eventsFilterSlice";
 import { colors } from "@/theme/colors";
 import { ResponsiveNumber } from "@/types/responsive";
 import { StyleVariant } from "@/types/variants";
@@ -9,6 +12,7 @@ import { StyleVariant } from "@/types/variants";
 import EventCard from "../EventCard/EventCard";
 
 import { EventCardGridProps } from "./EventCardGrid.type";
+
 
 /* -------------------- CONSTANTS -------------------- */
 const LARGE_VARIANTS: EventCardGridProps["sizeVariant"][] = ["md", "lg"];
@@ -27,7 +31,7 @@ interface SpacingConfig {
 }
 
 const columnsByVariant: Record<SizeVariant, ResponsiveNumber> = {
-    xs: { xs: 2, sm: 3, md: 2, lg: 3, xl: 5 },
+    xs: { xs: 2, sm: 3, md: 2, lg: 3, xl: 4 },
     sm: { xs: 1, sm: 2, md: 3, lg: 4, xl: 5 },
     md: { xs: 1, sm: 2, md: 3, lg: 4, xl: 4 },
     lg: { xs: 1, sm: 1, md: 2, lg: 3, xl: 4 },
@@ -71,14 +75,30 @@ export default function EventCardGrid({
     styleVariant,
     showCardBadge = false,
     showCardInfo = true,
-    showAllButton = true,
-    onSeeAllAction
+    showAllButton = true
 }: EventCardGridProps) {
+    const dispatch = useAppDispatch();
+    const router = useRouter();
     const currentColumnsConfig = columnsByVariant[sizeVariant];
     const currentSpacingConfig = spacingConfig[sizeVariant];
     const currentStyle = styleConfig[styleVariant] ?? styleConfig.default;
 
     const isLarge = LARGE_VARIANTS.includes(sizeVariant);
+
+    const onHandleSeeAll = async () => {
+        if (!eventCards || eventCards.length === 0) {
+            return;
+        }
+
+        if (!eventCards[0].categories) {
+            return;
+        }
+
+        const categoryId = eventCards[0].categories[0].id;
+        await dispatch(setCategories([categoryId]));
+
+        router.push(`/event`);
+    }
 
     return (
         <Box>
@@ -116,7 +136,7 @@ export default function EventCardGrid({
                                 py: 1.2,
                                 px: 4
                             }}
-                                onClick={onSeeAllAction}
+                                onClick={onHandleSeeAll}
                             >
                                 <Typography variant="body1"
                                     sx={{

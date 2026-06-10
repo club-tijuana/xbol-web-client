@@ -1,17 +1,29 @@
 import axios from "axios";
+import { ConfirmationResult } from "firebase/auth";
 
 import { requestAxios } from "@/helpers/axiosHelper";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { splitName } from "@/helpers/splitNameHelper";
 import { AuthMeResponse, ClientProfileDto, RegisterRequest, RegisterResponse } from "@/models/auth-profile.dto";
 import { AuthDto, AuthenticatedAuthDto } from "@/models/auth.dto";
-import { getFirebaseAuthErrorMessage, loginWithFirebase, loginWithFirebaseCustomToken, logoutFromFirebase, refreshCurrentFirebaseUser, sendCurrentFirebaseUserEmailVerification } from "@/services/firebaseClient";
+import {
+    getFirebaseAuthErrorMessage,
+    loginWithFirebase,
+    loginWithFirebaseCustomToken,
+    loginWithFirebasePhoneCode,
+    logoutFromFirebase,
+    refreshCurrentFirebaseUser,
+    sendCurrentFirebaseUserEmailVerification,
+    sendFirebasePasswordResetEmail,
+    sendPhoneSignInCode
+} from "@/services/firebaseClient";
 import { getSessionApiPath } from "@/services/sessionApiPath";
 
 const logoutErrorMessage = "Error al cerrar sesión";
 const unlinkedClientProfileErrorMessage = "Perfil de cliente no vinculado";
+const unlinkedClientProfileProblemCode = "unlinked_client_profile";
 
-class UnlinkedClientProfileError extends Error {
+export class UnlinkedClientProfileError extends Error {
     constructor() {
         super(unlinkedClientProfileErrorMessage);
         this.name = "UnlinkedClientProfileError";
@@ -27,7 +39,25 @@ function isMissingClientProfileError(error: unknown): boolean {
         return false;
     }
 
-    return error.response?.status === 401 || error.response?.status === 403;
+    const data = error.response?.data;
+    if (typeof data !== "object" || data === null) {
+        return false;
+    }
+
+    if ("code" in data && data.code === unlinkedClientProfileProblemCode) {
+        return true;
+    }
+
+    if ("extensions" in data && typeof data.extensions === "object" && data.extensions !== null) {
+        return "code" in data.extensions
+            && data.extensions.code === unlinkedClientProfileProblemCode;
+    }
+
+    return false;
+}
+
+export function isUnlinkedClientProfileError(error: unknown): error is UnlinkedClientProfileError {
+    return isMissingClientProfileError(error);
 }
 
 async function createSession(idToken: string): Promise<void> {
@@ -62,6 +92,7 @@ function mapClientProfileToAuthDto(
     emailVerified?: boolean,
 ): AuthDto {
     const name = splitName(client.fullName);
+    const email = client.email?.trim() || undefined;
     const resolvedVerificationStatus = verificationStatus
         ?? (emailVerified === undefined
             ? undefined
@@ -71,8 +102,8 @@ function mapClientProfileToAuthDto(
         userId: client.userId || firebaseUid,
         firebaseUid: client.userId || firebaseUid,
         clientId: client.id,
-        username: client.email,
-        email: client.email,
+        username: email ?? client.phoneNumber ?? firebaseUid,
+        email,
         emailVerified,
         token,
         firstName: name.firstName,
@@ -89,6 +120,9 @@ function mergeAuthProfile(user: AuthDto, profile: AuthMeResponse): AuthDto {
         throw new UnlinkedClientProfileError();
     }
 
+    const email = profile.email ?? (profile.client.email?.trim() || undefined);
+    const phoneNumber = profile.phoneNumber ?? profile.client.phoneNumber;
+
     return {
         ...mapClientProfileToAuthDto(
             profile.client,
@@ -97,12 +131,44 @@ function mergeAuthProfile(user: AuthDto, profile: AuthMeResponse): AuthDto {
             profile.verificationStatus,
             profile.emailVerified,
         ),
-        username: profile.email ?? profile.client.email,
-        email: profile.email ?? profile.client.email,
+        username: email ?? phoneNumber ?? profile.firebaseUid,
+        email,
         emailVerified: profile.emailVerified,
-        phoneNumber: profile.phoneNumber ?? profile.client.phoneNumber,
+        phoneNumber,
         token: user.token,
         onboardingStatus: profile.onboardingStatus,
+    };
+}
+
+function mapUnlinkedPhoneProfile(user: AuthDto, profile: AuthMeResponse): AuthDto | null {
+    const phoneNumber = profile.phoneNumber ?? user.phoneNumber;
+    if (!phoneNumber) {
+        return null;
+    }
+
+    return {
+        ...user,
+        userId: profile.firebaseUid,
+        firebaseUid: profile.firebaseUid,
+        username: phoneNumber,
+        email: profile.email ?? user.email,
+        emailVerified: profile.emailVerified,
+        phoneNumber,
+        onboardingStatus: "unlinked",
+        verificationStatus: profile.verificationStatus ?? "verified",
+    };
+}
+
+function mapAuthenticatedPhoneUserToUnlinkedProfile(user: AuthenticatedAuthDto): AuthDto | null {
+    if (!user.phoneNumber) {
+        return null;
+    }
+
+    return {
+        ...user,
+        username: user.phoneNumber,
+        onboardingStatus: "unlinked",
+        verificationStatus: "verified",
     };
 }
 
@@ -127,10 +193,22 @@ export async function hydrateAuthProfile(user: AuthDto): Promise<AuthDto | null>
 
     try {
         const profile = await getCurrentAuthProfile(user.token);
+        if (!profile.client) {
+            return mapUnlinkedPhoneProfile(user, profile);
+        }
 
         return mergeAuthProfile(user, profile);
     } catch (error) {
         if (isMissingClientProfileError(error)) {
+            if (user.phoneNumber) {
+                return {
+                    ...user,
+                    username: user.phoneNumber,
+                    onboardingStatus: "unlinked",
+                    verificationStatus: "verified",
+                };
+            }
+
             return null;
         }
 
@@ -148,6 +226,38 @@ async function hydrateLinkedAuthProfile(user: AuthDto): Promise<AuthDto> {
     return hydratedUser;
 }
 
+async function completeLoginProfile(user: AuthenticatedAuthDto): Promise<AuthDto> {
+    const profile = await requestAxios<undefined, AuthMeResponse>(
+        "POST",
+        "auth/complete-login",
+        undefined,
+        user.token,
+    );
+
+    return mergeAuthProfile(user, profile);
+}
+
+async function completePhoneLoginProfile(user: AuthenticatedAuthDto): Promise<AuthDto> {
+    const profile = await requestAxios<undefined, AuthMeResponse>(
+        "POST",
+        "auth/complete-login",
+        undefined,
+        user.token,
+    );
+
+    if (!profile.client) {
+        await clearSession().catch(() => undefined);
+        const unlinkedUser = mapUnlinkedPhoneProfile(user, profile);
+        if (!unlinkedUser) {
+            throw new UnlinkedClientProfileError();
+        }
+
+        return unlinkedUser;
+    }
+
+    return mergeAuthProfile(user, profile);
+}
+
 export async function login(username: string, password: string): Promise<AuthDto> {
     let user: AuthenticatedAuthDto;
 
@@ -159,10 +269,60 @@ export async function login(username: string, password: string): Promise<AuthDto
 
     try {
         await createSession(user.token);
-        return await hydrateLinkedAuthProfile(user);
+        return await completeLoginProfile(user);
     } catch (error) {
         await clearClientAuthentication();
         throw error;
+    }
+}
+
+export async function sendPhoneLoginCode(
+    phoneNumber: string,
+    recaptchaContainerId: string,
+): Promise<ConfirmationResult> {
+    try {
+        return await sendPhoneSignInCode(phoneNumber, recaptchaContainerId);
+    } catch (error) {
+        throw new Error(getFirebaseAuthErrorMessage(error));
+    }
+}
+
+export async function loginPhone(
+    confirmation: ConfirmationResult,
+    verificationCode: string,
+): Promise<AuthDto> {
+    let user: AuthenticatedAuthDto;
+
+    try {
+        user = await loginWithFirebasePhoneCode(confirmation, verificationCode);
+    } catch (error) {
+        throw new Error(getFirebaseAuthErrorMessage(error));
+    }
+
+    try {
+        await createSession(user.token);
+        return await completePhoneLoginProfile(user);
+    } catch (error) {
+        if (isMissingClientProfileError(error)) {
+            await clearSession().catch(() => undefined);
+            const unlinkedUser = mapAuthenticatedPhoneUserToUnlinkedProfile(user);
+            if (unlinkedUser) {
+                return unlinkedUser;
+            }
+
+            throw new UnlinkedClientProfileError();
+        }
+
+        await clearClientAuthentication();
+        throw error;
+    }
+}
+
+export async function sendForgotPasswordEmail(username: string): Promise<void> {
+    try {
+        await sendFirebasePasswordResetEmail(username);
+    } catch (error) {
+        throw new Error(getErrorMessage(error, "Error al enviar el correo de recuperación de contraseña."));
     }
 }
 
@@ -210,6 +370,64 @@ export async function register(request: RegisterRequest): Promise<AuthDto> {
     }
 }
 
+export async function registerPhone(
+    request: RegisterRequest,
+    confirmation?: ConfirmationResult | null,
+    verificationCode?: string,
+    verifiedPhoneUser?: AuthDto | null,
+): Promise<AuthDto> {
+    let user: AuthenticatedAuthDto;
+
+    try {
+        if (confirmation) {
+            user = await loginWithFirebasePhoneCode(confirmation, verificationCode ?? "");
+        }
+        else if (verifiedPhoneUser?.token && verifiedPhoneUser.phoneNumber) {
+            user = { ...verifiedPhoneUser, token: verifiedPhoneUser.token };
+        }
+        else {
+            user = await refreshCurrentFirebaseUser();
+        }
+
+        if (!user.phoneNumber) {
+            throw new Error("Envía el código SMS antes de registrarte.");
+        }
+    } catch (error) {
+        if (error instanceof Error && error.message.includes("No hay una sesión de Firebase activa")) {
+            throw new Error("Envía el código SMS antes de registrarte.");
+        }
+
+        throw new Error(error instanceof Error ? error.message : getFirebaseAuthErrorMessage(error));
+    }
+
+    try {
+        const registration = await requestAxios<RegisterRequest, RegisterResponse>(
+            "POST",
+            "auth/register",
+            request,
+            user.token,
+        );
+
+        await createSession(user.token);
+
+        const registeredUser = mapClientProfileToAuthDto(
+            registration.client,
+            user.token,
+            registration.firebaseUid,
+            registration.verificationStatus,
+            user.emailVerified,
+        );
+
+        return await hydrateLinkedAuthProfile({
+            ...registeredUser,
+            onboardingStatus: registration.onboardingStatus,
+        });
+    } catch (error) {
+        await clearClientAuthentication();
+        throw new Error(getErrorMessage(error, "Error al registrar teléfono"));
+    }
+}
+
 export async function logout(): Promise<void> {
     let clearSessionError: unknown;
 
@@ -226,6 +444,14 @@ export async function logout(): Promise<void> {
     }
 }
 
+export async function sendPasswordReset(email: string): Promise<void> {
+    try {
+        await sendFirebasePasswordResetEmail(email);
+    } catch (error) {
+        throw new Error(getErrorMessage(error, "Error al enviar correo de recuperación"));
+    }
+}
+
 export async function sendVerificationEmail(): Promise<void> {
     await sendCurrentFirebaseUserEmailVerification();
 }
@@ -233,7 +459,7 @@ export async function sendVerificationEmail(): Promise<void> {
 export async function refreshEmailVerificationStatus(user: AuthDto): Promise<AuthDto> {
     const refreshedFirebaseUser = await refreshCurrentFirebaseUser();
 
-    return hydrateLinkedAuthProfile({
+    return completeLoginProfile({
         ...user,
         ...refreshedFirebaseUser,
     });

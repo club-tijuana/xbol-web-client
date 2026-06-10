@@ -11,12 +11,17 @@ export function LayoutContainer({ children }: { children: React.ReactNode }) {
     const theme = useTheme();
     const dispatch = useAppDispatch();
     const user = useAppSelector(state => state.auth.user);
+    const token = useAppSelector(state => state.auth.user?.token);
 
     useEffect(() => {
+        if (!token) {
+            return;
+        }
+
         if (canUseVerifiedClientFeatures(user)) {
             dispatch(loadFavorites());
         }
-    }, [dispatch, user]);
+    }, [dispatch, user, token]);
 
     return (
         <Box component="main"

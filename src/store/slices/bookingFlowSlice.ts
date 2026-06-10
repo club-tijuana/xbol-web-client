@@ -2,16 +2,21 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { HoldToken } from "@seatsio/seatsio-react";
 
 import { ItemType } from "@/models/enums/item-type.enum";
-import { MyEventSeatDTO } from "@/models/my-event-seat.dto";
+import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
 import { ClientInfoRequest } from "@/models/requests/client-info-request.dto";
 import { PaymentInfoRequest } from "@/models/requests/payment-info-request.dto";
+import { ReleaseSeatsByKeyRequest } from "@/models/requests/release-seats-by-key-request.dto";
+import { SeatAvailabilityDTO } from "@/models/seat-availability.dto";
+import { releaseSeats } from "@/services/holdService";
 import { BookingMode } from "@/types/bookingMode";
 import { RenovationType } from "@/types/renovationType";
+
+import { RootState } from "..";
 
 interface HoldTokenState {
     token: string;
     expiresInSeconds: number;
-    status: "active" | "expired";
+    status: "active" | "expired" | "manualExpired";
 }
 
 interface BookingFlowState {
@@ -19,40 +24,68 @@ interface BookingFlowState {
     bookMode?: BookingMode;
     renovationType?: RenovationType;
     holdTokenObj?: HoldTokenState;
-    selectedSeatsDto: MyEventSeatDTO[] | undefined;
-    selectedSeats?: Array<[string, number]>;
-    initialSeats?: Array<[string, number]>;
+    selectedSeats?: Array<BookingSeatRequest>;
+    initialSeats?: Array<BookingSeatRequest>;
     bookKey: string;
     ticketType?: ItemType;
     clientContact?: ClientInfoRequest;
     paymentInfo?: PaymentInfoRequest;
     referenceOrderId?: number;
     orderLeftSeats?: number;
+    originalSeats?: Array<BookingSeatRequest>;
+    seatAvailability?: SeatAvailabilityDTO;
 }
 
 const initialState: BookingFlowState = {
     bookMode: undefined,
-    selectedSeatsDto: undefined,
     selectedSeats: undefined,
     holdTokenObj: undefined,
     bookKey: ''
 };
 
 export const expireHoldToken = createAsyncThunk<
-    string,
-    void,
-    { state: { booking: BookingFlowState } }
+    { type: "auto" | "manual" },
+    { type: "auto" | "manual" },
+    { state: RootState }
 >(
-    "booking/expireHoldToken",
-    async (_, thunkAPI) => {
-        const state = thunkAPI.getState().booking;
-        const token = state.holdTokenObj?.token;
+    "bookingFlow/expireHoldToken",
+    async ({ type }, thunkAPI) => {
+        const state = thunkAPI.getState().bookingFlow;
 
-        if (!token) {
-            throw new Error("No hold token to expire");
+        const token = state.holdTokenObj?.token;
+        const bookKey = state.bookKey;
+        const seatsLabels = state.selectedSeats?.map(s => s.seatKey);
+        const newSeats = state.selectedSeats;
+
+        if (!newSeats) {
+            return { type };
         }
 
-        return token;
+        if (!token) {
+            return { type };
+        }
+
+        if (!bookKey) {
+            throw new Error("No event key provided");
+        }
+        if (!seatsLabels || seatsLabels.length === 0) {
+            throw new Error("No seats selected");
+        }
+
+        const payload: ReleaseSeatsByKeyRequest = {
+            eventKey: bookKey,
+            seats: seatsLabels,
+            holdToken: token
+        };
+
+        try {
+            await releaseSeats(payload);
+        }
+        catch {
+
+        }
+
+        return { type };
     }
 );
 
@@ -68,10 +101,7 @@ const bookingFlowSlice = createSlice({
             const tokenState: HoldTokenState = { token: action.payload.token, expiresInSeconds: action.payload.expiresInSeconds, status: "active" };
             state.holdTokenObj = tokenState;
         },
-        setSeatsDto: (state, action: PayloadAction<MyEventSeatDTO[]>) => {
-            state.selectedSeatsDto = action.payload;
-        },
-        setSeats: (state, action: PayloadAction<Array<[string, number]>>) => {
+        setSeats: (state, action: PayloadAction<Array<BookingSeatRequest>>) => {
             state.selectedSeats = action.payload;
         },
         setBookKey: (state, action: PayloadAction<string>) => {
@@ -92,12 +122,41 @@ const bookingFlowSlice = createSlice({
         setRenovationType: (state, action: PayloadAction<RenovationType>) => {
             state.renovationType = action.payload;
         },
-        setInitialSeats: (state, action: PayloadAction<Array<[string, number]>>) => {
+        setInitialSeats: (state, action: PayloadAction<Array<BookingSeatRequest>>) => {
             state.initialSeats = action.payload;
         },
         setOrderLeftSeats: (state, action: PayloadAction<number>) => {
             state.orderLeftSeats = action.payload;
+        },
+        setOriginalSeats: (state, action: PayloadAction<Array<BookingSeatRequest>>) => {
+            state.originalSeats = action.payload;
+        },
+        manualExpireHoldToken: (state) => {
+            if (state.holdTokenObj) {
+                state.holdTokenObj.status = "manualExpired";
+                state.holdTokenObj.token = "";
+                state.initialSeats = state.originalSeats;
+            }
+        },
+        clearHoldToken: (state) => {
+            state.holdTokenObj = undefined;
+        },
+        setSeatAvailability: (state, action: PayloadAction<SeatAvailabilityDTO>) => {
+            state.seatAvailability = action.payload;
         }
+    },
+    extraReducers: (builder) => {
+        builder.addCase(expireHoldToken.fulfilled, (state, action) => {
+            if (state.holdTokenObj) {
+                state.holdTokenObj.status =
+                    action.payload?.type === "manual"
+                        ? "manualExpired"
+                        : "expired";
+
+                state.holdTokenObj.token = "";
+                state.initialSeats = state.originalSeats;
+            }
+        });
     }
 });
 
@@ -105,7 +164,6 @@ export const {
     resetState,
     setBookMode,
     setBookHoldToken,
-    setSeatsDto,
     setSeats,
     setBookKey,
     setBookTicketType,
@@ -114,6 +172,10 @@ export const {
     setSeasonRelatedOrderId,
     setRenovationType,
     setInitialSeats,
-    setOrderLeftSeats
+    setOrderLeftSeats,
+    setOriginalSeats,
+    manualExpireHoldToken,
+    clearHoldToken,
+    setSeatAvailability
 } = bookingFlowSlice.actions;
 export default bookingFlowSlice.reducer;

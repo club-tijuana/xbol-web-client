@@ -1,7 +1,7 @@
 import { SeatDTO } from "./seat.dto";
-import { SectionDTO } from "./section.dto";
+import { ZoneDTO } from "./zone.dto";
 
 export interface SeatAvailabilityDTO {
-    sections: SectionDTO[];
+    zones: ZoneDTO[];
     seatOverrides: SeatDTO[];
 }

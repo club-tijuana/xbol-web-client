@@ -2,7 +2,8 @@ import { DecodedIdToken } from "firebase-admin/auth";
 
 import { splitName } from "@/helpers/splitNameHelper";
 import { AuthDto } from "@/models/auth.dto";
-import { getTenantAuth } from "@/services/firebaseAdmin";
+import { getRootAuth } from "@/services/firebaseAdmin";
+import { assertRootFirebaseDecodedToken } from "@/services/firebaseRootToken";
 
 type SessionCookieUser = Omit<AuthDto, "token">;
 
@@ -27,14 +28,16 @@ export function mapDecodedTokenToSessionUser(
 }
 
 export async function createSessionCookie(idToken: string): Promise<string> {
-  const decodedToken = await getTenantAuth().verifyIdToken(idToken, true);
+  const auth = getRootAuth();
+  const decodedToken = await auth.verifyIdToken(idToken, true);
+  assertRootFirebaseDecodedToken(decodedToken);
   const signInAgeSeconds = Date.now() / 1000 - decodedToken.auth_time;
 
   if (signInAgeSeconds > MAX_RECENT_SIGN_IN_AGE_SECONDS) {
     throw new Error("Recent sign-in is required to create a session cookie.");
   }
 
-  return getTenantAuth().createSessionCookie(idToken, {
+  return auth.createSessionCookie(idToken, {
     expiresIn: SESSION_COOKIE_EXPIRES_IN_MS,
   });
 }
@@ -42,10 +45,11 @@ export async function createSessionCookie(idToken: string): Promise<string> {
 export async function verifySessionCookie(
   sessionCookie: string,
 ): Promise<SessionCookieUser> {
-  const decodedToken = await getTenantAuth().verifySessionCookie(
+  const decodedToken = await getRootAuth().verifySessionCookie(
     sessionCookie,
     true,
   );
+  assertRootFirebaseDecodedToken(decodedToken);
 
   return mapDecodedTokenToSessionUser(decodedToken);
 }

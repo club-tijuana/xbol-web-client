@@ -1,10 +1,11 @@
 import { Box, Grid, Typography } from "@mui/material";
 
 import { formatCurrency } from "@/helpers/formatCurrencyHelper";
+import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
 import { colors } from "@/theme/colors";
 
 interface MapSummaryProps {
-    seats: [string, number][];
+    seats: BookingSeatRequest[];
 }
 
 export default function MapSummary({ seats }: MapSummaryProps) {
@@ -21,11 +22,11 @@ export default function MapSummary({ seats }: MapSummaryProps) {
                         Precio
                     </Typography>
                 </Grid>
-                {seats.map(s => (
-                    <Grid size={2} key={s[0]}>
+                {seats.map((s, i) => (
+                    <Grid size={2} key={`${s.seatKey}${i}`}>
                         <Box display="flex" alignItems="center">
                             <Typography color="secondary">
-                                {s[0]}
+                                {s.seatKey}
                             </Typography>
                             <Box
                                 sx={{
@@ -36,7 +37,7 @@ export default function MapSummary({ seats }: MapSummaryProps) {
                                 }}
                             />
                             <Typography textAlign="right" color="secondary">
-                                {formatCurrency(s[1])}
+                                {formatCurrency(s.seatPrice)}
                             </Typography>
                         </Box>
                     </Grid>

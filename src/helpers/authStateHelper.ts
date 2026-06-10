@@ -7,5 +7,5 @@ export function isEmailVerified(user: AuthDto | null | undefined): boolean {
 export function canUseVerifiedClientFeatures(
     user: AuthDto | null | undefined,
 ): user is AuthDto {
-    return Boolean(user && isEmailVerified(user));
+    return Boolean(user?.clientId && isEmailVerified(user));
 }

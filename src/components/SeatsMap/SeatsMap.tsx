@@ -1,10 +1,13 @@
 "use client";
 
+import { Typography } from "@mui/material";
 import { SeatingChart, SeatsioSeatingChart, SelectableObject } from "@seatsio/seatsio-react";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 
 import { publicEnv } from "@/config/env";
 import { MyEventSeatDTO } from "@/models/my-event-seat.dto";
+import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
+import { SeatAvailabilityDTO } from "@/models/seat-availability.dto";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setSeats } from "@/store/slices/bookingFlowSlice";
 
@@ -17,18 +20,20 @@ const MAX_SEATS_SELECTION: number = 12;
 const DISABLED_SELECTED_SEAT_COLOR: string = "#F85E30";
 
 export interface SeatsMapHandle {
-    getSelectedSeats: () => Array<[string, number]>;
+    getSelectedSeats: () => Array<BookingSeatRequest>;
     getSelectedSeatsDto: () => MyEventSeatDTO[];
     clearSelection: () => void;
 }
 
+// TODO: Make two components from this
+// SeatsMap -> booking map
+// SeatsPrintMap -> print mode
 const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
     ({
         eventKey,
-        holdToken,
         pricing,
         initialSeats,
-        selectedSection,
+        selectedZone,
         mode = "normal",
         categoryFilter = {
             enabled: true,
@@ -37,32 +42,38 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
             zoomOnSelect: true
         },
         channels,
-        session,
         blockSameSeats = false,
+        isRenewalWindow = false,
         onSeatsChange
     }, ref) => {
         const dispatch = useAppDispatch();
-        const initSeats = useAppSelector(store => store.bookingFlow.initialSeats);
+        const reduxSeats = useAppSelector(store => store.bookingFlow.initialSeats);
+        const initSeats = mode === "print" ? initialSeats : reduxSeats;
+        const originalSeats = useAppSelector(store => store.bookingFlow.originalSeats);
         const orderLeftSeats = useAppSelector(store => store.bookingFlow.orderLeftSeats);
+        const seatAvailability = useAppSelector(store => store.bookingFlow.seatAvailability);
+
         const initializedRef = useRef(false);
         const chartRef = useRef<SeatingChart | null>(null);
         const [isLoading, setIsLoading] = useState(false);
-        const [currentSelectedSeats, setCurrentSelectedSeats] = useState<[string, number][]>(initialSeats ?? []);
-        const selectedSeatsRef = useRef<Array<[string, number]>>([]);
+        const [currentSelectedSeats, setCurrentSelectedSeats] = useState<Array<BookingSeatRequest>>([]);
+        const selectedSeatsRef = useRef<Array<BookingSeatRequest>>([]);
         const chartConfig = eventKey
-            ? { holdToken, eventKey }
+            ? { eventKey }
             : null;
-        const initialSelectedSeats: Array<string> | undefined = initialSeats ? initialSeats.map(s => s[0]) : undefined;
+        const initialSelectedSeats: Array<string> | undefined = initialSeats ? initialSeats.map(s => s.seatKey) : undefined;
+        const syncingRef = useRef(false);
+        const hydratingSelectionRef = useRef(false);
 
-        const groupSeatsBySection = (seats: Array<[string, number]>) => {
-            return seats.reduce<Record<string, string[]>>((acc, [label]) => {
-                const section = label.split("-")[0];
+        const groupSeatsBySection = (seats: Array<BookingSeatRequest>) => {
+            return seats.reduce<Record<string, string[]>>((acc, seat) => {
+                const section = seat.seatKey.split("-")[0];
 
                 if (!acc[section]) {
                     acc[section] = [];
                 }
 
-                acc[section].push(label);
+                acc[section].push(seat.seatKey);
 
                 return acc;
             }, {});
@@ -76,40 +87,78 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
         };
 
         useEffect(() => {
+            if (mode === "print") {
+                return;
+            }
+
             initializedRef.current = false;
         }, [eventKey]);
 
         useEffect(() => {
-            selectedSeatsRef.current = currentSelectedSeats;
+            if (mode === "print") {
+                return;
+            }
 
-            if (onSeatsChange) {
+            if (!syncingRef.current && onSeatsChange) {
                 onSeatsChange();
             }
+
+            syncingRef.current = false;
         }, [currentSelectedSeats]);
 
         useEffect(() => {
+            if (mode === "print") {
+                return;
+            }
+
             if (!chartRef.current) return;
 
             const newSeats = initSeats ?? [];
 
+            // TODO: test if one of this two lines can be removed
+            hydratingSelectionRef.current = true;
             chartRef.current.clearSelection?.();
             chartRef.current.deselectObjects(
-                currentSelectedSeats.map(s => s[0])
+                currentSelectedSeats.map(s => s.seatKey)
             );
 
             if (newSeats.length) {
-                chartRef.current.doSelectObjects(newSeats.map(s => s[0]));
+                chartRef.current.trySelectObjects(newSeats.map(s => s.seatKey)).catch().finally(() => {
+                    setTimeout(() => {
+                        hydratingSelectionRef.current = false;
+                    }, 500);
+                });
             }
 
+            syncingRef.current = true;
+            selectedSeatsRef.current = newSeats;
             setCurrentSelectedSeats(newSeats);
 
         }, [initSeats]);
 
         useEffect(() => {
-            if (chartRef && chartRef.current && selectedSection) {
-                chartRef.current.zoomToSection(selectedSection);
+            if (mode === "print") {
+                return;
             }
-        }, [selectedSection]);
+
+            async function loadZone() {
+                if (chartRef && chartRef.current && selectedZone) {
+                    chartRef.current.changeConfig({
+                        filteredCategories: [selectedZone]
+                    });
+
+                    chartRef.current.zoomToFilteredCategories();
+                }
+            };
+
+            loadZone();
+        }, [selectedZone])
+
+        useEffect(() => {
+            if (mode === "normal") {
+                dispatch(setSeats(currentSelectedSeats));
+            }
+        }, [currentSelectedSeats, mode, dispatch]);
 
         useImperativeHandle(ref, () => ({
             getSelectedSeats: () => selectedSeatsRef.current,
@@ -127,75 +176,128 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
             clearSelection: () => {
                 if (!chartRef.current) return;
 
-                chartRef.current.deselectObjects(selectedSeatsRef.current.map(s => s[0]));
+                chartRef.current.deselectObjects(selectedSeatsRef.current.map(s => s.seatKey));
                 setCurrentSelectedSeats([]);
             }
         }));
 
-        const handleChartRendered = (chart: SeatingChart) => {
+        const handleChartRendered = async (chart: SeatingChart) => {
             chartRef.current = chart;
 
-            if (selectedSection) chart.zoomToSection(selectedSection);
-            //if (initialSeats) chart.zoomToObjects(initialSeats.map(s => s[0]));
+            if (selectedZone) {
+                chartRef.current.changeConfig({
+                    filteredCategories: [selectedZone]
+                });
+                chartRef.current.zoomToFilteredCategories();
+            }
 
             if (!initializedRef.current && initialSeats && initialSeats.length > 0) {
                 initializedRef.current = true;
             }
 
+            if (initialSeats?.length) {
+                selectedSeatsRef.current = initialSeats;
+                setCurrentSelectedSeats(initialSeats);
+            }
+
             if (initialSeats?.length && initialSelectedSeats) {
-                chart.doSelectObjects(initialSelectedSeats).catch(() => { });
-                chart.zoomToObjects(initialSelectedSeats);
+                hydratingSelectionRef.current = true;
+
+                setTimeout(() => {
+                    chart.trySelectObjects(initialSelectedSeats).catch().finally(() => {
+                        setTimeout(() => {
+                            hydratingSelectionRef.current = false;
+                        }, 500);
+                    });
+                    chart.zoomToObjects(initialSelectedSeats);
+                }, 0);
             }
 
             setIsLoading(false);
         };
 
         const handleSelected = (obj: SelectableObject) => {
-            const seatLabels = currentSelectedSeats.map(s => s[0]);
-
-            if (seatLabels?.includes(obj.label)) return;
-
-            setCurrentSelectedSeats(prev => [...prev, [
-                obj.label,
-                getSeatPrice(obj)
-            ]]);
-
-            if (mode === "normal") {
-                dispatch(setSeats([...currentSelectedSeats, [obj.label, getSeatPrice(obj)]]));
+            if (hydratingSelectionRef.current) {
+                return;
             }
+
+            if (!seatAvailability) {
+                return;
+            }
+
+            setCurrentSelectedSeats(prev => {
+                const exists = prev.some(s => s.seatKey === obj.label);
+
+                if (exists) {
+                    return prev;
+                }
+
+                const pricing = getSeatPricing(obj, seatAvailability);
+
+                const updated = [
+                    ...prev,
+                    {
+                        seatKey: obj.label,
+                        seatPrice: pricing.seatPrice,
+                        priceListItemId: pricing.priceListItemId
+                    }
+                ];
+
+                selectedSeatsRef.current = updated;
+
+                return updated;
+            });
         };
 
         const handleDeselected = (obj: SelectableObject) => {
+            if (hydratingSelectionRef.current) {
+                return;
+            }
+
             if (!obj.labels.section) return;
 
-            setCurrentSelectedSeats(prev => prev.filter(s => s[0] !== obj.label));
+            const updated = selectedSeatsRef.current.filter(
+                s => s.seatKey !== obj.label
+            );
 
-            if (mode === "normal") {
-                dispatch(setSeats([...currentSelectedSeats.filter(s => s[0] !== obj.label)]));
+            selectedSeatsRef.current = updated;
+
+            setCurrentSelectedSeats(updated);
+
+            dispatch(setSeats(updated));
+        };
+
+        const getSeatPricing = (
+            obj: SelectableObject,
+            availability: SeatAvailabilityDTO
+        ) => {
+            const seatOverride = availability.seatOverrides.find(
+                seat => seat.externalSeatObjectKey === obj.label
+            );
+
+            if (seatOverride?.priceOverride != null) {
+                return {
+                    seatPrice: seatOverride.priceOverride,
+                    priceListItemId: seatOverride.priceListItemId ?? 0
+                };
             }
-            if (onSeatsChange) {
-                onSeatsChange();
+
+            const zoneName = obj.category?.label;
+            const zone = availability.zones.find(
+                z => z.name === zoneName
+            );
+
+            return {
+                seatPrice: zone?.price ?? 0,
+                priceListItemId: zone?.priceListItemId ?? 0
             }
-        };
-
-        const handleHoldTokenExpired = () => {
-            //dispatch(expireHoldToken());
-        };
-
-        const getSeatPrice = (obj: SelectableObject): number => {
-            return obj.pricing?.price
-                ? Number.parseFloat(obj.pricing.price.toString())
-                : 0;
-        };
+        }
 
         return (
             <div>
-
                 {chartConfig && (
                     <SeatsioSeatingChart
-                        key={`${(!blockSameSeats ? holdToken : "map")}-${JSON.stringify(initSeats)}`}
                         workspaceKey={publicEnv.NEXT_PUBLIC_SEATS_WORKSPACE_KEY}
-                        holdToken={(!blockSameSeats && mode !== "print") ? holdToken : ""}
                         event={eventKey}
                         region="na"
                         pricing={pricing}
@@ -203,17 +305,16 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
                         showMinimap={mode !== "print"}
                         categoryFilter={categoryFilter}
                         channels={channels}
-                        session={session}
                         maxSelectedObjects={orderLeftSeats ? orderLeftSeats : MAX_SEATS_SELECTION}
-                        onHoldTokenExpired={handleHoldTokenExpired}
-                        onObjectSelected={handleSelected}
-                        onObjectDeselected={handleDeselected}
+                        onObjectSelected={mode !== "print" ? handleSelected : undefined}
+                        onObjectDeselected={mode !== "print" ? handleDeselected : undefined}
                         onChartRendered={handleChartRendered}
                         objectWithoutPricingSelectable={mode !== "normal"}
                         onRenderStarted={() => setIsLoading(true)}
                         onChartRenderingFailed={() => setIsLoading(false)}
+                        selectableObjects={isRenewalWindow ? originalSeats?.map(os => os.seatKey) : []}
                         extraConfig={{
-                            allowedSeats: initialSeats?.map(s => s[0]) ?? [],
+                            allowedSeats: initialSeats?.map(s => s.seatKey) ?? [],
                             mapBlockSameSeats: blockSameSeats,
                             mapDisabledSelectedColor: DISABLED_SELECTED_SEAT_COLOR,
                             viewMode: mode

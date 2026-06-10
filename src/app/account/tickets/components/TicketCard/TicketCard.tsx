@@ -9,6 +9,9 @@ import { formatDate } from "@/helpers/formatDateHelper";
 import styles from "./TicketCard.module.scss";
 import { TicketCardProps } from "./TicketCard.type";
 
+/* -------------------- CONSTANTS -------------------- */
+const FALLBACK_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE ?? "";
+
 const overlayStyle = (isActive: boolean): SxProps => ({
     position: 'absolute',
     inset: 0,
@@ -47,7 +50,7 @@ export default function TicketCard({ ticket }: TicketCardProps) {
             <Card variant="outlined" sx={{ border: 'none' }}>
                 <CardContent className={styles.cardContent}>
                     <CardMedia
-                        image={eventImage}
+                        image={eventImage.trim() || FALLBACK_IMAGE}
                         sx={{
                             aspectRatio: "1 / 1",
                             borderRadius: 2.5,

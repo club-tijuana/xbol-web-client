@@ -22,11 +22,12 @@ const getEventBookingRequest = (state: RootState): EventBookingRequest => {
     return {
         eventKey: flow.bookKey!,
         eventScheduleId: flow.scheduleId!,
-        seats: Object.fromEntries(flow.selectedSeats ?? []),
+        seats: flow.selectedSeats ?? [],
         ticketType: flow.ticketType!,
         clientContact: flow.clientContact!,
         paymentInfoRequest: flow.paymentInfo!,
-        holdToken: flow.holdTokenObj?.token
+        holdToken: flow.holdTokenObj?.token ?? "",
+        isPaymentLink: false
     };
 };
 
@@ -36,12 +37,13 @@ const getSeasonBookingRequest = (state: RootState): SeasonBookingRequest => {
     return {
         seasonKey: flow.bookKey,
         eventScheduleId: flow.scheduleId!,
-        seats: Object.fromEntries(flow.selectedSeats ?? []),
+        seats: flow.selectedSeats ?? [],
         ticketType: flow.ticketType!,
         clientContact: flow.clientContact!,
         paymentInfoRequest: flow.paymentInfo!,
-        holdToken: flow.holdTokenObj?.token,
-        referenceOrderId: flow.referenceOrderId!
+        holdToken: flow.holdTokenObj?.token ?? "",
+        referenceOrderId: flow.referenceOrderId!,
+        isPaymentLink: false
     }
 }
 

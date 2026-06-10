@@ -1,18 +1,17 @@
 import { CategoryFilter, Pricing } from "@seatsio/seatsio-react";
 
-import { SeatsMapSession } from "@/types/seatsMapSession";
+import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
 
 export interface SeatsMapProps {
     eventKey: string;
-    holdToken?: string;
     pricing?: Pricing;
-    initialSeats?: Array<[string, number]>;
-    selectedSection?: string;
+    initialSeats?: Array<BookingSeatRequest>;
+    selectedZone?: string;
     mode?: "normal" | "print";
     categoryFilter?: CategoryFilter;
     channels?: string[];
-    session: SeatsMapSession;
     blockSameSeats?: boolean;
+    isRenewalWindow?: boolean;
 
     onSeatsChange?: () => void;
 }

@@ -37,7 +37,10 @@ function CustomTabPanel(props: TabPanelProps) {
 }
 
 export default function TicketQRTabs({
-    tickets
+    tickets,
+    canLoadMore = false,
+    onLoadAll,
+    onLoadMore
 }: TicketQRTabsProps) {
     const [ref, isVisible] = useIsVisible();
     const [value, setValue] = useState(0);
@@ -125,8 +128,10 @@ export default function TicketQRTabs({
                     <CarouselQRTickets
                         tickets={tickets}
                         isTabActive={value === 0 && isVisible}
+                        canLoadMore={canLoadMore}
                         onShare={handleShareTicket}
                         onUnshare={handleUnshareTicket}
+                        onTicketsLoadMore={(onLoadMore && canLoadMore) ? onLoadMore : () => { }}
                     />
                 </CustomTabPanel>
             </Box>
@@ -134,7 +139,7 @@ export default function TicketQRTabs({
                 <TicketQRGrid
                     columns={{ xs: 1, sm: 2, md: 3, lg: 2, xl: 3 }}
                     spacing={1.5}
-                    title="Tus boletos"
+                    title="Tus tickets"
                     tickets={tickets}
                     onShare={handleShareTicket}
                     onUnshare={handleUnshareTicket}
@@ -145,8 +150,8 @@ export default function TicketQRTabs({
                     Agregar a wallet
                 </Typography>
             </Button>
-            {value !== 0 &&
-                <Button variant="outlined" size="medium">
+            {(value !== 0 && canLoadMore) &&
+                <Button variant="outlined" size="medium" onClick={onLoadAll}>
                     <Typography>
                         Ver todos
                     </Typography>

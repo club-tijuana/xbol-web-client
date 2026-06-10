@@ -15,7 +15,8 @@ const initialState: FavouriteEventState = {
 export const loadFavorites = createAsyncThunk(
     "favoriteEvents/loadFavorites",
     async () => {
-        return await getFavoritesIdsByClientId();
+        const result = await getFavoritesIdsByClientId();
+        return result;
     }
 );
 
@@ -48,8 +49,9 @@ const favouriteEventSlice = createSlice({
                     return acc;
                 }, {} as Record<number, true>);
             })
-            .addCase(loadFavorites.rejected, (state) => {
-                state.loading = false;
+            .addCase(loadFavorites.rejected, (_, action) => {
+                console.log(action.error);
+                //state.loading = false;
             });
     }
 });

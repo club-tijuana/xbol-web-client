@@ -4,6 +4,7 @@ import "@/styles/_variables.scss";
 import { Open_Sans } from "next/font/google";
 
 import Footer from "@/components/Footer/Footer";
+import GeneralMessage from "@/components/GeneralMessage/GeneralMessage";
 import HeaderWrapper from "@/components/Header/HeaderWrapper";
 import { LayoutContainer } from "@/components/LayoutContainer/LayoutContainer";
 import LoginModal from "@/components/LoginModal/LoginModal";
@@ -40,6 +41,7 @@ export default function RootLayout({
               <LayoutContainer>
                 {children}
               </LayoutContainer>
+              <GeneralMessage />
 
               <Footer />
               <LoginModal />

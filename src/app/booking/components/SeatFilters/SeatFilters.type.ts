@@ -4,6 +4,6 @@ export interface SeatFiltersProps {
     scheduleId?: number;
     seasonId?: number;
     buttonText: string;
-    onSectionSelected?: (section: string) => void;
-    onSectionsChange?: (pricing: Pricing) => void;
+    onZoneSelected?: (zoneLabel: string) => void;
+    onZoneChange?: (pricing: Pricing) => void;
 }

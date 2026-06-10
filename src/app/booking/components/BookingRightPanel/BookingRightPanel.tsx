@@ -6,8 +6,9 @@ import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from "reac
 
 import SeatsMap, { SeatsMapHandle } from "@/components/SeatsMap/SeatsMap";
 import { MyEventSeatDTO } from "@/models/my-event-seat.dto";
+import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setInitialSeats, setRenovationType } from "@/store/slices/bookingFlowSlice";
+import { setRenovationType } from "@/store/slices/bookingFlowSlice";
 import { BookingMode } from "@/types/bookingMode";
 import { BookingStep } from "@/types/bookingStep";
 
@@ -15,30 +16,30 @@ import MapSummary from "../MapSummary/MapSummary";
 import Payment from "../Payment/Payment";
 
 export interface BookingRightPanelHandle {
-    getSelectedSeats: () => Array<[string, number]>;
+    getSelectedSeats: () => Array<BookingSeatRequest>;
     getSelectedSeatsDto: () => MyEventSeatDTO[];
     clearSelection: () => void;
 }
 
 interface BookingRightPanelProps {
-    holdToken: string | undefined;
     mapKey: string;
     bookingMode: BookingMode;
     bookingStep: BookingStep;
-    selectedSection: string;
-    sectionsPrices: Pricing | undefined;
+    selectedZone?: string;
+    zonesPrices: Pricing | undefined;
+    isRenewalWindow?: boolean;
     onPay?: () => void;
 }
 
 const BookingRightPanel = forwardRef<BookingRightPanelHandle, BookingRightPanelProps>(
     (
         {
-            holdToken,
             mapKey,
             bookingMode,
             bookingStep,
-            selectedSection,
-            sectionsPrices,
+            selectedZone,
+            zonesPrices,
+            isRenewalWindow = false,
             onPay
         },
         ref
@@ -50,7 +51,7 @@ const BookingRightPanel = forwardRef<BookingRightPanelHandle, BookingRightPanelP
         const selectedSeats = useAppSelector(store => store.bookingFlow.selectedSeats);
         const renovationType = useAppSelector(store => store.bookingFlow.renovationType);
 
-        const [mapSelectionSummary, setMapSelectionSummary] = useState<[string, number][] | undefined>();
+        const [mapSelectionSummary, setMapSelectionSummary] = useState<BookingSeatRequest[] | undefined>();
 
         useImperativeHandle(ref, () => ({
             getSelectedSeats: () => mapRef.current?.getSelectedSeats() ?? [],
@@ -63,7 +64,7 @@ const BookingRightPanel = forwardRef<BookingRightPanelHandle, BookingRightPanelP
             const _taxes = 0;
             let _total = 0;
 
-            if (initialSeats && initialSeats.length > 0) {
+            /* if (initialSeats && initialSeats.length > 0) {
                 initialSeats?.forEach(s => {
                     _subtotal += s[1];
                     _total += s[1];
@@ -74,7 +75,11 @@ const BookingRightPanel = forwardRef<BookingRightPanelHandle, BookingRightPanelP
                     _subtotal += s[1];
                     _total += s[1];
                 });
-            }
+            } */
+            selectedSeats?.forEach(s => {
+                _subtotal += s.seatPrice;
+                _total += s.seatPrice;
+            });
 
             return {
                 subtotal: _subtotal,
@@ -95,30 +100,32 @@ const BookingRightPanel = forwardRef<BookingRightPanelHandle, BookingRightPanelP
 
         const handleSetSeats = () => {
             setMapSelectionSummary([]);
-            dispatch(setInitialSeats([]));
             dispatch(setRenovationType("changeSeats"));
         };
 
         const renderContent = () => {
             switch (bookingStep) {
                 case "selection":
-                    return (holdToken !== undefined && mapKey) ? (
+                    return (mapKey) ? (
                         <Box>
                             <SeatsMap
                                 ref={mapRef}
-                                selectedSection={selectedSection}
+                                selectedZone={selectedZone}
                                 initialSeats={initialSeats}
                                 eventKey={mapKey}
-                                holdToken={(bookingMode === "renovateSeason" && renovationType === "sameSeats") ? "" : holdToken}
-                                pricing={sectionsPrices}
-                                session={(bookingMode === "renovateSeason" && renovationType === "sameSeats") ? "none" : "manual"}
+                                pricing={zonesPrices}
                                 blockSameSeats={
                                     bookingMode === "renovateSeason"
                                     && renovationType === "sameSeats"
                                 }
+                                isRenewalWindow={isRenewalWindow}
                                 onSeatsChange={handleOnMapSeatChange}
                             />
-                            {(bookingMode === "renovateSeason" && renovationType === "sameSeats") &&
+                            {(
+                                bookingMode === "renovateSeason"
+                                && renovationType === "sameSeats"
+                                && !isRenewalWindow
+                            ) &&
                                 <Box textAlign="center">
                                     <Button variant="contained" sx={{ py: 1.3, px: 4, mt: 3 }} onClick={handleSetSeats}>
                                         <Typography variant="body2" color="neutral">

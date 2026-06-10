@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Swiper as SwiperType } from "swiper";
@@ -16,7 +16,14 @@ import 'swiper/css/navigation';
 import styles from "./CarouselQRTickets.module.scss";
 import { CarouselQRTicketsProps } from "./CarouselQRTickets.type";
 
-export default function CarouselQRTickets({ tickets, isTabActive, onShare, onUnshare }: CarouselQRTicketsProps) {
+export default function CarouselQRTickets({
+    tickets,
+    isTabActive,
+    canLoadMore = false,
+    onShare,
+    onUnshare,
+    onTicketsLoadMore
+}: CarouselQRTicketsProps) {
     const [activeIndex, setActiveIndex] = useState(0);
     const [hoverPrev, setHoverPrev] = useState(false);
     const [hoverNext, setHoverNext] = useState(false);
@@ -71,7 +78,7 @@ export default function CarouselQRTickets({ tickets, isTabActive, onShare, onUns
                     </SwiperSlide>
                 ))}
 
-                <Box
+                <Button
                     ref={prevRef}
                     className={styles.ticketPrev}
                     onMouseEnter={() => setHoverPrev(true)}
@@ -82,9 +89,9 @@ export default function CarouselQRTickets({ tickets, isTabActive, onShare, onUns
                         width={35}
                         height={35}
                     />
-                </Box>
+                </Button>
 
-                <Box
+                <Button
                     ref={nextRef}
                     className={styles.ticketNext}
                     onMouseEnter={() => setHoverNext(true)}
@@ -95,7 +102,7 @@ export default function CarouselQRTickets({ tickets, isTabActive, onShare, onUns
                         width={35}
                         height={35}
                     />
-                </Box>
+                </Button>
             </Swiper>
 
 
@@ -111,6 +118,14 @@ export default function CarouselQRTickets({ tickets, isTabActive, onShare, onUns
             >
                 {activeIndex + 1} / {tickets.length}
             </Typography>
+
+            {canLoadMore && (
+                <Box display={"flex"} justifyContent={"center"} mt={2}>
+                    <Button variant="outlined" onClick={onTicketsLoadMore}>
+                        Cargar más
+                    </Button>
+                </Box>
+            )}
         </Box>
     );
 }

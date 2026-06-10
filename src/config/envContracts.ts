@@ -11,7 +11,7 @@ type GithubActionsScope = "repository" | "environment";
 export type EnvMetadata = {
   sensitive: boolean;
   exposure: EnvExposure;
-  githubActions: {
+  githubActions?: {
     storage: GithubActionsStorage;
     scope: GithubActionsScope;
     environments?: string[];
@@ -41,6 +41,13 @@ export function publicBuildTimeEnv(
   scope: GithubActionsScope,
 ): EnvMetadata {
   return envMetadata("public-build-time", storage, scope);
+}
+
+export function localPublicBuildTimeEnv(): EnvMetadata {
+  return {
+    sensitive: false,
+    exposure: "public-build-time",
+  };
 }
 
 export function serverRuntimeEnv(
@@ -86,8 +93,13 @@ const publicEnvShape = {
     "NEXT_PUBLIC_FIREBASE_PROJECT_ID",
   ),
   NEXT_PUBLIC_FIREBASE_APP_ID: requiredString("NEXT_PUBLIC_FIREBASE_APP_ID"),
-  NEXT_PUBLIC_FIREBASE_TENANT_ID: requiredString(
-    "NEXT_PUBLIC_FIREBASE_TENANT_ID",
+  NEXT_PUBLIC_FIREBASE_PHONE_AUTH_TESTING: z.preprocess(
+    emptyStringToUndefined,
+    z
+      .enum(["true", "false"])
+      .transform((value) => value === "true")
+      .optional()
+      .default(false),
   ),
   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: z.string().optional(),
   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: z.string().optional(),
@@ -117,10 +129,7 @@ export const publicEnvMetadata = {
     "environment",
   ),
   NEXT_PUBLIC_FIREBASE_APP_ID: publicBuildTimeEnv("variable", "environment"),
-  NEXT_PUBLIC_FIREBASE_TENANT_ID: publicBuildTimeEnv(
-    "variable",
-    "environment",
-  ),
+  NEXT_PUBLIC_FIREBASE_PHONE_AUTH_TESTING: localPublicBuildTimeEnv(),
   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: publicBuildTimeEnv(
     "variable",
     "environment",

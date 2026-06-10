@@ -2,11 +2,15 @@
 
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Alert, Button, CircularProgress, IconButton, InputAdornment, Paper, Stack, TextField, Typography } from "@mui/material";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { ConfirmationResult } from "firebase/auth";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
+import AuthIdentifierField from "@/components/AuthIdentifierField/AuthIdentifierField";
+import { defaultAuthPhoneCountryCode, getPhoneAuthCountry, getPhoneAuthIdentifier, isAuthPhoneCountryCode, isPhoneLikeAuthIdentifier, normalizeAuthIdentifier } from "@/helpers/authIdentifier";
+import { registerPhone, sendPhoneLoginCode } from "@/services/authService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { register } from "@/store/slices/authSlice";
+import { register, setUser } from "@/store/slices/authSlice";
 import { colors } from "@/theme/colors";
 
 interface RegisterFormProps {
@@ -18,13 +22,49 @@ export default function RegisterForm({
 }: RegisterFormProps) {
     const dispatch = useAppDispatch();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const status = useAppSelector(state => state.auth.status);
+    const currentAuthUser = useAppSelector(state => state.auth.user);
     const [fullName, setFullName] = useState("");
-    const [email, setEmail] = useState("");
-    const [phoneNumber, setPhoneNumber] = useState("");
+    const [identifier, setIdentifier] = useState(() => searchParams.get("identifier") ?? "");
+    const [identifierCountryCode, setIdentifierCountryCode] = useState<string>(() => {
+        const requestedCountryCode = searchParams.get("identifierCountryCode");
+        return requestedCountryCode && isAuthPhoneCountryCode(requestedCountryCode)
+            ? requestedCountryCode
+            : defaultAuthPhoneCountryCode;
+    });
     const [password, setPassword] = useState("");
+    const [verificationCode, setVerificationCode] = useState("");
+    const [phoneConfirmation, setPhoneConfirmation] = useState<ConfirmationResult | null>(null);
+    const [phoneLoading, setPhoneLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+    const normalizedPhoneIdentifier = getPhoneAuthIdentifier(identifier, identifierCountryCode);
+    const isPhoneIdentifier = normalizedPhoneIdentifier !== null;
+    const isPhoneLikeIdentifier = isPhoneLikeAuthIdentifier(identifier);
+    const normalizedIdentifier = normalizeAuthIdentifier(identifier);
+    const requestIdentifierCountryCode = normalizedIdentifier.startsWith("+")
+        ? undefined
+        : identifierCountryCode || undefined;
+    const verifiedPhoneUser = currentAuthUser?.onboardingStatus === "unlinked"
+        && currentAuthUser.phoneNumber
+        ? currentAuthUser
+        : null;
+    const matchedVerifiedPhoneUser = isPhoneIdentifier
+        && verifiedPhoneUser?.phoneNumber === normalizedPhoneIdentifier
+        ? verifiedPhoneUser
+        : null;
+
+    useEffect(() => {
+        if (!verifiedPhoneUser?.phoneNumber) {
+            return;
+        }
+
+        setIdentifier(verifiedPhoneUser.phoneNumber);
+        setIdentifierCountryCode(
+            getPhoneAuthCountry(verifiedPhoneUser.phoneNumber) ?? defaultAuthPhoneCountryCode,
+        );
+    }, [verifiedPhoneUser]);
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -40,11 +80,43 @@ export default function RegisterForm({
         event.preventDefault();
         setErrorMessage("");
 
+        if (isPhoneLikeIdentifier && !isPhoneIdentifier) {
+            setErrorMessage("Selecciona el país e ingresa un teléfono válido.");
+            return;
+        }
+
+        if (isPhoneIdentifier) {
+            if (!matchedVerifiedPhoneUser && !phoneConfirmation) {
+                setErrorMessage("Envía el código SMS antes de registrarte.");
+                return;
+            }
+
+            setPhoneLoading(true);
+            try {
+                const user = await registerPhone(
+                    {
+                        identifier: normalizedIdentifier,
+                        identifierCountryCode: requestIdentifierCountryCode,
+                        fullName,
+                    },
+                    phoneConfirmation,
+                    verificationCode,
+                    matchedVerifiedPhoneUser,
+                );
+                dispatch(setUser(user));
+                router.push("/");
+            } catch (error) {
+                setErrorMessage(error instanceof Error ? error.message : "Error al registrar teléfono");
+            } finally {
+                setPhoneLoading(false);
+            }
+            return;
+        }
+
         const result = await dispatch(register({
-            email,
+            identifier: normalizeAuthIdentifier(identifier),
             password,
             fullName,
-            phoneNumber,
         }));
 
         if (register.fulfilled.match(result)) {
@@ -62,7 +134,33 @@ export default function RegisterForm({
         );
     };
 
-    const isLoading = status === "loading";
+    const handleSendPhoneCode = async () => {
+        setErrorMessage("");
+        if (!normalizedPhoneIdentifier) {
+            setErrorMessage("Selecciona el país e ingresa un teléfono válido.");
+            return;
+        }
+
+        setPhoneLoading(true);
+        try {
+            const confirmation = await sendPhoneLoginCode(
+                normalizedPhoneIdentifier,
+                "register-phone-recaptcha",
+            );
+            setPhoneConfirmation(confirmation);
+        } catch (error) {
+            setErrorMessage(error instanceof Error ? error.message : "Error al enviar código SMS");
+        } finally {
+            setPhoneLoading(false);
+        }
+    };
+
+    const isLoading = status === "loading" || phoneLoading;
+    const shouldShowDirectPhoneControls = isPhoneIdentifier
+        && !matchedVerifiedPhoneUser;
+    const isRegisterDisabled = isLoading
+        || (isPhoneLikeIdentifier && !isPhoneIdentifier)
+        || (isPhoneIdentifier && !matchedVerifiedPhoneUser && (!phoneConfirmation || !verificationCode.trim()));
 
     return (
         <Paper
@@ -98,59 +196,98 @@ export default function RegisterForm({
                     variant="filled"
                 />
 
-                <TextField
-                    label="Correo electrónico"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    required
-                    fullWidth
-                    type="email"
-                    variant="filled"
-                />
-
-                <TextField
-                    label="Teléfono"
-                    value={phoneNumber}
-                    onChange={(event) => setPhoneNumber(event.target.value)}
-                    fullWidth
-                    type="tel"
-                    variant="filled"
-                />
-
-                <TextField
-                    label="Contraseña"
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    required
-                    fullWidth
-                    type={showPassword ? "text" : "password"}
-                    variant="filled"
-                    slotProps={{
-                        input: {
-                            endAdornment: (
-                                <InputAdornment position="end">
-                                    <IconButton
-                                        type="button"
-                                        aria-label={
-                                            showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
-                                        }
-                                        onClick={handleClickShowPassword}
-                                        onMouseDown={handleMouseDownPassword}
-                                        onMouseUp={handleMouseUpPassword}
-                                        edge="end"
-                                    >
-                                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                                    </IconButton>
-                                </InputAdornment>
-                            ),
-                        },
+                <AuthIdentifierField
+                    label="Correo electrónico o teléfono"
+                    value={identifier}
+                    countryCode={identifierCountryCode}
+                    onCountryCodeChange={(value) => {
+                        setIdentifierCountryCode(value);
+                        setPhoneConfirmation(null);
+                        setVerificationCode("");
                     }}
+                    onValueChange={(value) => {
+                        setIdentifier(value);
+                        setPhoneConfirmation(null);
+                        setVerificationCode("");
+                    }}
+                    disabled={!!verifiedPhoneUser}
+                    required
+                    fullWidth
+                    variant="filled"
                 />
+
+                {!isPhoneIdentifier &&
+                    <>
+                        <TextField
+                            label="Contraseña"
+                            value={password}
+                            onChange={(event) => setPassword(event.target.value)}
+                            required
+                            fullWidth
+                            type={showPassword ? "text" : "password"}
+                            variant="filled"
+                            slotProps={{
+                                input: {
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                type="button"
+                                                aria-label={
+                                                    showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                                                }
+                                                onClick={handleClickShowPassword}
+                                                onMouseDown={handleMouseDownPassword}
+                                                onMouseUp={handleMouseUpPassword}
+                                                edge="end"
+                                            >
+                                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                },
+                            }}
+                        />
+                    </>
+                }
+
+                {isPhoneIdentifier && matchedVerifiedPhoneUser &&
+                    <Typography variant="body2" color="text.secondary">
+                        Teléfono verificado. Completa tu registro.
+                    </Typography>
+                }
+
+                {shouldShowDirectPhoneControls &&
+                    <>
+                        {!phoneConfirmation &&
+                            <Button
+                                type="button"
+                                variant="outlined"
+                                disabled={isLoading || !normalizedPhoneIdentifier}
+                                onClick={handleSendPhoneCode}
+                            >
+                                Enviar código
+                            </Button>
+                        }
+
+                        {phoneConfirmation &&
+                            <TextField
+                                label="Código SMS"
+                                value={verificationCode}
+                                onChange={(event) => setVerificationCode(event.target.value)}
+                                required
+                                fullWidth
+                                variant="filled"
+                            />
+                        }
+
+                        <div id="register-phone-recaptcha" />
+                    </>
+                }
 
                 <Button
                     type="submit"
                     variant="contained"
-                    disabled={isLoading}
+                    disabled={isRegisterDisabled}
                     sx={{ py: 1.3 }}
                 >
                     {isLoading

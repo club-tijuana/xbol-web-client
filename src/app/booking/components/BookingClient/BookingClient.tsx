@@ -2,7 +2,7 @@
 
 import { CalendarTodayOutlined, LocationOnOutlined } from "@mui/icons-material";
 import { Alert, AlertColor, Box, Button, Grid, Paper, Snackbar, Typography } from "@mui/material";
-import { HoldToken, Pricing } from "@seatsio/seatsio-react";
+import { Pricing } from "@seatsio/seatsio-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -12,17 +12,19 @@ import Loader from "@/components/Loader/Loader";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { ItemType } from "@/models/enums/item-type.enum";
-import { EventItemDTO } from "@/models/event-item.dto";
-import { SeasonItemDTO } from "@/models/season-item.dto";
-import { getEventItemBySchedule, getSeasonById } from "@/services/bookingService";
-import { holdToken as holdTokenService } from "@/services/holdService";
+import { EventItemDTO, getEventPosterImageUrl } from "@/models/event-item.dto";
+import { MyEventSeatDTO } from "@/models/my-event-seat.dto";
+import { HoldSeatsActionRequest } from "@/models/requests/hold-seats-action-request.dto";
+import { getEventItemBySchedule } from "@/services/bookingService";
+import { holdSeats } from "@/services/holdService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setBookHoldToken, setBookKey, setBookMode, setBookTicketType, setSeats, setSeatsDto } from "@/store/slices/bookingFlowSlice";
+import { expireHoldToken, setBookHoldToken, setBookKey, setBookTicketType, setSeats } from "@/store/slices/bookingFlowSlice";
+import {
+    resetState as resetStateFlow
+} from "@/store/slices/bookingFlowSlice";
 import {
     resetState,
     eventBook,
-    seasonBook,
-    seasonRenovate
 } from "@/store/slices/bookingSlice";
 import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
 import { BookingStep } from "@/types/bookingStep";
@@ -35,34 +37,34 @@ import SeatFilters from "../SeatFilters/SeatFilters";
 
 import { BookingClientProps } from "./BookingClient.type";
 
+//----------- CONSTANTS -------------
+const FALLBACK_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE ?? "";
+
 /* -------------------- COMPONENT -------------------- */
-export default function BookingClient({ id, bookingMode }: BookingClientProps) {
+export default function BookingClient({ id }: BookingClientProps) {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const mapRef = useRef<BookingRightPanelHandle>(null);
 
-    //const eventBookObj = useAppSelector(state => state.booking.eventBookingRequest);
-    //const seasonBookObj = useAppSelector(state => state.booking.seasonBookingRequest);
+    const accountInfo = useAppSelector(store => store.auth.user);
     const generalMessage = useAppSelector(state => state.ui.generalMessage);
     const bookingState = useAppSelector(state => state.booking.status);
-    const initialSeats = useAppSelector(state => state.bookingFlow.initialSeats);
     const selectedSeats = useAppSelector(store => store.bookingFlow.selectedSeats);
-    const renovationType = useAppSelector(store => store.bookingFlow.renovationType);
     const clientContactObj = useAppSelector(store => store.bookingFlow.clientContact);
-    const selectedSeatsDto = useAppSelector(store => store.bookingFlow.selectedSeatsDto);
+    const holdTokenState = useAppSelector(store => store.bookingFlow.holdTokenObj);
 
     const [event, setEvent] = useState<EventItemDTO | null>(null);
-    const [season, setSeason] = useState<SeasonItemDTO | null>(null);
     const [bookingStep, setBookingStep] = useState<BookingStep>("selection");
-    const [selectedSection, setSelectedSection] = useState<string>("");
+    const [selectedZone, setSelectedZone] = useState<string | undefined>();
     const [formattedDate, setFormattedDate] = useState<string>("");
     const [mapKey, setMapKey] = useState<string>("");
     const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
     const [snackbarMessage, setSnackbarMessage] = useState<string>("");
     const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("success");
     const [holdToken, setHoldToken] = useState<string | undefined>(undefined);
-    const [sectionsPrices, setSectionsPrices] = useState<Pricing>();
+    const [zonesPrices, setZonesPrices] = useState<Pricing>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [seatsDto, setSeatsDto] = useState<MyEventSeatDTO[] | undefined>();
 
     useEffect(() => {
         let isMounted = true;
@@ -70,86 +72,43 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
         async function loadAll() {
             try {
                 setIsLoading(true);
-                let holdTokenResponse: HoldToken | undefined;
-                if (bookingMode === "event" || bookingMode === "season" || renovationType === "changeSeats") {
-                    holdTokenResponse = await holdTokenService();
-                }
 
                 let mapKeyLocal = "";
 
-                await dispatch(setBookMode(bookingMode));
-                await dispatch(setSeats([]));
                 await dispatch(setBookHoldToken({
                     token: '',
                     expiresInSeconds: 0,
                     expiresAt: ''
                 }));
-                if (bookingMode === "event") {
-                    try {
-                        const eventResponse = await getEventItemBySchedule(Number.parseInt(id));
 
-                        if (!eventResponse.eventKey) return;
+                await dispatch(resetState());
+                await dispatch(resetStateFlow());
 
-                        mapKeyLocal = eventResponse.eventKey;
+                try {
+                    const eventResponse = await getEventItemBySchedule(Number.parseInt(id));
 
-                        if (!isMounted) return;
+                    if (!eventResponse.eventKey) return;
 
-                        setEvent(eventResponse);
-                        setFormattedDate(formatDate(eventResponse.startDate, "dateTime"));
+                    mapKeyLocal = eventResponse.eventKey;
 
-                        await dispatch(setBookTicketType(ItemType.Ticket));
-                        await dispatch(setBookKey(eventResponse.eventKey));
-                    }
-                    catch (error) {
-                        dispatch(resetState());
-                        dispatch(showGeneralMessage({
-                            message: getErrorMessage(error),
-                            severity: "error"
-                        }));
-                        router.push("/");
-                    }
+                    if (!isMounted) return;
+
+                    setEvent(eventResponse);
+                    setFormattedDate(formatDate(eventResponse.startDate, "dateTime"));
+
+                    await dispatch(setBookTicketType(ItemType.Ticket));
+                    await dispatch(setBookKey(eventResponse.eventKey));
                 }
-                else {
-                    try {
-                        const seasonResponse = await getSeasonById(Number.parseInt(id));
-
-                        if (!seasonResponse.externalSeasonKey) return;
-
-                        mapKeyLocal = seasonResponse.externalSeasonKey;
-
-                        if (!isMounted) return;
-
-                        setSeason(seasonResponse);
-                        setFormattedDate(formatDate(seasonResponse.startDate, "dateTime"));
-
-                        await dispatch(setBookTicketType(ItemType.SeasonPass));
-                        await dispatch(setBookKey(seasonResponse.externalSeasonKey));
-                    }
-                    catch (error) {
-                        dispatch(resetState());
-                        dispatch(showGeneralMessage({
-                            message: getErrorMessage(error),
-                            severity: "error"
-                        }));
-                        router.push("/");
-                    }
+                catch (error) {
+                    dispatch(resetState());
+                    dispatch(showGeneralMessage({
+                        message: getErrorMessage(error),
+                        severity: "error"
+                    }));
+                    router.push("/");
                 }
 
                 if (!isMounted) return;
-
-                if (bookingMode === "event" || bookingMode === "season" || renovationType === "changeSeats") {
-                    if (holdTokenResponse && holdTokenResponse?.token) {
-                        setHoldToken(holdTokenResponse.token);
-                        await dispatch(setBookHoldToken(holdTokenResponse));
-                    }
-                }
-                else {
-                    setHoldToken("");
-                }
-
-                if (bookingMode === "renovateSeason" && renovationType === "changeSeats") {
-                    dispatch(setSeats([]));
-                }
 
                 setMapKey(mapKeyLocal);
 
@@ -170,21 +129,25 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
 
         return () => {
             isMounted = false;
+            dispatch(setSeats([]));
         };
-    }, [id, bookingMode, renovationType, dispatch]);
+    }, [id, dispatch, router]);
+
+    useEffect(() => {
+        if (
+            (!holdTokenState || holdTokenState.status === "expired")
+            && bookingStep === "payment"
+        ) {
+            setBookingStep("selection");
+        }
+    }, [holdTokenState, bookingStep]);
 
     const handleContinue = async () => {
+        // TODO: BUG, sometimes selected seat or one of selected seats is not send to backend
         switch (bookingStep) {
             case "selection":
-                let seats: [string, number][] | undefined;
-
-                if (bookingMode !== "renovateSeason") {
-                    seats = mapRef.current?.getSelectedSeats();
-                }
-                else {
-                    seats = (!initialSeats || initialSeats.length === 0) ? selectedSeats : initialSeats;
-                }
-
+                setIsLoading(true);
+                const seats = mapRef.current?.getSelectedSeats();
                 const seatsDto = mapRef.current?.getSelectedSeatsDto();
 
                 if (!seats || seats.length === 0) {
@@ -199,83 +162,94 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                 }
 
                 if (seatsDto) {
-                    dispatch(setSeatsDto(seatsDto));
+                    setSeatsDto(seatsDto);
                 }
 
+                await getHoldToken();
                 setBookingStep("payment");
+                setIsLoading(false);
                 break;
             case "payment":
+                setIsLoading(true);
+
                 if (
-                    !clientContactObj?.firstName
-                    || !clientContactObj?.lastName
-                    || !clientContactObj?.email
-                    || !clientContactObj?.phoneNumber
+                    !accountInfo &&
+                    (!clientContactObj?.firstName
+                        || !clientContactObj?.lastName
+                        || !clientContactObj?.email
+                        || !clientContactObj?.phoneNumber)
                 ) {
+                    setIsLoading(false);
                     setSnackbarSeverity("warning");
                     setSnackbarMessage("Es necesario capturar la información del cliente");
                     setOpenSnackbar(true);
                     return;
                 }
 
-                if (bookingMode === "event") {
-                    const result = await dispatch(eventBook());
+                // TODO: Probar regresando exceptions desde API
+                const result = await dispatch(eventBook());
 
-                    if (eventBook.fulfilled.match(result)) {
-                        await dispatch(resetState());
-                        router.push(`/account/tickets/order/${result.payload.orderId}/success`);
-                    }
-                    else if (eventBook.rejected.match(result)) {
-                        const message =
-                            (result.payload as string) ||
-                            result.error.message ||
-                            "Error al reservar el evento";
-
-                        setSnackbarSeverity("error");
-                        setSnackbarMessage(message);
-                        setOpenSnackbar(true);
-                    }
+                if (eventBook.fulfilled.match(result)) {
+                    await dispatch(resetState());
+                    router.push(`/account/tickets/order/${result.payload.orderId}/success`);
                 }
-                else if (bookingMode === "season" || bookingMode === "renovateSeason") {
-                    if (bookingMode === "season") {
-                        const result = await dispatch(seasonBook());
+                else if (eventBook.rejected.match(result)) {
+                    const message =
+                        (result.payload as string) ||
+                        result.error.message ||
+                        "Error al reservar el evento";
 
-                        if (seasonBook.fulfilled.match(result)) {
-                            await dispatch(resetState());
-                            router.push(`/account/tickets/order/${result.payload.orderId}/success`);
-                        }
-                        else if (seasonBook.rejected.match(result)) {
-                            const message =
-                                (result.payload as string) ||
-                                result.error.message ||
-                                "Error al reservar la temporada";
-
-                            setSnackbarSeverity("error");
-                            setSnackbarMessage(message);
-                            setOpenSnackbar(true);
-                        }
-                    }
-                    else if (bookingMode === "renovateSeason") {
-                        const result = await dispatch(seasonRenovate());
-
-                        if (seasonRenovate.fulfilled.match(result)) {
-                            await dispatch(resetState());
-                            router.push(`/account/tickets/order/${result.payload.orderId}/success`);
-                        }
-                        else if (seasonRenovate.rejected.match(result)) {
-                            const message =
-                                (result.payload as string) ||
-                                result.error.message ||
-                                "Error al renovar la temporada";
-
-                            setSnackbarSeverity("error");
-                            setSnackbarMessage(message);
-                            setOpenSnackbar(true);
-                        }
-                    }
+                    setSnackbarSeverity("error");
+                    setSnackbarMessage(message);
+                    setOpenSnackbar(true);
                 }
+
+                setIsLoading(false);
                 break;
         }
 
+    };
+
+    const handleBack = async () => {
+        try {
+            if (holdTokenState && holdTokenState.token) {
+                await dispatch(expireHoldToken({ type: "manual" })).unwrap();
+            }
+
+            setHoldToken("");
+            setBookingStep("selection");
+        }
+        catch {
+            const message = "An error occurred while trying to release the seats";
+
+            setSnackbarSeverity("error");
+            setSnackbarMessage(message);
+            setOpenSnackbar(true);
+        }
+    };
+
+    const getHoldToken = async () => {
+        const selectedSeats = mapRef.current?.getSelectedSeats();
+
+        if (!selectedSeats) {
+            return; // Add handler
+        }
+
+        const selectedLabels = selectedSeats.map(s => s.seatKey);
+
+        if (selectedLabels && selectedLabels.length > 0) {
+            const holdRequest: HoldSeatsActionRequest = {
+                eventKey: mapKey,
+                seats: selectedLabels
+            };
+
+            const holdTokenResponse = await holdSeats(holdRequest);
+
+            if (holdTokenResponse) {
+                setHoldToken(holdTokenResponse.token);
+                await dispatch(setBookHoldToken(holdTokenResponse));
+            }
+        }
     };
 
     return (
@@ -286,7 +260,7 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                 </Grid>
             }
             <Grid size={{ xs: 12, lg: 6 }}>
-                {(bookingMode === "event" && event) &&
+                {event &&
                     <Grid container columns={12} mb={{ xs: 0, md: 4 }}>
                         <Grid size={{ xs: 12, sm: 5, md: 4, lg: 5 }}>
                             <Box sx={{
@@ -298,9 +272,12 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                                 overflow: "hidden"
                             }}>
                                 <Image
-                                    src={event.posterImageUrl}
+                                    src={getEventPosterImageUrl(event)}
                                     alt="Evento"
                                     fill
+                                    onError={(e) => {
+                                        e.currentTarget.src = FALLBACK_IMAGE;
+                                    }}
                                     style={{
                                         objectFit: 'cover',
                                         objectPosition: "center",
@@ -338,42 +315,28 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                         </Grid>
                     </Grid>
                 }
-                {((bookingMode === "season" || bookingMode === "renovateSeason") && season) &&
-                    <Box mb={2} sx={{
-                        position: "relative",
-                        height: 180,
-                    }}>
-                        <Image
-                            src={season.bannerImageUrl}
-                            alt="Season"
-                            fill
-                            style={{ objectFit: "cover" }}
-                        />
-                    </Box>
-                }
                 {bookingStep === "selection" &&
                     <Box display={{ xs: "none", lg: "block" }}>
                         <SeatFilters
-                            scheduleId={bookingMode === "event" ? Number(id) : undefined}
-                            seasonId={bookingMode !== "event" ? Number(id) : undefined}
-                            onSectionSelected={(section) => { setSelectedSection(section); }}
-                            onSectionsChange={setSectionsPrices}
+                            scheduleId={Number(id)}
+                            onZoneSelected={(zoneId) => { setSelectedZone(zoneId) }}
+                            onZoneChange={setZonesPrices}
                             buttonText="Ver tickets"
                         />
                     </Box>
                 }
-                {(bookingStep === "payment" && selectedSeatsDto) &&
+                {(bookingStep === "payment" && seatsDto) &&
                     <Box mt={4}>
-                        <Box>
-                            <TicketSeats
-                                eventKey={mapKey}
-                                seats={selectedSeatsDto}
-                                selectedSeats={selectedSeats}
-                            />
-                        </Box>
-                        <Box mt={4}>
-                            <ClientInfo />
-                        </Box>
+                        <TicketSeats
+                            eventKey={mapKey}
+                            seats={seatsDto}
+                            selectedSeats={selectedSeats}
+                        />
+                    </Box>
+                }
+                {(bookingStep === "payment" && accountInfo == null) &&
+                    <Box mt={4}>
+                        <ClientInfo />
                     </Box>
                 }
             </Grid>
@@ -381,12 +344,11 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                 <Paper elevation={3} className="paperCard" sx={{ backgroundColor: "white" }}>
                     <BookingRightPanel
                         ref={mapRef}
-                        holdToken={holdToken}
                         mapKey={mapKey}
-                        bookingMode={bookingMode}
+                        bookingMode={"event"}
                         bookingStep={bookingStep}
-                        selectedSection={selectedSection}
-                        sectionsPrices={sectionsPrices}
+                        selectedZone={selectedZone}
+                        zonesPrices={zonesPrices}
                         onPay={handleContinue}
                     />
                 </Paper>
@@ -394,7 +356,7 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                 <Box mt={4} textAlign="end">
                     {bookingStep !== "selection" &&
                         <Button variant="outlined" color="secondary"
-                            onClick={() => setBookingStep("selection")} sx={{ mr: 2 }}>
+                            onClick={handleBack} sx={{ mr: 2 }}>
                             <Typography variant="body1" color="text">
                                 Regresar
                             </Typography>
@@ -413,10 +375,9 @@ export default function BookingClient({ id, bookingMode }: BookingClientProps) {
                 {bookingStep === "selection" &&
                     <Box display={{ xs: "block", lg: "none" }} mt={5}>
                         <SeatFilters
-                            scheduleId={bookingMode === "event" ? Number(id) : undefined}
-                            seasonId={bookingMode !== "event" ? Number(id) : undefined}
-                            onSectionSelected={(section) => { setSelectedSection(section); }}
-                            onSectionsChange={setSectionsPrices}
+                            scheduleId={Number(id)}
+                            onZoneSelected={(zoneId) => { setSelectedZone(zoneId) }}
+                            onZoneChange={setZonesPrices}
                             buttonText="Ver tickets"
                         />
                     </Box>

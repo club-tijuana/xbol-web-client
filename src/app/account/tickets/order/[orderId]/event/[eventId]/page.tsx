@@ -1,5 +1,9 @@
+import { Metadata } from "next";
+
 import { mapEventToCardVM } from "@/models/event-item.dto";
 import { getTrendingEvents } from "@/services/eventService";
+import { getOrderMetadata } from "@/services/orderService";
+import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
 
 import TicketPageClient from "./components/TicketPageClient/TicketPageClient";
 
@@ -8,6 +12,23 @@ interface TicketPageProps {
         orderId: string;
         eventId: string;
     }>;
+}
+
+export async function generateMetadata(
+    { params }: TicketPageProps
+): Promise<Metadata> {
+    const { orderId } = await params;
+    const orderIdNumber = Number(orderId);
+
+    const orderMetadata = await getOrderMetadata(orderIdNumber);
+
+    return buildSeoMetadata({
+        title: orderMetadata.title,
+        description: orderMetadata.description ?? "",
+        url: "",
+        image: orderMetadata.imageUrl,
+        type: "website"
+    });
 }
 
 export default async function TicketPage(props: TicketPageProps) {

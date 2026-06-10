@@ -6,3 +6,16 @@
     height: auto !important;
     width: 100%;
 }
+
+.ticketsButton {
+    text-decoration: none;
+    border: 1px solid;
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    padding: 15px 25px;
+    border-radius: 6px;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}

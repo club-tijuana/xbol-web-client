@@ -33,6 +33,7 @@ import { EventCardProps } from "./EventCard.type";
 
 /* -------------------- CONSTANTS -------------------- */
 const LARGE_VARIANTS: EventCardProps["sizeVariant"][] = ["md", "lg"];
+const FALLBACK_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE ?? "";
 
 /* -------------------- CONFIGS -------------------- */
 type SizeVariant = EventCardProps["sizeVariant"];
@@ -68,7 +69,7 @@ const cardInfoVariant: Record<SizeVariant, CardInfoVariantConfig> = {
     dateVariant: "h5",
     locationVariant: "h5",
     imageMb: 2,
-    titleMb: 3,
+    titleMb: 0,
     titleHeight: 60
   },
   md: {
@@ -77,7 +78,7 @@ const cardInfoVariant: Record<SizeVariant, CardInfoVariantConfig> = {
     locationVariant: "h5",
     imageMb: 2,
     titleMb: 2,
-    titleHeight: 60
+    titleHeight: 40
   },
   lg: {
     titleVariant: "h4",
@@ -85,7 +86,7 @@ const cardInfoVariant: Record<SizeVariant, CardInfoVariantConfig> = {
     locationVariant: "h5",
     imageMb: 2,
     titleMb: 2,
-    titleHeight: 60
+    titleHeight: 40
   },
 };
 
@@ -175,7 +176,7 @@ export default function EventCard({
     const id = eventCard.eventId;
     if (!id) return;
 
-    router.push(`/event/${id}`);
+    router.push(eventCard.detailHref ?? `/event/${id}`);
   };
 
   const handleBuyTickets = () => {
@@ -217,7 +218,7 @@ export default function EventCard({
             </Box>
           </Box>
         )}
-        {showBadge && (
+        {(showBadge && categories && categories.length > 0) && (
           <Chip
             label={categories[0].displayName}
             color={
@@ -228,7 +229,7 @@ export default function EventCard({
         )}
         <CardMedia
           onClick={styleVariant !== "schedule" ? handleClick : () => { }}
-          image={posterImageUrl}
+          image={posterImageUrl.trim() || FALLBACK_IMAGE}
           sx={{
             aspectRatio: (sizeVariant === "xs" || sizeVariant === "sm") ? "1 / 1" : "16 / 9",
             borderTopRightRadius: showBadge ? 0 : 10,
@@ -238,7 +239,7 @@ export default function EventCard({
             cursor: "auto",
             mb: currentCardInfoVariant.imageMb,
             backgroundSize: "cover",
-            backgroundPosition: "center",
+            backgroundPosition: "center"
           }}
         />
       </Box>
@@ -269,6 +270,9 @@ export default function EventCard({
               textAlign="left"
               display={"flex"}
               alignItems={"center"}
+              sx={{
+                height: 65
+              }}
             >
               <CalendarTodayOutlined color="primary" sx={{ mr: 1 }} />
               {startDate}
