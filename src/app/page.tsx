@@ -231,7 +231,7 @@ export default async function Home({ searchParams }: HomeProps) {
         </Box>
       </main>
       <div className="whatsappBubble">
-        <a rel="noreferrer" href="https://api.whatsapp.com/send?phone=6641234567" target="_blank" style={{ position: "absolute", bottom: 0 }}>
+        <a rel="noreferrer" href="https://api.whatsapp.com/send?phone=6646933586" target="_blank" style={{ position: "absolute", bottom: 0 }}>
           <Image
             loading="lazy"
             width="60"

@@ -125,7 +125,7 @@ export default function CarouselSlideQRTicket({ ticket, isActive, onShare, onUns
                                     Puerta principal
                                 </Typography>
                                 <Typography variant="body1" color="secondary">
-                                    {ticket.mainGate ?? "Cualquier puerta"}
+                                    {(ticket.mainGate != null && ticket.mainGate != "") ? ticket.mainGate : "Cualquier puerta"}
                                 </Typography>
                                 <Typography variant="body2" color="primary" mt={2}>
                                     Tipo

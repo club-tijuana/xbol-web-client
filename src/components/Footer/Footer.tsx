@@ -1,4 +1,4 @@
-import { Grid, Stack, Typography } from "@mui/material";
+import { Grid, Stack, Tooltip, Typography } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -62,46 +62,67 @@ export default function Footer() {
                     <Grid container columns={12}>
                         <Grid size={12} >
                             <div className={styles.iconContainer}>
-                                <Image
-                                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/facebook-icon.svg`}
-                                    alt="Facebook"
-                                    width={23}
-                                    height={23}
-                                />
-                                <Image
-                                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/x-icon.svg`}
-                                    alt="X"
-                                    width={23}
-                                    height={23}
-                                />
-                                <Image
-                                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/instagram-icon.svg`}
-                                    alt="Instagram"
-                                    width={23}
-                                    height={23}
-                                />
-                                <Image
-                                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/youtube-icon.svg`}
-                                    alt="YouTube"
-                                    width={23}
-                                    height={23}
-                                />
+                                <Tooltip title="Próximamente">
+                                    <Image
+                                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/facebook-icon.svg`}
+                                        alt="Facebook"
+                                        width={23}
+                                        height={23}
+                                        style={{ marginRight: '70px' }}
+                                    />
+                                </Tooltip>
+
+                                <Tooltip title="Próximamente">
+                                    <Image
+                                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/x-icon.svg`}
+                                        alt="X"
+                                        width={23}
+                                        height={23}
+                                        style={{ marginRight: '70px' }}
+                                    />
+                                </Tooltip>
+
+                                <Tooltip title="Próximamente">
+                                    <Image
+                                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/instagram-icon.svg`}
+                                        alt="Instagram"
+                                        width={23}
+                                        height={23}
+                                        style={{ marginRight: '70px' }}
+                                    />
+                                </Tooltip>
+
+                                <Tooltip title="Próximamente">
+                                    <Image
+                                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/youtube-icon.svg`}
+                                        alt="YouTube"
+                                        width={23}
+                                        height={23}
+                                    />
+                                </Tooltip>
+
                             </div>
                         </Grid>
                         <Grid size={12} >
                             <div className={styles.downloadContainer}>
-                                <Image
-                                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/google-play.svg`}
-                                    alt="YouTube"
-                                    width={145}
-                                    height={43}
-                                />
-                                <Image
-                                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/app-store.svg`}
-                                    alt="YouTube"
-                                    width={145}
-                                    height={43}
-                                />
+                                <Tooltip title="Próximamente">
+                                    <Image
+                                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/google-play.svg`}
+                                        alt="YouTube"
+                                        width={145}
+                                        height={43}
+                                    />
+                                </Tooltip>
+
+                                <Tooltip title="Próximamente">
+                                    <Image
+                                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/app-store.svg`}
+                                        alt="YouTube"
+                                        width={145}
+                                        height={43}
+                                    />
+                                </Tooltip>
+
                             </div>
                         </Grid>
                     </Grid>

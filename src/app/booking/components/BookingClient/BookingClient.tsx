@@ -19,7 +19,7 @@ import { HoldSeatsActionRequest } from "@/models/requests/hold-seats-action-requ
 import { getEventItemBySchedule } from "@/services/bookingService";
 import { holdSeats } from "@/services/holdService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { expireHoldToken, setBookHoldToken, setBookKey, setBookTicketType, setSeats } from "@/store/slices/bookingFlowSlice";
+import { clearHoldToken, expireHoldToken, setBookHoldToken, setBookKey, setBookTicketType, setSeats } from "@/store/slices/bookingFlowSlice";
 import {
     resetState as resetStateFlow
 } from "@/store/slices/bookingFlowSlice";
@@ -200,6 +200,10 @@ export default function BookingClient({ id }: BookingClientProps) {
                     setSnackbarSeverity("error");
                     setSnackbarMessage(message);
                     setOpenSnackbar(true);
+
+                    await dispatch(clearHoldToken());
+                    setHoldToken("");
+                    setBookingStep("selection");
                 }
 
                 setIsLoading(false);

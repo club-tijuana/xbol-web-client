@@ -12,7 +12,7 @@ export const whiteLabelConfigs = {
       address: "9990 Calle Rufino Tamayo, Interior 401, Zona Urbana Rio Tijuana, 22010",
       email: "soporte@pwrticket.mx",
       phone: "664 375 9594",
-      whatsapp: "(+52) 6647646736",
+      whatsapp: "(+52) 6646933586",
     },
     social: {
       facebookName: "PWR TICKET",

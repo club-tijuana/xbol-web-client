@@ -31,10 +31,6 @@
         cursor: pointer;
     }
 
-    img:not(:last-child) {
-        margin-right: 70px;
-    }
-
     @media (max-width: 899px) {
         margin-top: 30px;
     }
