@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 import { FaqDTO } from "@/models/faq.dto";
 import { getFAQs } from "@/services/faqService";
+import { colors } from "@/theme/colors";
 
 import styles from "./FAQ.module.scss";
 
@@ -46,12 +47,36 @@ export default function FAQ() {
                             expandIcon={<AddIcon sx={{ color: "var(--color-primary)" }} />}
                             sx={{ padding: 0 }}
                         >
-                            <Typography variant="subtitle1" color="secondary">
-                                {faq.question}
-                            </Typography>
+                            <Box
+                                dangerouslySetInnerHTML={{
+                                    __html: faq.question ?? ""
+                                }}
+                                color={colors.text.secondary}
+                                sx={{
+                                    color: colors.text.secondary,
+                                    fontSize: "18px",
+                                    fontWeight: 400,
+                                    "& *": {
+                                        color: "var(--color-text-secondary) !important"
+                                    }
+                                }}
+                            />
                         </AccordionSummary>
                         <AccordionDetails>
-                            <Typography variant="subtitle1" color="secondary">{faq.answer}</Typography>
+                            <Box
+                                dangerouslySetInnerHTML={{
+                                    __html: faq.answer ?? ""
+                                }}
+                                color={colors.text.secondary}
+                                sx={{
+                                    color: colors.text.secondary,
+                                    fontSize: "18px",
+                                    fontWeight: 400,
+                                    "& *": {
+                                        color: "var(--color-text-secondary) !important"
+                                    }
+                                }}
+                            />
                         </AccordionDetails>
                     </Accordion>
                 ))}

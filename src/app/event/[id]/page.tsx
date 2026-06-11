@@ -11,6 +11,7 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
+import { convert } from "html-to-text";
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -39,6 +40,15 @@ interface EventPageProps {
   params: Promise<{ id: string }>;
 }
 
+const seoDescription = (value?: string): string => {
+  return convert(value ?? "", {
+    wordwrap: false,
+    selectors: [
+      { selector: "img", format: "skip" }
+    ]
+  });
+}
+
 const getEventDetailCached = cache(async (id: number) => {
   return await getEventDetail(id);
 });
@@ -53,7 +63,7 @@ export async function generateMetadata(
 
   return buildSeoMetadata({
     title: event.name,
-    description: event.shortDescription ?? "",
+    description: seoDescription(event.shortDescription),
     url: "",
     image: getEventDetailImageUrl(event),
     type: "website"
@@ -142,8 +152,8 @@ export default async function EventDetailPage({ params }: EventPageProps) {
                       aspectRatio: "16 / 9",
                       overflow: "hidden"
                     }} mb={3}>
-	                      <Image
-	                        src={eventImageOrDefault(image)}
+                      <Image
+                        src={eventImageOrDefault(image)}
                         alt="Evento"
                         fill
                         style={{
@@ -207,9 +217,19 @@ export default async function EventDetailPage({ params }: EventPageProps) {
                   >
                     Información
                   </Typography>
-                  <Typography variant="subtitle1" mb={4} color="neutral">
-                    {event.longDescription}
-                  </Typography>
+                  <Box mb={4}
+                    dangerouslySetInnerHTML={{
+                      __html: event.longDescription ?? ""
+                    }}
+                    color={colors.text.neutral}
+                    sx={{
+                      color: colors.text.neutral,
+                      "& *": {
+                        color: "var(--color-white) !important"
+                      }
+                    }}
+                  />
+
                   <Typography
                     variant="h5"
                     fontWeight={400}
@@ -406,9 +426,13 @@ export default async function EventDetailPage({ params }: EventPageProps) {
                       >
                         Políticas de seguridad
                       </Typography>
-                      <Typography variant="subtitle1" mb={4} color="secondary">
-                        {event.securityPolicies}
-                      </Typography>
+                      <Box
+                        mb={4}
+                        dangerouslySetInnerHTML={{
+                          __html: event.securityPolicies ?? ""
+                        }}
+                        color={colors.text.secondary}
+                      />
                     </Box>
                   }
                 </Grid>
