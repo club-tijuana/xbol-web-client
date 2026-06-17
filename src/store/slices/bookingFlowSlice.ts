@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { HoldToken } from "@seatsio/seatsio-react";
 
 import { ItemType } from "@/models/enums/item-type.enum";
+import { EvoReference } from "@/models/evo-payments/evo-reference";
 import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
 import { ClientInfoRequest } from "@/models/requests/client-info-request.dto";
 import { PaymentInfoRequest } from "@/models/requests/payment-info-request.dto";
@@ -34,6 +35,7 @@ interface BookingFlowState {
     orderLeftSeats?: number;
     originalSeats?: Array<BookingSeatRequest>;
     seatAvailability?: SeatAvailabilityDTO;
+    evoReferences?: EvoReference;
 }
 
 const initialState: BookingFlowState = {
@@ -70,6 +72,10 @@ export const expireHoldToken = createAsyncThunk<
         }
         if (!seatsLabels || seatsLabels.length === 0) {
             throw new Error("No seats selected");
+        }
+
+        if (type === "auto") {
+            return { type };
         }
 
         const payload: ReleaseSeatsByKeyRequest = {
@@ -143,6 +149,9 @@ const bookingFlowSlice = createSlice({
         },
         setSeatAvailability: (state, action: PayloadAction<SeatAvailabilityDTO>) => {
             state.seatAvailability = action.payload;
+        },
+        setEvoReferences: (state, action: PayloadAction<EvoReference>) => {
+            state.evoReferences = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -176,6 +185,7 @@ export const {
     setOriginalSeats,
     manualExpireHoldToken,
     clearHoldToken,
-    setSeatAvailability
+    setSeatAvailability,
+    setEvoReferences
 } = bookingFlowSlice.actions;
 export default bookingFlowSlice.reducer;

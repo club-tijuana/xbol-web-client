@@ -1,7 +1,7 @@
 "use client";
 
 import { CalendarTodayOutlined, LocationOnOutlined } from "@mui/icons-material";
-import { Alert, AlertColor, Box, Button, Grid, Paper, Snackbar, Typography } from "@mui/material";
+import { Alert, AlertColor, Box, Button, CircularProgress, Grid, Paper, Snackbar, Typography } from "@mui/material";
 import { Pricing } from "@seatsio/seatsio-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -17,7 +17,9 @@ import { EventItemDTO, getEventPosterImageUrl } from "@/models/event-item.dto";
 import { MyEventSeatDTO } from "@/models/my-event-seat.dto";
 import { HoldSeatsActionRequest } from "@/models/requests/hold-seats-action-request.dto";
 import { getEventItemBySchedule } from "@/services/bookingService";
+import { confirmCheckout } from "@/services/evoPaymentService";
 import { holdSeats } from "@/services/holdService";
+import { CHECKOUT_SS_KEY, CheckoutContext } from "../Payment/Payment";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { clearHoldToken, expireHoldToken, setBookHoldToken, setBookKey, setBookTicketType, setSeats } from "@/store/slices/bookingFlowSlice";
 import {
@@ -63,6 +65,51 @@ export default function BookingClient({ id }: BookingClientProps) {
     const [zonesPrices, setZonesPrices] = useState<Pricing>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [seatsDto, setSeatsDto] = useState<MyEventSeatDTO[] | undefined>();
+    const [confirmingPayment, setConfirmingPayment] = useState(false);
+    const [confirmError, setConfirmError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const resultIndicator = params.get("resultIndicator");
+        if (!resultIndicator) return;
+
+        setConfirmingPayment(true);
+
+        const rawCtx = sessionStorage.getItem(CHECKOUT_SS_KEY);
+        if (!rawCtx) {
+            setConfirmError("No se encontró el contexto de pago. Por favor contacta a soporte si se realizó algún cargo.");
+            return;
+        }
+
+        let ctx: CheckoutContext;
+        try {
+            ctx = JSON.parse(rawCtx) as CheckoutContext;
+        } catch {
+            setConfirmError("Error al leer el contexto de pago. Por favor contacta a soporte.");
+            return;
+        }
+
+        if (!ctx.localOrderId || !ctx.orderRefId) {
+            setConfirmError("Contexto de pago incompleto. Por favor contacta a soporte.");
+            return;
+        }
+
+        confirmCheckout({ localOrderId: ctx.localOrderId, orderRefId: ctx.orderRefId, resultIndicator })
+            .then((result) => {
+                if (result.orderStatus === "Paid" && result.paymentStatus === "Captured") {
+                    sessionStorage.removeItem(CHECKOUT_SS_KEY);
+                    router.push(`/account/tickets/order/${result.orderId}/success`);
+                } else {
+                    setConfirmError(
+                        `Pago no completado. Estado del pago: ${result.paymentStatus}. Si realizaste un cargo, contacta a soporte.`
+                    );
+                }
+            })
+            .catch((err: unknown) => {
+                const msg = err instanceof Error ? err.message : "Error al confirmar el pago.";
+                setConfirmError(msg);
+            });
+    }, []);
 
     useEffect(() => {
         let isMounted = true;
@@ -254,6 +301,36 @@ export default function BookingClient({ id }: BookingClientProps) {
         }
     };
 
+    if (confirmingPayment) {
+        return (
+            <Box
+                display="flex"
+                flexDirection="column"
+                justifyContent="center"
+                alignItems="center"
+                minHeight="80vh"
+                gap={3}
+                px={2}
+            >
+                {!confirmError ? (
+                    <>
+                        <CircularProgress size={48} color="primary" />
+                        <Typography variant="h6" color="text.secondary" textAlign="center">
+                            Confirmando tu pago, por favor espera…
+                        </Typography>
+                    </>
+                ) : (
+                    <Alert severity="error" sx={{ maxWidth: 520 }}>
+                        <Typography variant="body1" fontWeight={600} mb={0.5}>
+                            No se pudo confirmar el pago
+                        </Typography>
+                        <Typography variant="body2">{confirmError}</Typography>
+                    </Alert>
+                )}
+            </Box>
+        );
+    }
+
     return (
         <Grid container columns={12} mt={20} spacing={4} pb={8} sx={{ minHeight: "100vh", alignContent: "start" }}>
             {holdToken &&
@@ -351,6 +428,7 @@ export default function BookingClient({ id }: BookingClientProps) {
                         bookingStep={bookingStep}
                         selectedZone={selectedZone}
                         zonesPrices={zonesPrices}
+                        scheduleId={Number(id)}
                         onPay={handleContinue}
                     />
                 </Paper>

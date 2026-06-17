@@ -27,7 +27,10 @@ const getEventBookingRequest = (state: RootState): EventBookingRequest => {
         clientContact: flow.clientContact!,
         paymentInfoRequest: flow.paymentInfo!,
         holdToken: flow.holdTokenObj?.token ?? "",
-        isPaymentLink: false
+        isPaymentLink: false,
+        sessionId: flow.evoReferences?.sessionId,
+        orderRefId: flow.evoReferences?.orderRefId,
+        transactionRefId: flow.evoReferences?.transactionRefId
     };
 };
 

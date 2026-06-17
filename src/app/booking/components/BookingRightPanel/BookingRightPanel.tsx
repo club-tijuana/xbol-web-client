@@ -28,6 +28,7 @@ interface BookingRightPanelProps {
     selectedZone?: string;
     zonesPrices: Pricing | undefined;
     isRenewalWindow?: boolean;
+    scheduleId?: number;
     onPay?: () => void;
 }
 
@@ -40,6 +41,7 @@ const BookingRightPanel = forwardRef<BookingRightPanelHandle, BookingRightPanelP
             selectedZone,
             zonesPrices,
             isRenewalWindow = false,
+            scheduleId,
             onPay
         },
         ref
@@ -146,6 +148,7 @@ const BookingRightPanel = forwardRef<BookingRightPanelHandle, BookingRightPanelP
                             taxes={taxes}
                             total={total}
                             currency="MXN"
+                            scheduleId={scheduleId}
                             onPay={onPay}
                         />
                     );
