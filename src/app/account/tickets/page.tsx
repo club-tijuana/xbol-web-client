@@ -9,6 +9,8 @@ import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
 
 import TicketsClientWrapper from "./components/TicketsClientWrapper/TicketsClientWrapper";
 
+export const dynamic = 'force-dynamic';
+
 export function generateMetadata(): Metadata {
     const title = "Mis tickets";
     const description =

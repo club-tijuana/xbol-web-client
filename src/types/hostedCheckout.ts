@@ -1,3 +1,33 @@
+export interface CreateCheckoutSessionRequest {
+  returnUrl: string;
+  amount: number;
+  currency?: string;
+  description?: string;
+}
+
+export interface CheckoutSessionResponse {
+  merchantId: string;
+  sessionId: string;
+  successIndicator: string;
+  apiVersion: string;
+  gatewayBaseUrl: string;
+  orderRefId: string;
+  amount: string;
+  currency: string;
+}
+
+export interface RetrieveOrderResponse {
+  orderRefId: string;
+  result: string;
+  status?: string;
+  gatewayCode?: string;
+  totalCapturedAmount?: number;
+  totalAuthorizedAmount?: number;
+  currency?: string;
+  cardNumberMasked?: string;
+  cardBrand?: string;
+}
+
 export interface InitiateCheckoutRequest {
   eventScheduleId: number;
   holdToken: string | null;
