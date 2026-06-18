@@ -191,7 +191,19 @@ export default function Payment({
                             onChange={(e) => setAcceptedTerms(e.target.checked)}
                         />
                     }
-                    label="Acepto las condiciones de compra"
+                    label={
+                        <span>
+                            Acepto las condiciones de compra{" "}
+                            <a
+                                href="/legal#terminos"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                (Ver términos y condiciones)
+                            </a>
+                        </span>
+                    }
                 />
                 <Button
                     variant="contained"
