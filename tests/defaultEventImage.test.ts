@@ -98,6 +98,21 @@ test("public env schema defaults the event image to the checked-in asset", () =>
   assert.equal(env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE, DEFAULT_EVENT_IMAGE);
 });
 
+test("public env schema keeps email auth disabled by default", () => {
+  const env = publicEnvSchema.parse(requiredPublicEnv);
+
+  assert.equal(env.NEXT_PUBLIC_ENABLE_EMAIL_AUTH, false);
+});
+
+test("public env schema allows explicitly enabling email auth", () => {
+  const env = publicEnvSchema.parse({
+    ...requiredPublicEnv,
+    NEXT_PUBLIC_ENABLE_EMAIL_AUTH: "true",
+  });
+
+  assert.equal(env.NEXT_PUBLIC_ENABLE_EMAIL_AUTH, true);
+});
+
 test("public env schema accepts the deployment override as provided", () => {
   const defaultImage = "event-default-from-deploy.png";
   const env = publicEnvSchema.parse({

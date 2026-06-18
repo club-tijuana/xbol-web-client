@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import AuthIdentifierField from "@/components/AuthIdentifierField/AuthIdentifierField";
+import { publicEnv } from "@/config/env";
 import { defaultAuthPhoneCountryCode, getPhoneAuthCountry, getPhoneAuthIdentifier, isAuthPhoneCountryCode, isPhoneLikeAuthIdentifier, normalizeAuthIdentifier } from "@/helpers/authIdentifier";
 import { registerPhone, sendPhoneLoginCode } from "@/services/authService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -16,6 +17,8 @@ import { colors } from "@/theme/colors";
 interface RegisterFormProps {
     title?: string;
 }
+
+const emailAuthEnabled = publicEnv.NEXT_PUBLIC_ENABLE_EMAIL_AUTH;
 
 export default function RegisterForm({
     title = "Crear cuenta",
@@ -85,6 +88,11 @@ export default function RegisterForm({
             return;
         }
 
+        if (!emailAuthEnabled && !isPhoneIdentifier) {
+            setErrorMessage("Ingresa un teléfono válido.");
+            return;
+        }
+
         if (isPhoneIdentifier) {
             if (!matchedVerifiedPhoneUser && !phoneConfirmation) {
                 setErrorMessage("Envía el código SMS antes de registrarte.");
@@ -110,6 +118,10 @@ export default function RegisterForm({
             } finally {
                 setPhoneLoading(false);
             }
+            return;
+        }
+
+        if (!emailAuthEnabled) {
             return;
         }
 
@@ -159,6 +171,7 @@ export default function RegisterForm({
     const shouldShowDirectPhoneControls = isPhoneIdentifier
         && !matchedVerifiedPhoneUser;
     const isRegisterDisabled = isLoading
+        || (!emailAuthEnabled && !isPhoneIdentifier)
         || (isPhoneLikeIdentifier && !isPhoneIdentifier)
         || (isPhoneIdentifier && !matchedVerifiedPhoneUser && (!phoneConfirmation || !verificationCode.trim()));
 
@@ -197,7 +210,7 @@ export default function RegisterForm({
                 />
 
                 <AuthIdentifierField
-                    label="Correo electrónico o teléfono"
+                    label={emailAuthEnabled ? "Correo electrónico o teléfono" : "Teléfono"}
                     value={identifier}
                     countryCode={identifierCountryCode}
                     onCountryCodeChange={(value) => {
@@ -211,12 +224,13 @@ export default function RegisterForm({
                         setVerificationCode("");
                     }}
                     disabled={!!verifiedPhoneUser}
+                    phoneOnly={!emailAuthEnabled}
                     required
                     fullWidth
                     variant="filled"
                 />
 
-                {!isPhoneIdentifier &&
+                {emailAuthEnabled && !isPhoneIdentifier &&
                     <>
                         <TextField
                             label="Contraseña"

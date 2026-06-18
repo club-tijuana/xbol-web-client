@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { AuthIdentifierInput } from "@/components/AuthIdentifierField/AuthIdentifierField";
+import { publicEnv } from "@/config/env";
 import { defaultAuthPhoneCountryCode, getPhoneAuthIdentifier, isPhoneLikeAuthIdentifier, normalizeAuthIdentifier } from "@/helpers/authIdentifier";
 import { isUnlinkedClientProfileError, loginPhone, sendPasswordReset, sendPhoneLoginCode } from "@/services/authService";
 import { RootState } from "@/store";
@@ -17,6 +18,8 @@ import { closeLoginModal } from "@/store/slices/uiSlice";
 import { colors } from "@/theme/colors";
 
 import styles from "./LoginModal.module.scss";
+
+const emailAuthEnabled = publicEnv.NEXT_PUBLIC_ENABLE_EMAIL_AUTH;
 
 export default function LoginModal() {
     const dispatch = useAppDispatch();
@@ -40,10 +43,11 @@ export default function LoginModal() {
     const normalizedPhoneIdentifier = getPhoneAuthIdentifier(identifier, identifierCountryCode);
     const isPhoneIdentifier = normalizedPhoneIdentifier !== null;
     const isPhoneLikeIdentifier = isPhoneLikeAuthIdentifier(identifier);
-    const isPhoneFlow = isPhoneIdentifier || phoneConfirmation !== null;
-    const isLoading = status === "loading" || phoneLoading || passwordResetLoading;
+    const isPhoneFlow = !emailAuthEnabled || isPhoneIdentifier || phoneConfirmation !== null;
+    const isLoading = status === "loading" || phoneLoading || (emailAuthEnabled && passwordResetLoading);
     const shouldShowSmsCode = phoneConfirmation !== null;
     const isLoginDisabled = isLoading
+        || (!emailAuthEnabled && !isPhoneIdentifier)
         || (isPhoneLikeIdentifier && !isPhoneIdentifier)
         || (isPhoneIdentifier && (!phoneConfirmation || !verificationCode.trim()));
     const registrationIdentifierCountryCode = normalizeAuthIdentifier(identifier).startsWith("+")
@@ -68,7 +72,7 @@ export default function LoginModal() {
     const finishLogin = (emailVerified?: boolean, verificationStatus?: string) => {
         dispatch(closeLoginModal());
 
-        if (emailVerified === false && verificationStatus === "pending") {
+        if (emailAuthEnabled && emailVerified === false && verificationStatus === "pending") {
             router.push("/register/verify-email");
             return;
         }
@@ -161,6 +165,13 @@ export default function LoginModal() {
             return;
         }
 
+        if (!emailAuthEnabled) {
+            setAlertSeverity("error");
+            setAlertMessage("Ingresa un teléfono válido");
+            setAlertOpen(true);
+            return;
+        }
+
         await handleEmailLogin();
     };
 
@@ -197,6 +208,10 @@ export default function LoginModal() {
     };
 
     const handleForgotPassword = () => {
+        if (!emailAuthEnabled) {
+            return;
+        }
+
         setPasswordResetDialogOpen(true);
     };
 
@@ -247,7 +262,7 @@ export default function LoginModal() {
 
                 <Box className={styles.inputContainer}>
                     <Typography variant="caption" mb={1} color={'text'}>
-                        Correo electrónico o teléfono
+                        {emailAuthEnabled ? "Correo electrónico o teléfono" : "Teléfono"}
                     </Typography>
                     <AuthIdentifierInput
                         id="login-identifier"
@@ -263,12 +278,13 @@ export default function LoginModal() {
                         }}
                         className={styles.inputCustom}
                         inputProps={{
-                            "aria-label": "Correo electrónico o teléfono",
+                            "aria-label": emailAuthEnabled ? "Correo electrónico o teléfono" : "Teléfono",
                             style: {
                                 textAlign: 'center',
                                 fontSize: 16
                             }
                         }}
+                        phoneOnly={!emailAuthEnabled}
                         sx={{
                             backgroundColor: 'white',
                             '&:after': { borderBottom: '2px solid var(--color-text-primary)' },
@@ -366,17 +382,19 @@ export default function LoginModal() {
                     </>
                 }
 
-                <Button
-                    type="button"
-                    variant="text"
-                    color={'secondary'}
-                    disabled={isLoading}
-                    onClick={handleForgotPassword}
-                >
-                    <Typography variant="body1" color={'text'} sx={{ textDecoration: 'underline' }}>
-                        ¿Olvidaste tu contraseña?
-                    </Typography>
-                </Button>
+                {emailAuthEnabled &&
+                    <Button
+                        type="button"
+                        variant="text"
+                        color={'secondary'}
+                        disabled={isLoading}
+                        onClick={handleForgotPassword}
+                    >
+                        <Typography variant="body1" color={'text'} sx={{ textDecoration: 'underline' }}>
+                            ¿Olvidaste tu contraseña?
+                        </Typography>
+                    </Button>
+                }
                 <Button type="button" variant="text" color={'secondary'} onClick={handleRegister}>
                     <Typography variant="body1" color={'text'} sx={{ textDecoration: 'underline' }}>
                         Crear cuenta
@@ -416,34 +434,36 @@ export default function LoginModal() {
             >
                 <CircularProgress color="inherit" />
             </Backdrop>
-            <Dialog
-                open={passwordResetDialogOpen}
-                onClose={() => setPasswordResetDialogOpen(false)}
-            >
-                <Box component="form" onSubmit={handlePasswordResetSubmit}>
-                    <DialogTitle>Recuperar contraseña</DialogTitle>
-                    <DialogContent>
-                        <TextField
-                            label="Correo de recuperación"
-                            value={passwordResetEmail}
-                            onChange={(event) => setPasswordResetEmail(event.target.value)}
-                            type="email"
-                            fullWidth
-                            required
-                            variant="filled"
-                            sx={{ mt: 1, minWidth: { xs: 280, sm: 360 } }}
-                        />
-                    </DialogContent>
-                    <DialogActions>
-                        <Button type="button" onClick={() => setPasswordResetDialogOpen(false)}>
-                            Cancelar
-                        </Button>
-                        <Button type="submit" disabled={passwordResetLoading}>
-                            Enviar recuperación
-                        </Button>
-                    </DialogActions>
-                </Box>
-            </Dialog>
+            {emailAuthEnabled &&
+                <Dialog
+                    open={passwordResetDialogOpen}
+                    onClose={() => setPasswordResetDialogOpen(false)}
+                >
+                    <Box component="form" onSubmit={handlePasswordResetSubmit}>
+                        <DialogTitle>Recuperar contraseña</DialogTitle>
+                        <DialogContent>
+                            <TextField
+                                label="Correo de recuperación"
+                                value={passwordResetEmail}
+                                onChange={(event) => setPasswordResetEmail(event.target.value)}
+                                type="email"
+                                fullWidth
+                                required
+                                variant="filled"
+                                sx={{ mt: 1, minWidth: { xs: 280, sm: 360 } }}
+                            />
+                        </DialogContent>
+                        <DialogActions>
+                            <Button type="button" onClick={() => setPasswordResetDialogOpen(false)}>
+                                Cancelar
+                            </Button>
+                            <Button type="submit" disabled={passwordResetLoading}>
+                                Enviar recuperación
+                            </Button>
+                        </DialogActions>
+                    </Box>
+                </Dialog>
+            }
         </Dialog>
     );
 }

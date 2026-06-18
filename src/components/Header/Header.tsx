@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState } from "react";
 
+import { publicEnv } from '@/config/env';
 import { canUseVerifiedClientFeatures } from '@/helpers/authStateHelper';
 import { formatDate } from '@/helpers/formatDateHelper';
 import { logoutFromFirebase } from '@/services/firebaseClient';
@@ -45,6 +46,8 @@ const sxActions: SxProps<Theme> = {
     padding: 0,
     mt: 2
 };
+
+const emailAuthEnabled = publicEnv.NEXT_PUBLIC_ENABLE_EMAIL_AUTH;
 
 export default function Header() {
     const pathname = usePathname();
@@ -319,7 +322,7 @@ export default function Header() {
                                                             </Button>
                                                         </>
                                                     }
-                                                    {client?.clientId && !isVerifiedClient &&
+                                                    {emailAuthEnabled && client?.clientId && !isVerifiedClient &&
                                                         <Button
                                                             variant="text"
                                                             startIcon={<MarkEmailReadOutlined color='neutral' />}
