@@ -195,7 +195,7 @@ export default function Payment({
                         <span>
                             Acepto las condiciones de compra{" "}
                             <a
-                                href="/legal#terminos"
+                                href={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/legal/#terminos`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={(e) => e.stopPropagation()}
