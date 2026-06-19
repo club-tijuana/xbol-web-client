@@ -57,7 +57,7 @@ export default function TicketsClientWrapper() {
         isFetchingRef.current = true;
 
         try {
-            const response = await getMyEvents({ page: (currentSeasonPage + 1), pageSize: PAGE_SIZE, orderType: OrderType.SeasonPass });
+            const response = await getMyEvents({ page: (currentSeasonPage + 1), pageSize: PAGE_SIZE, orderType: OrderType.Bundle });
 
             if (response) {
                 setCurrentSeasonPage(prev => prev + 1);
