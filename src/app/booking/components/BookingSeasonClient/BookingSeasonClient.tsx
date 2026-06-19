@@ -188,12 +188,12 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
 
     useEffect(() => {
         if (
-            holdTokenState?.status === "expired"
+            (!holdTokenState || holdTokenState.status === "expired")
             && bookingStep === "payment"
         ) {
             setBookingStep("selection");
         }
-    }, [holdTokenState?.status, bookingStep]);
+    }, [holdTokenState, bookingStep]);
 
     const handleContinue = async () => {
         switch (bookingStep) {

@@ -20,7 +20,8 @@ import {
 } from "@/helpers/checkoutContact";
 import { formatCurrency } from "@/helpers/formatCurrencyHelper";
 import { initiateCheckout } from "@/services/evoPaymentService";
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { clearHoldToken } from "@/store/slices/bookingFlowSlice";
 
 import { useSnackbar } from "./hooks/useSnackbar";
 import { PaymentProps } from "./Payment.type";
@@ -60,6 +61,7 @@ export default function Payment({
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [paying, setPaying] = useState(false);
 
+  const dispatch = useAppDispatch();
   const snackbar = useSnackbar();
 
   const accountInfo = useAppSelector((store) => store.auth.user);
@@ -191,6 +193,10 @@ export default function Payment({
       document.body.appendChild(script);
     } catch (err: unknown) {
       setPaying(false);
+      sessionStorage.removeItem(CHECKOUT_SS_KEY);
+      if (requiresHoldToken) {
+        dispatch(clearHoldToken());
+      }
       const msg =
         err instanceof Error ? err.message : "Error al iniciar el pago.";
       snackbar.show(msg, "error");
