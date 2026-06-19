@@ -53,6 +53,7 @@ export default function LoginModal() {
     const registrationIdentifierCountryCode = normalizeAuthIdentifier(identifier).startsWith("+")
         ? undefined
         : identifierCountryCode || undefined;
+    const registrationIdentifier = normalizedPhoneIdentifier ?? normalizeAuthIdentifier(identifier);
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -112,7 +113,7 @@ export default function LoginModal() {
             dispatch(setUser(user));
             if (user.onboardingStatus === "unlinked") {
                 const registrationParams = new URLSearchParams({
-                    identifier: normalizeAuthIdentifier(identifier),
+                    identifier: registrationIdentifier,
                 });
                 if (registrationIdentifierCountryCode) {
                     registrationParams.set("identifierCountryCode", registrationIdentifierCountryCode);
@@ -127,7 +128,7 @@ export default function LoginModal() {
         } catch (error) {
             if (isUnlinkedClientProfileError(error)) {
                 const registrationParams = new URLSearchParams({
-                    identifier: normalizeAuthIdentifier(identifier),
+                    identifier: registrationIdentifier,
                 });
                 if (registrationIdentifierCountryCode) {
                     registrationParams.set("identifierCountryCode", registrationIdentifierCountryCode);

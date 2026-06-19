@@ -3,6 +3,7 @@ import { ConfirmationResult } from "firebase/auth";
 
 import { requestAxios } from "@/helpers/axiosHelper";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
+import { getVerifiedPhoneRegistrationUser } from "@/helpers/phoneRegistrationHandoff";
 import { splitName } from "@/helpers/splitNameHelper";
 import { AuthMeResponse, ClientProfileDto, RegisterRequest, RegisterResponse } from "@/models/auth-profile.dto";
 import { AuthDto, AuthenticatedAuthDto } from "@/models/auth.dto";
@@ -425,6 +426,24 @@ export async function registerPhone(
     } catch (error) {
         await clearClientAuthentication();
         throw new Error(getErrorMessage(error, "Error al registrar teléfono"));
+    }
+}
+
+export async function resolveCurrentPhoneRegistrationUser(
+    phoneNumber: string | null,
+): Promise<AuthDto | null> {
+    if (!phoneNumber) {
+        return null;
+    }
+
+    try {
+        const user = await refreshCurrentFirebaseUser();
+        return getVerifiedPhoneRegistrationUser(
+            mapAuthenticatedPhoneUserToUnlinkedProfile(user),
+            phoneNumber,
+        );
+    } catch {
+        return null;
     }
 }
 
