@@ -1,3 +1,5 @@
+import type { ClientInfoRequest } from "@/models/requests/client-info-request.dto";
+
 export interface CreateCheckoutSessionRequest {
   returnUrl: string;
   amount: number;
@@ -34,12 +36,7 @@ export interface InitiateCheckoutRequest {
   relatedOrderId?: number;
   holdToken: string | null;
   seats: { seatKey: string; priceListItemId: number }[];
-  clientContact: {
-    email: string;
-    fullName: string;
-    phoneNumber: string;
-    phoneRegionCodeId?: number;
-  };
+  clientContact: ClientInfoRequest;
   returnUrl: string;
   currency: string;
 }

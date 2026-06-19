@@ -5,6 +5,7 @@ export interface ClientProfileDto {
     businessName?: string | null;
     email: string;
     phoneNumber?: string | null;
+    phoneRegionCodeId?: number | null;
     phoneCode?: string | null;
 }
 

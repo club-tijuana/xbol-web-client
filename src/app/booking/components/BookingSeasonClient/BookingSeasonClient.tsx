@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
 
 import TicketSeats from "@/app/account/tickets/order/[orderId]/event/[eventId]/components/TicketSeats/TicketSeats";
 import Loader from "@/components/Loader/Loader";
+import { shouldCollectCheckoutContact } from "@/helpers/checkoutContact";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { BundleItemDTO, getBundleBannerImageUrl } from "@/models/bundle-item.dto";
@@ -48,6 +49,10 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
     const renovationType = useAppSelector(store => store.bookingFlow.renovationType);
     const clientContactObj = useAppSelector(store => store.bookingFlow.clientContact);
     const holdTokenState = useAppSelector(store => store.bookingFlow.holdTokenObj);
+    const shouldCollectClientContact = shouldCollectCheckoutContact(
+        accountInfo,
+        clientContactObj,
+    );
 
     const [season, setSeason] = useState<BundleItemDTO | null>(null);
     const [bookingStep, setBookingStep] = useState<BookingStep>("selection");
@@ -237,13 +242,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
             case "payment":
                 setIsLoading(true);
 
-                if (
-                    !accountInfo &&
-                    (!clientContactObj?.firstName
-                        || !clientContactObj?.lastName
-                        || !clientContactObj?.email
-                        || !clientContactObj?.phoneNumber)
-                ) {
+                if (shouldCollectClientContact) {
                     setIsLoading(false);
                     setSnackbarSeverity("warning");
                     setSnackbarMessage("Es necesario capturar la información del cliente");
@@ -450,7 +449,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                                 selectedSeats={selectedSeats}
                             />
                         </Box>
-                        {accountInfo == null &&
+                        {shouldCollectClientContact &&
                             <Box mt={4}>
                                 <ClientInfo />
                             </Box>

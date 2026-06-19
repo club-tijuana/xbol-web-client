@@ -19,6 +19,7 @@ import { useEffect, useRef, useState } from "react";
 
 import TicketSeats from "@/app/account/tickets/order/[orderId]/event/[eventId]/components/TicketSeats/TicketSeats";
 import Loader from "@/components/Loader/Loader";
+import { shouldCollectCheckoutContact } from "@/helpers/checkoutContact";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { ItemType } from "@/models/enums/item-type.enum";
@@ -75,6 +76,10 @@ export default function BookingClient({ id }: BookingClientProps) {
   );
   const holdTokenState = useAppSelector(
     (store) => store.bookingFlow.holdTokenObj,
+  );
+  const shouldCollectClientContact = shouldCollectCheckoutContact(
+    accountInfo,
+    clientContactObj,
   );
 
   const [event, setEvent] = useState<EventItemDTO | null>(null);
@@ -274,11 +279,7 @@ export default function BookingClient({ id }: BookingClientProps) {
         setIsLoading(true);
 
         if (
-          !accountInfo &&
-          (!clientContactObj?.firstName ||
-            !clientContactObj?.lastName ||
-            !clientContactObj?.email ||
-            !clientContactObj?.phoneNumber)
+          shouldCollectClientContact
         ) {
           setIsLoading(false);
           setSnackbarSeverity("warning");
@@ -483,7 +484,7 @@ export default function BookingClient({ id }: BookingClientProps) {
             />
           </Box>
         )}
-        {bookingStep === "payment" && accountInfo == null && (
+        {bookingStep === "payment" && shouldCollectClientContact && (
           <Box mt={4}>
             <ClientInfo />
           </Box>

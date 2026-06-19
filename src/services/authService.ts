@@ -110,6 +110,7 @@ function mapClientProfileToAuthDto(
         firstName: name.firstName,
         lastName: name.lastName,
         phoneNumber: client.phoneNumber,
+        phoneRegionCodeId: client.phoneRegionCodeId,
         phoneCode: client.phoneCode,
         onboardingStatus: "linked",
         verificationStatus: resolvedVerificationStatus,

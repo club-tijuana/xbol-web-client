@@ -42,10 +42,14 @@ const PhoneTextField = forwardRef<HTMLInputElement, DefaultInputComponentProps>(
 PhoneTextField.displayName = "PhoneTextField";
 
 export default function ClientInfo() {
-    const [phoneValue, setPhoneValue] = useState<string | undefined>();
     const dispatch = useAppDispatch();
     const accountInfo = useAppSelector(store => store.auth.user);
+    const accountPhoneNumber = accountInfo?.phoneNumber ?? undefined;
+    const parsedAccountPhoneNumber = accountPhoneNumber
+        ? parsePhoneNumber(accountPhoneNumber)
+        : undefined;
 
+    const [phoneValue, setPhoneValue] = useState<string | undefined>(accountPhoneNumber);
     const [phoneRegionCodes, setPhoneRegionCodes] = useState<PhoneRegionCodeResponse[]>();
     const [allowedRegionCodes, setAllowedRegionCodes] = useState<Country[]>();
     const [client, setClient] = useState<ClientInfoRequest>({
@@ -53,8 +57,14 @@ export default function ClientInfo() {
         fullName: [accountInfo?.firstName, accountInfo?.lastName].filter(Boolean).join(" "),
         firstName: accountInfo?.firstName ?? "",
         lastName: accountInfo?.lastName ?? "",
-        email: accountInfo?.username ?? "",
-        phoneNumber: ""
+        email: accountInfo?.email ?? "",
+        phoneNumber: parsedAccountPhoneNumber?.nationalNumber ?? "",
+        phoneRegionCodeId: accountInfo?.phoneRegionCodeId ?? undefined,
+        phoneIsoCode: parsedAccountPhoneNumber?.country,
+        phoneCode: parsedAccountPhoneNumber
+            ? `+${parsedAccountPhoneNumber.countryCallingCode}`
+            : accountInfo?.phoneCode ?? undefined,
+        fullPhone: accountPhoneNumber,
     });
 
     const debounceClient = useDebounce(client, 600);
@@ -90,9 +100,12 @@ export default function ClientInfo() {
     };
 
     const handlePhoneChange = (value?: string) => {
+        setPhoneValue(value);
+
         if (!value) {
             setClient(prev => ({
                 ...prev,
+                phoneRegionCodeId: undefined,
                 phoneNumber: "",
                 phoneIsoCode: "",
                 phoneCode: "",

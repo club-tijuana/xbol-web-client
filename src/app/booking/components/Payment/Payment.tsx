@@ -11,13 +11,15 @@ import {
   Snackbar,
   Typography,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import Loader from "@/components/Loader/Loader";
+import {
+  buildCheckoutClientContact,
+  isCheckoutClientContactComplete,
+} from "@/helpers/checkoutContact";
 import { formatCurrency } from "@/helpers/formatCurrencyHelper";
-import { PhoneRegionCodeResponse } from "@/models/phone-region-code-response.dto";
 import { initiateCheckout } from "@/services/evoPaymentService";
-import { getPhoneRegionCodes } from "@/services/phoneNumbersService";
 import { useAppSelector } from "@/store/hooks";
 
 import { useSnackbar } from "./hooks/useSnackbar";
@@ -55,15 +57,12 @@ export default function Payment({
   scheduleId,
   bundleId,
 }: PaymentProps) {
-
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [paying, setPaying] = useState(false);
-  const [codes, setCodes] = useState<PhoneRegionCodeResponse[]>();
 
   const snackbar = useSnackbar();
 
   const accountInfo = useAppSelector((store) => store.auth.user);
-  const client = useAppSelector((store) => store.bookingFlow.clientContact);
   const holdTokenState = useAppSelector(
     (store) => store.bookingFlow.holdTokenObj,
   );
@@ -80,15 +79,6 @@ export default function Payment({
   const referenceOrderId = useAppSelector(
     (store) => store.bookingFlow.referenceOrderId,
   );
-
-  useEffect(() => {
-    const loadCodes = async function () {
-      const response = await getPhoneRegionCodes();
-      setCodes(response);
-    };
-
-    loadCodes();
-  }, []);
 
   const handlePay = async () => {
     if (!acceptedTerms) {
@@ -138,38 +128,11 @@ export default function Payment({
                     snackbar.show("Error interno: no se encontró la temporada. Recarga la página.", "error");
                 } */
 
-    let contactEmail = "";
-    let contactFullName = "";
-    let contactPhone = "";
-    let phoneRegionCodeId: number | undefined = 0;
+    const checkoutContact = buildCheckoutClientContact(accountInfo, clientContact);
 
-    if (accountInfo) {
-      contactEmail = accountInfo.email ?? "";
-      contactFullName =
-        `${accountInfo.firstName ?? ""} ${accountInfo.lastName ?? ""}`.trim();
-      contactPhone = accountInfo.phoneNumber ?? "";
-
-      const countryCode = accountInfo.phoneCode?.slice(1, accountInfo.phoneCode.length);
-
-      const result = codes?.find(c => c.dialCode === countryCode);
-
-      if (result) {
-        phoneRegionCodeId = result.id;
-      }
-
-    } else if (clientContact) {
-      contactEmail = clientContact.email ?? "";
-      contactFullName =
-        clientContact.fullName?.trim() ||
-        `${clientContact.firstName ?? ""} ${clientContact.lastName ?? ""}`.trim();
-      contactPhone = clientContact.phoneNumber ?? "";
-      phoneRegionCodeId = client?.phoneRegionCodeId;
-    }
-
-    if (!contactPhone) {
-      console.log("PAYMENT");
+    if (!isCheckoutClientContactComplete(checkoutContact)) {
       snackbar.show(
-        "Es necesario capturar la información del cliente.",
+        "Es necesario capturar la información de contacto del cliente.",
         "warning",
       );
       return;
@@ -190,15 +153,10 @@ export default function Payment({
           seatKey: s.seatKey,
           priceListItemId: s.priceListItemId,
         })),
-        clientContact: {
-          email: contactEmail,
-          fullName: contactFullName,
-          phoneNumber: contactPhone,
-          phoneRegionCodeId: phoneRegionCodeId
-        },
+        clientContact: checkoutContact,
         returnUrl,
         currency: currency ?? "MXN",
-      });
+      }, accountInfo?.token);
 
       const ctx: CheckoutContext = {
         localOrderId: result.localOrderId,
