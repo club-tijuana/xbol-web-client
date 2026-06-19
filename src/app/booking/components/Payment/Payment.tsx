@@ -11,11 +11,13 @@ import {
   Snackbar,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Loader from "@/components/Loader/Loader";
 import { formatCurrency } from "@/helpers/formatCurrencyHelper";
+import { PhoneRegionCodeResponse } from "@/models/phone-region-code-response.dto";
 import { initiateCheckout } from "@/services/evoPaymentService";
+import { getPhoneRegionCodes } from "@/services/phoneNumbersService";
 import { useAppSelector } from "@/store/hooks";
 
 import { useSnackbar } from "./hooks/useSnackbar";
@@ -53,12 +55,15 @@ export default function Payment({
   scheduleId,
   bundleId,
 }: PaymentProps) {
+
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [paying, setPaying] = useState(false);
+  const [codes, setCodes] = useState<PhoneRegionCodeResponse[]>();
 
   const snackbar = useSnackbar();
 
   const accountInfo = useAppSelector((store) => store.auth.user);
+  const client = useAppSelector((store) => store.bookingFlow.clientContact);
   const holdTokenState = useAppSelector(
     (store) => store.bookingFlow.holdTokenObj,
   );
@@ -75,6 +80,15 @@ export default function Payment({
   const referenceOrderId = useAppSelector(
     (store) => store.bookingFlow.referenceOrderId,
   );
+
+  useEffect(() => {
+    const loadCodes = async function () {
+      const response = await getPhoneRegionCodes();
+      setCodes(response);
+    };
+
+    loadCodes();
+  }, []);
 
   const handlePay = async () => {
     if (!acceptedTerms) {
@@ -127,21 +141,33 @@ export default function Payment({
     let contactEmail = "";
     let contactFullName = "";
     let contactPhone = "";
+    let phoneRegionCodeId: number | undefined = 0;
 
     if (accountInfo) {
       contactEmail = accountInfo.email ?? "";
       contactFullName =
         `${accountInfo.firstName ?? ""} ${accountInfo.lastName ?? ""}`.trim();
       contactPhone = accountInfo.phoneNumber ?? "";
+
+      const countryCode = accountInfo.phoneCode?.slice(1, accountInfo.phoneCode.length);
+
+      const result = codes?.find(c => c.dialCode === countryCode);
+
+      if (result) {
+        phoneRegionCodeId = result.id;
+      }
+
     } else if (clientContact) {
       contactEmail = clientContact.email ?? "";
       contactFullName =
         clientContact.fullName?.trim() ||
         `${clientContact.firstName ?? ""} ${clientContact.lastName ?? ""}`.trim();
       contactPhone = clientContact.phoneNumber ?? "";
+      phoneRegionCodeId = client?.phoneRegionCodeId;
     }
 
-    if (!contactEmail) {
+    if (!contactPhone) {
+      console.log("PAYMENT");
       snackbar.show(
         "Es necesario capturar la información del cliente.",
         "warning",
@@ -168,6 +194,7 @@ export default function Payment({
           email: contactEmail,
           fullName: contactFullName,
           phoneNumber: contactPhone,
+          phoneRegionCodeId: phoneRegionCodeId
         },
         returnUrl,
         currency: currency ?? "MXN",
@@ -241,38 +268,38 @@ export default function Payment({
         </Box>
       )}
 
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-                <FormControlLabel
-                    required
-                    control={
-                        <Checkbox
-                            checked={acceptedTerms}
-                            onChange={(e) => setAcceptedTerms(e.target.checked)}
-                        />
-                    }
-                    label={
-                        <span>
-                            Acepto las condiciones de compra{" "}
-                            <a
-                                href={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/legal/#terminos`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={(e) => e.stopPropagation()}
-                            >
-                                (Ver términos y condiciones)
-                            </a>
-                        </span>
-                    }
-                />
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handlePay}
-                    disabled={!acceptedTerms || paying}
-                >
-                    {paying ? "Procesando..." : "Ir a pago seguro"}
-                </Button>
-            </Box>
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <FormControlLabel
+          required
+          control={
+            <Checkbox
+              checked={acceptedTerms}
+              onChange={(e) => setAcceptedTerms(e.target.checked)}
+            />
+          }
+          label={
+            <span>
+              Acepto las condiciones de compra{" "}
+              <a
+                href={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/legal/#terminos`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+              >
+                (Ver términos y condiciones)
+              </a>
+            </span>
+          }
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handlePay}
+          disabled={!acceptedTerms || paying}
+        >
+          {paying ? "Procesando..." : "Ir a pago seguro"}
+        </Button>
+      </Box>
 
       <Snackbar
         anchorOrigin={{ vertical: "top", horizontal: "right" }}

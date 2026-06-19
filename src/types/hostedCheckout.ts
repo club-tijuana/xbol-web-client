@@ -38,6 +38,7 @@ export interface InitiateCheckoutRequest {
     email: string;
     fullName: string;
     phoneNumber: string;
+    phoneRegionCodeId?: number;
   };
   returnUrl: string;
   currency: string;
