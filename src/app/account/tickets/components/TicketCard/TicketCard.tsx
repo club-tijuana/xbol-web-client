@@ -34,6 +34,7 @@ export default function TicketCard({ ticket }: TicketCardProps) {
 
     const date = new Date(startDate);
     const formattedDate = formatDate(date, "dateTime");
+    const canOpenTicket = ticket.canViewTickets && !ticket.isPastEvent;
 
     const handleOpenTicket = () => {
         router.push(`/account/tickets/order/${ticket.orderId}/event/${ticket.eventId}`);
@@ -77,7 +78,7 @@ export default function TicketCard({ ticket }: TicketCardProps) {
                         </Typography>
 
                         <CardActions sx={{ justifyContent: "space-around" }}>
-                            {!ticket.isPastEvent &&
+                            {canOpenTicket &&
                                 <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                                     <IconButton
                                         aria-label="Ver"
