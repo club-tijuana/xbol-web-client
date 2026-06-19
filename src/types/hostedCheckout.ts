@@ -29,7 +29,9 @@ export interface RetrieveOrderResponse {
 }
 
 export interface InitiateCheckoutRequest {
-  eventScheduleId: number;
+  eventScheduleId?: number;
+  bundleId?: number;
+  relatedOrderId?: number;
   holdToken: string | null;
   seats: { seatKey: string; priceListItemId: number }[];
   clientContact: {

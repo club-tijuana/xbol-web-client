@@ -6,9 +6,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { getErrorMessage } from "@/helpers/getErrorMessage";
-import { SeasonItemDTO } from "@/models/season-item.dto";
-import { getSeasonBannerImageUrl } from "@/models/season-item.dto";
-import { getSeasonBanner } from "@/services/seasonService";
+import { BundleItemDTO, getBundleBannerImageUrl } from "@/models/bundle-item.dto";
+import { getBundleBanner } from "@/services/bundleService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setBookMode } from "@/store/slices/bookingFlowSlice";
 import { showGeneralMessage } from "@/store/slices/uiSlice";
@@ -18,7 +17,7 @@ export default function SeasonBanner() {
     const dispatch = useAppDispatch();
     const token = useAppSelector(state => state.auth.user?.token);
     const router = useRouter();
-    const [seasonBanner, setSeasonBanner] = useState<SeasonItemDTO>();
+    const [bundleBanner, setBundleBanner] = useState<BundleItemDTO>();
 
     useEffect(() => {
         if (!token) {
@@ -27,10 +26,10 @@ export default function SeasonBanner() {
 
         const loadSeason = async () => {
             try {
-                const response = await getSeasonBanner();
+                const response = await getBundleBanner();
 
                 if (response) {
-                    setSeasonBanner(response);
+                    setBundleBanner(response);
                 }
             }
             catch (error) {
@@ -45,17 +44,17 @@ export default function SeasonBanner() {
     }, [token]);
 
     const handleSeasonClick = () => {
-        if (!seasonBanner) {
+        if (!bundleBanner) {
             return;
         }
 
         dispatch(setBookMode("season"));
-        router.push(`/booking/season/${seasonBanner.id}`);
+        router.push(`/booking/season/${bundleBanner.id}`);
     };
 
     return (
         <>
-            {seasonBanner &&
+            {bundleBanner &&
                 <Box>
                     <Typography
                         variant="h3"
@@ -70,7 +69,7 @@ export default function SeasonBanner() {
                                 aspectRatio: "16 / 9"
                             }}>
                                 <Image
-                                    src={getSeasonBannerImageUrl(seasonBanner)}
+                                    src={getBundleBannerImageUrl(bundleBanner)}
                                     alt="Season"
                                     fill
                                     style={{

@@ -1,4 +1,5 @@
 export enum OrderType {
     Ticket,
-    SeasonPass
+    SeasonPass,
+    Bundle
 }

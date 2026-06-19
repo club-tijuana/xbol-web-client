@@ -155,7 +155,7 @@ export default function EventCardGrid({
                 columns={currentColumnsConfig}
                 spacing={currentSpacingConfig.spacing}
                 alignItems="center"
-                sx={{ pb: 10, pt: 1 }}
+                sx={{ pb: 10, pt: showAllButton ? 1 : 10 }}
             >
                 {eventCards.map((event) => (
                     <Grid key={event.eventId + (event.scheduleId ? ("-" + event.scheduleId) : "")} size={1}>

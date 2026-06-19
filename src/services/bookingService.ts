@@ -1,7 +1,9 @@
 import { requestAxios } from "@/helpers/axiosHelper";
 import { BookingResult } from "@/models/booking-result.dto";
+import { BundleItemDTO } from "@/models/bundle-item.dto";
 import { EventItemDTO } from "@/models/event-item.dto";
 import { ReservationFilters } from "@/models/filters/reservation-filters.dto";
+import { BookSeatsBody } from "@/models/requests/book-seats-body.dto";
 import { EventBookingRequest } from "@/models/requests/event-booking-request.dto";
 import { SeasonBookingRequest } from "@/models/requests/season-booking-request.dto";
 import { SeasonItemDTO } from "@/models/season-item.dto";
@@ -47,6 +49,18 @@ export async function getSeasonById(seasonId: number): Promise<SeasonItemDTO> {
     );
 }
 
+export async function getBundleSeasonById(bundleId: number): Promise<BundleItemDTO> {
+    const state = store.getState();
+
+    return requestAxios<null, SeasonItemDTO>(
+        "GET",
+        `${PATH}/bundle-by-id/${bundleId}`,
+        undefined,
+        state.auth.user?.token,
+        { params: { includeMedia: true } }
+    );
+}
+
 export async function getSeatsAvailability(filters: ReservationFilters): Promise<SeatAvailabilityDTO> {
     return requestAxios<ReservationFilters, SeatAvailabilityDTO>(
         "POST",
@@ -77,7 +91,19 @@ export async function seasonBookSeats(request: SeasonBookingRequest): Promise<Bo
     );
 }
 
-export async function seasonRenovationSeats(request: SeasonBookingRequest): Promise<BookingResult> {
+export async function seasonRenovationSeats(request: BookSeatsBody): Promise<BookingResult> {
+    const state = store.getState();
+
+    return requestAxios<BookSeatsBody, BookingResult>(
+        "POST",
+        `${PATH}/season/renovate-season`,
+        request,
+        state.auth.user?.token
+    );
+}
+
+
+/* export async function seasonRenovationSeats(request: SeasonBookingRequest): Promise<BookingResult> {
     const state = store.getState();
 
     return requestAxios<SeasonBookingRequest, BookingResult>(
@@ -87,3 +113,4 @@ export async function seasonRenovationSeats(request: SeasonBookingRequest): Prom
         state.auth.user?.token
     );
 }
+ */

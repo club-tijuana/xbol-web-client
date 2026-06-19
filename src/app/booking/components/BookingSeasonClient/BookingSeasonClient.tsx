@@ -1,6 +1,7 @@
 "use client";
 
-import { Alert, AlertColor, Box, Button, Grid, Paper, Snackbar, Typography } from "@mui/material";
+import { CalendarTodayOutlined, LocationOnOutlined } from "@mui/icons-material";
+import { Alert, AlertColor, Box, Button, CircularProgress, Grid, Paper, Snackbar, Typography } from "@mui/material";
 import { Pricing } from "@seatsio/seatsio-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -8,17 +9,19 @@ import { useEffect, useRef, useState } from "react";
 
 import TicketSeats from "@/app/account/tickets/order/[orderId]/event/[eventId]/components/TicketSeats/TicketSeats";
 import Loader from "@/components/Loader/Loader";
+import { formatDate } from "@/helpers/formatDateHelper";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
+import { BundleItemDTO, getBundleBannerImageUrl } from "@/models/bundle-item.dto";
 import { ItemType } from "@/models/enums/item-type.enum";
 import { eventImageOrDefault } from "@/models/event-image";
 import { MyEventSeatDTO } from "@/models/my-event-seat.dto";
 import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
 import { HoldSeatsActionRequest } from "@/models/requests/hold-seats-action-request.dto";
-import { getSeasonBannerImageUrl, SeasonItemDTO } from "@/models/season-item.dto";
-import { getSeasonById } from "@/services/bookingService";
+import { getBundleSeasonById } from "@/services/bookingService";
+import { confirmCheckout } from "@/services/evoPaymentService";
 import { holdSeats } from "@/services/holdService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { clearHoldToken, expireHoldToken, resetState as resetStateFlow, setBookHoldToken, setBookKey, setBookTicketType, setRenovationType, setSeats } from "@/store/slices/bookingFlowSlice";
+import { clearHoldToken, expireHoldToken, resetState as resetStateFlow, setBookHoldToken, setBookKey, setBookTicketType, setBundleId, setRenovationType, setSeats } from "@/store/slices/bookingFlowSlice";
 import { resetState } from "@/store/slices/bookingSlice";
 import { seasonBook, seasonRenovate } from "@/store/slices/bookingSlice";
 import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
@@ -28,6 +31,7 @@ import BookingRightPanel, { BookingRightPanelHandle } from "../BookingRightPanel
 import ClientInfo from "../ClientInfo/ClientInfo";
 import HoldExpiredModal from "../HoldExpiredModal/HoldExpiredModal";
 import HoldTokenTimer from "../HoldTokenTimer/HoldTokenTimer";
+import { CHECKOUT_SS_KEY, CheckoutContext } from "../Payment/Payment";
 import SeatFilters from "../SeatFilters/SeatFilters";
 
 import { BookingSeasonClientProps } from "./BookingSeasonClient.type";
@@ -45,7 +49,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
     const clientContactObj = useAppSelector(store => store.bookingFlow.clientContact);
     const holdTokenState = useAppSelector(store => store.bookingFlow.holdTokenObj);
 
-    const [season, setSeason] = useState<SeasonItemDTO | null>(null);
+    const [season, setSeason] = useState<BundleItemDTO | null>(null);
     const [bookingStep, setBookingStep] = useState<BookingStep>("selection");
     const [selectedZone, setSelectedZone] = useState<string | undefined>();
     const [mapKey, setMapKey] = useState<string>("");
@@ -55,6 +59,53 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
     const [zonesPrices, setZonesPrices] = useState<Pricing>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [seatsDto, setSeatsDto] = useState<MyEventSeatDTO[] | undefined>();
+    const [formattedDate, setFormattedDate] = useState<string>("");
+
+    const [confirmingPayment, setConfirmingPayment] = useState(false);
+    const [confirmError, setConfirmError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const resultIndicator = params.get("resultIndicator");
+        if (!resultIndicator) return;
+
+        setConfirmingPayment(true);
+
+        const rawCtx = sessionStorage.getItem(CHECKOUT_SS_KEY);
+        if (!rawCtx) {
+            setConfirmError("No se encontró el contexto de pago. Por favor contacta a soporte si se realizó algún cargo.");
+            return;
+        }
+
+        let ctx: CheckoutContext;
+        try {
+            ctx = JSON.parse(rawCtx) as CheckoutContext;
+        } catch {
+            setConfirmError("Error al leer el contexto de pago. Por favor contacta a soporte.");
+            return;
+        }
+
+        if (!ctx.localOrderId || !ctx.orderRefId) {
+            setConfirmError("Contexto de pago incompleto. Por favor contacta a soporte.");
+            return;
+        }
+
+        confirmCheckout({ localOrderId: ctx.localOrderId, orderRefId: ctx.orderRefId, resultIndicator })
+            .then((result) => {
+                if (result.orderStatus === "Paid" && result.paymentStatus === "Captured") {
+                    sessionStorage.removeItem(CHECKOUT_SS_KEY);
+                    router.push(`/account/tickets/order/${result.orderId}/success`);
+                } else {
+                    setConfirmError(
+                        `Pago no completado. Estado del pago: ${result.paymentStatus}. Si realizaste un cargo, contacta a soporte.`
+                    );
+                }
+            })
+            .catch((err: unknown) => {
+                const msg = err instanceof Error ? err.message : "Error al confirmar el pago.";
+                setConfirmError(msg);
+            });
+    }, []);
 
     useEffect(() => {
         let isMounted = true;
@@ -74,18 +125,23 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                 dispatch(clearHoldToken());
 
                 try {
-                    const seasonResponse = await getSeasonById(Number.parseInt(id));
+                    const seasonResponse = await getBundleSeasonById(Number.parseInt(id));
 
-                    if (!seasonResponse.externalSeasonKey) return;
+                    if (!seasonResponse.externalKey) return;
 
-                    mapKeyLocal = seasonResponse.externalSeasonKey;
+                    mapKeyLocal = seasonResponse.externalKey;
 
                     if (!isMounted) return;
 
                     setSeason(seasonResponse);
 
-                    await dispatch(setBookTicketType(ItemType.SeasonPass));
-                    await dispatch(setBookKey(seasonResponse.externalSeasonKey));
+                    if (seasonResponse.startDate) {
+                        setFormattedDate(formatDate(seasonResponse.startDate, "dateTime"));
+                    }
+
+                    await dispatch(setBookTicketType(ItemType.BundlePass));
+                    await dispatch(setBookKey(seasonResponse.externalKey));
+                    await dispatch(setBundleId(seasonResponse.id));
                 }
                 catch (error) {
                     dispatch(resetState());
@@ -165,7 +221,9 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                     setSeatsDto(seatsDto);
                 }
 
-                if (!season?.isRenewal) {
+                if (!isRenovation) {
+                    mapRef.current?.freezeSeatEvents();
+
                     const tokenCreated = await getHoldToken();
 
                     if (!tokenCreated) {
@@ -280,6 +338,36 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
         return true;
     };
 
+    if (confirmingPayment) {
+        return (
+            <Box
+                display="flex"
+                flexDirection="column"
+                justifyContent="center"
+                alignItems="center"
+                minHeight="80vh"
+                gap={3}
+                px={2}
+            >
+                {!confirmError ? (
+                    <>
+                        <CircularProgress size={48} color="primary" />
+                        <Typography variant="h6" color="text.secondary" textAlign="center">
+                            Confirmando tu pago, por favor espera…
+                        </Typography>
+                    </>
+                ) : (
+                    <Alert severity="error" sx={{ maxWidth: 520 }}>
+                        <Typography variant="body1" fontWeight={600} mb={0.5}>
+                            No se pudo confirmar el pago
+                        </Typography>
+                        <Typography variant="body2">{confirmError}</Typography>
+                    </Alert>
+                )}
+            </Box>
+        );
+    }
+
     return (
         <Grid container columns={12} mt={20} spacing={4} pb={8} sx={{ minHeight: "100vh", alignContent: "start" }}>
             {holdTokenState?.token &&
@@ -300,7 +388,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                                 overflow: "hidden"
                             }}>
                                 <Image
-                                    src={getSeasonBannerImageUrl(season)}
+                                    src={getBundleBannerImageUrl(season)}
                                     alt="Season"
                                     fill
                                     onError={(e) => {
@@ -314,6 +402,33 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                                 />
                             </Box>
                         </Grid>
+                        <Grid size={{ xs: 7, sm: 7, md: 8, lg: 7 }}
+                            display={"flex"}
+                            flexDirection={"column"}
+                            justifyContent={"center"}
+                            pl={{ xs: 0, sm: 4 }}
+                            mt={{ xs: 3, sm: 0 }}
+                        >
+                            <Typography variant="h1" color="primary">
+                                {season.name}
+                            </Typography>
+                            <Typography
+                                variant="h6"
+                                color="secondary"
+                                sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                            >
+                                <CalendarTodayOutlined color="primary" />
+                                {formattedDate}
+                            </Typography>
+                            <Typography
+                                variant="h6"
+                                color="secondary"
+                                sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                            >
+                                <LocationOnOutlined color="primary" />
+                                {season.location}
+                            </Typography>
+                        </Grid>
                     </Grid>
                 }
                 {bookingStep === "selection" &&
@@ -326,7 +441,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                         />
                     </Box>
                 }
-                {(bookingStep === "payment" && accountInfo == null) &&
+                {(bookingStep === "payment") &&
                     <Box mt={4}>
                         <Box>
                             <TicketSeats
@@ -335,9 +450,11 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                                 selectedSeats={selectedSeats}
                             />
                         </Box>
-                        <Box mt={4}>
-                            <ClientInfo />
-                        </Box>
+                        {accountInfo == null &&
+                            <Box mt={4}>
+                                <ClientInfo />
+                            </Box>
+                        }
                     </Box>
                 }
             </Grid>
@@ -350,7 +467,8 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                         bookingStep={bookingStep}
                         selectedZone={selectedZone}
                         zonesPrices={zonesPrices}
-                        isRenewalWindow={season?.isRenewal}
+                        isRenewalWindow={isRenovation}
+                        bundleId={Number(id)}
                         onPay={handleContinue}
                     />
                 </Paper>
