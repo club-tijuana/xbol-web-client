@@ -60,7 +60,7 @@ export default async function Home({ searchParams }: HomeProps) {
     getEvents({ page: 1, eventCategoryId: 1, pageSize: 4 }),
     getEvents({ page: 1, eventCategoryId: 2, pageSize: 4 }),
     getEvents({ page: 1, eventCategoryId: 3, pageSize: 4 }),
-    getUpcomingEvents({ page: 1, pageSize: 4 }),
+    getUpcomingEvents({ page: 1, pageSize: 5 }),
     getEventCatalog({
       itemType: EventCatalogItemType.Bundle,
       page: 1,

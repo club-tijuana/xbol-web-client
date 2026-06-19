@@ -1,6 +1,4 @@
 import { requestAxios } from "@/helpers/axiosHelper";
-import { SessionResponse } from "@/models/evo-payments/session-response";
-import { UpdateSessionRequest } from "@/models/evo-payments/update-session-request";
 import type {
   CheckoutSessionResponse,
   ConfirmCheckoutRequest,

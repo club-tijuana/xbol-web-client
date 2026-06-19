@@ -66,7 +66,7 @@ export default function SeatFilters({ scheduleId, seasonId, buttonText, onZoneCh
         setFilters(prev => ({
             ...prev,
             scheduleId: (itemType === ItemType.Ticket) ? scheduleId : undefined,
-            seasonId: (itemType === ItemType.SeasonPass) ? seasonId : undefined
+            seasonId: (itemType === ItemType.BundlePass) ? seasonId : undefined
         }))
     }, [itemType, scheduleId, seasonId]);
 

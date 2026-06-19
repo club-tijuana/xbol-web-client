@@ -36,7 +36,7 @@ export default function TicketsClientWrapper() {
 
             try {
                 const events = await getMyEvents({ page: currentEventsPage, pageSize: PAGE_SIZE, orderType: OrderType.Ticket });
-                const seasons = await getMyEvents({ page: currentSeasonPage, pageSize: PAGE_SIZE, orderType: OrderType.SeasonPass });
+                const seasons = await getMyEvents({ page: currentSeasonPage, pageSize: PAGE_SIZE, orderType: OrderType.Bundle });
 
                 setMyEvents(events?.items ?? []);
                 setMySeasons(seasons?.items ?? []);

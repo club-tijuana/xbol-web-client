@@ -22,6 +22,7 @@ interface HoldTokenState {
 
 interface BookingFlowState {
     scheduleId?: number;
+    bundleId?: number;
     bookMode?: BookingMode;
     renovationType?: RenovationType;
     holdTokenObj?: HoldTokenState;
@@ -113,6 +114,12 @@ const bookingFlowSlice = createSlice({
         setBookKey: (state, action: PayloadAction<string>) => {
             state.bookKey = action.payload;
         },
+        setEventScheduleId: (state, action: PayloadAction<number>) => {
+            state.scheduleId = action.payload;
+        },
+        setBundleId: (state, action: PayloadAction<number | undefined>) => {
+            state.bundleId = action.payload;
+        },
         setBookTicketType: (state, action: PayloadAction<ItemType>) => {
             state.ticketType = action.payload;
         },
@@ -186,6 +193,8 @@ export const {
     manualExpireHoldToken,
     clearHoldToken,
     setSeatAvailability,
+    setEventScheduleId,
+    setBundleId,
     setEvoReferences
 } = bookingFlowSlice.actions;
 export default bookingFlowSlice.reducer;
