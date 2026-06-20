@@ -71,6 +71,16 @@ const emptyStringToUndefined = (value: unknown) => {
   return value;
 };
 
+const booleanEnvFlag = () =>
+  z.preprocess(
+    emptyStringToUndefined,
+    z
+      .enum(["true", "false"])
+      .transform((value) => value === "true")
+      .optional()
+      .default(false),
+  );
+
 const publicEnvShape = {
   NEXT_PUBLIC_API_BASE_URL: requiredString("NEXT_PUBLIC_API_BASE_URL").pipe(
     z.url({
@@ -94,14 +104,8 @@ const publicEnvShape = {
     "NEXT_PUBLIC_FIREBASE_PROJECT_ID",
   ),
   NEXT_PUBLIC_FIREBASE_APP_ID: requiredString("NEXT_PUBLIC_FIREBASE_APP_ID"),
-  NEXT_PUBLIC_FIREBASE_PHONE_AUTH_TESTING: z.preprocess(
-    emptyStringToUndefined,
-    z
-      .enum(["true", "false"])
-      .transform((value) => value === "true")
-      .optional()
-      .default(false),
-  ),
+  NEXT_PUBLIC_FIREBASE_PHONE_AUTH_TESTING: booleanEnvFlag(),
+  NEXT_PUBLIC_ENABLE_EMAIL_AUTH: booleanEnvFlag(),
   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: z.string().optional(),
   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: z.string().optional(),
   NEXT_PUBLIC_BASE_PATH: z.string().optional(),
@@ -135,6 +139,7 @@ export const publicEnvMetadata = {
   ),
   NEXT_PUBLIC_FIREBASE_APP_ID: publicBuildTimeEnv("variable", "environment"),
   NEXT_PUBLIC_FIREBASE_PHONE_AUTH_TESTING: localPublicBuildTimeEnv(),
+  NEXT_PUBLIC_ENABLE_EMAIL_AUTH: localPublicBuildTimeEnv(),
   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: publicBuildTimeEnv(
     "variable",
     "environment",

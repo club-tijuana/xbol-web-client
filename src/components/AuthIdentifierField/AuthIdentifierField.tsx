@@ -26,6 +26,7 @@ type AuthIdentifierControlProps = {
     countryCode: string;
     onCountryCodeChange: (value: string) => void;
     onValueChange: (value: string) => void;
+    phoneOnly?: boolean;
     value: string;
 };
 
@@ -121,11 +122,12 @@ export default function AuthIdentifierField({
     onBlur,
     onCountryCodeChange,
     onValueChange,
+    phoneOnly = false,
     slotProps,
     value,
     ...textFieldProps
 }: AuthIdentifierFieldProps) {
-    const showCountrySelector = shouldShowPhoneCountrySelector(value);
+    const showCountrySelector = shouldShowPhoneCountrySelector(value, phoneOnly);
 
     const handleCountryChange = (event: SelectChangeEvent<string>) => {
         const nextCountryCode = event.target.value;
@@ -180,10 +182,11 @@ export function AuthIdentifierInput({
     onBlur,
     onCountryCodeChange,
     onValueChange,
+    phoneOnly = false,
     value,
     ...inputRootProps
 }: AuthIdentifierInputProps) {
-    const showCountrySelector = shouldShowPhoneCountrySelector(value);
+    const showCountrySelector = shouldShowPhoneCountrySelector(value, phoneOnly);
 
     const handleCountryChange = (event: SelectChangeEvent<string>) => {
         const nextCountryCode = event.target.value;

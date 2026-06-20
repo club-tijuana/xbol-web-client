@@ -9,6 +9,7 @@ export interface AuthDto {
     email?: string;
     emailVerified?: boolean;
     phoneNumber?: string | null;
+    phoneRegionCodeId?: number | null;
     phoneCode?: string | null;
     onboardingStatus?: string;
     verificationStatus?: string;

@@ -73,7 +73,14 @@ export function isPhoneLikeAuthIdentifier(value: string): boolean {
     return digitCount >= 3 && /^[+\d().\-\s]+$/.test(trimmed);
 }
 
-export function shouldShowPhoneCountrySelector(value: string): boolean {
+export function shouldShowPhoneCountrySelector(
+    value: string,
+    forceVisible = false,
+): boolean {
+    if (forceVisible) {
+        return true;
+    }
+
     const trimmed = value.trim();
     return isPhoneLikeAuthIdentifier(trimmed) && !trimmed.startsWith("+");
 }

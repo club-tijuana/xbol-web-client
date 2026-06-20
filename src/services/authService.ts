@@ -3,6 +3,7 @@ import { ConfirmationResult } from "firebase/auth";
 
 import { requestAxios } from "@/helpers/axiosHelper";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
+import { getVerifiedPhoneRegistrationUser } from "@/helpers/phoneRegistrationHandoff";
 import { splitName } from "@/helpers/splitNameHelper";
 import { AuthMeResponse, ClientProfileDto, RegisterRequest, RegisterResponse } from "@/models/auth-profile.dto";
 import { AuthDto, AuthenticatedAuthDto } from "@/models/auth.dto";
@@ -102,13 +103,14 @@ function mapClientProfileToAuthDto(
         userId: client.userId || firebaseUid,
         firebaseUid: client.userId || firebaseUid,
         clientId: client.id,
-        username: email ?? client.phoneNumber ?? firebaseUid,
+        username: client.phoneNumber ?? email ?? firebaseUid,
         email,
         emailVerified,
         token,
         firstName: name.firstName,
         lastName: name.lastName,
         phoneNumber: client.phoneNumber,
+        phoneRegionCodeId: client.phoneRegionCodeId,
         phoneCode: client.phoneCode,
         onboardingStatus: "linked",
         verificationStatus: resolvedVerificationStatus,
@@ -131,7 +133,7 @@ function mergeAuthProfile(user: AuthDto, profile: AuthMeResponse): AuthDto {
             profile.verificationStatus,
             profile.emailVerified,
         ),
-        username: email ?? phoneNumber ?? profile.firebaseUid,
+        username: phoneNumber ?? email ?? profile.firebaseUid,
         email,
         emailVerified: profile.emailVerified,
         phoneNumber,
@@ -425,6 +427,24 @@ export async function registerPhone(
     } catch (error) {
         await clearClientAuthentication();
         throw new Error(getErrorMessage(error, "Error al registrar teléfono"));
+    }
+}
+
+export async function resolveCurrentPhoneRegistrationUser(
+    phoneNumber: string | null,
+): Promise<AuthDto | null> {
+    if (!phoneNumber) {
+        return null;
+    }
+
+    try {
+        const user = await refreshCurrentFirebaseUser();
+        return getVerifiedPhoneRegistrationUser(
+            mapAuthenticatedPhoneUserToUnlinkedProfile(user),
+            phoneNumber,
+        );
+    } catch {
+        return null;
     }
 }
 

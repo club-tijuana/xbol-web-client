@@ -4,6 +4,9 @@ export interface ClientInfoRequest {
     id?: number;
     phoneRegionCodeId?: number;
     phoneNumber: string;
+    phoneIsoCode?: string;
+    phoneCode?: string;
+    fullPhone?: string;
     email: string;
     fullName: string;
     firstName: string;

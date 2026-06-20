@@ -53,6 +53,7 @@ browser alongside the ASP `appsettings.schema.json` files.
 | `NEXT_PUBLIC_FIREBASE_PHONE_AUTH_TESTING` | Enables Firebase's documented fictional-number phone auth integration path for local/integration testing. Never enable in production. | `true` locally, `false`/unset deployed |
 | `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Optional Firebase messaging sender id from the web app config. | `313175547904` |
 | `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Optional Firebase storage bucket from the web app config. | `boletera-qa.firebasestorage.app` |
+| `NEXT_PUBLIC_ENABLE_EMAIL_AUTH` | Disabled legacy email/password auth UI flag. Leave unset until the mailer-backed email flow is ready. | `false` / unset |
 | `NEXT_PUBLIC_BASE_PATH`           | Feeds Next's `basePath` — prefixes application routes. Leave empty when the gateway strips the subpath before forwarding to the upstream (current APISIX setup). Populate only if the app must answer at a subpath without upstream stripping.                                                  | `` (current deploy)                        |
 | `NEXT_PUBLIC_ASSET_PREFIX`        | Feeds Next's `assetPrefix` — prefixes asset URLs (`_next/static`, `_next/image`, etc.) without prefixing routes. Set to the public subpath the gateway exposes so the browser requests assets through the gateway.                                                                              | `` (local) / `/client` (deployed)          |
 | `NEXT_PUBLIC_ADMIN_IMAGE_HOST`    | Optional hostname added to Next image optimization for admin-served event media under `/admin/images/**`.                                                               | `dev-web.pwrticket.mx`                     |
@@ -139,6 +140,9 @@ Do not add `NEXT_PUBLIC_FIREBASE_PHONE_AUTH_TESTING` to deployed environment or
 GitHub Actions configuration. It is a local-only Client Web setting for Firebase
 fictional-number testing. `FIREBASE_SESSION_COOKIE_SECURE=false` is ignored in
 production; production responses always set the session cookie with `Secure=true`.
+`NEXT_PUBLIC_ENABLE_EMAIL_AUTH` is also intentionally omitted from deployed build
+args for now, so email/password auth stays cordoned off until the mailer-backed
+flow is ready.
 
 To update:
 

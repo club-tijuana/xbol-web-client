@@ -32,11 +32,13 @@ export async function retrieveOrder(
 
 export async function initiateCheckout(
   request: InitiateCheckoutRequest,
+  token?: string,
 ): Promise<InitiateCheckoutResponse> {
   return requestAxios<InitiateCheckoutRequest, InitiateCheckoutResponse>(
     "POST",
     `${PATH}/initiate-checkout`,
     request,
+    token,
   );
 }
 

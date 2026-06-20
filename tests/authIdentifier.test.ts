@@ -16,3 +16,7 @@ test("national phone identifiers require visible country context", () => {
   assert.equal(getPhoneAuthIdentifier("4155550100", "US"), "+14155550100");
   assert.equal(shouldShowPhoneCountrySelector("4155550100"), true);
 });
+
+test("phone-only controls can show country context before typing", () => {
+  assert.equal(shouldShowPhoneCountrySelector("", true), true);
+});
