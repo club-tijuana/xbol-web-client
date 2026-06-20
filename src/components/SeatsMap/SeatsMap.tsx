@@ -348,9 +348,9 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
             objectWithoutPricingSelectable={mode !== "normal"}
             onRenderStarted={() => setIsLoading(true)}
             onChartRenderingFailed={() => setIsLoading(false)}
-            selectableObjects={
-              isRenewalWindow ? originalSeats?.map((os) => os.seatKey) : []
-            }
+            // selectableObjects={
+            //   isRenewalWindow ? originalSeats?.map((os) => os.seatKey) : []
+            // }
             extraConfig={{
               allowedSeats: initialSeats?.map((s) => s.seatKey) ?? [],
               mapBlockSameSeats: blockSameSeats,

@@ -484,7 +484,7 @@ export default function BookingClient({ id }: BookingClientProps) {
             />
           </Box>
         )}
-        {bookingStep === "payment" && shouldCollectClientContact && (
+        {bookingStep === "payment" && !accountInfo && (
           <Box mt={4}>
             <ClientInfo />
           </Box>
