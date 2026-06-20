@@ -67,8 +67,7 @@ export function isCheckoutClientContactComplete(
   contact: ClientInfoRequest,
 ): boolean {
   return Boolean(
-    clean(contact.email)
-    && clean(contact.fullName)
+    clean(contact.fullName)
     && clean(contact.phoneNumber)
     && contact.phoneRegionCodeId,
   );

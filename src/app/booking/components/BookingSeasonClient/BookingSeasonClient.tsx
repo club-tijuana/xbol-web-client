@@ -188,6 +188,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
 
     useEffect(() => {
         if (
+            ((isRenovation && renovationType === "changeSeats") || !isRenovation) &&
             (!holdTokenState || holdTokenState.status === "expired")
             && bookingStep === "payment"
         ) {
@@ -226,7 +227,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                     setSeatsDto(seatsDto);
                 }
 
-                if (!isRenovation) {
+                if (!isRenovation || (isRenovation && renovationType === "changeSeats")) {
                     mapRef.current?.freezeSeatEvents();
 
                     const tokenCreated = await getHoldToken();
@@ -449,7 +450,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                                 selectedSeats={selectedSeats}
                             />
                         </Box>
-                        {shouldCollectClientContact &&
+                        {!accountInfo &&
                             <Box mt={4}>
                                 <ClientInfo />
                             </Box>
@@ -466,7 +467,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                         bookingStep={bookingStep}
                         selectedZone={selectedZone}
                         zonesPrices={zonesPrices}
-                        isRenewalWindow={isRenovation}
+                        isRenewalWindow={season?.isRenewal}
                         bundleId={Number(id)}
                         onPay={handleContinue}
                     />
