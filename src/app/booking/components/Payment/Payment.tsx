@@ -132,6 +132,7 @@ export default function Payment({
     /*         if (!bundleId) {
                     snackbar.show("Error interno: no se encontró la temporada. Recarga la página.", "error");
                 } */
+
     const checkoutContact = buildCheckoutClientContact(accountInfo, clientContact);
 
     if (!isCheckoutClientContactComplete(checkoutContact)) {

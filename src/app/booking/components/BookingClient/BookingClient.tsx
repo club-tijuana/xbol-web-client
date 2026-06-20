@@ -77,10 +77,6 @@ export default function BookingClient({ id }: BookingClientProps) {
   const holdTokenState = useAppSelector(
     (store) => store.bookingFlow.holdTokenObj,
   );
-  const shouldCollectClientContact = shouldCollectCheckoutContact(
-    accountInfo,
-    clientContactObj,
-  );
 
   const [event, setEvent] = useState<EventItemDTO | null>(null);
   const [bookingStep, setBookingStep] = useState<BookingStep>("selection");
@@ -97,6 +93,12 @@ export default function BookingClient({ id }: BookingClientProps) {
   const [seatsDto, setSeatsDto] = useState<MyEventSeatDTO[] | undefined>();
   const [confirmingPayment, setConfirmingPayment] = useState(false);
   const [confirmError, setConfirmError] = useState<string | null>(null);
+  const [shouldCollectClientContact] = useState<boolean>(
+    shouldCollectCheckoutContact(
+      accountInfo,
+      clientContactObj,
+    )
+  );
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -484,7 +486,7 @@ export default function BookingClient({ id }: BookingClientProps) {
             />
           </Box>
         )}
-        {bookingStep === "payment" && !accountInfo && (
+        {bookingStep === "payment" && shouldCollectClientContact && (
           <Box mt={4}>
             <ClientInfo />
           </Box>

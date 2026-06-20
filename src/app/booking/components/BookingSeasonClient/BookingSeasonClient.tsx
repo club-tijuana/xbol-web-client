@@ -49,10 +49,6 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
     const renovationType = useAppSelector(store => store.bookingFlow.renovationType);
     const clientContactObj = useAppSelector(store => store.bookingFlow.clientContact);
     const holdTokenState = useAppSelector(store => store.bookingFlow.holdTokenObj);
-    const shouldCollectClientContact = shouldCollectCheckoutContact(
-        accountInfo,
-        clientContactObj,
-    );
 
     const [season, setSeason] = useState<BundleItemDTO | null>(null);
     const [bookingStep, setBookingStep] = useState<BookingStep>("selection");
@@ -65,7 +61,10 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [seatsDto, setSeatsDto] = useState<MyEventSeatDTO[] | undefined>();
     const [formattedDate, setFormattedDate] = useState<string>("");
-
+    const [shouldCollectClientContact] = useState<boolean>(shouldCollectCheckoutContact(
+        accountInfo,
+        clientContactObj,
+    ));
     const [confirmingPayment, setConfirmingPayment] = useState(false);
     const [confirmError, setConfirmError] = useState<string | null>(null);
 
@@ -450,7 +449,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                                 selectedSeats={selectedSeats}
                             />
                         </Box>
-                        {!accountInfo &&
+                        {shouldCollectClientContact &&
                             <Box mt={4}>
                                 <ClientInfo />
                             </Box>
