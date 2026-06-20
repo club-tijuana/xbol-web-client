@@ -138,6 +138,7 @@ export default function SuccessClient({ orderId }: SuccessClientProps) {
                                 discount={order.discount}
                                 total={order.total}
                                 currency={"MXN"}
+                                fees={order.fees}
                                 seats={order.itemSeats}
                                 selectedSeats={seatMap}
                                 folio={order.folio}

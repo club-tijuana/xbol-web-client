@@ -46,6 +46,7 @@ export default function TicketSeats({
   selectedSeats,
   folio,
   bookingStep,
+  fees,
 }: TicketSeatsProps) {
   const router = useRouter();
 
@@ -133,21 +134,36 @@ export default function TicketSeats({
           </Grid>
         </Grid>
       )}
-      {totalFees !== undefined && (
-        <Grid container columns={4} mt={3}>
-          <Grid size={1} offset={2}>
-            <Typography variant="body2" color="primary" textAlign="right">
-              Comisiones
-            </Typography>
-          </Grid>
-          <Grid size={1}>
-            <Typography variant="body1" color="secondary" textAlign="right">
-              {formatCurrency(totalFees, currency)}
-            </Typography>
-          </Grid>
-        </Grid>
-      )}
-      {totalTaxes !== undefined && (
+      {fees && fees.length > 0
+        ? fees.map((fee, index) => (
+            <Grid container columns={4} mt={3} key={index}>
+              <Grid size={1} offset={2}>
+                <Typography variant="body2" color="primary" textAlign="right">
+                  {fee.feeType}
+                </Typography>
+              </Grid>
+              <Grid size={1}>
+                <Typography variant="body1" color="secondary" textAlign="right">
+                  {formatCurrency(fee.amount, currency)}
+                </Typography>
+              </Grid>
+            </Grid>
+          ))
+        : totalFees !== undefined && (
+            <Grid container columns={4} mt={3}>
+              <Grid size={1} offset={2}>
+                <Typography variant="body2" color="primary" textAlign="right">
+                  Comisiones
+                </Typography>
+              </Grid>
+              <Grid size={1}>
+                <Typography variant="body1" color="secondary" textAlign="right">
+                  {formatCurrency(totalFees, currency)}
+                </Typography>
+              </Grid>
+            </Grid>
+          )}
+      {totalTaxes !== undefined && totalTaxes > 0 && (
         <Grid container columns={4} mt={3}>
           <Grid size={1} offset={2}>
             <Typography variant="body2" color="primary" textAlign="right">

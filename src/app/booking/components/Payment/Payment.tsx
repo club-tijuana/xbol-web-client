@@ -52,6 +52,9 @@ const EVO_CHECKOUT_JS =
   "https://evopaymentsmexico.gateway.mastercard.com/static/checkout/checkout.min.js";
 
 export default function Payment({
+  subtotal,
+  fees,
+  taxes,
   total,
   currency,
   showTotals = true,
@@ -218,7 +221,43 @@ export default function Payment({
 
       {showTotals && (
         <Box>
-          <Grid container columns={4} spacing={3}>
+          {subtotal !== undefined && subtotal > 0 && (
+            <Grid container columns={4} spacing={3}>
+              <Grid size={1} offset={2} textAlign="right">
+                <Typography variant="body2">Subtotal</Typography>
+              </Grid>
+              <Grid size={1} textAlign="right">
+                <Typography variant="body1" color="secondary">
+                  {formatCurrency(subtotal, currency)}
+                </Typography>
+              </Grid>
+            </Grid>
+          )}
+          {fees !== undefined && fees > 0 && (
+            <Grid container columns={4} spacing={3} mt={1}>
+              <Grid size={1} offset={2} textAlign="right">
+                <Typography variant="body2">Comisiones</Typography>
+              </Grid>
+              <Grid size={1} textAlign="right">
+                <Typography variant="body1" color="secondary">
+                  {formatCurrency(fees, currency)}
+                </Typography>
+              </Grid>
+            </Grid>
+          )}
+          {taxes !== undefined && taxes > 0 && (
+            <Grid container columns={4} spacing={3} mt={1}>
+              <Grid size={1} offset={2} textAlign="right">
+                <Typography variant="body2">Impuestos</Typography>
+              </Grid>
+              <Grid size={1} textAlign="right">
+                <Typography variant="body1" color="secondary">
+                  {formatCurrency(taxes, currency)}
+                </Typography>
+              </Grid>
+            </Grid>
+          )}
+          <Grid container columns={4} spacing={3} mt={1}>
             <Grid size={1} offset={2} textAlign="right">
               <Typography variant="body2">Total</Typography>
             </Grid>

@@ -263,6 +263,7 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
                                         totalFees={detail?.totalFees}
                                         totalTaxes={detail?.totalTaxes}
                                         total={detail?.total}
+                                        fees={detail?.fees}
                                         selectedSeats={detail
                                             ? detail.selectedSeats.map(s => ({
                                                 seatKey: s,

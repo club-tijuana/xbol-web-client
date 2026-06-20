@@ -1,7 +1,7 @@
 "use client";
 
 import { Alert, AlertTitle, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { expireHoldToken } from "@/store/slices/bookingFlowSlice";
@@ -11,36 +11,44 @@ export default function HoldTokenTimer() {
     const holdTokenObj = useAppSelector(state => state.bookingFlow.holdTokenObj);
     const holdTokenStatus = useAppSelector(state => state.bookingFlow.holdTokenObj?.status);
 
-    const [timeLeft, setTimeLeft] = useState(
-        holdTokenObj?.expiresInSeconds ?? 0
-    );
+    const [timeLeft, setTimeLeft] = useState(holdTokenObj?.expiresInSeconds ?? 0);
+    const expiresAtRef = useRef<number | null>(null);
+    const expiredDispatchedRef = useRef(false);
 
     useEffect(() => {
         if (!holdTokenObj || holdTokenStatus === "expired") return;
 
-        const resetTimer = setTimeout(() => {
-            setTimeLeft(holdTokenObj.expiresInSeconds);
-        }, 0);
+        expiresAtRef.current = Date.now() + holdTokenObj.expiresInSeconds * 1000;
+        expiredDispatchedRef.current = false;
 
-        const interval = setInterval(() => {
-            setTimeLeft(prev => {
-                if (prev <= 1) {
-                    dispatch(expireHoldToken({ type: "auto" }));
-                    clearInterval(interval);
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
+        const tick = () => {
+            if (!expiresAtRef.current) return;
+            const remaining = Math.max(0, Math.round((expiresAtRef.current - Date.now()) / 1000));
+            setTimeLeft(remaining);
+            if (remaining <= 0 && !expiredDispatchedRef.current) {
+                expiredDispatchedRef.current = true;
+                dispatch(expireHoldToken({ type: "auto" }));
+            }
+        };
+
+        tick();
+
+        const interval = setInterval(tick, 1000);
+
+        // Recalculate immediately when tab becomes visible again after being throttled
+        const handleVisibilityChange = () => {
+            if (!document.hidden) tick();
+        };
+        document.addEventListener("visibilitychange", handleVisibilityChange);
 
         return () => {
             clearInterval(interval);
-            clearTimeout(resetTimer);
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
         };
     }, [holdTokenObj, holdTokenStatus]);
 
     const minutes = String(Math.floor(timeLeft / 60)).padStart(1, "0");
-    const seconds = String(timeLeft % 60).padStart(1, "0");
+    const seconds = String(timeLeft % 60).padStart(2, "0");
 
     return (
         <Alert severity="info">

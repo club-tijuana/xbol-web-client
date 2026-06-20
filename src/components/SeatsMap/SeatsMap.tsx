@@ -267,6 +267,7 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
             seatKey: obj.label,
             seatPrice: pricing.seatPrice,
             priceListItemId: pricing.priceListItemId,
+            fees: pricing.fees,
           },
         ];
 
@@ -304,6 +305,7 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
         return {
           seatPrice: seatOverride.priceOverride,
           priceListItemId: seatOverride.priceListItemId ?? 0,
+          fees: seatOverride.fees ?? [],
         };
       }
 
@@ -313,6 +315,7 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
       return {
         seatPrice: zone?.price ?? 0,
         priceListItemId: zone?.priceListItemId ?? 0,
+        fees: zone?.fees ?? [],
       };
     };
 
