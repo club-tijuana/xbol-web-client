@@ -1,3 +1,4 @@
+import { FeeItemDTO } from "@/models/fee-item.dto";
 import { MyEventSeatDTO } from "@/models/my-event-seat.dto";
 import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
 import { BookingStep } from "@/types/bookingStep";
@@ -14,4 +15,5 @@ export interface TicketSeatsProps {
   selectedSeats?: Array<BookingSeatRequest>;
   folio?: string;
   bookingStep?: BookingStep;
+  fees?: Array<FeeItemDTO>;
 }

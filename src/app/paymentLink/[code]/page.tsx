@@ -118,6 +118,7 @@ export default async function PaymentLinkPage({ params }: PageProps) {
                         totalTaxes={orderToPay.totalTaxes}
                         discount={orderToPay.discount}
                         total={orderToPay.total}
+                        fees={orderToPay.fees}
                         seats={orderToPay.itemSeats}
                         selectedSeats={selectedSeats}
                     />

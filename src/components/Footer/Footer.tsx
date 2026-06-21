@@ -62,7 +62,11 @@ export default function Footer() {
                     <Grid container columns={12}>
                         <Grid size={12} >
                             <div className={styles.iconContainer}>
-                                <Tooltip title="Próximamente">
+                                <Link
+                                    href="https://www.facebook.com/profile.php?id=61590497022782"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
                                     <Image
                                         src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/facebook-icon.svg`}
                                         alt="Facebook"
@@ -70,9 +74,13 @@ export default function Footer() {
                                         height={23}
                                         style={{ marginRight: '70px' }}
                                     />
-                                </Tooltip>
+                                </Link>
 
-                                <Tooltip title="Próximamente">
+                                <Link
+                                    href="https://x.com/PwrTicketMX"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
                                     <Image
                                         src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/x-icon.svg`}
                                         alt="X"
@@ -80,9 +88,13 @@ export default function Footer() {
                                         height={23}
                                         style={{ marginRight: '70px' }}
                                     />
-                                </Tooltip>
+                                </Link>
 
-                                <Tooltip title="Próximamente">
+                                <Link
+                                    href="https://www.instagram.com/pwrticket/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
                                     <Image
                                         src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/instagram-icon.svg`}
                                         alt="Instagram"
@@ -90,7 +102,7 @@ export default function Footer() {
                                         height={23}
                                         style={{ marginRight: '70px' }}
                                     />
-                                </Tooltip>
+                                </Link>
 
                                 <Tooltip title="Próximamente">
                                     <Image

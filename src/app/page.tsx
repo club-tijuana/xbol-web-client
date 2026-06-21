@@ -231,13 +231,13 @@ export default async function Home({ searchParams }: HomeProps) {
         </Box>
       </main>
       <div className="whatsappBubble">
-        <a rel="noreferrer" href="https://api.whatsapp.com/send?phone=6646933586" target="_blank" style={{ position: "absolute", bottom: 0 }}>
+        <a rel="noreferrer" href="https://api.whatsapp.com/send?phone=526646933586" target="_blank" style={{ position: "absolute", bottom: 0 }}>
           <Image
             loading="lazy"
             width="60"
             height="60"
             src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/whatsapp.svg`}
-            alt="Hello Kitty - Whatsapp"
+            alt="PWR Ticket - Whatsapp"
           />
         </a>
       </div>

@@ -88,33 +88,29 @@ const BookingRightPanel = forwardRef<
         mapRef.current?.freezeSeatEvents(),
     }));
 
-    const { subtotal, taxes, total } = useMemo(() => {
-      let _subtotal = 0;
-      const _taxes = 0;
-      let _total = 0;
+    const TAX_NAMES = new Set(["IVA", "ISR", "IEPS"]);
 
-      /* if (initialSeats && initialSeats.length > 0) {
-                initialSeats?.forEach(s => {
-                    _subtotal += s[1];
-                    _total += s[1];
-                });
-            }
-            else {
-                selectedSeats?.forEach(s => {
-                    _subtotal += s[1];
-                    _total += s[1];
-                });
-            } */
+    const { subtotal, taxes, fees, total } = useMemo(() => {
+      let _subtotal = 0;
+      let _taxes = 0;
+      let _fees = 0;
 
       selectedSeats?.forEach((s) => {
         _subtotal += s.seatPrice;
-        _total += s.seatPrice;
+        s.fees?.forEach((f) => {
+          if (TAX_NAMES.has(f.feeType)) {
+            _taxes += f.amount;
+          } else {
+            _fees += f.amount;
+          }
+        });
       });
 
       return {
         subtotal: _subtotal,
         taxes: _taxes,
-        total: _total,
+        fees: _fees,
+        total: _subtotal + _fees + _taxes,
       };
     }, [initialSeats, selectedSeats]);
 
@@ -176,6 +172,7 @@ const BookingRightPanel = forwardRef<
             <Payment
               subtotal={subtotal}
               taxes={taxes}
+              fees={fees}
               total={total}
               currency="MXN"
               scheduleId={scheduleId}

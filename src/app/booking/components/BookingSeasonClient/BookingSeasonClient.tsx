@@ -49,10 +49,6 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
     const renovationType = useAppSelector(store => store.bookingFlow.renovationType);
     const clientContactObj = useAppSelector(store => store.bookingFlow.clientContact);
     const holdTokenState = useAppSelector(store => store.bookingFlow.holdTokenObj);
-    const shouldCollectClientContact = shouldCollectCheckoutContact(
-        accountInfo,
-        clientContactObj,
-    );
 
     const [season, setSeason] = useState<BundleItemDTO | null>(null);
     const [bookingStep, setBookingStep] = useState<BookingStep>("selection");
@@ -65,7 +61,10 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [seatsDto, setSeatsDto] = useState<MyEventSeatDTO[] | undefined>();
     const [formattedDate, setFormattedDate] = useState<string>("");
-
+    const [shouldCollectClientContact] = useState<boolean>(shouldCollectCheckoutContact(
+        accountInfo,
+        clientContactObj,
+    ));
     const [confirmingPayment, setConfirmingPayment] = useState(false);
     const [confirmError, setConfirmError] = useState<string | null>(null);
 
@@ -188,6 +187,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
 
     useEffect(() => {
         if (
+            ((isRenovation && renovationType === "changeSeats") || !isRenovation) &&
             (!holdTokenState || holdTokenState.status === "expired")
             && bookingStep === "payment"
         ) {
@@ -226,7 +226,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                     setSeatsDto(seatsDto);
                 }
 
-                if (!isRenovation) {
+                if (!isRenovation || (isRenovation && renovationType === "changeSeats")) {
                     mapRef.current?.freezeSeatEvents();
 
                     const tokenCreated = await getHoldToken();
@@ -466,7 +466,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                         bookingStep={bookingStep}
                         selectedZone={selectedZone}
                         zonesPrices={zonesPrices}
-                        isRenewalWindow={isRenovation}
+                        isRenewalWindow={season?.isRenewal}
                         bundleId={Number(id)}
                         onPay={handleContinue}
                     />
