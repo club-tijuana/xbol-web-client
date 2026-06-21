@@ -1,12 +1,12 @@
 import { CalendarTodayOutlined, LocationOnOutlined } from "@mui/icons-material";
-import { Box, Grid, Paper, Typography } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import { Metadata } from "next";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 
 import TicketSeats from "@/app/account/tickets/order/[orderId]/event/[eventId]/components/TicketSeats/TicketSeats";
-import Payment from "@/app/booking/components/Payment/Payment";
 import Loader from "@/components/Loader/Loader";
+import PaymentLinkClient from "./PaymentLinkClient";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { eventImageOrDefault } from "@/models/event-image";
@@ -124,17 +124,7 @@ export default async function PaymentLinkPage({ params }: PageProps) {
                     />
                 </Grid>
                 <Grid size={{ xs: 2, lg: 1 }}>
-                    <Paper elevation={3} className="paperCard">
-                        <Payment
-                            showTotals={false}
-                            paymentLinkCode={code}
-                            subtotal={orderToPay.subTotal}
-                            fees={orderToPay.totalFees}
-                            taxes={orderToPay.totalTaxes}
-                            discount={orderToPay.discount}
-                            total={orderToPay.total}
-                        />
-                    </Paper>
+                    <PaymentLinkClient code={code} order={orderToPay} />
                 </Grid>
             </Grid>
 

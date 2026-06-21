@@ -162,6 +162,18 @@ export const theme = createTheme({
                     textTransform: 'none'
                 }
             }
+        },
+        MuiCssBaseline: {
+            styleOverrides: `
+                .MuiSnackbar-root {
+                    z-index: 9999 !important;
+                }
+                .MuiSnackbar-anchorOriginTopRight,
+                .MuiSnackbar-anchorOriginTopLeft,
+                .MuiSnackbar-anchorOriginTopCenter {
+                    top: 90px !important;
+                }
+            `
         }
     }
 });

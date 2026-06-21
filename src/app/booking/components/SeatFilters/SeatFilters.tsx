@@ -174,9 +174,6 @@ export default function SeatFilters({ scheduleId, seasonId, buttonText, onZoneCh
                                         {formatCurrency(zone.price)}
                                     </Typography>
                                 }
-                                <Typography variant="body1" color="secondary">
-                                    + Impuestos
-                                </Typography>
                             </Grid>
                             {/* <Grid size={5} textAlign={"right"}>
                                 <Button variant="outlined" size="medium" onClick={() => handleZoneSelected(zone.displayName)}>
@@ -187,6 +184,11 @@ export default function SeatFilters({ scheduleId, seasonId, buttonText, onZoneCh
                         {(index + 1) !== zones.length && <Divider sx={{ borderWidth: 1, borderColor: 'var(--color-primary)' }} />}
                     </Box>
                 ))}
+                {zones?.some((zone: ZoneDTO) => zone.price !== null) && (
+                    <Typography variant="body2" color="secondary" textAlign="center" mt={2}>
+                        Los precios mostrados son finales e incluyen impuestos y cargos aplicables.
+                    </Typography>
+                )}
             </Box>
             <Loader isLoading={loading} />
         </Paper>

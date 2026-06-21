@@ -37,6 +37,7 @@ interface BookingFlowState {
     originalSeats?: Array<BookingSeatRequest>;
     seatAvailability?: SeatAvailabilityDTO;
     evoReferences?: EvoReference;
+    blockedSeats?: Array<string>;
 }
 
 const initialState: BookingFlowState = {
@@ -159,6 +160,9 @@ const bookingFlowSlice = createSlice({
         },
         setEvoReferences: (state, action: PayloadAction<EvoReference>) => {
             state.evoReferences = action.payload;
+        },
+        setBlockedSeats: (state, action: PayloadAction<Array<string>>) => {
+            state.blockedSeats = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -195,6 +199,7 @@ export const {
     setSeatAvailability,
     setEventScheduleId,
     setBundleId,
-    setEvoReferences
+    setEvoReferences,
+    setBlockedSeats
 } = bookingFlowSlice.actions;
 export default bookingFlowSlice.reducer;

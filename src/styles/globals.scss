@@ -144,3 +144,13 @@ input[type="tel"] {
 .MuiYearCalendar-button {
     color: var(--color-text-primary) !important;
 }
+
+.MuiSnackbar-root {
+    z-index: 9999 !important;
+}
+
+.MuiSnackbar-anchorOriginTopRight,
+.MuiSnackbar-anchorOriginTopLeft,
+.MuiSnackbar-anchorOriginTopCenter {
+    top: 90px !important;
+}

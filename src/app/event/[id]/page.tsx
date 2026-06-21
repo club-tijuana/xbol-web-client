@@ -395,6 +395,17 @@ export default async function EventDetailPage({ params }: EventPageProps) {
                                 )}
                               </Box>
                             ))}
+                          {s.sectionPrices && s.sectionPrices.length > 0 && (
+                            <Typography
+                              variant="body2"
+                              color="secondary"
+                              textAlign="center"
+                              mt={2}
+                              px={8}
+                            >
+                              Los precios mostrados son finales e incluyen impuestos y cargos aplicables.
+                            </Typography>
+                          )}
                         </AccordionDetails>
                       </Accordion>
                     ))}

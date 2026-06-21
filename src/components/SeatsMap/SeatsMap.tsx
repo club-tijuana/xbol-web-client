@@ -75,6 +75,9 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
     const seatAvailability = useAppSelector(
       (store) => store.bookingFlow.seatAvailability,
     );
+    const blockedSeats = useAppSelector(
+      (store) => store.bookingFlow.blockedSeats
+    );
 
     const initializedRef = useRef(false);
     const ignoreSeatEventsRef = useRef(false);
@@ -251,6 +254,7 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
       if (ignoreSeatEventsRef.current) return;
       if (hydratingSelectionRef.current) return;
       if (!seatAvailability) return;
+      if (blockSameSeats) return;
 
       setCurrentSelectedSeats((prev) => {
         const exists = prev.some((s) => s.seatKey === obj.label);
@@ -283,6 +287,11 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
       if (ignoreSeatEventsRef.current) return;
       if (hydratingSelectionRef.current) return;
       if (!obj.labels.section) return;
+
+      if (blockSameSeats) {
+        chartRef.current?.trySelectObjects([obj.label]).catch();
+        return;
+      }
 
       const updated = selectedSeatsRef.current.filter(
         (s) => s.seatKey !== obj.label,
@@ -354,6 +363,7 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
             extraConfig={{
               allowedSeats: initialSeats?.map((s) => s.seatKey) ?? [],
               mapBlockSameSeats: blockSameSeats,
+              mapBlockedSeats: blockedSeats,
               mapDisabledSelectedColor: DISABLED_SELECTED_SEAT_COLOR,
               viewMode: mode,
             }}
@@ -386,12 +396,16 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
               }
             }}
             isObjectVisible={(object: any, extraConfig) => {
-              if (extraConfig.mapBlockSameSeats) {
-                const type =
-                  typeof object.objectType === "function"
-                    ? object.objectType()
-                    : object.objectType;
+              if (extraConfig.viewMode === "print") {
+                return true;
+              }
 
+              const type =
+                typeof object.objectType === "function"
+                  ? object.objectType()
+                  : object.objectType;
+
+              if (extraConfig.mapBlockSameSeats) {
                 if (!extraConfig.allowedSeats?.length) {
                   return true;
                 }
@@ -402,6 +416,14 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
 
                 return type === "row" || type === "section";
               } else {
+                if (type !== "Seat") {
+                  return true;
+                }
+
+                if (extraConfig.mapBlockedSeats?.includes(object.label)) {
+                  return false;
+                }
+
                 return true;
               }
             }}

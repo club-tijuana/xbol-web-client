@@ -8,9 +8,10 @@ import BookingSeasonClient from "@/app/booking/components/BookingSeasonClient/Bo
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { BundleToRenovateDTO } from "@/models/bundle-to-renovate.dto";
 import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
+import { getBlockedSeatsAsync } from "@/services/bundleService";
 import { getOrderToRenovate } from "@/services/orderService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { resetState as resetStateFlow, setBookHoldToken, setBookMode, setInitialSeats, setOrderLeftSeats, setOriginalSeats, setRenovationType, setSeasonRelatedOrderId, setSeats } from "@/store/slices/bookingFlowSlice";
+import { resetState as resetStateFlow, setBlockedSeats, setBookHoldToken, setBookMode, setInitialSeats, setOrderLeftSeats, setOriginalSeats, setRenovationType, setSeasonRelatedOrderId, setSeats } from "@/store/slices/bookingFlowSlice";
 import { resetState } from "@/store/slices/bookingSlice";
 import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
 
@@ -41,10 +42,12 @@ export default function RenovationClientWrapper({ orderId }: RenovationClientWra
                 await dispatch(resetStateFlow());
 
                 const bundle = await getOrderToRenovate(orderId);
+                const blockedSeats = await getBlockedSeatsAsync(bundle.bundleId)
 
                 await dispatch(setBookMode("renovateSeason"));
                 await dispatch(setRenovationType("sameSeats"));
                 await dispatch(setSeasonRelatedOrderId(orderId));
+                await dispatch(setBlockedSeats(blockedSeats));
                 await dispatch(setBookHoldToken({
                     expiresAt: "",
                     expiresInSeconds: 0,

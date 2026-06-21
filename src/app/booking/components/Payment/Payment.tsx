@@ -13,6 +13,8 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 
+import { useRouter } from "next/navigation";
+
 import Loader from "@/components/Loader/Loader";
 import {
   buildCheckoutClientContact,
@@ -20,6 +22,7 @@ import {
 } from "@/helpers/checkoutContact";
 import { formatCurrency } from "@/helpers/formatCurrencyHelper";
 import { initiateCheckout } from "@/services/evoPaymentService";
+import { initiatePaymentLinkCheckoutAsync } from "@/services/paymentLinkService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { clearHoldToken } from "@/store/slices/bookingFlowSlice";
 
@@ -36,6 +39,13 @@ declare global {
 }
 
 export const CHECKOUT_SS_KEY = "evo_hc_booking_v1";
+export const PAYMENT_LINK_SS_KEY = "evo_pl_checkout_v1";
+
+export interface PaymentLinkCheckoutContext {
+  paymentLinkCode: string;
+  orderRefId: string;
+  successIndicator: string;
+}
 
 export interface CheckoutContext {
   localOrderId: number;
@@ -58,12 +68,14 @@ export default function Payment({
   total,
   currency,
   showTotals = true,
+  paymentLinkCode,
   scheduleId,
   bundleId,
 }: PaymentProps) {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [paying, setPaying] = useState(false);
 
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const snackbar = useSnackbar();
 
@@ -91,6 +103,51 @@ export default function Payment({
         "Es necesario aceptar las condiciones de compra",
         "warning",
       );
+      return;
+    }
+
+    if (paymentLinkCode) {
+      if (paying) return;
+      setPaying(true);
+      try {
+        const returnUrl = `${window.location.origin}${window.location.pathname}?source=evo`;
+        const result = await initiatePaymentLinkCheckoutAsync(paymentLinkCode, {
+          returnUrl,
+          currency: currency ?? "MXN",
+        });
+
+        const ctx: PaymentLinkCheckoutContext = {
+          paymentLinkCode,
+          orderRefId: result.orderRefId,
+          successIndicator: result.successIndicator,
+        };
+        sessionStorage.setItem(PAYMENT_LINK_SS_KEY, JSON.stringify(ctx));
+
+        const script = document.createElement("script");
+        script.src = EVO_CHECKOUT_JS;
+        script.async = false;
+
+        script.onerror = () => {
+          setPaying(false);
+          sessionStorage.removeItem(PAYMENT_LINK_SS_KEY);
+          snackbar.show(
+            "No se pudo cargar la página de pago seguro. Intenta nuevamente.",
+            "error",
+          );
+        };
+
+        script.onload = () => {
+          window.Checkout.configure({ session: { id: result.sessionId } });
+          window.Checkout.showPaymentPage();
+        };
+
+        document.body.appendChild(script);
+      } catch (err: unknown) {
+        setPaying(false);
+        sessionStorage.removeItem(PAYMENT_LINK_SS_KEY);
+        const msg = err instanceof Error ? err.message : "Error al iniciar el pago.";
+        snackbar.show(msg, "error");
+      }
       return;
     }
 
@@ -300,7 +357,7 @@ export default function Payment({
           onClick={handlePay}
           disabled={!acceptedTerms || paying}
         >
-          {paying ? "Procesando..." : "Ir a pago seguro"}
+          {paying ? "Procesando..." : paymentLinkCode ? "Confirmar pago" : "Ir a pago seguro"}
         </Button>
       </Box>
 

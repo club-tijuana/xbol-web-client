@@ -96,14 +96,21 @@ const BookingRightPanel = forwardRef<
       let _fees = 0;
 
       selectedSeats?.forEach((s) => {
-        _subtotal += s.seatPrice;
+        let _seatFees = 0;
+        let _seatTaxes = 0;
         s.fees?.forEach((f) => {
-          if (TAX_NAMES.has(f.feeType)) {
-            _taxes += f.amount;
+          const isTax = f.chargeCategory
+            ? f.chargeCategory === "Tax"
+            : TAX_NAMES.has(f.feeType.toUpperCase());
+          if (isTax) {
+            _seatTaxes += f.amount;
           } else {
-            _fees += f.amount;
+            _seatFees += f.amount;
           }
         });
+        _subtotal += s.seatPrice - _seatFees - _seatTaxes;
+        _fees += _seatFees;
+        _taxes += _seatTaxes;
       });
 
       return {

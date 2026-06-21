@@ -23,3 +23,14 @@ export async function getBundleMetadataAsync(bundleId: number): Promise<SeoMetad
         `${PATH}/${bundleId}/metadata`
     );
 }
+
+export async function getBlockedSeatsAsync(bundleId: number): Promise<Array<string>> {
+    const state = store.getState();
+
+    return requestAxios<null, Array<string>>(
+        "GET",
+        `${PATH}/${bundleId}/blocked-seats`,
+        undefined,
+        state.auth.user?.token,
+    );
+}
