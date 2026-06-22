@@ -46,13 +46,15 @@ export default function SeasonBanner() {
             return;
         }
 
-        if (bundleBanner.isRenewal || bundleBanner.isPreSale) {
-            router.push("/account/tickets");
+        if (bundleBanner.isRenewal && bundleBanner.relatedOrderId) {
+            router.push(`/season/renovation/${bundleBanner.relatedOrderId}`);
             return;
         }
 
-        dispatch(setBookMode("season"));
-        router.push(`/booking/season/${bundleBanner.id}`);
+        if (bundleBanner.isGeneralSale) {
+            dispatch(setBookMode("season"));
+            router.push(`/booking/season/${bundleBanner.id}`);
+        }
     };
 
     return (
