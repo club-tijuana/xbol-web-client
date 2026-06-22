@@ -8,6 +8,7 @@ import EventCarousel from "@/components/EventCarousel/EventCarousel";
 import FullWidthSection from "@/components/FullWidthSection/FullWidthSection";
 import SeasonBanner from "@/components/SeasonBanner/SeasonBanner";
 import { whiteLabel } from "@/config/whiteLabel";
+import { BundleType } from "@/models/enums/bundle-type.enum";
 import { EventCatalogItemType } from "@/models/enums/event-catalog-item-type.enum";
 import { mapEventCatalogItemToCardVM } from "@/models/event-catalog-item.dto";
 import { mapEventToCardVM } from "@/models/event-item.dto";
@@ -63,9 +64,11 @@ export default async function Home({ searchParams }: HomeProps) {
     getUpcomingEvents({ page: 1, pageSize: 5 }),
     getEventCatalog({
       itemType: EventCatalogItemType.Bundle,
+      bundleType: BundleType.Basic,
       page: 1,
       pageSize: 4,
-      upcoming: true
+      upcoming: true,
+      buyableOnly: true
     })
   ]);
 
