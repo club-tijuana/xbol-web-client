@@ -8,4 +8,5 @@ export interface MyEventDTO {
     isSeasonPass: boolean;
     isPastEvent: boolean;
     canRenovateSeasonPass: boolean;
+    canViewTickets: boolean;
 }

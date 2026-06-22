@@ -16,112 +16,119 @@ import TicketTabs from "../TicketTabs/TicketTabs";
 const PAGE_SIZE: number = 10;
 
 export default function TicketsClientWrapper() {
-    const generalMessage = useAppSelector(state => state.ui.generalMessage);
-    const token = useAppSelector(state => state.auth.user?.token);
-    const dispatch = useAppDispatch();
+  const generalMessage = useAppSelector(state => state.ui.generalMessage);
+  const token = useAppSelector(state => state.auth.user?.token);
+  const dispatch = useAppDispatch();
 
-    const [myEvents, setMyEvents] = useState<MyEventDTO[]>([]);
-    const [mySeasons, setMySeasons] = useState<MyEventDTO[]>([]);
-    const [currentEventsPage, setCurrentEventsPage] = useState<number>(1);
-    const [currentSeasonPage, setCurrentSeasonPage] = useState<number>(1);
-    const isFetchingRef = useRef(false);
+  const [myEvents, setMyEvents] = useState<MyEventDTO[]>([]);
+  const [mySeasons, setMySeasons] = useState<MyEventDTO[]>([]);
+  const [currentEventsPage, setCurrentEventsPage] = useState<number>(1);
+  const [currentSeasonPage, setCurrentSeasonPage] = useState<number>(1);
+  const isFetchingRef = useRef(false);
 
-    useEffect(() => {
-        if (!token) {
-            return;
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
+
+    async function load() {
+      isFetchingRef.current = true;
+
+      try {
+        const [eventsResult, seasonsResult] = await Promise.allSettled([
+          getMyEvents({ page: currentEventsPage, pageSize: PAGE_SIZE, orderType: OrderType.Ticket }),
+          getMyEvents({ page: currentSeasonPage, pageSize: PAGE_SIZE, orderType: OrderType.Bundle }),
+        ]);
+
+        if (eventsResult.status === "fulfilled") {
+          setMyEvents(eventsResult.value?.items ?? []);
         }
 
-        async function load() {
-            isFetchingRef.current = true;
-
-            try {
-                const events = await getMyEvents({ page: currentEventsPage, pageSize: PAGE_SIZE, orderType: OrderType.Ticket });
-                const seasons = await getMyEvents({ page: currentSeasonPage, pageSize: PAGE_SIZE, orderType: OrderType.Bundle });
-
-                setMyEvents(events?.items ?? []);
-                setMySeasons(seasons?.items ?? []);
-            }
-            finally {
-                isFetchingRef.current = false;
-            }
+        if (seasonsResult.status === "fulfilled") {
+          setMySeasons(seasonsResult.value?.items ?? []);
         }
+      }
+      finally {
+        isFetchingRef.current = false;
+      }
+    }
 
-        load();
-    }, [token]);
+    load();
+  }, [token]);
 
-    const loadMoreSeasons = async () => {
-        if (isFetchingRef.current) {
-            return;
-        }
+  const loadMoreSeasons = async () => {
+    if (isFetchingRef.current) {
+      return;
+    }
 
-        isFetchingRef.current = true;
+    isFetchingRef.current = true;
 
-        try {
-            const response = await getMyEvents({ page: (currentSeasonPage + 1), pageSize: PAGE_SIZE, orderType: OrderType.Bundle });
+    try {
+      const response = await getMyEvents({ page: (currentSeasonPage + 1), pageSize: PAGE_SIZE, orderType: OrderType.Bundle });
 
-            if (response) {
-                setCurrentSeasonPage(prev => prev + 1);
-                setMySeasons(prev => [...(prev ?? []), ...response.items])
-            }
-        }
-        catch (error) {
-            dispatch(showGeneralMessage({
-                message: getErrorMessage(error),
-                severity: "error"
-            }));
-        }
-        finally {
-            isFetchingRef.current = false;
-        }
-    };
+      if (response) {
+        setCurrentSeasonPage(prev => prev + 1);
+        setMySeasons(prev => [...(prev ?? []), ...response.items])
+      }
+    }
+    catch (error) {
+      dispatch(showGeneralMessage({
+        message: getErrorMessage(error),
+        severity: "error"
+      }));
+    }
+    finally {
+      isFetchingRef.current = false;
+    }
+  };
 
-    const loadMoreEvents = async () => {
-        if (isFetchingRef.current) {
-            return;
-        }
+  const loadMoreEvents = async () => {
+    if (isFetchingRef.current) {
+      return;
+    }
 
-        isFetchingRef.current = true;
+    isFetchingRef.current = true;
 
-        try {
-            const response = await getMyEvents({ page: (currentEventsPage + 1), pageSize: PAGE_SIZE, orderType: OrderType.Ticket });
+    try {
+      const response = await getMyEvents({ page: (currentEventsPage + 1), pageSize: PAGE_SIZE, orderType: OrderType.Ticket });
 
-            if (response) {
-                setCurrentEventsPage(prev => prev + 1);
-                setMyEvents(prev => [...(prev ?? []), ...response.items])
-            }
-        }
-        catch (error) {
-            dispatch(showGeneralMessage({
-                message: getErrorMessage(error),
-                severity: "error"
-            }));
-        }
-        finally {
-            isFetchingRef.current = false;
-        }
-    };
+      if (response) {
+        setCurrentEventsPage(prev => prev + 1);
+        setMyEvents(prev => [...(prev ?? []), ...response.items])
+      }
+    }
+    catch (error) {
+      dispatch(showGeneralMessage({
+        message: getErrorMessage(error),
+        severity: "error"
+      }));
+    }
+    finally {
+      isFetchingRef.current = false;
+    }
+  };
 
-    return (
-        <Box>
-            <TicketTabs
-                myEvents={myEvents}
-                mySeasons={mySeasons}
-                onEventLoadMore={loadMoreEvents}
-                onSeasonLoadMore={loadMoreSeasons}
-            />
+  return (
+    <Box>
+      <TicketTabs
+        myEvents={myEvents}
+        mySeasons={mySeasons}
+        onEventLoadMore={loadMoreEvents}
+        onSeasonLoadMore={loadMoreSeasons}
+      />
 
-            <Snackbar
-                anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                open={!!generalMessage.message}
-                autoHideDuration={4000}
-                onClose={() => dispatch(clearGeneralMessage())}>
-                <Alert
-                    severity={generalMessage.severity}
-                    variant="filled"
-                    sx={{ width: "100%" }}>
-                    {generalMessage.message}
-                </Alert>
-            </Snackbar>
-        </Box>
-    );
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        open={!!generalMessage.message}
+        autoHideDuration={4000}
+        onClose={() => dispatch(clearGeneralMessage())}>
+        <Alert
+          severity={generalMessage.severity}
+          variant="filled"
+          sx={{ width: "100%" }}>
+          {generalMessage.message}
+        </Alert>
+      </Snackbar>
+    </Box>
+  );
 }
