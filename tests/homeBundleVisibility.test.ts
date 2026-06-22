@@ -15,3 +15,11 @@ test("event catalog filters include buyableOnly", () => {
 
   assert.match(source, /buyableOnly\?:\s*boolean/);
 });
+
+test("season banner routes renewal bundles to renovation", () => {
+  const source = readFileSync("src/components/SeasonBanner/SeasonBanner.tsx", "utf8");
+
+  assert.match(source, /bundleBanner\.isRenewal/);
+  assert.match(source, /bundleBanner\.relatedOrderId/);
+  assert.match(source, /\/season\/renovation\/\$\{bundleBanner\.relatedOrderId\}/);
+});

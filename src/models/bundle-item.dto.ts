@@ -12,6 +12,7 @@ export interface BundleItemDTO {
     isRenewal: boolean;
     isPreSale: boolean;
     isGeneralSale: boolean;
+    relatedOrderId?: number | null;
 }
 
 export const getBundleBannerImageUrl = (bundle: BundleItemDTO): string =>
