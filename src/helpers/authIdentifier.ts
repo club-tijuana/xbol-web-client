@@ -56,6 +56,17 @@ export function getPhoneAuthCountry(value: string): AuthPhoneCountryCode | null 
     return phoneNumber.country as AuthPhoneCountryCode;
 }
 
+export function resolvePhoneAuthCountryCode(
+    value: string,
+    currentCountryCode: string,
+): AuthPhoneCountryCode {
+    return getPhoneAuthCountry(value) ?? (
+        isAuthPhoneCountryCode(currentCountryCode)
+            ? currentCountryCode
+            : defaultAuthPhoneCountryCode
+    );
+}
+
 export function isPhoneAuthIdentifier(
     value: string,
     countryCode?: string,

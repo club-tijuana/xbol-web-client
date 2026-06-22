@@ -9,7 +9,7 @@ import { useState } from "react";
 
 import { AuthIdentifierInput } from "@/components/AuthIdentifierField/AuthIdentifierField";
 import { publicEnv } from "@/config/env";
-import { defaultAuthPhoneCountryCode, getPhoneAuthIdentifier, isPhoneLikeAuthIdentifier, normalizeAuthIdentifier } from "@/helpers/authIdentifier";
+import { defaultAuthPhoneCountryCode, getPhoneAuthIdentifier, isPhoneLikeAuthIdentifier, normalizeAuthIdentifier, resolvePhoneAuthCountryCode } from "@/helpers/authIdentifier";
 import { isUnlinkedClientProfileError, loginPhone, sendPasswordReset, sendPhoneLoginCode } from "@/services/authService";
 import { RootState } from "@/store";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -60,6 +60,16 @@ export default function LoginModal() {
     const resetPhoneCodeState = () => {
         setPhoneConfirmation(null);
         setVerificationCode("");
+    };
+
+    const handleIdentifierChange = (value: string) => {
+        const nextCountryCode = resolvePhoneAuthCountryCode(value, identifierCountryCode);
+        if (nextCountryCode !== identifierCountryCode) {
+            setIdentifierCountryCode(nextCountryCode);
+        }
+
+        setIdentifier(value);
+        resetPhoneCodeState();
     };
 
     const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -158,6 +168,11 @@ export default function LoginModal() {
             setAlertSeverity("error");
             setAlertMessage("Selecciona el país e ingresa un teléfono válido");
             setAlertOpen(true);
+            return;
+        }
+
+        if (isPhoneIdentifier && !phoneConfirmation) {
+            await handleSendPhoneCode();
             return;
         }
 
@@ -273,11 +288,16 @@ export default function LoginModal() {
                             setIdentifierCountryCode(value);
                             resetPhoneCodeState();
                         }}
-                        onValueChange={(value) => {
-                            setIdentifier(value);
-                            resetPhoneCodeState();
-                        }}
+                        onValueChange={handleIdentifierChange}
                         className={styles.inputCustom}
+                        onKeyDown={(event) => {
+                            if (event.key !== "Enter" || isLoading || !isPhoneIdentifier || phoneConfirmation) {
+                                return;
+                            }
+
+                            event.preventDefault();
+                            void handleSendPhoneCode();
+                        }}
                         inputProps={{
                             "aria-label": emailAuthEnabled ? "Correo electrónico o teléfono" : "Teléfono",
                             style: {
@@ -396,11 +416,13 @@ export default function LoginModal() {
                         </Typography>
                     </Button>
                 }
-                <Button type="button" variant="text" color={'secondary'} onClick={handleRegister}>
-                    <Typography variant="body1" color={'text'} sx={{ textDecoration: 'underline' }}>
-                        Crear cuenta
-                    </Typography>
-                </Button>
+                {!phoneConfirmation &&
+                    <Button type="button" variant="text" color={'secondary'} onClick={handleRegister}>
+                        <Typography variant="body1" color={'text'} sx={{ textDecoration: 'underline' }}>
+                            Crear cuenta
+                        </Typography>
+                    </Button>
+                }
                 <Box className={styles.actionContainer} mt={5}>
                     <Button
                         type="submit"
