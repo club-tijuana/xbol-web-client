@@ -46,8 +46,8 @@ export default function SeasonBanner() {
             return;
         }
 
-        if ((bundleBanner.isRenewal || bundleBanner.isPreSale) && bundleBanner.relatedOrderId) {
-            router.push(`/season/renovation/${bundleBanner.relatedOrderId}`);
+        if (bundleBanner.isRenewal || bundleBanner.isPreSale) {
+            router.push("/account/tickets");
             return;
         }
 
