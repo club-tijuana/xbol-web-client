@@ -128,6 +128,6 @@ export async function getUpcomingEvents(
     "events/upcoming-events",
     undefined,
     undefined,
-    { params },
+    { params: { ...params, includeMedia: true } },
   );
 }
