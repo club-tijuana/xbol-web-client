@@ -20,9 +20,7 @@ export default function SeasonBanner() {
     const [bundleBanner, setBundleBanner] = useState<BundleItemDTO>();
 
     useEffect(() => {
-        if (!token) {
-            return;
-        }
+
 
         const loadSeason = async () => {
             try {
@@ -41,7 +39,7 @@ export default function SeasonBanner() {
         };
 
         loadSeason();
-    }, [token]);
+    }, []);
 
     const handleSeasonClick = () => {
         if (!bundleBanner) {

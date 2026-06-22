@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { PriceRangeFilterProps } from "./PriceRangeFilter.types";
 
 export default function PriceRangeFilter({ value, onChange }: PriceRangeFilterProps) {
-    const MIN_PRICE = 100;
+    const MIN_PRICE = 1;
     const MAX_PRICE = 10000;
 
     const [range, setRange] = useState<[number, number]>([
