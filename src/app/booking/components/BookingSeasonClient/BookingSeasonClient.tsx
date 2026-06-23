@@ -49,6 +49,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
     const renovationType = useAppSelector(store => store.bookingFlow.renovationType);
     const clientContactObj = useAppSelector(store => store.bookingFlow.clientContact);
     const holdTokenState = useAppSelector(store => store.bookingFlow.holdTokenObj);
+    const initialized = useAppSelector(store => store.auth.initialized);
 
     const [season, setSeason] = useState<BundleItemDTO | null>(null);
     const [bookingStep, setBookingStep] = useState<BookingStep>("selection");
@@ -114,6 +115,10 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
     useEffect(() => {
         let isMounted = true;
 
+        if (!initialized) {
+            return;
+        }
+
         async function loadAll() {
             try {
                 setIsLoading(true);
@@ -129,6 +134,10 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                 dispatch(clearHoldToken());
 
                 try {
+                    if (id === "0") {
+                        return;
+                    }
+
                     const seasonResponse = await getBundleSeasonById(Number.parseInt(id));
 
                     if (!seasonResponse.externalKey) return;
@@ -183,7 +192,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
             isMounted = false;
             dispatch(setSeats([]));
         };
-    }, []);
+    }, [initialized]);
 
     useEffect(() => {
         if (

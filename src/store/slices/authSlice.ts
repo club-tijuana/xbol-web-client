@@ -13,6 +13,7 @@ interface LoginPayload {
 
 interface AuthState {
     user: AuthDto | null;
+    initialized: boolean;
     status: "idle" | "loading" | "success" | "error";
     forgotPasswordStatus: "idle" | "loading" | "success" | "error";
     error?: string;
@@ -20,6 +21,7 @@ interface AuthState {
 
 const initialState: AuthState = {
     user: null,
+    initialized: false,
     status: "idle",
     forgotPasswordStatus: "idle"
 };
@@ -84,10 +86,12 @@ const authSlice = createSlice({
         setUser: (state, action: PayloadAction<AuthDto | null>) => {
             state.user = action.payload;
             state.status = action.payload ? "success" : "idle";
+            state.initialized = true;
         },
         logout: (state) => {
             state.user = null;
             state.status = "idle";
+            state.initialized = true;
         }
     },
     extraReducers: (builder) => {
