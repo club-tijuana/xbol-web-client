@@ -6,14 +6,16 @@ import { redirect } from "next/navigation";
 
 import TicketSeats from "@/app/account/tickets/order/[orderId]/event/[eventId]/components/TicketSeats/TicketSeats";
 import Loader from "@/components/Loader/Loader";
-import PaymentLinkClient from "./PaymentLinkClient";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { eventImageOrDefault } from "@/models/event-image";
 import { OrderDTO } from "@/models/order.dto";
 import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
 import { getEventMetadataByPaymentCodeAsync, getOrderToPayAsync } from "@/services/paymentLinkService";
+import { withPublicRedirectBasePath } from "@/utils/routing/basePath";
 import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
+
+import PaymentLinkClient from "./PaymentLinkClient";
 
 interface PageProps {
     params: Promise<{
@@ -47,7 +49,7 @@ export default async function PaymentLinkPage({ params }: PageProps) {
     }
     catch (error) {
         const errorMessage = getErrorMessage(error);
-        redirect(`/?error=${encodeURIComponent(errorMessage)}`);
+        redirect(withPublicRedirectBasePath(`/?error=${encodeURIComponent(errorMessage)}`));
     }
 
     const selectedSeats: BookingSeatRequest[] =

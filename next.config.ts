@@ -7,7 +7,8 @@ const adminImageHost = publicEnv.NEXT_PUBLIC_ADMIN_IMAGE_HOST;
 const nextConfig: NextConfig = {
   basePath: publicEnv.NEXT_PUBLIC_BASE_PATH || '',
   assetPrefix: publicEnv.NEXT_PUBLIC_ASSET_PREFIX || '',
-  skipMiddlewareUrlNormalize: true,
+  skipProxyUrlNormalize: true,
+  skipTrailingSlashRedirect: true,
   trailingSlash: true,
   output: 'standalone',
   reactCompiler: true,
