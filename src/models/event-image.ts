@@ -1,11 +1,6 @@
 import { DEFAULT_EVENT_IMAGE } from "@/config/defaults";
 import { publicEnv } from "@/config/env";
-
-function normalizeBasePath(basePath?: string): string {
-  const trimmedBasePath = basePath?.trim().replace(/^\/+|\/+$/g, "") ?? "";
-
-  return trimmedBasePath ? `/${trimmedBasePath}` : "";
-}
+import { normalizeBasePath } from "@/utils/routing/basePath";
 
 const defaultEventImage = `${normalizeBasePath(publicEnv.NEXT_PUBLIC_BASE_PATH)}${DEFAULT_EVENT_IMAGE}`;
 const configuredEventImage =

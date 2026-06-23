@@ -1,14 +1,10 @@
 import { publicEnv } from "@/config/env";
+import { getPublicAppBasePath } from "@/utils/routing/basePath";
 
-function normalizePublicPrefix(prefix: string | undefined): string {
-  const trimmedPrefix = (prefix ?? "").trim().replace(/^\/+|\/+$/g, "");
-
-  return trimmedPrefix ? `/${trimmedPrefix}` : "";
-}
-
-const normalizedPublicPrefix =
-  normalizePublicPrefix(publicEnv.NEXT_PUBLIC_BASE_PATH)
-  || normalizePublicPrefix(publicEnv.NEXT_PUBLIC_ASSET_PREFIX);
+const normalizedPublicPrefix = getPublicAppBasePath(
+  publicEnv.NEXT_PUBLIC_BASE_PATH,
+  publicEnv.NEXT_PUBLIC_ASSET_PREFIX,
+);
 
 export function getSessionApiPath(): string {
   return `${normalizedPublicPrefix}/api/auth/session/`;

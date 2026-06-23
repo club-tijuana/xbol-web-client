@@ -13,8 +13,6 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 
-import { useRouter } from "next/navigation";
-
 import Loader from "@/components/Loader/Loader";
 import {
   buildCheckoutClientContact,
@@ -25,6 +23,7 @@ import { initiateCheckout } from "@/services/evoPaymentService";
 import { initiatePaymentLinkCheckoutAsync } from "@/services/paymentLinkService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { clearHoldToken } from "@/store/slices/bookingFlowSlice";
+import { withPublicAppBasePath } from "@/utils/routing/basePath";
 
 import { useSnackbar } from "./hooks/useSnackbar";
 import { PaymentProps } from "./Payment.type";
@@ -75,7 +74,6 @@ export default function Payment({
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [paying, setPaying] = useState(false);
 
-  const router = useRouter();
   const dispatch = useAppDispatch();
   const snackbar = useSnackbar();
 
@@ -110,7 +108,7 @@ export default function Payment({
       if (paying) return;
       setPaying(true);
       try {
-        const returnUrl = `${window.location.origin}${window.location.pathname}?source=evo`;
+        const returnUrl = `${window.location.origin}${withPublicAppBasePath(window.location.pathname)}?source=evo`;
         const result = await initiatePaymentLinkCheckoutAsync(paymentLinkCode, {
           returnUrl,
           currency: currency ?? "MXN",
@@ -204,7 +202,7 @@ export default function Payment({
     setPaying(true);
 
     try {
-      const returnUrl = `${window.location.origin}${window.location.pathname}?source=evo`;
+      const returnUrl = `${window.location.origin}${withPublicAppBasePath(window.location.pathname)}?source=evo`;
 
       const result = await initiateCheckout({
         eventScheduleId: scheduleId,
