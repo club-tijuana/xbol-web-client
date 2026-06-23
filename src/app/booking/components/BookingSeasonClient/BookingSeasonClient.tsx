@@ -131,7 +131,9 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                 try {
                     const seasonResponse = await getBundleSeasonById(Number.parseInt(id));
 
-                    if (!seasonResponse.externalKey) return;
+                    if (!seasonResponse.externalKey) {
+                        throw new Error("La temporada no está disponible para compra.");
+                    }
 
                     mapKeyLocal = seasonResponse.externalKey;
 
@@ -196,6 +198,13 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
     }, [holdTokenState, bookingStep]);
 
     const handleContinue = async () => {
+        if (!season) {
+            setSnackbarSeverity("error");
+            setSnackbarMessage("La temporada no está disponible para compra.");
+            setOpenSnackbar(true);
+            return;
+        }
+
         switch (bookingStep) {
             case "selection":
                 setIsLoading(true);
@@ -430,7 +439,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                         </Grid>
                     </Grid>
                 }
-                {bookingStep === "selection" &&
+                {season && bookingStep === "selection" &&
                     <Box display={{ xs: "none", lg: "block" }}>
                         <SeatFilters
                             seasonId={Number(id)}
@@ -440,7 +449,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                         />
                     </Box>
                 }
-                {(bookingStep === "payment") &&
+                {season && (bookingStep === "payment") &&
                     <Box mt={4}>
                         <Box>
                             <TicketSeats
@@ -459,17 +468,19 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
             </Grid>
             <Grid size={{ xs: 12, lg: 6 }}>
                 <Paper elevation={3} className="paperCard" sx={{ backgroundColor: "white" }}>
-                    <BookingRightPanel
-                        ref={mapRef}
-                        mapKey={mapKey}
-                        bookingMode={isRenovation ? "renovateSeason" : "season"}
-                        bookingStep={bookingStep}
-                        selectedZone={selectedZone}
-                        zonesPrices={zonesPrices}
-                        isRenewalWindow={season?.isRenewal}
-                        bundleId={Number(id)}
-                        onPay={handleContinue}
-                    />
+                    {season &&
+                        <BookingRightPanel
+                            ref={mapRef}
+                            mapKey={mapKey}
+                            bookingMode={isRenovation ? "renovateSeason" : "season"}
+                            bookingStep={bookingStep}
+                            selectedZone={selectedZone}
+                            zonesPrices={zonesPrices}
+                            isRenewalWindow={season.isRenewal}
+                            bundleId={Number(id)}
+                            onPay={handleContinue}
+                        />
+                    }
                 </Paper>
 
                 <Box mt={4} textAlign="end">
@@ -482,7 +493,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                         </Button>
                     }
                     {
-                        bookingStep !== "payment" &&
+                        season && bookingStep !== "payment" &&
                         <Button variant="contained" color="primary" onClick={handleContinue}>
                             <Typography variant="body1" color="neutral">
                                 Continuar
@@ -491,7 +502,7 @@ export default function BookingSeasonClient({ id, isRenovation }: BookingSeasonC
                     }
                 </Box>
 
-                {bookingStep === "selection" &&
+                {season && bookingStep === "selection" &&
                     <Box display={{ xs: "block", lg: "none" }} mt={5}>
                         <SeatFilters
                             seasonId={Number(id)}

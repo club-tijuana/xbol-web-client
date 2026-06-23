@@ -254,7 +254,6 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
       if (ignoreSeatEventsRef.current) return;
       if (hydratingSelectionRef.current) return;
       if (!seatAvailability) return;
-      if (blockSameSeats) return;
 
       setCurrentSelectedSeats((prev) => {
         const exists = prev.some((s) => s.seatKey === obj.label);
@@ -287,11 +286,6 @@ const SeatsMap = forwardRef<SeatsMapHandle, SeatsMapProps>(
       if (ignoreSeatEventsRef.current) return;
       if (hydratingSelectionRef.current) return;
       if (!obj.labels.section) return;
-
-      if (blockSameSeats) {
-        chartRef.current?.trySelectObjects([obj.label]).catch();
-        return;
-      }
 
       const updated = selectedSeatsRef.current.filter(
         (s) => s.seatKey !== obj.label,
