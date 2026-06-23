@@ -26,7 +26,10 @@ test("season banner routes renewal bundles to renovation flow", () => {
   );
 
   assert.match(source, /bundleBanner\.isRenewal/);
-  assert.match(source, /router\.push\(`\/season\/renovation\/\$\{bundleBanner\.relatedOrderId\}`\)/);
+  assert.match(
+    source,
+    /router\.push\(`\/season\/renovation\/\$\{bundleBanner\.relatedOrderId\}`\)/,
+  );
   assert.doesNotMatch(
     source,
     /\(bundleBanner\.isRenewal \|\| bundleBanner\.isPreSale\) && bundleBanner\.relatedOrderId/,
@@ -39,7 +42,10 @@ test("season booking route waits for an available season before mounting purchas
     "utf8",
   );
 
-  assert.match(source, /throw new Error\("La temporada no está disponible para compra\."\)/);
+  assert.match(
+    source,
+    /throw new Error\("La temporada no está disponible para compra\."\)/,
+  );
   assert.match(source, /season && bookingStep === "selection"/);
   assert.match(source, /season &&\s*<BookingRightPanel/);
   assert.match(source, /season && bookingStep !== "payment"/);
