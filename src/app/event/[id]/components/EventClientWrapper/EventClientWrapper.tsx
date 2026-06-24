@@ -21,7 +21,12 @@ import FavoriteButton from "@/components/FavoriteButton/FavoriteButton";
 import { formatCurrency } from "@/helpers/formatCurrencyHelper";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { AgeRestrictionLabels } from "@/models/enums/age-restriction.enum";
-import { EventDetailDTO, getEventDetailGalleryUrls, getEventDetailImageUrl, getEventDetailSponsorUrls } from "@/models/event-detail.dto";
+import {
+  EventDetailDTO,
+  getEventDetailGalleryUrls,
+  getEventDetailImageUrl,
+  getEventDetailSponsorUrls,
+} from "@/models/event-detail.dto";
 import { getEventDetail } from "@/services/eventService";
 import { colors } from "@/theme/colors";
 
@@ -50,7 +55,7 @@ export default function EventClientWrapper({
 
   const handleSeasonRenovate = (scheduleId: number) => {
     router.push(`/booking/${scheduleId}`);
-  }
+  };
 
   const detailImage = event ? getEventDetailImageUrl(event) : "";
   const galleryImages = event ? getEventDetailGalleryUrls(event) : [];
@@ -67,7 +72,7 @@ export default function EventClientWrapper({
               justifyContent: "center",
               width: "100%",
               aspectRatio: "16 / 9",
-              overflow: "hidden"
+              overflow: "hidden",
             }}
             mb={3}
           >
@@ -101,7 +106,7 @@ export default function EventClientWrapper({
               style={{
                 objectFit: "cover",
                 objectPosition: "center",
-                borderRadius: 10
+                borderRadius: 10,
               }}
             />
           </Box>
@@ -111,14 +116,17 @@ export default function EventClientWrapper({
           <Grid container columns={2} spacing={2} mt={1.2}>
             {galleryImages.map((image, index) => (
               <Grid size={{ xs: 2, sm: 1, md: 2, lg: 1 }} key={index}>
-                <Box sx={{
-                  position: "relative",
-                  display: "flex",
-                  justifyContent: "center",
-                  width: "100%",
-                  aspectRatio: "16 / 9",
-                  overflow: "hidden"
-                }} mb={3}>
+                <Box
+                  sx={{
+                    position: "relative",
+                    display: "flex",
+                    justifyContent: "center",
+                    width: "100%",
+                    aspectRatio: "16 / 9",
+                    overflow: "hidden",
+                  }}
+                  mb={3}
+                >
                   <Image
                     src={image}
                     alt="Evento"
@@ -126,7 +134,7 @@ export default function EventClientWrapper({
                     style={{
                       objectFit: "cover",
                       objectPosition: "center",
-                      borderRadius: 10
+                      borderRadius: 10,
                     }}
                   />
                 </Box>
@@ -141,14 +149,17 @@ export default function EventClientWrapper({
               <Grid container columns={4} spacing={2} mt={1.2}>
                 {sponsorImages.map((image, index) => (
                   <Grid size={{ xs: 2, sm: 1, md: 2, lg: 1 }} key={index}>
-                    <Box sx={{
-                      position: "relative",
-                      display: "flex",
-                      justifyContent: "center",
-                      width: "100%",
-                      aspectRatio: "16 / 9",
-                      overflow: "hidden"
-                    }} mb={3}>
+                    <Box
+                      sx={{
+                        position: "relative",
+                        display: "flex",
+                        justifyContent: "center",
+                        width: "100%",
+                        aspectRatio: "16 / 9",
+                        overflow: "hidden",
+                      }}
+                      mb={3}
+                    >
                       <Image
                         src={image}
                         alt="Patrocinador"
@@ -156,7 +167,7 @@ export default function EventClientWrapper({
                         style={{
                           objectFit: "contain",
                           objectPosition: "center",
-                          borderRadius: 10
+                          borderRadius: 10,
                         }}
                       />
                     </Box>
@@ -184,17 +195,22 @@ export default function EventClientWrapper({
               size={{ xs: 10, sm: 10, md: 6, lg: 5, xl: 8 }}
               offset={{ xs: 1, sm: 1, md: 0 }}
             >
-              <Typography variant="h1" color="primary" sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+              <Typography
+                variant="h1"
+                color="primary"
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
                 {event.name}
                 <LaunchRoudedIcon
                   color="neutral"
                   fontSize="large"
                   sx={{ marginLeft: 1, marginRight: 1 }}
                 />
-                <FavoriteButton
-                  eventId={event.id}
-                  colorBorder="neutral"
-                />
+                <FavoriteButton eventId={event.id} colorBorder="neutral" />
               </Typography>
               <Typography
                 variant="h5"
@@ -221,8 +237,6 @@ export default function EventClientWrapper({
                 {event.fullAddress}
               </Typography>
 
-
-
               <Box sx={{ display: { sm: "block", md: "none" } }} mt={4}>
                 {Gallery}
               </Box>
@@ -243,7 +257,12 @@ export default function EventClientWrapper({
                   }}
                 />
                 {event.schedules.map((s) => (
-                  <Accordion key={s.id} elevation={0} defaultExpanded={event.schedules.length === 1} sx={{ backgroundColor: colors.brand.white }}>
+                  <Accordion
+                    key={s.id}
+                    elevation={0}
+                    defaultExpanded={event.schedules.length === 1}
+                    sx={{ backgroundColor: colors.brand.white }}
+                  >
                     <AccordionSummary
                       expandIcon={
                         <Box
@@ -252,11 +271,15 @@ export default function EventClientWrapper({
                           alignItems="center"
                           gap={1}
                         >
-                          <Button variant="outlined" size="medium" component="div"
+                          <Button
+                            variant="outlined"
+                            size="medium"
+                            component="div"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleSeasonRenovate(s.id);
-                            }}>
+                            }}
+                          >
                             Ver tickets
                           </Button>
                           <Box display="flex" flexDirection="row" mt={1}>
@@ -276,17 +299,17 @@ export default function EventClientWrapper({
                           transform: "none",
                         },
                         "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded":
-                        {
-                          transform: "none",
-                        },
+                          {
+                            transform: "none",
+                          },
 
                         "& .MuiAccordionSummary-expandIconWrapper .arrowIcon": {
                           transition: "transform 0.3s ease",
                         },
                         "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded .arrowIcon":
-                        {
-                          transform: "rotate(180deg)",
-                        },
+                          {
+                            transform: "rotate(180deg)",
+                          },
                       }}
                     >
                       <Grid
@@ -300,7 +323,11 @@ export default function EventClientWrapper({
                           <Typography variant="body1" color="primary">
                             Fecha
                           </Typography>
-                          <Typography variant="body1" color="secondary" fontWeight={400}>
+                          <Typography
+                            variant="body1"
+                            color="secondary"
+                            fontWeight={400}
+                          >
                             {formatDate(s.date, "date")}
                           </Typography>
                         </Grid>
@@ -312,7 +339,11 @@ export default function EventClientWrapper({
                           <Typography variant="body1" color="primary">
                             Hora
                           </Typography>
-                          <Typography variant="body1" color="secondary" fontWeight={400}>
+                          <Typography
+                            variant="body1"
+                            color="secondary"
+                            fontWeight={400}
+                          >
                             {formatDate(s.date, "time")}
                           </Typography>
                         </Grid>
@@ -324,7 +355,11 @@ export default function EventClientWrapper({
                           <Typography variant="body1" color="primary">
                             Estadio
                           </Typography>
-                          <Typography variant="body1" color="secondary" fontWeight={400}>
+                          <Typography
+                            variant="body1"
+                            color="secondary"
+                            fontWeight={400}
+                          >
                             {s.location}
                           </Typography>
                         </Grid>
@@ -381,37 +416,27 @@ export default function EventClientWrapper({
                 ))}
               </Paper>
 
-              {ageRestriction &&
+              {ageRestriction && (
                 <Box mb={3}>
-                  <Typography
-                    variant="h5"
-                    mb={1}
-                    mt={3}
-                    color="primary"
-                  >
+                  <Typography variant="h5" mb={1} mt={3} color="primary">
                     Restricciones de edad
                   </Typography>
                   <Typography variant="subtitle1" mb={4} color="secondary">
                     {ageRestriction}
                   </Typography>
                 </Box>
-              }
+              )}
 
-              {event.securityPolicies &&
+              {event.securityPolicies && (
                 <Box mb={3}>
-                  <Typography
-                    variant="h5"
-                    mb={1}
-                    mt={3}
-                    color="primary"
-                  >
+                  <Typography variant="h5" mb={1} mt={3} color="primary">
                     Políticas de seguridad
                   </Typography>
                   <Typography variant="subtitle1" mb={4} color="secondary">
                     {event.securityPolicies}
                   </Typography>
                 </Box>
-              }
+              )}
             </Grid>
             <Grid
               size={{ md: 6, lg: 7, xl: 10 }}
