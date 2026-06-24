@@ -1,63 +1,67 @@
 .footer {
-    background-color: var(--color-footer);
-    padding-left: 30px;
-    padding-right: 30px;
-    padding-top: 40px;
-    padding-bottom: 40px;
+  background-color: var(--color-footer);
+  padding-left: 30px;
+  padding-right: 30px;
+  padding-top: 40px;
+  padding-bottom: 40px;
 
-    @media (max-width: 599px) {
-        padding-bottom: 60px;
-    }
+  @media (max-width: 599px) {
+    padding-bottom: 60px;
+  }
 }
 
 .logoContainer {
-    display: flex;
-    justify-content: flex-end;
-    width: 110px;
-    height: 48px;
+  display: flex;
+  justify-content: flex-end;
+  width: 110px;
+  height: 48px;
 
-    @media (max-width: 900px) {
-        width: auto;
-        justify-content: center;
-    }
+  @media (max-width: 900px) {
+    width: auto;
+    justify-content: center;
+  }
+}
+
+.cursorPointer {
+  cursor: pointer;
 }
 
 .iconContainer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-    img {
-        cursor: pointer;
-    }
+  img {
+    cursor: pointer;
+  }
 
-    @media (max-width: 899px) {
-        margin-top: 30px;
-    }
+  @media (max-width: 899px) {
+    margin-top: 30px;
+  }
 }
 
 .downloadContainer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
 
-    img {
-        cursor: pointer;
-    }
+  img {
+    cursor: pointer;
+  }
 
-    img:nth-child(1) {
-        margin-right: 25px;
-    }
+  img:nth-child(1) {
+    margin-right: 25px;
+  }
 }
 
 .stackContainer {
-    @media (max-width: 599px) {
-        margin-top: 30px;
-    }
+  @media (max-width: 599px) {
+    margin-top: 30px;
+  }
 }
 
 .footerLink {
-    color: inherit;
-    text-decoration: none;
+  color: inherit;
+  text-decoration: none;
 }

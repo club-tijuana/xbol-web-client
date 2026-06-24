@@ -183,14 +183,13 @@ export default function Header() {
   return (
     <Box
       sx={{
-        position: "absolute",
-        zIndex: 1000,
+        position: "relative",
         width: "100%",
         top: 0,
       }}
     >
       <CssBaseline />
-      <FullWidthSection variant="color">
+      <FullWidthSection fullBleed={true} variant="color">
         <AppBar
           component="nav"
           sx={{
@@ -198,8 +197,8 @@ export default function Header() {
               isTransparent
                 ? theme.palette.layout.header
                 : theme.palette.layout.header,
-            borderBottomLeftRadius: "4rem",
-            borderBottomRightRadius: "4rem",
+            mx: 0,
+            px: 0,
           }}
         >
           <Toolbar

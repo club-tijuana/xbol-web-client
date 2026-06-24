@@ -1,6 +1,8 @@
+"use client";
 import { Grid, Stack, Tooltip, Typography } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { colors } from "@/theme/colors";
 
@@ -15,6 +17,12 @@ const legalLinks = [
 ] as const;
 
 export default function Footer() {
+  const router = useRouter();
+
+  const handleGoHome = () => {
+    router.push("/");
+  };
+
   return (
     <footer className={styles.footer}>
       <Grid container columns={12}>
@@ -32,9 +40,11 @@ export default function Footer() {
             <Image
               src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/logo.svg`}
               alt="Logo"
+              className={styles.cursorPointer}
               objectFit="cover"
               width={231}
               height={54}
+              onClick={handleGoHome}
             />
           </div>
         </Grid>
@@ -59,24 +69,36 @@ export default function Footer() {
           size={{ xs: 6, sm: 6, md: 3, lg: 3, xl: 3 }}
         >
           <Stack spacing={1} className={styles.stack}>
-            <Typography variant="body1" color={colors.text.neutral}>
-              Eventos
-            </Typography>
-            <Typography variant="body1" color={colors.text.neutral}>
-              Teatro
-            </Typography>
-            <Typography variant="body1" color={colors.text.neutral}>
-              Música
-            </Typography>
-            <Typography variant="body1" color={colors.text.neutral}>
-              Deporte
-            </Typography>
-            <Typography variant="body1" color={colors.text.neutral}>
-              Centro de ayuda
-            </Typography>
-            <Typography variant="body1" color={colors.text.neutral}>
-              Quienes somos
-            </Typography>
+            <Tooltip title="Próximamente">
+              <Typography variant="body1" color={colors.text.neutral}>
+                Eventos
+              </Typography>
+            </Tooltip>
+            <Tooltip title="Próximamente">
+              <Typography variant="body1" color={colors.text.neutral}>
+                Teatro
+              </Typography>
+            </Tooltip>
+            <Tooltip title="Próximamente">
+              <Typography variant="body1" color={colors.text.neutral}>
+                Música
+              </Typography>
+            </Tooltip>
+            <Tooltip title="Próximamente">
+              <Typography variant="body1" color={colors.text.neutral}>
+                Deporte
+              </Typography>
+            </Tooltip>
+            <Tooltip title="Próximamente">
+              <Typography variant="body1" color={colors.text.neutral}>
+                Centro de ayuda
+              </Typography>
+            </Tooltip>
+            <Tooltip title="Próximamente">
+              <Typography variant="body1" color={colors.text.neutral}>
+                Quienes somos
+              </Typography>
+            </Tooltip>
           </Stack>
         </Grid>
 
