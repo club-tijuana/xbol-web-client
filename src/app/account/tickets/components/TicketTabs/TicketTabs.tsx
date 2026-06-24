@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Tab, Tabs } from "@mui/material";
+import { Box, Tab, Tabs, Typography } from "@mui/material";
 import Image from "next/image";
 import { SyntheticEvent, useState } from "react";
 import { Navigation, Pagination } from "swiper/modules";
@@ -64,6 +64,10 @@ function CustomTabPanel(props: TabPanelProps) {
 export default function TicketTabs({
     myEvents,
     mySeasons,
+    eventsLoaded,
+    seasonsLoaded,
+    eventsError,
+    seasonsError,
     onEventLoadMore,
     onSeasonLoadMore
 }: TicketTabsProps) {
@@ -105,6 +109,24 @@ export default function TicketTabs({
         }
     };
 
+    const getLoadedForTab = (tabKey: TabKey) => (
+        tabKey === TAB_KEYS.SEASON_PASS
+            ? seasonsLoaded
+            : eventsLoaded
+    );
+
+    const getErrorForTab = (tabKey: TabKey) => (
+        tabKey === TAB_KEYS.SEASON_PASS
+            ? seasonsError
+            : eventsError
+    );
+
+    const getEmptyMessageForTab = (tabKey: TabKey) => (
+        tabKey === TAB_KEYS.SEASON_PASS
+            ? "No tienes Season Pass disponibles."
+            : "No tienes tickets disponibles."
+    );
+
     const handleChange = (event: SyntheticEvent, newValue: number) => {
         setValue(newValue);
     };
@@ -122,79 +144,97 @@ export default function TicketTabs({
                     ))}
                 </Tabs>
             </Box>
-            {tabs.map((tabKey, index) => (
-                <CustomTabPanel key={tabKey} value={value} index={index}>
-                    <Swiper
-                        modules={[Navigation, Pagination]}
-                        spaceBetween={20}
-                        pagination={{ clickable: true }}
-                        navigation={{
-                            nextEl: ".tickets-custom-next",
-                            prevEl: ".tickets-custom-prev",
-                        }}
-                        watchOverflow={false}
-                        onReachEnd={() => {
-                            if (tabKey === "EVENTS") {
-                                if (onEventLoadMore) {
-                                    onEventLoadMore();
-                                }
-                            }
-                            else {
-                                if (onSeasonLoadMore) {
-                                    onSeasonLoadMore();
-                                }
-                            }
-                        }}
-                        breakpoints={{
-                            500: {
-                                slidesPerView: SLIDES_PER_VIEW.xs,
-                            },
-                            600: {
-                                slidesPerView: SLIDES_PER_VIEW.sm,
-                            },
-                            1070: {
-                                slidesPerView: SLIDES_PER_VIEW.md,
-                            },
-                            1200: {
-                                slidesPerView: SLIDES_PER_VIEW.lg,
-                            },
-                            1500: {
-                                slidesPerView: SLIDES_PER_VIEW.xl,
-                            },
-                        }}
-                        style={{ overflow: "initial" }}
-                    >
-                        {getTicketsForTab(tabKey).map((ticket, i) => (
-                            <SwiperSlide key={`ticket-${i}`}>
-                                <TicketCard ticket={ticket} />
-                            </SwiperSlide>
-                        ))}
-                        <Box
-                            className="tickets-custom-prev"
-                            onMouseEnter={() => setHoverPrev(true)}
-                            onMouseLeave={() => setHoverPrev(false)}>
-                            <Image
-                                src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/${hoverPrev ? "left-hover.svg" : "left-default.svg"}`}
-                                alt="Prev"
-                                width={35}
-                                height={35}
-                            />
-                        </Box>
+            {tabs.map((tabKey, index) => {
+                const tickets = getTicketsForTab(tabKey);
+                const error = getErrorForTab(tabKey);
+                const loaded = getLoadedForTab(tabKey);
 
-                        <Box
-                            className="tickets-custom-next"
-                            onMouseEnter={() => setHoverNext(true)}
-                            onMouseLeave={() => setHoverNext(false)}>
-                            <Image
-                                src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/${hoverNext ? "right-hover.svg" : "right-default.svg"}`}
-                                alt="Next"
-                                width={35}
-                                height={35}
-                            />
-                        </Box>
-                    </Swiper>
-                </CustomTabPanel>
-            ))}
+                return (
+                    <CustomTabPanel key={tabKey} value={value} index={index}>
+                        {error &&
+                            <Typography color="error">
+                                {error}
+                            </Typography>
+                        }
+                        {!error && loaded && tickets.length === 0 &&
+                            <Typography color="text.secondary">
+                                {getEmptyMessageForTab(tabKey)}
+                            </Typography>
+                        }
+                        {!error && tickets.length > 0 &&
+                            <Swiper
+                                modules={[Navigation, Pagination]}
+                                spaceBetween={20}
+                                pagination={{ clickable: true }}
+                                navigation={{
+                                    nextEl: ".tickets-custom-next",
+                                    prevEl: ".tickets-custom-prev",
+                                }}
+                                watchOverflow={false}
+                                onReachEnd={() => {
+                                    if (tabKey === "EVENTS") {
+                                        if (onEventLoadMore) {
+                                            onEventLoadMore();
+                                        }
+                                    }
+                                    else {
+                                        if (onSeasonLoadMore) {
+                                            onSeasonLoadMore();
+                                        }
+                                    }
+                                }}
+                                breakpoints={{
+                                    500: {
+                                        slidesPerView: SLIDES_PER_VIEW.xs,
+                                    },
+                                    600: {
+                                        slidesPerView: SLIDES_PER_VIEW.sm,
+                                    },
+                                    1070: {
+                                        slidesPerView: SLIDES_PER_VIEW.md,
+                                    },
+                                    1200: {
+                                        slidesPerView: SLIDES_PER_VIEW.lg,
+                                    },
+                                    1500: {
+                                        slidesPerView: SLIDES_PER_VIEW.xl,
+                                    },
+                                }}
+                                style={{ overflow: "initial" }}
+                            >
+                                {tickets.map((ticket, i) => (
+                                    <SwiperSlide key={`ticket-${i}`}>
+                                        <TicketCard ticket={ticket} />
+                                    </SwiperSlide>
+                                ))}
+                                <Box
+                                    className="tickets-custom-prev"
+                                    onMouseEnter={() => setHoverPrev(true)}
+                                    onMouseLeave={() => setHoverPrev(false)}>
+                                    <Image
+                                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/${hoverPrev ? "left-hover.svg" : "left-default.svg"}`}
+                                        alt="Prev"
+                                        width={35}
+                                        height={35}
+                                    />
+                                </Box>
+
+                                <Box
+                                    className="tickets-custom-next"
+                                    onMouseEnter={() => setHoverNext(true)}
+                                    onMouseLeave={() => setHoverNext(false)}>
+                                    <Image
+                                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/${hoverNext ? "right-hover.svg" : "right-default.svg"}`}
+                                        alt="Next"
+                                        width={35}
+                                        height={35}
+                                    />
+                                </Box>
+                            </Swiper>
+                        }
+                    </CustomTabPanel>
+                );
+            })}
         </Box>
     );
 }

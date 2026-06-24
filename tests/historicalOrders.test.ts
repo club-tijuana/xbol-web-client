@@ -24,3 +24,14 @@ test("historical order cards do not expose ticket drill-in", () => {
   );
   assert.equal(source.includes("{canOpenTicket &&"), true);
 });
+
+test("initial account ticket load surfaces rejected requests", () => {
+  const source = readFileSync(
+    "src/app/account/tickets/components/TicketsClientWrapper/TicketsClientWrapper.tsx",
+    "utf8",
+  );
+
+  assert.equal(source.includes('eventsResult.status === "rejected"'), true);
+  assert.equal(source.includes('seasonsResult.status === "rejected"'), true);
+  assert.equal(source.includes("showGeneralMessage"), true);
+});

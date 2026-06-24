@@ -24,6 +24,10 @@ export default function TicketsClientWrapper() {
   const [mySeasons, setMySeasons] = useState<MyEventDTO[]>([]);
   const [currentEventsPage, setCurrentEventsPage] = useState<number>(1);
   const [currentSeasonPage, setCurrentSeasonPage] = useState<number>(1);
+  const [eventsLoaded, setEventsLoaded] = useState(false);
+  const [seasonsLoaded, setSeasonsLoaded] = useState(false);
+  const [eventsError, setEventsError] = useState<string | null>(null);
+  const [seasonsError, setSeasonsError] = useState<string | null>(null);
   const isFetchingRef = useRef(false);
 
   useEffect(() => {
@@ -35,18 +39,42 @@ export default function TicketsClientWrapper() {
       isFetchingRef.current = true;
 
       try {
+        setEventsError(null);
+        setSeasonsError(null);
+        setCurrentEventsPage(1);
+        setCurrentSeasonPage(1);
+
         const [eventsResult, seasonsResult] = await Promise.allSettled([
-          getMyEvents({ page: currentEventsPage, pageSize: PAGE_SIZE, orderType: OrderType.Ticket }),
-          getMyEvents({ page: currentSeasonPage, pageSize: PAGE_SIZE, orderType: OrderType.Bundle }),
+          getMyEvents({ page: 1, pageSize: PAGE_SIZE, orderType: OrderType.Ticket }),
+          getMyEvents({ page: 1, pageSize: PAGE_SIZE, orderType: OrderType.Bundle }),
         ]);
 
         if (eventsResult.status === "fulfilled") {
           setMyEvents(eventsResult.value?.items ?? []);
         }
+        else if (eventsResult.status === "rejected") {
+          const message = getErrorMessage(eventsResult.reason);
+          setEventsError(message);
+          dispatch(showGeneralMessage({
+            message,
+            severity: "error"
+          }));
+        }
 
         if (seasonsResult.status === "fulfilled") {
           setMySeasons(seasonsResult.value?.items ?? []);
         }
+        else if (seasonsResult.status === "rejected") {
+          const message = getErrorMessage(seasonsResult.reason);
+          setSeasonsError(message);
+          dispatch(showGeneralMessage({
+            message,
+            severity: "error"
+          }));
+        }
+
+        setEventsLoaded(true);
+        setSeasonsLoaded(true);
       }
       finally {
         isFetchingRef.current = false;
@@ -54,7 +82,7 @@ export default function TicketsClientWrapper() {
     }
 
     load();
-  }, [token]);
+  }, [token, dispatch]);
 
   const loadMoreSeasons = async () => {
     if (isFetchingRef.current) {
@@ -113,6 +141,10 @@ export default function TicketsClientWrapper() {
       <TicketTabs
         myEvents={myEvents}
         mySeasons={mySeasons}
+        eventsLoaded={eventsLoaded}
+        seasonsLoaded={seasonsLoaded}
+        eventsError={eventsError}
+        seasonsError={seasonsError}
         onEventLoadMore={loadMoreEvents}
         onSeasonLoadMore={loadMoreSeasons}
       />
