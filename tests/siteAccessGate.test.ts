@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { registerHooks } from "node:module";
 import { dirname, extname, resolve } from "node:path";
 import test from "node:test";
@@ -124,4 +124,10 @@ test("site access gate leaves landing page and infrastructure paths reachable", 
 
     assert.equal(redirectUrl, null, path);
   }
+});
+
+test("landing page is dynamic so it can read runtime image configuration", () => {
+  const source = readFileSync("src/app/landing/page.tsx", "utf8");
+
+  assert.match(source, /export const dynamic = "force-dynamic"/);
 });

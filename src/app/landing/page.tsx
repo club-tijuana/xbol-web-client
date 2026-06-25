@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   robots: "noindex, nofollow",
 };
 
+export const dynamic = "force-dynamic";
+
 export default function LandingPage() {
   const { landingImageUrl } = validateSiteAccessGateEnv();
 
@@ -29,6 +31,7 @@ export default function LandingPage() {
           alt="Xolo Pass próximamente"
           fill
           priority
+          unoptimized
           sizes="100vw"
           style={{
             objectFit: "cover",
