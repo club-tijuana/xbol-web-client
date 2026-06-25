@@ -1,6 +1,6 @@
 "use client";
 
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -27,12 +27,12 @@ export default function EventCarousel({ events }: EventCarouselProps) {
   const [hoverPrev, setHoverPrev] = useState(false);
   const [hoverNext, setHoverNext] = useState(false);
 
-  const handleClick = (eventId: number) => {
+  const handleClick = (eventId: number, isFromSeasonPass: boolean) => {
     if (!eventId) {
       return;
     }
-
-    router.push(`/event/${eventId}`);
+    if (isFromSeasonPass) router.push(`/booking/season/${eventId}`);
+    else router.push(`/event/${eventId}`);
   };
 
   return (
@@ -71,7 +71,7 @@ export default function EventCarousel({ events }: EventCarouselProps) {
               }}
             >
               <Image
-                onClick={() => handleClick(event.id)}
+                onClick={() => handleClick(event.id, event.isFromSeasonPass)}
                 src={getEventBannerImageUrl(event)}
                 alt={event.name}
                 fill

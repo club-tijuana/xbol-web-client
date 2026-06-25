@@ -194,7 +194,15 @@ export default async function EventDetailPage({ params }: EventPageProps) {
               <Grid
                 container
                 columns={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 18 }}
-                mt={20}
+                sx={{
+                  mt: {
+                    xs: 6,
+                    sm: 8,
+                    md: 10,
+                    lg: 12,
+                    xl: 14,
+                  },
+                }}
                 spacing={{ xs: 0, sm: 0, md: 3, lg: 3, xl: 20 }}
               >
                 <Grid

@@ -21,6 +21,18 @@ export async function getMainEvents(): Promise<PagedResponse<EventItemDTO>> {
   );
 }
 
+export async function getMainEventsExtended(): Promise<
+  PagedResponse<EventItemDTO>
+> {
+  return requestAxios<null, PagedResponse<EventItemDTO>>(
+    "GET",
+    "events/main/extended",
+    null,
+    undefined,
+    { params: { includeMedia: true } },
+  );
+}
+
 export async function getEvents(
   filters: EventsFilters,
 ): Promise<PagedResponse<EventItemDTO>> {
@@ -108,11 +120,10 @@ export async function getTrendingEvents(
   );
 }
 
-export async function getEventMetadataByScheduleIdAsync(id: number): Promise<SeoMetadataDTO> {
-  return requestAxios<null, SeoMetadataDTO>(
-    "GET",
-    `events/${id}/metadata`
-  );
+export async function getEventMetadataByScheduleIdAsync(
+  id: number,
+): Promise<SeoMetadataDTO> {
+  return requestAxios<null, SeoMetadataDTO>("GET", `events/${id}/metadata`);
 }
 
 export async function getUpcomingEvents(
@@ -120,7 +131,7 @@ export async function getUpcomingEvents(
 ): Promise<PagedResponse<EventItemDTO>> {
   const params = {
     page: filters.page,
-    pageSize: filters.pageSize
+    pageSize: filters.pageSize,
   };
 
   return requestAxios<EventsFilters, PagedResponse<EventItemDTO>>(

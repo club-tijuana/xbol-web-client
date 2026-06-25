@@ -13,7 +13,12 @@ import { EventCatalogItemType } from "@/models/enums/event-catalog-item-type.enu
 import { mapEventCatalogItemToCardVM } from "@/models/event-catalog-item.dto";
 import { mapEventToCardVM } from "@/models/event-item.dto";
 import { getEventCatalog } from "@/services/eventCatalogService";
-import { getEvents, getMainEvents, getTrendingEvents, getUpcomingEvents } from "@/services/eventService";
+import {
+  getEvents,
+  getMainEventsExtended,
+  getTrendingEvents,
+  getUpcomingEvents,
+} from "@/services/eventService";
 import { colors } from "@/theme/colors";
 
 export const metadata: Metadata = {
@@ -50,13 +55,13 @@ export const metadata: Metadata = {
 
 interface HomeProps {
   searchParams: Promise<{
-    error?: string
+    error?: string;
   }>;
 }
 
 export default async function Home({ searchParams }: HomeProps) {
   const results = await Promise.allSettled([
-    getMainEvents(),
+    getMainEventsExtended(),
     getTrendingEvents({ page: 1, pageSize: 4 }),
     getEvents({ page: 1, eventCategoryId: 1, pageSize: 4 }),
     getEvents({ page: 1, eventCategoryId: 2, pageSize: 4 }),
@@ -68,8 +73,8 @@ export default async function Home({ searchParams }: HomeProps) {
       page: 1,
       pageSize: 4,
       upcoming: true,
-      buyableOnly: true
-    })
+      buyableOnly: true,
+    }),
   ]);
 
   const { error } = await searchParams;
@@ -81,13 +86,11 @@ export default async function Home({ searchParams }: HomeProps) {
     musicEventsResult,
     theaterEventsResult,
     upcomingEventsResult,
-    bundleCatalogResult
+    bundleCatalogResult,
   ] = results;
 
   const mainEvents =
-    mainEventsResult.status === "fulfilled"
-      ? mainEventsResult.value
-      : null;
+    mainEventsResult.status === "fulfilled" ? mainEventsResult.value : null;
 
   const trendingEvents =
     trendingEventsResult.status === "fulfilled"
@@ -95,14 +98,10 @@ export default async function Home({ searchParams }: HomeProps) {
       : null;
 
   const futbolEvents =
-    futbolEventsResult.status === "fulfilled"
-      ? futbolEventsResult.value
-      : null;
+    futbolEventsResult.status === "fulfilled" ? futbolEventsResult.value : null;
 
   const musicEvents =
-    musicEventsResult.status === "fulfilled"
-      ? musicEventsResult.value
-      : null;
+    musicEventsResult.status === "fulfilled" ? musicEventsResult.value : null;
 
   const theaterEvents =
     theaterEventsResult.status === "fulfilled"
@@ -119,7 +118,7 @@ export default async function Home({ searchParams }: HomeProps) {
       ? bundleCatalogResult.value
       : null;
 
-  const hasErrors = results.some(r => r.status === "rejected");
+  const hasErrors = results.some((r) => r.status === "rejected");
 
   return (
     <div>
@@ -127,18 +126,18 @@ export default async function Home({ searchParams }: HomeProps) {
 
       <main>
         <Box sx={{ minHeight: "100vh" }}>
-          {(mainEvents && mainEvents.items.length > 0) && (
+          {mainEvents && mainEvents.items.length > 0 && (
             <FullWidthSection fullBleed={true} disableMaxWidth={true}>
               <EventCarousel events={mainEvents.items} />
             </FullWidthSection>
           )}
-          {(upcomingEvents && upcomingEvents.items.length > 0) && (
+          {upcomingEvents && upcomingEvents.items.length > 0 && (
             <Grid container columns={12}>
               <Grid size={12}>
                 <EventCardGrid
                   title="Próximos eventos"
-                  eventCards={upcomingEvents.items.map(e =>
-                    mapEventToCardVM(e)
+                  eventCards={upcomingEvents.items.map((e) =>
+                    mapEventToCardVM(e),
                   )}
                   sizeVariant="sm"
                   styleVariant="default"
@@ -148,7 +147,7 @@ export default async function Home({ searchParams }: HomeProps) {
             </Grid>
           )}
 
-          {(futbolEvents && futbolEvents.items.length > 0) && (
+          {futbolEvents && futbolEvents.items.length > 0 && (
             <FullWidthSection
               variant="color"
               backgroundColor={colors.brand.secondary}
@@ -158,9 +157,7 @@ export default async function Home({ searchParams }: HomeProps) {
             >
               <EventCardGrid
                 title="Fútbol"
-                eventCards={futbolEvents.items.map(e =>
-                  mapEventToCardVM(e)
-                )}
+                eventCards={futbolEvents.items.map((e) => mapEventToCardVM(e))}
                 sizeVariant="lg"
                 styleVariant="dark"
                 showCardBadge={true}
@@ -168,20 +165,18 @@ export default async function Home({ searchParams }: HomeProps) {
               />
             </FullWidthSection>
           )}
-          {(musicEvents && musicEvents.items.length > 0) && (
+          {musicEvents && musicEvents.items.length > 0 && (
             <Box>
               <EventCardGrid
                 title="Música"
-                eventCards={musicEvents.items.map(e =>
-                  mapEventToCardVM(e)
-                )}
+                eventCards={musicEvents.items.map((e) => mapEventToCardVM(e))}
                 sizeVariant="lg"
                 styleVariant="muted"
               />
             </Box>
           )}
 
-          {(theaterEvents && theaterEvents.items.length > 0) && (
+          {theaterEvents && theaterEvents.items.length > 0 && (
             <FullWidthSection
               variant="color"
               backgroundColor={colors.ui.surface}
@@ -190,22 +185,20 @@ export default async function Home({ searchParams }: HomeProps) {
             >
               <EventCardGrid
                 title="Teatro"
-                eventCards={theaterEvents.items.map(e =>
-                  mapEventToCardVM(e)
-                )}
+                eventCards={theaterEvents.items.map((e) => mapEventToCardVM(e))}
                 sizeVariant="lg"
                 styleVariant="light"
               />
             </FullWidthSection>
           )}
 
-          {(trendingEvents && trendingEvents.items.length > 0) && (
+          {trendingEvents && trendingEvents.items.length > 0 && (
             <Grid container columns={12}>
               <Grid size={12}>
                 <EventCardGrid
                   title="Otros eventos"
-                  eventCards={trendingEvents.items.map(e =>
-                    mapEventToCardVM(e)
+                  eventCards={trendingEvents.items.map((e) =>
+                    mapEventToCardVM(e),
                   )}
                   sizeVariant="lg"
                   styleVariant="default"
@@ -217,12 +210,12 @@ export default async function Home({ searchParams }: HomeProps) {
 
           <SeasonBanner />
 
-          {(bundleCatalog && bundleCatalog.items.length > 0) && (
+          {bundleCatalog && bundleCatalog.items.length > 0 && (
             <Box>
               <EventCardGrid
                 title="Paquetes"
-                eventCards={bundleCatalog.items.map(item =>
-                  mapEventCatalogItemToCardVM(item)
+                eventCards={bundleCatalog.items.map((item) =>
+                  mapEventCatalogItemToCardVM(item),
                 )}
                 sizeVariant="lg"
                 styleVariant="muted"
@@ -234,7 +227,12 @@ export default async function Home({ searchParams }: HomeProps) {
         </Box>
       </main>
       <div className="whatsappBubble">
-        <a rel="noreferrer" href="https://api.whatsapp.com/send?phone=526646933586" target="_blank" style={{ position: "absolute", bottom: 0 }}>
+        <a
+          rel="noreferrer"
+          href="https://api.whatsapp.com/send?phone=526646933586"
+          target="_blank"
+          style={{ position: "absolute", bottom: 0 }}
+        >
           <Image
             loading="lazy"
             width="60"

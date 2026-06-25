@@ -36,7 +36,19 @@ const legalPageLinks = [
 
 export default function LegalPage() {
   return (
-    <Box component="main" mt={20} mb={8}>
+    <Box
+      component="main"
+      sx={{
+        mt: {
+          xs: 6,
+          sm: 8,
+          md: 10,
+          lg: 12,
+          xl: 14,
+        },
+      }}
+      mb={8}
+    >
       <Stack spacing={4}>
         <Box>
           <Typography variant="h2" color="primary" mb={1}>
