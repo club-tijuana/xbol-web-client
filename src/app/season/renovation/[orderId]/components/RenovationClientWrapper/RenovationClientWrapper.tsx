@@ -9,7 +9,7 @@ import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { BundleToRenovateDTO } from "@/models/bundle-to-renovate.dto";
 import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
 import { getBlockedSeatsAsync } from "@/services/bundleService";
-import { getOrderToRenovate } from "@/services/orderService";
+import { getOrderRenovationPrices, getOrderToRenovate } from "@/services/orderService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { resetState as resetStateFlow, setBlockedSeats, setBookHoldToken, setBookMode, setInitialSeats, setOrderLeftSeats, setOriginalSeats, setRenovationType, setSeasonRelatedOrderId, setSeats } from "@/store/slices/bookingFlowSlice";
 import { resetState } from "@/store/slices/bookingSlice";
@@ -42,6 +42,7 @@ export default function RenovationClientWrapper({ orderId }: RenovationClientWra
                 await dispatch(resetStateFlow());
 
                 const bundle = await getOrderToRenovate(orderId);
+                const previousSeatPrices = await getOrderRenovationPrices(orderId);
                 const blockedSeats = await getBlockedSeatsAsync(bundle.bundleId)
 
                 await dispatch(setBookMode("renovateSeason"));
@@ -54,12 +55,13 @@ export default function RenovationClientWrapper({ orderId }: RenovationClientWra
                     token: ""
                 }));
 
-                if (bundle.previousSeatPrices) {
-                    const prevSeats: BookingSeatRequest[] = bundle.previousSeatPrices.map(
+                if (previousSeatPrices.length > 0) {
+                    const prevSeats: BookingSeatRequest[] = previousSeatPrices.map(
                         seat => ({
                             seatKey: seat.externalSeatObjectKey,
                             seatPrice: seat.priceOverride ?? 0,
-                            priceListItemId: seat.priceListItemId ?? 0
+                            priceListItemId: seat.priceListItemId ?? 0,
+                            fees: seat.fees
                         })
                     );
 
