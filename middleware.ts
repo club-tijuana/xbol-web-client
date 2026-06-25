@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import { getSiteAccessRedirectUrl } from './src/utils/routing/siteAccessGate';
+
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
 export function middleware(req: NextRequest) {
+  const siteAccessRedirectUrl = getSiteAccessRedirectUrl(req.nextUrl);
+
+  if (siteAccessRedirectUrl) {
+    return NextResponse.redirect(siteAccessRedirectUrl);
+  }
+
   if (!basePath) return NextResponse.next();
 
   const { pathname } = req.nextUrl;

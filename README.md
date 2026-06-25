@@ -67,6 +67,8 @@ Server-only variables:
 | `FIREBASE_SERVICE_ACCOUNT_JSON`  | Firebase service account JSON content for the Admin SDK session-cookie route handlers.                    | `{"type":"service_account",...}` |
 | `FIREBASE_SESSION_COOKIE_NAME`   | Optional HttpOnly session cookie name override.                                                          | `xbol_client_session`  |
 | `FIREBASE_SESSION_COOKIE_SECURE` | Optional non-production HTTP override for the cookie `Secure` flag. Production always forces `Secure=true`. | `false`                |
+| `SITE_ACCESS_MODE`               | Runtime site gate. Use `landing` to redirect browser page requests to `/landing`; leave unset or `open` for normal access. | `open` / `landing` |
+| `SITE_ACCESS_LANDING_IMAGE_URL`  | CDN URL for the `/landing` hero image. Required when `SITE_ACCESS_MODE=landing`.                         | `https://storage.googleapis.com/.../xolopass-coming-soon.png` |
 
 For local development, put the service account JSON in `.env.development` as a single-line value:
 
@@ -99,6 +101,8 @@ Server-only values are read at **runtime** by the standalone Next.js server:
 - `FIREBASE_SERVICE_ACCOUNT_JSON`
 - `FIREBASE_SESSION_COOKIE_NAME`
 - `FIREBASE_SESSION_COOKIE_SECURE`
+- `SITE_ACCESS_MODE`
+- `SITE_ACCESS_LANDING_IMAGE_URL`
 
 For local container testing:
 
@@ -132,7 +136,9 @@ Shape:
   "NEXT_PUBLIC_DEFAULT_EVENT_IMAGE": "/client/assets/eventDefault/default.png",
   "NEXT_PUBLIC_SECRET_BASE_32": "<base32 TOTP secret>",
   "FIREBASE_SERVICE_ACCOUNT_JSON": "<single-line service account JSON>",
-  "FIREBASE_SESSION_COOKIE_NAME": "xbol_client_session"
+  "FIREBASE_SESSION_COOKIE_NAME": "xbol_client_session",
+  "SITE_ACCESS_MODE": "open",
+  "SITE_ACCESS_LANDING_IMAGE_URL": ""
 }
 ```
 

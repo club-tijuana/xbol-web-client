@@ -3,6 +3,7 @@ import type { NextConfig } from 'next';
 import { publicEnv } from './src/config/env';
 
 const adminImageHost = publicEnv.NEXT_PUBLIC_ADMIN_IMAGE_HOST;
+const storageImageHost = 'storage.googleapis.com';
 
 const nextConfig: NextConfig = {
   basePath: publicEnv.NEXT_PUBLIC_BASE_PATH || '',
@@ -36,7 +37,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'storage.googleapis.com',
+        hostname: storageImageHost,
         pathname: '/**',
       },
       ...(adminImageHost

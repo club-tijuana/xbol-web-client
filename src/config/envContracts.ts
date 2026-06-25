@@ -81,6 +81,12 @@ const booleanEnvFlag = () =>
       .default(false),
   );
 
+const siteAccessMode = () =>
+  z.preprocess(
+    emptyStringToUndefined,
+    z.enum(["open", "landing"]).optional().default("open"),
+  );
+
 const publicEnvShape = {
   NEXT_PUBLIC_API_BASE_URL: requiredString("NEXT_PUBLIC_API_BASE_URL").pipe(
     z.url({
@@ -199,12 +205,19 @@ const serverEnvShape = {
       .transform((value) => value === "true")
       .optional(),
   ),
+  SITE_ACCESS_MODE: siteAccessMode(),
+  SITE_ACCESS_LANDING_IMAGE_URL: z.preprocess(
+    emptyStringToUndefined,
+    z.url().optional(),
+  ),
 };
 
 export const serverEnvMetadata = {
   FIREBASE_SERVICE_ACCOUNT_JSON: serverRuntimeEnv("secret", "environment"),
   FIREBASE_SESSION_COOKIE_NAME: serverRuntimeEnv("variable", "repository"),
   FIREBASE_SESSION_COOKIE_SECURE: serverRuntimeEnv("variable", "repository"),
+  SITE_ACCESS_MODE: serverRuntimeEnv("variable", "environment"),
+  SITE_ACCESS_LANDING_IMAGE_URL: serverRuntimeEnv("variable", "environment"),
 } satisfies Record<keyof typeof serverEnvShape, EnvMetadata>;
 
 export const serverEnvSchema = z.object(serverEnvShape).meta({
