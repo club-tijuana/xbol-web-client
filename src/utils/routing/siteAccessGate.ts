@@ -27,6 +27,10 @@ const ROOT_PUBLIC_FILES = new Set([
 ]);
 
 const DEFAULT_CLIENT_IP_HEADER = "x-forwarded-for";
+const TRUSTED_PROXY_CIDRS = [
+  "35.191.0.0/16",
+  "130.211.0.0/22",
+];
 
 type Ipv4Range = {
   base: number;
@@ -129,11 +133,34 @@ function parseIpv4Range(value: string): Ipv4Range | null {
   };
 }
 
-function getClientIp(headers: Headers, headerName: string): string | null {
+function getForwardedIpChain(headers: Headers, headerName: string): string[] {
   return headers.get(headerName)
     ?.split(",")
     .map((entry) => entry.trim())
-    .find(Boolean) ?? null;
+    .filter(Boolean) ?? [];
+}
+
+function isIpInRange(ipAddress: number, cidr: string): boolean {
+  const range = parseIpv4Range(cidr);
+
+  return range !== null && ((ipAddress & range.mask) >>> 0) === range.base;
+}
+
+function isTrustedProxyIp(ipAddress: number): boolean {
+  return TRUSTED_PROXY_CIDRS.some((trustedProxyCidr) => (
+    isIpInRange(ipAddress, trustedProxyCidr)
+  ));
+}
+
+function getClientIp(headers: Headers, headerName: string): string | null {
+  const chain = getForwardedIpChain(headers, headerName);
+  const publicClientIp = chain.find((entry) => {
+    const parsedIp = parseIpv4Address(entry);
+
+    return parsedIp !== null && !isTrustedProxyIp(parsedIp);
+  });
+
+  return publicClientIp ?? chain[0] ?? null;
 }
 
 function isAllowedClientIp(
@@ -210,6 +237,9 @@ export function getSiteAccessDiagnosticHeaders(
   headers?: Headers,
 ): Record<string, string> {
   const config = parseSiteAccessGateEnv(env, { requireLandingImage: false });
+  const forwardedChain = headers
+    ? getForwardedIpChain(headers, config.clientIpHeader).join(", ")
+    : "";
   const clientIp = headers
     ? getClientIp(headers, config.clientIpHeader)
     : null;
@@ -217,6 +247,7 @@ export function getSiteAccessDiagnosticHeaders(
   return {
     "x-site-access-client-ip-header": config.clientIpHeader,
     "x-site-access-seen-ip": clientIp ?? "",
+    "x-site-access-forwarded-chain": forwardedChain,
   };
 }
 

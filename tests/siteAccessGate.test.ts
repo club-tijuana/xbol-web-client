@@ -175,6 +175,24 @@ test("site access gate lets allowlisted IPv4 CIDR ranges through", async () => {
   assert.equal(redirectUrl, null);
 });
 
+test("site access gate ignores trusted proxy IPs in forwarded chains", async () => {
+  const { getSiteAccessRedirectUrl } = await importSiteAccessGate();
+
+  const redirectUrl = getSiteAccessRedirectUrl(
+    new URL("https://qa-web.pwrticket.mx/client/event/123"),
+    {
+      SITE_ACCESS_MODE: "landing",
+      SITE_ACCESS_ALLOWED_CIDRS: "187.250.14.36/32",
+      NEXT_PUBLIC_ASSET_PREFIX: "/client",
+    },
+    new Headers({
+      "x-forwarded-for": "35.191.6.75, 187.250.14.36",
+    }),
+  );
+
+  assert.equal(redirectUrl, null);
+});
+
 test("site access gate redirects non-allowlisted IPs", async () => {
   const { getSiteAccessRedirectUrl } = await importSiteAccessGate();
 
@@ -230,6 +248,7 @@ test("site access gate diagnostics report the configured header and seen IP", as
   assert.deepEqual(diagnosticHeaders, {
     "x-site-access-client-ip-header": "x-forwarded-for",
     "x-site-access-seen-ip": "198.51.100.42",
+    "x-site-access-forwarded-chain": "198.51.100.42, 10.0.0.1",
   });
 });
 
@@ -247,6 +266,7 @@ test("site access gate diagnostics report missing client IP headers", async () =
   assert.deepEqual(diagnosticHeaders, {
     "x-site-access-client-ip-header": "x-forwarded-for",
     "x-site-access-seen-ip": "",
+    "x-site-access-forwarded-chain": "",
   });
 });
 
