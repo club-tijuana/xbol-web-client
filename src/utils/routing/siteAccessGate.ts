@@ -205,6 +205,21 @@ export function validateSiteAccessGateEnv(
   return parseSiteAccessGateEnv(env, { requireLandingImage: true });
 }
 
+export function getSiteAccessDiagnosticHeaders(
+  env: SiteAccessEnv = process.env,
+  headers?: Headers,
+): Record<string, string> {
+  const config = parseSiteAccessGateEnv(env, { requireLandingImage: false });
+  const clientIp = headers
+    ? getClientIp(headers, config.clientIpHeader)
+    : null;
+
+  return {
+    "x-site-access-client-ip-header": config.clientIpHeader,
+    "x-site-access-seen-ip": clientIp ?? "",
+  };
+}
+
 export function getSiteAccessRedirectUrl(
   requestUrl: URL,
   env: SiteAccessEnv = process.env,

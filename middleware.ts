@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { getSiteAccessRedirectUrl } from './src/utils/routing/siteAccessGate';
+import {
+  getSiteAccessDiagnosticHeaders,
+  getSiteAccessRedirectUrl,
+} from './src/utils/routing/siteAccessGate';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
@@ -12,7 +15,17 @@ export function middleware(req: NextRequest) {
   );
 
   if (siteAccessRedirectUrl) {
-    return NextResponse.redirect(siteAccessRedirectUrl);
+    const response = NextResponse.redirect(siteAccessRedirectUrl);
+    const diagnosticHeaders = getSiteAccessDiagnosticHeaders(
+      process.env,
+      req.headers,
+    );
+
+    for (const [name, value] of Object.entries(diagnosticHeaders)) {
+      response.headers.set(name, value);
+    }
+
+    return response;
   }
 
   if (!basePath) return NextResponse.next();

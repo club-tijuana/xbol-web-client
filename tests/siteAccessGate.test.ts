@@ -213,6 +213,43 @@ test("site access gate supports configured client IP headers", async () => {
   assert.equal(redirectUrl, null);
 });
 
+test("site access gate diagnostics report the configured header and seen IP", async () => {
+  const { getSiteAccessDiagnosticHeaders } = await importSiteAccessGate();
+
+  const diagnosticHeaders = getSiteAccessDiagnosticHeaders(
+    {
+      SITE_ACCESS_MODE: "landing",
+      SITE_ACCESS_ALLOWED_CIDRS: "203.0.113.10",
+      SITE_ACCESS_CLIENT_IP_HEADER: "x-forwarded-for",
+    },
+    new Headers({
+      "x-forwarded-for": "198.51.100.42, 10.0.0.1",
+    }),
+  );
+
+  assert.deepEqual(diagnosticHeaders, {
+    "x-site-access-client-ip-header": "x-forwarded-for",
+    "x-site-access-seen-ip": "198.51.100.42",
+  });
+});
+
+test("site access gate diagnostics report missing client IP headers", async () => {
+  const { getSiteAccessDiagnosticHeaders } = await importSiteAccessGate();
+
+  const diagnosticHeaders = getSiteAccessDiagnosticHeaders(
+    {
+      SITE_ACCESS_MODE: "landing",
+      SITE_ACCESS_ALLOWED_CIDRS: "203.0.113.10",
+    },
+    new Headers(),
+  );
+
+  assert.deepEqual(diagnosticHeaders, {
+    "x-site-access-client-ip-header": "x-forwarded-for",
+    "x-site-access-seen-ip": "",
+  });
+});
+
 test("site access gate requires valid allowlisted IPv4 CIDRs", async () => {
   const { validateSiteAccessGateEnv } = await importSiteAccessGate();
 
