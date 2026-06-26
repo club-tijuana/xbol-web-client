@@ -232,6 +232,17 @@ export function validateSiteAccessGateEnv(
   return parseSiteAccessGateEnv(env, { requireLandingImage: true });
 }
 
+export function getSiteAccessLandingImages(
+  env: SiteAccessEnv = process.env,
+): Pick<SiteAccessGateConfig, "landingImageUrl" | "landingMobileImageUrl"> {
+  const config = parseSiteAccessGateEnv(env, { requireLandingImage: false });
+
+  return {
+    landingImageUrl: config.landingImageUrl,
+    landingMobileImageUrl: config.landingMobileImageUrl,
+  };
+}
+
 export function getSiteAccessDiagnosticHeaders(
   env: SiteAccessEnv = process.env,
   headers?: Headers,

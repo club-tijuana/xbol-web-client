@@ -166,6 +166,28 @@ test("event image fallback leaves deployment overrides unchanged", async () => {
   });
 });
 
+test("hero image fallback prefers the landing image over the default event image", async () => {
+  await withPublicEnv({
+    NEXT_PUBLIC_BASE_PATH: "/client",
+    NEXT_PUBLIC_DEFAULT_EVENT_IMAGE: undefined,
+  }, async () => {
+    const { heroImageOrDefault } = await importEventImageModule();
+
+    assert.equal(
+      heroImageOrDefault("", "https://storage.googleapis.com/example/landing.png"),
+      "https://storage.googleapis.com/example/landing.png",
+    );
+    assert.equal(
+      heroImageOrDefault("https://media.example.test/event.png", "https://storage.googleapis.com/example/landing.png"),
+      "https://media.example.test/event.png",
+    );
+    assert.equal(
+      heroImageOrDefault("", ""),
+      "/client/assets/eventDefault/default.png",
+    );
+  });
+});
+
 test("default event image does not use a feature-specific resolver module", () => {
   assert.equal(existsSync("src/config/defaultEventImage.ts"), false);
 });

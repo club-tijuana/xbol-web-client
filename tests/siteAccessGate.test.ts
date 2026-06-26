@@ -111,6 +111,27 @@ test("site access gate leaves the mobile landing image unset when not configured
   assert.equal(config.landingMobileImageUrl, null);
 });
 
+test("site access gate exposes landing images without requiring landing mode", async () => {
+  const { getSiteAccessLandingImages } = await importSiteAccessGate();
+
+  const config = getSiteAccessLandingImages({
+    SITE_ACCESS_MODE: "open",
+    SITE_ACCESS_LANDING_IMAGE_URL:
+      "https://storage.googleapis.com/example-bucket/public-media/static/xolopass-coming-soon.png",
+    SITE_ACCESS_LANDING_MOBILE_IMAGE_URL:
+      "https://storage.googleapis.com/example-bucket/public-media/static/xolopass-coming-soon-mobile.png",
+  });
+
+  assert.equal(
+    config.landingImageUrl,
+    "https://storage.googleapis.com/example-bucket/public-media/static/xolopass-coming-soon.png",
+  );
+  assert.equal(
+    config.landingMobileImageUrl,
+    "https://storage.googleapis.com/example-bucket/public-media/static/xolopass-coming-soon-mobile.png",
+  );
+});
+
 test("site access gate does not redirect when the mode is open", async () => {
   const { getSiteAccessRedirectUrl } = await importSiteAccessGate();
 

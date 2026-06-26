@@ -11,3 +11,10 @@ const configuredEventImage =
 export function eventImageOrDefault(imageUrl?: string | null): string {
   return imageUrl?.trim() || configuredEventImage;
 }
+
+export function heroImageOrDefault(
+  imageUrl?: string | null,
+  fallbackImageUrl?: string | null,
+): string {
+  return eventImageOrDefault(imageUrl?.trim() || fallbackImageUrl);
+}

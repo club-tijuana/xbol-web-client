@@ -20,6 +20,7 @@ import {
   getUpcomingEvents,
 } from "@/services/eventService";
 import { colors } from "@/theme/colors";
+import { getSiteAccessLandingImages } from "@/utils/routing/siteAccessGate";
 
 export const metadata: Metadata = {
   title: `Compra boletos para conciertos, fútbol y teatro | ${whiteLabel.brandName}`,
@@ -91,6 +92,11 @@ export default async function Home({ searchParams }: HomeProps) {
 
   const mainEvents =
     mainEventsResult.status === "fulfilled" ? mainEventsResult.value : null;
+  const heroEvents = mainEvents?.items ?? [];
+  const {
+    landingImageUrl: heroFallbackImageUrl,
+    landingMobileImageUrl: heroFallbackMobileImageUrl,
+  } = getSiteAccessLandingImages();
 
   const trendingEvents =
     trendingEventsResult.status === "fulfilled"
@@ -126,11 +132,13 @@ export default async function Home({ searchParams }: HomeProps) {
 
       <main>
         <Box sx={{ minHeight: "100vh" }}>
-          {mainEvents && mainEvents.items.length > 0 && (
-            <FullWidthSection fullBleed={true} disableMaxWidth={true}>
-              <EventCarousel events={mainEvents.items} />
-            </FullWidthSection>
-          )}
+          <FullWidthSection fullBleed={true} disableMaxWidth={true}>
+            <EventCarousel
+              events={heroEvents}
+              fallbackImageUrl={heroFallbackImageUrl}
+              fallbackMobileImageUrl={heroFallbackMobileImageUrl}
+            />
+          </FullWidthSection>
           {upcomingEvents && upcomingEvents.items.length > 0 && (
             <Grid container columns={12}>
               <Grid size={12}>

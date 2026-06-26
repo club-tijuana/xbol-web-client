@@ -73,3 +73,21 @@ test("root background prefers an optimized webp asset with png fallback", () => 
   assert.equal(existsSync("public/assets/background/pattern.webp"), true);
   assert.ok(statSync("public/assets/background/pattern.webp").size <= 150_000);
 });
+
+test("homepage renders the hero carousel with configured fallback artwork", () => {
+  const pageSource = readFileSync("src/app/page.tsx", "utf8");
+  const carouselSource = readFileSync(
+    "src/components/EventCarousel/EventCarousel.tsx",
+    "utf8",
+  );
+
+  assert.match(pageSource, /getSiteAccessLandingImages/);
+  assert.match(pageSource, /fallbackImageUrl=\{heroFallbackImageUrl\}/);
+  assert.match(pageSource, /fallbackMobileImageUrl=\{heroFallbackMobileImageUrl\}/);
+  assert.doesNotMatch(
+    pageSource,
+    /mainEvents && mainEvents\.items\.length > 0 && \(/,
+  );
+  assert.match(carouselSource, /fallbackImageUrl/);
+  assert.match(carouselSource, /<picture className=\{styles\.picture\}>/);
+});

@@ -2,7 +2,7 @@ import { formatDate } from "@/helpers/formatDateHelper";
 import { DateFormatMode } from "@/types/dateFormatMode";
 
 import { EventCategoryDTO } from "./event-category.dto";
-import { eventImageOrDefault } from "./event-image";
+import { eventImageOrDefault, heroImageOrDefault } from "./event-image";
 import { EventMediaSetDTO, mediaUrl } from "./media.dto";
 import { EventCardVM } from "./views/event-card.vm";
 
@@ -20,8 +20,14 @@ export interface EventItemDTO {
   isFromSeasonPass: boolean;
 }
 
-export const getEventBannerImageUrl = (event: EventItemDTO): string =>
-  eventImageOrDefault(mediaUrl(event.media?.banner) || event.bannerImageUrl);
+export const getEventBannerImageUrl = (
+  event: EventItemDTO,
+  fallbackImageUrl?: string | null,
+): string =>
+  heroImageOrDefault(
+    mediaUrl(event.media?.banner) || event.bannerImageUrl,
+    fallbackImageUrl,
+  );
 
 export const getEventPosterImageUrl = (event: EventItemDTO): string =>
   eventImageOrDefault(mediaUrl(event.media?.banner) || event.posterImageUrl);
