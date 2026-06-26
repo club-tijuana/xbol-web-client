@@ -69,6 +69,8 @@ Server-only variables:
 | `FIREBASE_SESSION_COOKIE_SECURE` | Optional non-production HTTP override for the cookie `Secure` flag. Production always forces `Secure=true`. | `false`                |
 | `SITE_ACCESS_MODE`               | Runtime site gate. Use `landing` to redirect browser page requests to `/landing`; leave unset or `open` for normal access. | `open` / `landing` |
 | `SITE_ACCESS_LANDING_IMAGE_URL`  | CDN URL for the `/landing` hero image. Required when `SITE_ACCESS_MODE=landing`.                         | `https://storage.googleapis.com/.../xolopass-coming-soon.png` |
+| `SITE_ACCESS_ALLOWED_CIDRS`      | Optional comma-separated IPv4 address/CIDR bypass list for the landing gate. Matching clients see the normal site while non-matches still redirect to `/landing`. | `187.250.14.36/32` |
+| `SITE_ACCESS_CLIENT_IP_HEADER`   | Optional request header used for the CIDR bypass. Defaults to `x-forwarded-for`; first comma-separated value is used. | `x-forwarded-for` |
 
 For local development, put the service account JSON in `.env.development` as a single-line value:
 
@@ -103,6 +105,8 @@ Server-only values are read at **runtime** by the standalone Next.js server:
 - `FIREBASE_SESSION_COOKIE_SECURE`
 - `SITE_ACCESS_MODE`
 - `SITE_ACCESS_LANDING_IMAGE_URL`
+- `SITE_ACCESS_ALLOWED_CIDRS`
+- `SITE_ACCESS_CLIENT_IP_HEADER`
 
 For local container testing:
 
@@ -138,7 +142,9 @@ Shape:
   "FIREBASE_SERVICE_ACCOUNT_JSON": "<single-line service account JSON>",
   "FIREBASE_SESSION_COOKIE_NAME": "xbol_client_session",
   "SITE_ACCESS_MODE": "open",
-  "SITE_ACCESS_LANDING_IMAGE_URL": ""
+  "SITE_ACCESS_LANDING_IMAGE_URL": "",
+  "SITE_ACCESS_ALLOWED_CIDRS": "187.250.14.36/32",
+  "SITE_ACCESS_CLIENT_IP_HEADER": "x-forwarded-for"
 }
 ```
 

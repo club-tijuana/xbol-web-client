@@ -87,6 +87,12 @@ const siteAccessMode = () =>
     z.enum(["open", "landing"]).optional().default("open"),
   );
 
+const siteAccessAllowedCidrs = () =>
+  z.preprocess(
+    emptyStringToUndefined,
+    z.string().optional(),
+  );
+
 const publicEnvShape = {
   NEXT_PUBLIC_API_BASE_URL: requiredString("NEXT_PUBLIC_API_BASE_URL").pipe(
     z.url({
@@ -210,6 +216,11 @@ const serverEnvShape = {
     emptyStringToUndefined,
     z.url().optional(),
   ),
+  SITE_ACCESS_ALLOWED_CIDRS: siteAccessAllowedCidrs(),
+  SITE_ACCESS_CLIENT_IP_HEADER: z.preprocess(
+    emptyStringToUndefined,
+    z.string().trim().min(1).optional().default("x-forwarded-for"),
+  ),
 };
 
 export const serverEnvMetadata = {
@@ -218,6 +229,8 @@ export const serverEnvMetadata = {
   FIREBASE_SESSION_COOKIE_SECURE: serverRuntimeEnv("variable", "repository"),
   SITE_ACCESS_MODE: serverRuntimeEnv("variable", "environment"),
   SITE_ACCESS_LANDING_IMAGE_URL: serverRuntimeEnv("variable", "environment"),
+  SITE_ACCESS_ALLOWED_CIDRS: serverRuntimeEnv("variable", "environment"),
+  SITE_ACCESS_CLIENT_IP_HEADER: serverRuntimeEnv("variable", "environment"),
 } satisfies Record<keyof typeof serverEnvShape, EnvMetadata>;
 
 export const serverEnvSchema = z.object(serverEnvShape).meta({

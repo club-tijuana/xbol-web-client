@@ -100,6 +100,93 @@ test("site access gate redirects page requests to the public landing route", asy
   assert.equal(redirectUrl?.toString(), "https://qa-web.pwrticket.mx/client/landing");
 });
 
+test("site access gate lets allowlisted exact IPv4 addresses through", async () => {
+  const { getSiteAccessRedirectUrl } = await importSiteAccessGate();
+
+  const redirectUrl = getSiteAccessRedirectUrl(
+    new URL("https://qa-web.pwrticket.mx/client/event/123"),
+    {
+      SITE_ACCESS_MODE: "landing",
+      SITE_ACCESS_ALLOWED_CIDRS: "203.0.113.10",
+      NEXT_PUBLIC_ASSET_PREFIX: "/client",
+    },
+    new Headers({
+      "x-forwarded-for": "203.0.113.10",
+    }),
+  );
+
+  assert.equal(redirectUrl, null);
+});
+
+test("site access gate lets allowlisted IPv4 CIDR ranges through", async () => {
+  const { getSiteAccessRedirectUrl } = await importSiteAccessGate();
+
+  const redirectUrl = getSiteAccessRedirectUrl(
+    new URL("https://qa-web.pwrticket.mx/client/event/123"),
+    {
+      SITE_ACCESS_MODE: "landing",
+      SITE_ACCESS_ALLOWED_CIDRS: "198.51.100.0/24",
+      NEXT_PUBLIC_ASSET_PREFIX: "/client",
+    },
+    new Headers({
+      "x-forwarded-for": "198.51.100.42, 10.0.0.1",
+    }),
+  );
+
+  assert.equal(redirectUrl, null);
+});
+
+test("site access gate redirects non-allowlisted IPs", async () => {
+  const { getSiteAccessRedirectUrl } = await importSiteAccessGate();
+
+  const redirectUrl = getSiteAccessRedirectUrl(
+    new URL("https://qa-web.pwrticket.mx/client/event/123"),
+    {
+      SITE_ACCESS_MODE: "landing",
+      SITE_ACCESS_ALLOWED_CIDRS: "198.51.100.0/24",
+      NEXT_PUBLIC_ASSET_PREFIX: "/client",
+    },
+    new Headers({
+      "x-forwarded-for": "203.0.113.10",
+    }),
+  );
+
+  assert.equal(redirectUrl?.toString(), "https://qa-web.pwrticket.mx/client/landing");
+});
+
+test("site access gate supports configured client IP headers", async () => {
+  const { getSiteAccessRedirectUrl } = await importSiteAccessGate();
+
+  const redirectUrl = getSiteAccessRedirectUrl(
+    new URL("https://qa-web.pwrticket.mx/client/event/123"),
+    {
+      SITE_ACCESS_MODE: "landing",
+      SITE_ACCESS_ALLOWED_CIDRS: "203.0.113.10",
+      SITE_ACCESS_CLIENT_IP_HEADER: "x-client-ip",
+      NEXT_PUBLIC_ASSET_PREFIX: "/client",
+    },
+    new Headers({
+      "x-forwarded-for": "198.51.100.42",
+      "x-client-ip": "203.0.113.10",
+    }),
+  );
+
+  assert.equal(redirectUrl, null);
+});
+
+test("site access gate requires valid allowlisted IPv4 CIDRs", async () => {
+  const { validateSiteAccessGateEnv } = await importSiteAccessGate();
+
+  assert.throws(
+    () => validateSiteAccessGateEnv({
+      SITE_ACCESS_MODE: "landing",
+      SITE_ACCESS_LANDING_IMAGE_URL: "https://storage.googleapis.com/example/image.png",
+      SITE_ACCESS_ALLOWED_CIDRS: "203.0.113.10, 198.51.100.0/33",
+    }),
+    /SITE_ACCESS_ALLOWED_CIDRS contains an invalid IPv4 CIDR or address/,
+  );
+});
+
 test("site access gate leaves landing page and infrastructure paths reachable", async () => {
   const { getSiteAccessRedirectUrl } = await importSiteAccessGate();
   const env = {

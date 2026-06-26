@@ -5,7 +5,11 @@ import { getSiteAccessRedirectUrl } from './src/utils/routing/siteAccessGate';
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
 export function middleware(req: NextRequest) {
-  const siteAccessRedirectUrl = getSiteAccessRedirectUrl(req.nextUrl);
+  const siteAccessRedirectUrl = getSiteAccessRedirectUrl(
+    req.nextUrl,
+    process.env,
+    req.headers,
+  );
 
   if (siteAccessRedirectUrl) {
     return NextResponse.redirect(siteAccessRedirectUrl);
