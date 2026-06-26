@@ -1,9 +1,8 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { getErrorMessage } from "@/helpers/getErrorMessage";
-import { RegisterRequest } from "@/models/auth-profile.dto";
-import { AuthDto } from "@/models/auth.dto";
-import { login as loginService, register as registerService, sendForgotPasswordEmail as forgotPaswordEmail } from "@/services/authService";
+import type { RegisterRequest } from "@/models/auth-profile.dto";
+import type { AuthDto } from "@/models/auth.dto";
 
 
 interface LoginPayload {
@@ -34,6 +33,7 @@ export const login = createAsyncThunk<
     "auth/login",
     async ({ username, password }, thunkAPI) => {
         try {
+            const { login: loginService } = await import("@/services/authService");
             const response = await loginService(username, password);
             return response;
         } catch (error) {
@@ -52,6 +52,8 @@ export const sendForgotPasswordEmail = createAsyncThunk<
     "auth/forgotPasswordEmail",
     async (username, thinkAPI) => {
         try {
+            const { sendForgotPasswordEmail: forgotPaswordEmail } = await import("@/services/authService");
+
             await forgotPaswordEmail(username);
         } catch (error) {
             return thinkAPI.rejectWithValue(
@@ -69,6 +71,7 @@ export const register = createAsyncThunk<
     "auth/register",
     async (request, thunkAPI) => {
         try {
+            const { register: registerService } = await import("@/services/authService");
             const response = await registerService(request);
             return response;
         } catch (error) {

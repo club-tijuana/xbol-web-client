@@ -34,7 +34,6 @@ import { useState } from "react";
 
 import { canUseVerifiedClientFeatures } from "@/helpers/authStateHelper";
 import { formatDate } from "@/helpers/formatDateHelper";
-import { logoutFromFirebase } from "@/services/firebaseClient";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { logout } from "@/store/slices/authSlice";
 import { setTextFilter } from "@/store/slices/eventsFilterSlice";
@@ -121,6 +120,8 @@ export default function Header() {
     if (!isAuthenticated) {
       return;
     }
+
+    const { logoutFromFirebase } = await import("@/services/firebaseClient");
 
     await logoutFromFirebase();
     dispatch(logout());
@@ -239,6 +240,9 @@ export default function Header() {
                     src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/logo.svg`}
                     alt="Logo"
                     fill
+                    loading="eager"
+                    preload
+                    sizes="(max-width: 899px) 135px, 210px"
                     className={styles.logo}
                     onClick={handleGoHome}
                   />

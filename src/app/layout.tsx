@@ -7,8 +7,7 @@ import Footer from "@/components/Footer/Footer";
 import GeneralMessage from "@/components/GeneralMessage/GeneralMessage";
 import HeaderWrapper from "@/components/Header/HeaderWrapper";
 import { LayoutContainer } from "@/components/LayoutContainer/LayoutContainer";
-import LoginModal from "@/components/LoginModal/LoginModal";
-import PickersProvider from "@/providers/PickersProvider";
+import LoginModalHost from "@/components/LoginModal/LoginModalHost";
 import Providers from "@/store/Providers";
 import MuiProvider from "@/theme/MuiProvider";
 
@@ -16,6 +15,7 @@ const openSans = Open_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
 });
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 export const metadata: Metadata = {
   title: "",
@@ -35,21 +35,19 @@ export default function RootLayout({
     >
       <body
         style={{
-          backgroundImage: `url(${process.env.NEXT_PUBLIC_BASE_PATH}/assets/background/pattern.png)`,
+          backgroundImage: `image-set(url("${basePath}/assets/background/pattern.webp") type("image/webp"), url("${basePath}/assets/background/pattern.png") type("image/png"))`,
           backgroundSize: 1800,
         }}
       >
         <MuiProvider>
           <Providers>
-            <PickersProvider>
-              <HeaderWrapper />
+            <HeaderWrapper />
 
-              <LayoutContainer>{children}</LayoutContainer>
-              <GeneralMessage />
+            <LayoutContainer>{children}</LayoutContainer>
+            <GeneralMessage />
 
-              <Footer />
-              <LoginModal />
-            </PickersProvider>
+            <Footer />
+            <LoginModalHost />
           </Providers>
         </MuiProvider>
       </body>

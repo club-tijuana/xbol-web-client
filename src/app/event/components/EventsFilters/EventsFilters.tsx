@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
 import { useDebounce } from "@/hooks/useDebounce";
 import { EventCategoryDTO } from "@/models/event-category.dto";
+import PickersProvider from "@/providers/PickersProvider";
 import { getEventCategories } from "@/services/eventService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setCategories, setRangeDateFrom, setRangeDateTo, setTextFilter, setTrendingEvents } from "@/store/slices/eventsFilterSlice";
@@ -42,7 +43,7 @@ export default function EventsFilters() {
         };
 
         getCategories();
-    }, []);
+    }, [dispatch]);
 
     const handleFromDate = (date: Date | null) => {
         dispatch(setRangeDateFrom(date ? date.toISOString() : null));
@@ -131,32 +132,34 @@ export default function EventsFilters() {
                         <Typography variant="subtitle1" color="secondary" mt={2}>
                             Rango de fechas
                         </Typography>
-                        <Box display="flex" sx={{ mt: 1 }}>
-                            {typeof window !== "undefined" && (
-                                <DatePicker
-                                    value={filters.rangeDateFrom ? new Date(filters.rangeDateFrom) : null}
-                                    maxDate={filters.rangeDateTo ? new Date(filters.rangeDateTo) : undefined}
-                                    slotProps={{
-                                        textField: { variant: "standard" },
-                                        field: { clearable: true }
-                                    }}
-                                    sx={{ mr: 2 }}
-                                    onChange={handleFromDate}
-                                />
-                            )}
+                        <PickersProvider>
+                            <Box display="flex" sx={{ mt: 1 }}>
+                                {typeof window !== "undefined" && (
+                                    <DatePicker
+                                        value={filters.rangeDateFrom ? new Date(filters.rangeDateFrom) : null}
+                                        maxDate={filters.rangeDateTo ? new Date(filters.rangeDateTo) : undefined}
+                                        slotProps={{
+                                            textField: { variant: "standard" },
+                                            field: { clearable: true }
+                                        }}
+                                        sx={{ mr: 2 }}
+                                        onChange={handleFromDate}
+                                    />
+                                )}
 
-                            {typeof window !== "undefined" && (
-                                <DatePicker
-                                    value={filters.rangeDateTo ? new Date(filters.rangeDateTo) : null}
-                                    minDate={filters.rangeDateFrom ? new Date(filters.rangeDateFrom) : undefined}
-                                    slotProps={{
-                                        textField: { variant: "standard" },
-                                        field: { clearable: true }
-                                    }}
-                                    onChange={handleToDate}
-                                />
-                            )}
-                        </Box>
+                                {typeof window !== "undefined" && (
+                                    <DatePicker
+                                        value={filters.rangeDateTo ? new Date(filters.rangeDateTo) : null}
+                                        minDate={filters.rangeDateFrom ? new Date(filters.rangeDateFrom) : undefined}
+                                        slotProps={{
+                                            textField: { variant: "standard" },
+                                            field: { clearable: true }
+                                        }}
+                                        onChange={handleToDate}
+                                    />
+                                )}
+                            </Box>
+                        </PickersProvider>
                     </Box>
                 </Grid>
                 <Grid size={1}>
