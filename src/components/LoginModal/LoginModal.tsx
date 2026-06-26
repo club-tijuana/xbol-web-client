@@ -32,7 +32,7 @@ import {
   getPhoneAuthIdentifier,
   isPhoneLikeAuthIdentifier,
   normalizeAuthIdentifier,
-  resolvePhoneAuthCountryCode,
+  normalizePhoneAuthInputValue,
 } from "@/helpers/authIdentifier";
 import {
   isUnlinkedClientProfileError,
@@ -106,15 +106,15 @@ export default function LoginModal() {
   };
 
   const handleIdentifierChange = (value: string) => {
-    const nextCountryCode = resolvePhoneAuthCountryCode(
+    const normalizedInput = normalizePhoneAuthInputValue(
       value,
       identifierCountryCode,
     );
-    if (nextCountryCode !== identifierCountryCode) {
-      setIdentifierCountryCode(nextCountryCode);
+    if (normalizedInput.countryCode !== identifierCountryCode) {
+      setIdentifierCountryCode(normalizedInput.countryCode);
     }
 
-    setIdentifier(value);
+    setIdentifier(normalizedInput.value);
     resetPhoneCodeState();
   };
 

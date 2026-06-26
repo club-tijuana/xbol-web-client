@@ -45,19 +45,20 @@ const countryAdornmentSx: SxProps<Theme> = {
     height: "auto",
     maxHeight: "none",
     mr: 0.75,
+    mt: "0 !important",
 };
 
 const countryFormControlSx: SxProps<Theme> = {
     alignSelf: "center",
-    height: 32,
+    height: 42,
     justifyContent: "center",
 };
 
 const countrySelectSx: SxProps<Theme> = {
     alignItems: "center",
     display: "flex",
-    fontSize: 14,
-    height: 32,
+    fontSize: 16,
+    height: 42,
     lineHeight: 1,
     minWidth: 92,
     "& .MuiSelect-icon": {
@@ -67,7 +68,7 @@ const countrySelectSx: SxProps<Theme> = {
         alignItems: "center",
         boxSizing: "border-box",
         display: "flex",
-        height: 32,
+        height: 42,
         justifyContent: "center",
         lineHeight: 1,
         minHeight: "unset",
