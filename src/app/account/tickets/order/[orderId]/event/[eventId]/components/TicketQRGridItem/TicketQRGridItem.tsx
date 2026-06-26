@@ -1,7 +1,7 @@
 "use client";
 
 import { AttachMoneyOutlined, LinkOff, Share, VisibilityOutlined } from "@mui/icons-material";
-import { Box, Button, Card, CardActions, CardContent, CardMedia, Fade, IconButton, LinearProgress, Typography } from "@mui/material";
+import { Box, Button, Card, CardActions, CardContent, CardMedia, Fade, IconButton, LinearProgress, Tooltip, Typography } from "@mui/material";
 import { QRCodeSVG } from "qrcode.react";
 import { useCallback, useState } from "react";
 
@@ -79,12 +79,17 @@ export default function TicketQRGridItem({ ticket, onShare, onUnshare }: TicketQ
                                         </Box>
 
                                         <Box sx={{ display: "flex", flexDirection: "column" }} mx={1}>
-                                            <IconButton
-                                                aria-label="Vender"
-                                                color="primary"
-                                            >
-                                                <AttachMoneyOutlined sx={{ fontSize: 30 }} />
-                                            </IconButton>
+                                            <Tooltip title="Próximamente">
+                                                <span>
+                                                    <IconButton
+                                                        aria-label="Vender"
+                                                        color="primary"
+                                                        disabled
+                                                    >
+                                                        <AttachMoneyOutlined sx={{ fontSize: 30 }} />
+                                                    </IconButton>
+                                                </span>
+                                            </Tooltip>
                                             <Typography variant="caption" color="secondary">
                                                 Vender
                                             </Typography>

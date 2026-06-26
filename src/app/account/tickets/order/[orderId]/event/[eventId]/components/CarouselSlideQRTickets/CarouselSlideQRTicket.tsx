@@ -1,7 +1,7 @@
 "use client";
 
 import { AttachMoneyOutlined, LinkOff, Share } from "@mui/icons-material";
-import { Box, Card, CardActions, CardContent, CardMedia, IconButton, LinearProgress, SxProps, Theme, Typography } from "@mui/material";
+import { Box, Card, CardActions, CardContent, CardMedia, IconButton, LinearProgress, SxProps, Theme, Tooltip, Typography } from "@mui/material";
 import { QRCodeSVG } from "qrcode.react";
 import { ReactNode } from "react";
 import { useCallback, useState } from "react";
@@ -159,12 +159,17 @@ export default function CarouselSlideQRTicket({ ticket, isActive, onShare, onUns
 
                             <Box display="flex" flexDirection="row" justifyContent="space-around" mt={3}>
                                 <Box sx={actionSx}>
-                                    <IconButton
-                                        aria-label="Vender"
-                                        color="primary"
-                                    >
-                                        <AttachMoneyOutlined sx={{ fontSize: 30 }} />
-                                    </IconButton>
+                                    <Tooltip title="Próximamente">
+                                        <span>
+                                            <IconButton
+                                                aria-label="Vender"
+                                                color="primary"
+                                                disabled
+                                            >
+                                                <AttachMoneyOutlined sx={{ fontSize: 30 }} />
+                                            </IconButton>
+                                        </span>
+                                    </Tooltip>
                                     <Typography variant="caption" color="secondary">
                                         Vender
                                     </Typography>

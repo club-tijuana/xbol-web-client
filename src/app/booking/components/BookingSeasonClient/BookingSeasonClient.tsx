@@ -448,7 +448,6 @@ export default function BookingSeasonClient({
     <Grid
       container
       columns={12}
-      mt={20}
       spacing={4}
       pb={8}
       sx={{
@@ -563,7 +562,7 @@ export default function BookingSeasonClient({
           className="paperCard"
           sx={{ backgroundColor: "white" }}
         >
-          {season && (
+          {season &&
             <BookingRightPanel
               ref={mapRef}
               mapKey={mapKey}
@@ -575,7 +574,7 @@ export default function BookingSeasonClient({
               bundleId={Number(id)}
               onPay={handleContinue}
             />
-          )}
+          }
         </Paper>
 
         <Box mt={4} textAlign="end">

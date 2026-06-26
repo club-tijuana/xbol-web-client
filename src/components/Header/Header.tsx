@@ -26,6 +26,7 @@ import {
   Popover,
   SxProps,
   Toolbar,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import Image from "next/image";
@@ -49,18 +50,20 @@ import SearchInput from "./SearchInput/SearchInput";
 const DRAWER_WIDTH = 240;
 const LOGO_WIDTH = 30;
 const LOGO_HEIGHT = 30;
+const HEADER_HEIGHT = 96;
 const MY_ACCOUNT_POPOVER_WIDTH = 287;
 
 interface NavItem {
   title: string;
   redirectUrl: string;
   requiresAuth?: boolean;
+  isComingSoon?: boolean;
 }
 
 const navItems = [
   { title: "Home", redirectUrl: "/" },
   { title: "Boletos", redirectUrl: "/account/tickets", requiresAuth: true },
-  { title: "Vender", redirectUrl: "/no-content", requiresAuth: true },
+  { title: "Vender", redirectUrl: "", requiresAuth: true, isComingSoon: true },
   { title: "Cuenta", redirectUrl: "/account", requiresAuth: true },
 ] satisfies NavItem[];
 
@@ -162,15 +165,20 @@ export default function Header() {
         {visibleNavItems.map((item) => {
           return (
             <ListItem key={item.title} disablePadding>
-              <ListItemButton
-                sx={{ textAlign: "center" }}
-                onClick={() => {
-                  handleRedirect(item.redirectUrl);
-                  handleDrawerToggle();
-                }}
-              >
-                <ListItemText primary={item.title} sx={{ color: "white" }} />
-              </ListItemButton>
+              <Tooltip title={item.isComingSoon ? "Próximamente" : ""}>
+                <ListItemButton
+                  aria-disabled={item.isComingSoon ? "true" : undefined}
+                  sx={{ textAlign: "center" }}
+                  onClick={() => {
+                    if (!item.isComingSoon) {
+                      handleRedirect(item.redirectUrl);
+                      handleDrawerToggle();
+                    }
+                  }}
+                >
+                  <ListItemText primary={item.title} sx={{ color: "white" }} />
+                </ListItemButton>
+              </Tooltip>
             </ListItem>
           );
         })}
@@ -193,6 +201,7 @@ export default function Header() {
       <FullWidthSection fullBleed={true} variant="color">
         <AppBar
           component="nav"
+          position="fixed"
           sx={{
             backgroundColor: (theme) =>
               isTransparent
@@ -276,15 +285,32 @@ export default function Header() {
                   }}
                 >
                   {visibleNavItems.map((item) => {
-                    return (
+                    const button = (
                       <Button
                         key={item.title}
                         variant="text"
+                        aria-disabled={item.isComingSoon ? "true" : undefined}
                         sx={{ color: "#F0F0F0", px: 2 }}
-                        onClick={() => handleRedirect(item.redirectUrl)}
+                        onClick={() => {
+                          if (!item.isComingSoon) {
+                            handleRedirect(item.redirectUrl);
+                          }
+                        }}
                       >
                         <Typography variant="h5">{item.title}</Typography>
                       </Button>
+                    );
+
+                    if (item.isComingSoon) {
+                      return (
+                        <Tooltip key={item.title} title="Próximamente">
+                          <span>{button}</span>
+                        </Tooltip>
+                      );
+                    }
+
+                    return (
+                      button
                     );
                   })}
                 </Box>
@@ -490,6 +516,7 @@ export default function Header() {
             {drawer}
           </Drawer>
         </nav>
+        <Box aria-hidden="true" sx={{ height: HEADER_HEIGHT }} />
       </FullWidthSection>
     </Box>
   );

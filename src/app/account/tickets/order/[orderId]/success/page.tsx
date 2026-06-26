@@ -65,21 +65,23 @@ export default async function SuccessPage(props: SuccessPageProps) {
                 </Box>
             </FullWidthSection>
 
-            <Grid container columns={2} spacing={2} my={3}>
-                <Grid size={{ xs: 2, lg: 1 }}>
-                    <Advertisement image={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/images/advertisement/advertisement.png`} />
+            {trendingEventsVM.length > 0 && (
+                <Grid container columns={2} spacing={2} my={3}>
+                    <Grid size={{ xs: 2, lg: 1 }}>
+                        <Advertisement image={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/images/advertisement/advertisement.png`} />
+                    </Grid>
+                    <Grid size={{ xs: 2, lg: 1 }}>
+                        <Typography variant="h2" fontWeight={400} color="primary">
+                            Otros eventos
+                        </Typography>
+                        <EventCardGrid
+                            eventCards={trendingEventsVM}
+                            sizeVariant="xs"
+                            styleVariant="default"
+                        />
+                    </Grid>
                 </Grid>
-                <Grid size={{ xs: 2, lg: 1 }}>
-                    <Typography variant="h2" fontWeight={400} color="primary">
-                        Otros eventos
-                    </Typography>
-                    <EventCardGrid
-                        eventCards={trendingEventsVM}
-                        sizeVariant="xs"
-                        styleVariant="default"
-                    />
-                </Grid>
-            </Grid>
+            )}
         </Box>
     );
 }

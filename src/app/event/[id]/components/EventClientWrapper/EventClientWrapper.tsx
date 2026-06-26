@@ -188,7 +188,7 @@ export default function EventClientWrapper({
           <Grid
             container
             columns={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 18 }}
-            mt={20}
+            mt={{ xs: 3, sm: 4, md: 5 }}
             spacing={{ xs: 0, sm: 0, md: 3, lg: 3, xl: 20 }}
           >
             <Grid

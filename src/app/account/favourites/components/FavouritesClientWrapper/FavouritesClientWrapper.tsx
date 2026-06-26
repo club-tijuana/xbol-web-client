@@ -67,7 +67,7 @@ export default function FavouritesClientWrapper() {
     }, []);
 
     return (
-        <Box sx={{ minHeight: "100vh" }} pt={10} mt={20}>
+        <Box sx={{ minHeight: "100vh", mt: { xs: 3, sm: 4, md: 5 } }}>
             <EventCardGrid
                 title="Favoritos"
                 eventCards={filteredEvents.map(e =>

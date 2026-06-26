@@ -21,7 +21,7 @@ export function generateMetadata(): Metadata {
 
 export default async function EventPage() {
   return (
-    <Box sx={{ minHeight: "100vh" }} mt={20}>
+    <Box sx={{ minHeight: "100vh" }} mt={{ xs: 3, sm: 4, md: 5 }}>
       <EventsSearch />
     </Box>
   );

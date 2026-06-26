@@ -534,29 +534,31 @@ export default async function EventDetailPage({ params }: EventPageProps) {
           <FAQ />
         </Box>
       </FullWidthSection>
-      <Grid
-        container
-        columns={{ xs: 1, sm: 1, md: 2 }}
-        spacing={2}
-        mt={5}
-        mb={4}
-      >
-        <Grid size={1}>
-          <Advertisement
-            image={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/images/advertisement/advertisement.png`}
-          />
+      {trendingEventsVM.length > 0 && (
+        <Grid
+          container
+          columns={{ xs: 1, sm: 1, md: 2 }}
+          spacing={2}
+          mt={5}
+          mb={4}
+        >
+          <Grid size={1}>
+            <Advertisement
+              image={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/images/advertisement/advertisement.png`}
+            />
+          </Grid>
+          <Grid size={1}>
+            <Typography variant="h3" fontWeight={400} color="primary">
+              Otros eventos
+            </Typography>
+            <EventCardGrid
+              eventCards={trendingEventsVM}
+              sizeVariant="xs"
+              styleVariant="default"
+            />
+          </Grid>
         </Grid>
-        <Grid size={1}>
-          <Typography variant="h3" fontWeight={400} color="primary">
-            Otros eventos
-          </Typography>
-          <EventCardGrid
-            eventCards={trendingEventsVM}
-            sizeVariant="xs"
-            styleVariant="default"
-          />
-        </Grid>
-      </Grid>
+      )}
     </Box>
   );
 }

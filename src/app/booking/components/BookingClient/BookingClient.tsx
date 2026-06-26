@@ -395,10 +395,13 @@ export default function BookingClient({ id }: BookingClientProps) {
     <Grid
       container
       columns={12}
-      mt={20}
       spacing={4}
       pb={8}
-      sx={{ minHeight: "100vh", alignContent: "start" }}
+      sx={{
+        minHeight: "100vh",
+        alignContent: "start",
+        mt: { xs: 3, sm: 4, md: 6, lg: 8 },
+      }}
     >
       {holdToken && (
         <Grid size={12}>
