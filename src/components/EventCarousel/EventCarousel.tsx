@@ -14,6 +14,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 
 import { heroImageOrDefault } from "@/models/event-image";
 import { getEventBannerImageUrl } from "@/models/event-item.dto";
+import { mediaUrl } from "@/models/media.dto";
 
 import styles from "./EventCarousel.module.scss";
 import { EventCarouselProps } from "./EventCarousel.types";
@@ -22,6 +23,8 @@ import "swiper/css";
 import "swiper/css/effect-fade";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+
+const FALLBACK_HERO_HEIGHT = "calc(100dvh - 96px)";
 
 export default function EventCarousel({
   events,
@@ -65,6 +68,10 @@ export default function EventCarousel({
         autoplay={hasMultipleSlides ? { delay: 3000 } : false}
       >
         {hasEvents ? events.map((event, index) => {
+          const eventHeroImageUrl =
+            mediaUrl(event.media?.banner) || event.bannerImageUrl?.trim();
+          const usesLandingFallbackImage =
+            !eventHeroImageUrl && !!fallbackImageUrl?.trim();
           const imageUrl = getEventBannerImageUrl(event, fallbackImageUrl);
           const mobileImageUrl = getEventBannerImageUrl(
             event,
@@ -80,10 +87,13 @@ export default function EventCarousel({
                   display: "flex",
                   justifyContent: "center",
                   width: "100%",
-                  aspectRatio: {
-                    xs: "1 / 1",
-                    md: "16 / 9",
-                  },
+                  height: usesLandingFallbackImage ? FALLBACK_HERO_HEIGHT : undefined,
+                  aspectRatio: usesLandingFallbackImage
+                    ? undefined
+                    : {
+                      xs: "1 / 1",
+                      md: "16 / 9",
+                    },
                   overflow: "hidden",
                 }}
               >
@@ -113,10 +123,7 @@ export default function EventCarousel({
                 display: "flex",
                 justifyContent: "center",
                 width: "100%",
-                aspectRatio: {
-                  xs: "1 / 1",
-                  md: "16 / 9",
-                },
+                height: FALLBACK_HERO_HEIGHT,
                 overflow: "hidden",
               }}
             >

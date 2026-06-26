@@ -125,13 +125,21 @@ export default async function Home({ searchParams }: HomeProps) {
       : null;
 
   const hasErrors = results.some((r) => r.status === "rejected");
+  const showSeasonBanner =
+    heroEvents.length > 0 ||
+    !!upcomingEvents?.items.length ||
+    !!futbolEvents?.items.length ||
+    !!musicEvents?.items.length ||
+    !!theaterEvents?.items.length ||
+    !!trendingEvents?.items.length ||
+    !!bundleCatalog?.items.length;
 
   return (
     <div>
       <ErrorNotifier show={hasErrors || !!error} errorMessage={error} />
 
       <main>
-        <Box sx={{ minHeight: "100vh" }}>
+        <Box sx={{ minHeight: "calc(100dvh - 96px)" }}>
           <FullWidthSection fullBleed={true} disableMaxWidth={true}>
             <EventCarousel
               events={heroEvents}
@@ -216,7 +224,7 @@ export default async function Home({ searchParams }: HomeProps) {
             </Grid>
           )}
 
-          <SeasonBanner />
+          {showSeasonBanner && <SeasonBanner />}
 
           {bundleCatalog && bundleCatalog.items.length > 0 && (
             <Box>

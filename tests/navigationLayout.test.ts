@@ -68,3 +68,35 @@ test("otros eventos sections render only when trending events exist", () => {
     assert.match(beforeSection, /trendingEventsVM\.length > 0 && \(/, path);
   }
 });
+
+test("fallback home hero fills the viewport below the fixed header without letterboxing", () => {
+  const source = read("src/components/EventCarousel/EventCarousel.tsx");
+  const styles = read("src/components/EventCarousel/EventCarousel.module.scss");
+
+  assert.match(source, /const FALLBACK_HERO_HEIGHT\s*=\s*"calc\(100dvh - 96px\)"/);
+  assert.match(source, /height:\s*FALLBACK_HERO_HEIGHT/);
+  assert.match(source, /mediaUrl\(event\.media\?\.banner\) \|\| event\.bannerImageUrl\?\.trim\(\)/);
+  assert.match(source, /usesLandingFallbackImage\s*=\s*!eventHeroImageUrl && !!fallbackImageUrl\?\.trim\(\)/);
+  assert.match(source, /height:\s*usesLandingFallbackImage \? FALLBACK_HERO_HEIGHT : undefined/);
+  assert.match(source, /aspectRatio:\s*usesLandingFallbackImage\s*\?\s*undefined/);
+  assert.match(source, /alt="Próximos eventos"[\s\S]*className=\{styles\.image\}/);
+  assert.doesNotMatch(source, /styles\.fallbackImage/);
+  assert.doesNotMatch(styles, /\.fallbackImage/);
+  assert.doesNotMatch(source, /backgroundColor:\s*"#0c0c0c"/);
+  assert.match(source, /objectFit:\s*"cover"/);
+});
+
+test("homepage content wrapper does not add a header-height gap before the footer", () => {
+  const source = read("src/app/page.tsx");
+
+  assert.match(source, /minHeight:\s*"calc\(100dvh - 96px\)"/);
+  assert.doesNotMatch(source, /minHeight:\s*"100vh"/);
+});
+
+test("homepage does not mount the season banner in the fallback-only hero state", () => {
+  const source = read("src/app/page.tsx");
+
+  assert.match(source, /const showSeasonBanner\s*=/);
+  assert.match(source, /\{showSeasonBanner && <SeasonBanner \/>\}/);
+  assert.doesNotMatch(source, /^\s*<SeasonBanner \/>\s*$/m);
+});
