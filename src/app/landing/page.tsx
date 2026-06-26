@@ -1,6 +1,5 @@
 import { Box } from "@mui/material";
 import type { Metadata } from "next";
-import Image from "next/image";
 
 import { whiteLabel } from "@/config/whiteLabel";
 import { validateSiteAccessGateEnv } from "@/utils/routing/siteAccessGate";
@@ -13,7 +12,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default function LandingPage() {
-  const { landingImageUrl } = validateSiteAccessGateEnv();
+  const { landingImageUrl, landingMobileImageUrl } = validateSiteAccessGateEnv();
 
   return (
     <Box
@@ -26,17 +25,25 @@ export default function LandingPage() {
       }}
     >
       {landingImageUrl ? (
-        <Image
-          src={landingImageUrl}
-          alt="Xolo Pass próximamente"
-          fill
-          priority
-          unoptimized
-          sizes="100vw"
-          style={{
-            objectFit: "cover",
-          }}
-        />
+        <picture>
+          {landingMobileImageUrl ? (
+            <source
+              media="(max-width: 767px)"
+              srcSet={landingMobileImageUrl}
+            />
+          ) : null}
+          <img
+            src={landingImageUrl}
+            alt="Xolo Pass próximamente"
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        </picture>
       ) : null}
     </Box>
   );

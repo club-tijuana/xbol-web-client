@@ -216,6 +216,10 @@ const serverEnvShape = {
     emptyStringToUndefined,
     z.url().optional(),
   ),
+  SITE_ACCESS_LANDING_MOBILE_IMAGE_URL: z.preprocess(
+    emptyStringToUndefined,
+    z.url().optional(),
+  ),
   SITE_ACCESS_ALLOWED_CIDRS: siteAccessAllowedCidrs(),
   SITE_ACCESS_CLIENT_IP_HEADER: z.preprocess(
     emptyStringToUndefined,
@@ -229,6 +233,10 @@ export const serverEnvMetadata = {
   FIREBASE_SESSION_COOKIE_SECURE: serverRuntimeEnv("variable", "repository"),
   SITE_ACCESS_MODE: serverRuntimeEnv("variable", "environment"),
   SITE_ACCESS_LANDING_IMAGE_URL: serverRuntimeEnv("variable", "environment"),
+  SITE_ACCESS_LANDING_MOBILE_IMAGE_URL: serverRuntimeEnv(
+    "variable",
+    "environment",
+  ),
   SITE_ACCESS_ALLOWED_CIDRS: serverRuntimeEnv("variable", "environment"),
   SITE_ACCESS_CLIENT_IP_HEADER: serverRuntimeEnv("variable", "environment"),
 } satisfies Record<keyof typeof serverEnvShape, EnvMetadata>;

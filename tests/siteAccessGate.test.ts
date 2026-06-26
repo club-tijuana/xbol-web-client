@@ -46,12 +46,18 @@ test("server env schema accepts the landing gate runtime configuration", () => {
     SITE_ACCESS_MODE: "landing",
     SITE_ACCESS_LANDING_IMAGE_URL:
       "https://storage.googleapis.com/example-bucket/public-media/static/xolopass-coming-soon.png",
+    SITE_ACCESS_LANDING_MOBILE_IMAGE_URL:
+      "https://storage.googleapis.com/example-bucket/public-media/static/xolopass-coming-soon-mobile.png",
   });
 
   assert.equal(env.SITE_ACCESS_MODE, "landing");
   assert.equal(
     env.SITE_ACCESS_LANDING_IMAGE_URL,
     "https://storage.googleapis.com/example-bucket/public-media/static/xolopass-coming-soon.png",
+  );
+  assert.equal(
+    env.SITE_ACCESS_LANDING_MOBILE_IMAGE_URL,
+    "https://storage.googleapis.com/example-bucket/public-media/static/xolopass-coming-soon-mobile.png",
   );
 });
 
@@ -70,6 +76,39 @@ test("site access gate requires a landing image URL in landing mode", async () =
     () => validateSiteAccessGateEnv({ SITE_ACCESS_MODE: "landing" }),
     /SITE_ACCESS_LANDING_IMAGE_URL is required when SITE_ACCESS_MODE is landing/,
   );
+});
+
+test("site access gate exposes an optional mobile landing image URL", async () => {
+  const { validateSiteAccessGateEnv } = await importSiteAccessGate();
+
+  const config = validateSiteAccessGateEnv({
+    SITE_ACCESS_MODE: "landing",
+    SITE_ACCESS_LANDING_IMAGE_URL:
+      "https://storage.googleapis.com/example-bucket/public-media/static/xolopass-coming-soon.png",
+    SITE_ACCESS_LANDING_MOBILE_IMAGE_URL:
+      "https://storage.googleapis.com/example-bucket/public-media/static/xolopass-coming-soon-mobile.png",
+  });
+
+  assert.equal(
+    config.landingImageUrl,
+    "https://storage.googleapis.com/example-bucket/public-media/static/xolopass-coming-soon.png",
+  );
+  assert.equal(
+    config.landingMobileImageUrl,
+    "https://storage.googleapis.com/example-bucket/public-media/static/xolopass-coming-soon-mobile.png",
+  );
+});
+
+test("site access gate leaves the mobile landing image unset when not configured", async () => {
+  const { validateSiteAccessGateEnv } = await importSiteAccessGate();
+
+  const config = validateSiteAccessGateEnv({
+    SITE_ACCESS_MODE: "landing",
+    SITE_ACCESS_LANDING_IMAGE_URL:
+      "https://storage.googleapis.com/example-bucket/public-media/static/xolopass-coming-soon.png",
+  });
+
+  assert.equal(config.landingMobileImageUrl, null);
 });
 
 test("site access gate does not redirect when the mode is open", async () => {
@@ -217,4 +256,12 @@ test("landing page is dynamic so it can read runtime image configuration", () =>
   const source = readFileSync("src/app/landing/page.tsx", "utf8");
 
   assert.match(source, /export const dynamic = "force-dynamic"/);
+});
+
+test("landing page uses a mobile art-directed source when configured", () => {
+  const source = readFileSync("src/app/landing/page.tsx", "utf8");
+
+  assert.match(source, /landingMobileImageUrl/);
+  assert.match(source, /<picture/);
+  assert.match(source, /media="\(max-width: 767px\)"/);
 });

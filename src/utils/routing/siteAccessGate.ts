@@ -5,6 +5,7 @@ export const SITE_ACCESS_LANDING_PATH = "/landing";
 type SiteAccessEnv = {
   SITE_ACCESS_MODE?: string;
   SITE_ACCESS_LANDING_IMAGE_URL?: string;
+  SITE_ACCESS_LANDING_MOBILE_IMAGE_URL?: string;
   SITE_ACCESS_ALLOWED_CIDRS?: string;
   SITE_ACCESS_CLIENT_IP_HEADER?: string;
   NEXT_PUBLIC_BASE_PATH?: string;
@@ -14,6 +15,7 @@ type SiteAccessEnv = {
 export type SiteAccessGateConfig = {
   mode: "open" | "landing";
   landingImageUrl: string | null;
+  landingMobileImageUrl: string | null;
   allowedCidrs: string[];
   clientIpHeader: string;
 };
@@ -166,6 +168,8 @@ function parseSiteAccessGateEnv(
 ): SiteAccessGateConfig {
   const mode = env.SITE_ACCESS_MODE === "landing" ? "landing" : "open";
   const landingImageUrl = env.SITE_ACCESS_LANDING_IMAGE_URL?.trim() || null;
+  const landingMobileImageUrl =
+    env.SITE_ACCESS_LANDING_MOBILE_IMAGE_URL?.trim() || null;
   const allowedCidrs = splitAllowedCidrs(env.SITE_ACCESS_ALLOWED_CIDRS);
   const clientIpHeader =
     env.SITE_ACCESS_CLIENT_IP_HEADER?.trim().toLowerCase()
@@ -189,6 +193,7 @@ function parseSiteAccessGateEnv(
   return {
     mode,
     landingImageUrl,
+    landingMobileImageUrl,
     allowedCidrs,
     clientIpHeader,
   };
