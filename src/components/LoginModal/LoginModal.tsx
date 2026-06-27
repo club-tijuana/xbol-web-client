@@ -23,7 +23,7 @@ import {
 import { ConfirmationResult } from "firebase/auth";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { AuthIdentifierInput } from "@/components/AuthIdentifierField/AuthIdentifierField";
 import { publicEnv } from "@/config/env";
@@ -34,6 +34,13 @@ import {
   normalizeAuthIdentifier,
   normalizePhoneAuthInputValue,
 } from "@/helpers/authIdentifier";
+import {
+  AUTH_SMS_RESEND_COOLDOWN_SECONDS,
+  getPhoneLoginPrimaryActionLabel,
+  getPhoneLoginTitle,
+  getSmsResendLabel,
+  shouldResetPhoneCodeForIdentifierChange,
+} from "@/helpers/authUx";
 import {
   isUnlinkedClientProfileError,
   loginPhone,
@@ -64,6 +71,7 @@ export default function LoginModal() {
   const [phoneConfirmation, setPhoneConfirmation] =
     useState<ConfirmationResult | null>(null);
   const [phoneLoading, setPhoneLoading] = useState(false);
+  const [smsResendSeconds, setSmsResendSeconds] = useState(0);
   const [passwordResetLoading, setPasswordResetLoading] = useState(false);
   const [passwordResetDialogOpen, setPasswordResetDialogOpen] = useState(false);
   const [passwordResetEmail, setPasswordResetEmail] = useState("");
@@ -89,7 +97,7 @@ export default function LoginModal() {
     isLoading ||
     (!emailAuthEnabled && !isPhoneIdentifier) ||
     (isPhoneLikeIdentifier && !isPhoneIdentifier) ||
-    (isPhoneIdentifier && (!phoneConfirmation || !verificationCode.trim()));
+    (isPhoneIdentifier && phoneConfirmation !== null && !verificationCode.trim());
   const registrationIdentifierCountryCode = normalizeAuthIdentifier(
     identifier,
   ).startsWith("+")
@@ -97,13 +105,30 @@ export default function LoginModal() {
     : identifierCountryCode || undefined;
   const registrationIdentifier =
     normalizedPhoneIdentifier ?? normalizeAuthIdentifier(identifier);
+  const loginModalTitle = getPhoneLoginTitle(isPhoneFlow);
+  const loginPrimaryActionLabel = isPhoneFlow
+    ? getPhoneLoginPrimaryActionLabel(phoneConfirmation !== null)
+    : "Iniciar sesión";
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
   const resetPhoneCodeState = () => {
     setPhoneConfirmation(null);
     setVerificationCode("");
+    setSmsResendSeconds(0);
   };
+
+  useEffect(() => {
+    if (smsResendSeconds <= 0) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setSmsResendSeconds((current) => Math.max(0, current - 1));
+    }, 1000);
+
+    return () => window.clearTimeout(timer);
+  }, [smsResendSeconds]);
 
   const handleIdentifierChange = (value: string) => {
     const normalizedInput = normalizePhoneAuthInputValue(
@@ -114,8 +139,16 @@ export default function LoginModal() {
       setIdentifierCountryCode(normalizedInput.countryCode);
     }
 
+    const shouldResetPhoneCode = shouldResetPhoneCodeForIdentifierChange(
+      identifier,
+      normalizedInput.value,
+      normalizedInput.countryCode,
+    );
+
     setIdentifier(normalizedInput.value);
-    resetPhoneCodeState();
+    if (shouldResetPhoneCode) {
+      resetPhoneCodeState();
+    }
   };
 
   const handleMouseDownPassword = (
@@ -275,6 +308,7 @@ export default function LoginModal() {
         "login-phone-recaptcha",
       );
       setPhoneConfirmation(confirmation);
+      setSmsResendSeconds(AUTH_SMS_RESEND_COOLDOWN_SECONDS);
       setAlertSeverity("success");
       setAlertMessage("Código enviado");
       setAlertOpen(true);
@@ -287,11 +321,6 @@ export default function LoginModal() {
     } finally {
       setPhoneLoading(false);
     }
-  };
-
-  const handleRegister = () => {
-    dispatch(closeLoginModal());
-    router.push("/register");
   };
 
   const handleForgotPassword = () => {
@@ -368,7 +397,7 @@ export default function LoginModal() {
         </Box>
 
         <Typography variant="h2" fontWeight={600} color="primary" mt={4}>
-          Inicia sesión
+          {loginModalTitle}
         </Typography>
 
         <Box
@@ -501,17 +530,6 @@ export default function LoginModal() {
 
         {isPhoneIdentifier && (
           <>
-            {!phoneConfirmation && (
-              <Button
-                type="button"
-                variant="outlined"
-                disabled={isLoading || !normalizedPhoneIdentifier}
-                onClick={handleSendPhoneCode}
-                sx={{ mt: 2 }}
-              >
-                Enviar código
-              </Button>
-            )}
             {shouldShowSmsCode && (
               <Box
                 mt={3}
@@ -548,6 +566,22 @@ export default function LoginModal() {
                     onChange={(e) => setVerificationCode(e.target.value)}
                   />
                 </FormControl>
+                <Button
+                  type="button"
+                  variant="text"
+                  color="secondary"
+                  disabled={isLoading || smsResendSeconds > 0}
+                  onClick={handleSendPhoneCode}
+                  sx={{ mt: 1 }}
+                >
+                  <Typography
+                    variant="body2"
+                    color="text"
+                    sx={{ textDecoration: "underline" }}
+                  >
+                    {getSmsResendLabel(smsResendSeconds)}
+                  </Typography>
+                </Button>
               </Box>
             )}
             <div id="login-phone-recaptcha" />
@@ -571,22 +605,6 @@ export default function LoginModal() {
             </Typography>
           </Button>
         )}
-        {!phoneConfirmation && (
-          <Button
-            type="button"
-            variant="text"
-            color={"secondary"}
-            onClick={handleRegister}
-          >
-            <Typography
-              variant="body1"
-              color={"text"}
-              sx={{ textDecoration: "underline" }}
-            >
-              Crear cuenta
-            </Typography>
-          </Button>
-        )}
         <Box
           sx={{
             width: "100%",
@@ -604,7 +622,7 @@ export default function LoginModal() {
             sx={{ paddingTop: 1.2, paddingBottom: 1.2 }}
           >
             <Typography variant="body1" color={colors.text.neutral}>
-              Iniciar sesión
+              {loginPrimaryActionLabel}
             </Typography>
           </Button>
         </Box>

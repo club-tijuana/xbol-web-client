@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import AuthIdentifierField from "@/components/AuthIdentifierField/AuthIdentifierField";
 import { publicEnv } from "@/config/env";
 import { defaultAuthPhoneCountryCode, getPhoneAuthCountry, getPhoneAuthIdentifier, isAuthPhoneCountryCode, isPhoneLikeAuthIdentifier, normalizeAuthIdentifier } from "@/helpers/authIdentifier";
+import { AUTH_SMS_RESEND_COOLDOWN_SECONDS, getSmsResendLabel } from "@/helpers/authUx";
 import { getVerifiedPhoneRegistrationUser } from "@/helpers/phoneRegistrationHandoff";
 import { registerPhone, resolveCurrentPhoneRegistrationUser, sendPhoneLoginCode } from "@/services/authService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -41,6 +42,7 @@ export default function RegisterForm({
     const [verificationCode, setVerificationCode] = useState("");
     const [phoneConfirmation, setPhoneConfirmation] = useState<ConfirmationResult | null>(null);
     const [phoneLoading, setPhoneLoading] = useState(false);
+    const [smsResendSeconds, setSmsResendSeconds] = useState(0);
     const [phoneSessionLoading, setPhoneSessionLoading] = useState(false);
     const [recoveredPhoneUser, setRecoveredPhoneUser] = useState(currentAuthUser);
     const [showPassword, setShowPassword] = useState(false);
@@ -95,6 +97,18 @@ export default function RegisterForm({
             cancelled = true;
         };
     }, [normalizedPhoneIdentifier, verifiedPhoneUser]);
+
+    useEffect(() => {
+        if (smsResendSeconds <= 0) {
+            return;
+        }
+
+        const timer = window.setTimeout(() => {
+            setSmsResendSeconds((current) => Math.max(0, current - 1));
+        }, 1000);
+
+        return () => window.clearTimeout(timer);
+    }, [smsResendSeconds]);
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -187,6 +201,7 @@ export default function RegisterForm({
                 "register-phone-recaptcha",
             );
             setPhoneConfirmation(confirmation);
+            setSmsResendSeconds(AUTH_SMS_RESEND_COOLDOWN_SECONDS);
         } catch (error) {
             setErrorMessage(error instanceof Error ? error.message : "Error al enviar código SMS");
         } finally {
@@ -245,11 +260,13 @@ export default function RegisterForm({
                         setIdentifierCountryCode(value);
                         setPhoneConfirmation(null);
                         setVerificationCode("");
+                        setSmsResendSeconds(0);
                     }}
                     onValueChange={(value) => {
                         setIdentifier(value);
                         setPhoneConfirmation(null);
                         setVerificationCode("");
+                        setSmsResendSeconds(0);
                     }}
                     disabled={!!verifiedPhoneUser}
                     phoneOnly={!emailAuthEnabled}
@@ -312,14 +329,24 @@ export default function RegisterForm({
                         }
 
                         {phoneConfirmation &&
-                            <TextField
-                                label="Código SMS"
-                                value={verificationCode}
-                                onChange={(event) => setVerificationCode(event.target.value)}
-                                required
-                                fullWidth
-                                variant="filled"
-                            />
+                            <>
+                                <TextField
+                                    label="Código SMS"
+                                    value={verificationCode}
+                                    onChange={(event) => setVerificationCode(event.target.value)}
+                                    required
+                                    fullWidth
+                                    variant="filled"
+                                />
+                                <Button
+                                    type="button"
+                                    variant="text"
+                                    disabled={isLoading || smsResendSeconds > 0}
+                                    onClick={handleSendPhoneCode}
+                                >
+                                    {getSmsResendLabel(smsResendSeconds)}
+                                </Button>
+                            </>
                         }
 
                         <div id="register-phone-recaptcha" />

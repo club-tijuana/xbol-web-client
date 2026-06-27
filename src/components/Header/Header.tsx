@@ -34,6 +34,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 
 import { canUseVerifiedClientFeatures } from "@/helpers/authStateHelper";
+import { loginModalBlockedOnPath } from "@/helpers/authUx";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { logout } from "@/store/slices/authSlice";
@@ -98,6 +99,10 @@ export default function Header() {
 
   const handleAccountClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (!isAuthenticated) {
+      if (loginModalBlockedOnPath(pathname)) {
+        return;
+      }
+
       dispatch(openLoginModal());
     } else {
       setAnchorEl(event.currentTarget);
