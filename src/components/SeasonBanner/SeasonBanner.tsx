@@ -27,9 +27,7 @@ export default function SeasonBanner() {
       try {
         const response = await getBundleBanner();
 
-        if (response) {
-          setBundleBanner(response);
-        }
+        setBundleBanner(response);
       } catch (error) {
         dispatch(
           showGeneralMessage({
@@ -41,7 +39,7 @@ export default function SeasonBanner() {
     };
 
     loadSeason();
-  }, []);
+  }, [dispatch, token]);
 
   const handleSeasonClick = () => {
     if (!bundleBanner) {
@@ -53,7 +51,7 @@ export default function SeasonBanner() {
       return;
     }
 
-    if (bundleBanner.isGeneralSale) {
+    if (bundleBanner.isPreSale || bundleBanner.isGeneralSale) {
       dispatch(setBookMode("season"));
       router.push(`/booking/season/${bundleBanner.id}`);
     }

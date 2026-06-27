@@ -36,6 +36,31 @@ test("season banner routes renewal bundles to renovation flow", () => {
   );
 });
 
+test("season banner refreshes when auth token changes", () => {
+  const source = readFileSync(
+    "src/components/SeasonBanner/SeasonBanner.tsx",
+    "utf8",
+  );
+
+  assert.match(source, /useEffect\(\(\) => \{/);
+  assert.match(source, /\}, \[dispatch,\s*token\]\);/);
+});
+
+test("season banner routes presale bundles to normal season booking", () => {
+  const source = readFileSync(
+    "src/components/SeasonBanner/SeasonBanner.tsx",
+    "utf8",
+  );
+
+  assert.match(source, /bundleBanner\.isPreSale/);
+  assert.match(source, /bundleBanner\.isGeneralSale/);
+  assert.match(
+    source,
+    /\(bundleBanner\.isPreSale \|\| bundleBanner\.isGeneralSale\)/,
+  );
+  assert.match(source, /router\.push\(`\/booking\/season\/\$\{bundleBanner\.id\}`\)/);
+});
+
 test("season booking route waits for an available season before mounting purchase controls", () => {
   const source = readFileSync(
     "src/app/booking/components/BookingSeasonClient/BookingSeasonClient.tsx",
