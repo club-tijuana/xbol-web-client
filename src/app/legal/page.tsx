@@ -17,7 +17,7 @@ const companyInfo = [
   { label: "Razón social", value: whiteLabel.legalEntityName },
   { label: "Contacto", value: whiteLabel.contact.name },
   { label: "Domicilio", value: whiteLabel.contact.address },
-  { label: "Teléfono", value: whiteLabel.contact.phone },
+  { label: "Teléfono", value: whiteLabel.contact.whatsapp },
   { label: "Correo electrónico", value: whiteLabel.contact.email },
   {
     href: whiteLabel.websiteUrl,

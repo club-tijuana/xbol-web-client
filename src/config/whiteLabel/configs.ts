@@ -6,13 +6,13 @@ export const whiteLabelConfigs = {
     legalBrandName: "PWR TICKET",
     legalEntityName: "Luup Global, S.A. de C.V.",
     websiteUrl: "https://pwrticket.mx/",
-    legalLastUpdated: "13 de abril de 2026",
+    legalLastUpdated: "26 de junio de 2026",
     contact: {
       name: "Martin Ibarra Cervantes",
-      address: "9990 Calle Rufino Tamayo, Interior 401, Zona Urbana Rio Tijuana, 22010",
+      address: "Calle Rufino Tamayo No. 9990, Int. 401, Zona Urbana Rio Tijuana, C.P. 22010, Tijuana, Baja California, México.",
       email: "soporte@pwrticket.mx",
       phone: "664 375 9594",
-      whatsapp: "(+52) 6646933586",
+      whatsapp: "+52 1 664 6933586",
     },
     social: {
       facebookName: "PWR TICKET",
