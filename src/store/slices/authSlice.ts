@@ -1,9 +1,8 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { getErrorMessage } from "@/helpers/getErrorMessage";
-import { RegisterRequest } from "@/models/auth-profile.dto";
-import { AuthDto } from "@/models/auth.dto";
-import { login as loginService, register as registerService, sendForgotPasswordEmail as forgotPaswordEmail } from "@/services/authService";
+import type { RegisterRequest } from "@/models/auth-profile.dto";
+import type { AuthDto } from "@/models/auth.dto";
 
 
 interface LoginPayload {
@@ -13,6 +12,7 @@ interface LoginPayload {
 
 interface AuthState {
     user: AuthDto | null;
+    initialized: boolean;
     status: "idle" | "loading" | "success" | "error";
     forgotPasswordStatus: "idle" | "loading" | "success" | "error";
     error?: string;
@@ -20,6 +20,7 @@ interface AuthState {
 
 const initialState: AuthState = {
     user: null,
+    initialized: false,
     status: "idle",
     forgotPasswordStatus: "idle"
 };
@@ -32,6 +33,7 @@ export const login = createAsyncThunk<
     "auth/login",
     async ({ username, password }, thunkAPI) => {
         try {
+            const { login: loginService } = await import("@/services/authService");
             const response = await loginService(username, password);
             return response;
         } catch (error) {
@@ -50,6 +52,8 @@ export const sendForgotPasswordEmail = createAsyncThunk<
     "auth/forgotPasswordEmail",
     async (username, thinkAPI) => {
         try {
+            const { sendForgotPasswordEmail: forgotPaswordEmail } = await import("@/services/authService");
+
             await forgotPaswordEmail(username);
         } catch (error) {
             return thinkAPI.rejectWithValue(
@@ -67,6 +71,7 @@ export const register = createAsyncThunk<
     "auth/register",
     async (request, thunkAPI) => {
         try {
+            const { register: registerService } = await import("@/services/authService");
             const response = await registerService(request);
             return response;
         } catch (error) {
@@ -84,10 +89,12 @@ const authSlice = createSlice({
         setUser: (state, action: PayloadAction<AuthDto | null>) => {
             state.user = action.payload;
             state.status = action.payload ? "success" : "idle";
+            state.initialized = true;
         },
         logout: (state) => {
             state.user = null;
             state.status = "idle";
+            state.initialized = true;
         }
     },
     extraReducers: (builder) => {

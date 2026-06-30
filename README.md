@@ -53,6 +53,7 @@ browser alongside the ASP `appsettings.schema.json` files.
 | `NEXT_PUBLIC_FIREBASE_PHONE_AUTH_TESTING` | Enables Firebase's documented fictional-number phone auth integration path for local/integration testing. Never enable in production. | `true` locally, `false`/unset deployed |
 | `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Optional Firebase messaging sender id from the web app config. | `313175547904` |
 | `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Optional Firebase storage bucket from the web app config. | `boletera-qa.firebasestorage.app` |
+| `NEXT_PUBLIC_ENABLE_EMAIL_AUTH` | Disabled legacy email/password auth UI flag. Leave unset until the mailer-backed email flow is ready. | `false` / unset |
 | `NEXT_PUBLIC_BASE_PATH`           | Feeds Next's `basePath` — prefixes application routes. Leave empty when the gateway strips the subpath before forwarding to the upstream (current APISIX setup). Populate only if the app must answer at a subpath without upstream stripping.                                                  | `` (current deploy)                        |
 | `NEXT_PUBLIC_ASSET_PREFIX`        | Feeds Next's `assetPrefix` — prefixes asset URLs (`_next/static`, `_next/image`, etc.) without prefixing routes. Set to the public subpath the gateway exposes so the browser requests assets through the gateway.                                                                              | `` (local) / `/client` (deployed)          |
 | `NEXT_PUBLIC_ADMIN_IMAGE_HOST`    | Optional hostname added to Next image optimization for admin-served event media under `/admin/images/**`.                                                               | `dev-web.pwrticket.mx`                     |
@@ -66,6 +67,11 @@ Server-only variables:
 | `FIREBASE_SERVICE_ACCOUNT_JSON`  | Firebase service account JSON content for the Admin SDK session-cookie route handlers.                    | `{"type":"service_account",...}` |
 | `FIREBASE_SESSION_COOKIE_NAME`   | Optional HttpOnly session cookie name override.                                                          | `xbol_client_session`  |
 | `FIREBASE_SESSION_COOKIE_SECURE` | Optional non-production HTTP override for the cookie `Secure` flag. Production always forces `Secure=true`. | `false`                |
+| `SITE_ACCESS_MODE`               | Runtime site gate. Use `landing` to redirect browser page requests to `/landing`; leave unset or `open` for normal access. | `open` / `landing` |
+| `SITE_ACCESS_LANDING_IMAGE_URL`  | CDN URL for the `/landing` hero image. Required when `SITE_ACCESS_MODE=landing`.                         | `https://storage.googleapis.com/.../xolopass-coming-soon.png` |
+| `SITE_ACCESS_LANDING_MOBILE_IMAGE_URL` | Optional CDN URL for the `/landing` mobile hero image. Falls back to `SITE_ACCESS_LANDING_IMAGE_URL` when unset. | `https://storage.googleapis.com/.../xolopass-coming-soon-mobile.png` |
+| `SITE_ACCESS_ALLOWED_CIDRS`      | Optional comma-separated IPv4 address/CIDR bypass list for the landing gate. Matching clients see the normal site while non-matches still redirect to `/landing`. | `187.250.14.36/32` |
+| `SITE_ACCESS_CLIENT_IP_HEADER`   | Optional request header used for the CIDR bypass. Defaults to `x-forwarded-for`; first comma-separated value is used. | `x-forwarded-for` |
 
 For local development, put the service account JSON in `.env.development` as a single-line value:
 
@@ -98,6 +104,11 @@ Server-only values are read at **runtime** by the standalone Next.js server:
 - `FIREBASE_SERVICE_ACCOUNT_JSON`
 - `FIREBASE_SESSION_COOKIE_NAME`
 - `FIREBASE_SESSION_COOKIE_SECURE`
+- `SITE_ACCESS_MODE`
+- `SITE_ACCESS_LANDING_IMAGE_URL`
+- `SITE_ACCESS_LANDING_MOBILE_IMAGE_URL`
+- `SITE_ACCESS_ALLOWED_CIDRS`
+- `SITE_ACCESS_CLIENT_IP_HEADER`
 
 For local container testing:
 
@@ -131,7 +142,12 @@ Shape:
   "NEXT_PUBLIC_DEFAULT_EVENT_IMAGE": "/client/assets/eventDefault/default.png",
   "NEXT_PUBLIC_SECRET_BASE_32": "<base32 TOTP secret>",
   "FIREBASE_SERVICE_ACCOUNT_JSON": "<single-line service account JSON>",
-  "FIREBASE_SESSION_COOKIE_NAME": "xbol_client_session"
+  "FIREBASE_SESSION_COOKIE_NAME": "xbol_client_session",
+  "SITE_ACCESS_MODE": "open",
+  "SITE_ACCESS_LANDING_IMAGE_URL": "",
+  "SITE_ACCESS_LANDING_MOBILE_IMAGE_URL": "",
+  "SITE_ACCESS_ALLOWED_CIDRS": "187.250.14.36/32",
+  "SITE_ACCESS_CLIENT_IP_HEADER": "x-forwarded-for"
 }
 ```
 
@@ -139,6 +155,9 @@ Do not add `NEXT_PUBLIC_FIREBASE_PHONE_AUTH_TESTING` to deployed environment or
 GitHub Actions configuration. It is a local-only Client Web setting for Firebase
 fictional-number testing. `FIREBASE_SESSION_COOKIE_SECURE=false` is ignored in
 production; production responses always set the session cookie with `Secure=true`.
+`NEXT_PUBLIC_ENABLE_EMAIL_AUTH` is also intentionally omitted from deployed build
+args for now, so email/password auth stays cordoned off until the mailer-backed
+flow is ready.
 
 To update:
 

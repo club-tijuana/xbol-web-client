@@ -1,133 +1,218 @@
+"use client";
 import { Grid, Stack, Tooltip, Typography } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { colors } from "@/theme/colors";
 
 import styles from "./Footer.module.scss";
 
 const legalLinks = [
-    { label: "Información de la empresa", href: "/legal#contacto" },
-    { label: "Términos y condiciones", href: "/legal#terminos" },
-    { label: "Entrega de boletos", href: "/legal#entrega" },
-    { label: "Cancelaciones y reembolsos", href: "/legal#reembolsos" },
-    { label: "Privacidad", href: "/legal#privacidad" },
+  { label: "Información de la empresa", href: "/legal#contacto" },
+  { label: "Términos y condiciones", href: "/legal#terminos" },
+  { label: "Entrega de boletos", href: "/legal#entrega" },
+  { label: "Cancelaciones y reembolsos", href: "/legal#reembolsos" },
+  { label: "Privacidad", href: "/legal#privacidad" },
 ] as const;
 
 export default function Footer() {
-    return (
-        <footer className={styles.footer}>
-            <Grid container columns={12}>
-                <Grid size={{ xs: 12, sm: 6, md: 3, lg: 3, xl: 4 }} className={styles.logoContainer}>
-                    <div className={styles.logoContainer}>
-                        <Image
-                            src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/logo.svg`}
-                            alt="Logo"
-                            objectFit="contain"
-                            width={231}
-                            height={54}
-                        />
-                    </div>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6, md: 5, lg: 5, xl: 4 }}>
-                    <Grid container columns={12} className={styles.stackContainer}>
-                        <Grid size={{ xs: 6, sm: 4 }} display="flex" justifyContent="center">
-                            <Stack spacing={1} className={styles.stack}>
-                                <Typography variant="body1" color={colors.text.neutral}>Eventos</Typography>
-                                <Typography variant="body1" color={colors.text.neutral}>Teatro</Typography>
-                                <Typography variant="body1" color={colors.text.neutral}>Música</Typography>
-                            </Stack>
-                        </Grid>
-                        <Grid size={{ xs: 6, sm: 4 }} display="flex" justifyContent="center">
-                            <Stack spacing={1} className={styles.stack}>
-                                <Typography variant="body1" color={colors.text.neutral}>Deporte</Typography>
-                                <Typography variant="body1" color={colors.text.neutral}>Centro de ayuda</Typography>
-                                <Typography variant="body1" color={colors.text.neutral}>Quienes somos</Typography>
-                            </Stack>
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 4 }} display="flex" justifyContent="center">
-                            <Stack spacing={1} className={styles.stack}>
-                                {legalLinks.map((link) => (
-                                    <Link key={link.href} href={link.href} className={styles.footerLink}>
-                                        <Typography variant="body1" color={colors.text.neutral}>
-                                            {link.label}
-                                        </Typography>
-                                    </Link>
-                                ))}
-                            </Stack>
-                        </Grid>
-                    </Grid>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
-                    <Grid container columns={12}>
-                        <Grid size={12} >
-                            <div className={styles.iconContainer}>
-                                <Tooltip title="Próximamente">
-                                    <Image
-                                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/facebook-icon.svg`}
-                                        alt="Facebook"
-                                        width={23}
-                                        height={23}
-                                        style={{ marginRight: '70px' }}
-                                    />
-                                </Tooltip>
+  const router = useRouter();
 
-                                <Tooltip title="Próximamente">
-                                    <Image
-                                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/x-icon.svg`}
-                                        alt="X"
-                                        width={23}
-                                        height={23}
-                                        style={{ marginRight: '70px' }}
-                                    />
-                                </Tooltip>
+  const handleGoHome = () => {
+    router.push("/");
+  };
 
-                                <Tooltip title="Próximamente">
-                                    <Image
-                                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/instagram-icon.svg`}
-                                        alt="Instagram"
-                                        width={23}
-                                        height={23}
-                                        style={{ marginRight: '70px' }}
-                                    />
-                                </Tooltip>
+  return (
+    <footer className={styles.footer}>
+      <Grid container columns={12}>
+        <Grid
+          size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 3 }}
+          sx={{
+            mb: {
+              xs: 3,
+              sm: 0,
+            },
+          }}
+          className={styles.logoContainer}
+        >
+          <div className={styles.logoContainer}>
+            <Image
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/logo.svg`}
+              alt="Logo"
+              className={styles.cursorPointer}
+              objectFit="cover"
+              width={231}
+              height={54}
+              onClick={handleGoHome}
+            />
+          </div>
+        </Grid>
+        <Grid
+          sx={{
+            mr: {
+              lg: "auto",
+            },
+            mt: { xs: 2, sm: 0 },
+            textAlign: {
+              lg: "left",
+            },
+            alignContent: {
+              xs: "center",
+            },
+            display: "flex",
+            justifyContent: {
+              xs: "center",
+              lg: "center",
+            },
+          }}
+          size={{ xs: 6, sm: 6, md: 3, lg: 3, xl: 3 }}
+        >
+          <Stack spacing={1} className={styles.stack}>
+            <Tooltip title="Próximamente">
+              <Typography variant="body1" color={colors.text.neutral}>
+                Eventos
+              </Typography>
+            </Tooltip>
+            <Tooltip title="Próximamente">
+              <Typography variant="body1" color={colors.text.neutral}>
+                Teatro
+              </Typography>
+            </Tooltip>
+            <Tooltip title="Próximamente">
+              <Typography variant="body1" color={colors.text.neutral}>
+                Música
+              </Typography>
+            </Tooltip>
+            <Tooltip title="Próximamente">
+              <Typography variant="body1" color={colors.text.neutral}>
+                Deporte
+              </Typography>
+            </Tooltip>
+            <Tooltip title="Próximamente">
+              <Typography variant="body1" color={colors.text.neutral}>
+                Centro de ayuda
+              </Typography>
+            </Tooltip>
+            <Tooltip title="Próximamente">
+              <Typography variant="body1" color={colors.text.neutral}>
+                Quienes somos
+              </Typography>
+            </Tooltip>
+          </Stack>
+        </Grid>
 
-                                <Tooltip title="Próximamente">
-                                    <Image
-                                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/youtube-icon.svg`}
-                                        alt="YouTube"
-                                        width={23}
-                                        height={23}
-                                    />
-                                </Tooltip>
+        <Grid
+          sx={{
+            mt: { xs: 2, sm: 0 },
 
-                            </div>
-                        </Grid>
-                        <Grid size={12} >
-                            <div className={styles.downloadContainer}>
-                                <Tooltip title="Próximamente">
-                                    <Image
-                                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/google-play.svg`}
-                                        alt="YouTube"
-                                        width={145}
-                                        height={43}
-                                    />
-                                </Tooltip>
+            alignContent: {
+              xs: "center",
+            },
+          }}
+          size={{ xs: 6, sm: 6, md: 4, lg: 3, xl: 3 }}
+          display="flex"
+          justifyContent="center"
+        >
+          <Stack spacing={1} className={styles.stack}>
+            {legalLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={styles.footerLink}
+              >
+                <Typography variant="body1" color={colors.text.neutral}>
+                  {link.label}
+                </Typography>
+              </Link>
+            ))}
+          </Stack>
+        </Grid>
+        <Grid
+          size={{ xs: 12, sm: 6, md: 12, lg: 3, xl: 3 }}
+          sx={{
+            mt: { xs: 2, sm: 2, md: 4 },
+          }}
+        >
+          <Grid container columns={12}>
+            <Grid size={12}>
+              <div className={styles.iconContainer}>
+                <Link
+                  href="https://www.facebook.com/profile.php?id=61590497022782"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Image
+                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/facebook-icon.svg`}
+                    alt="Facebook"
+                    width={23}
+                    height={23}
+                    style={{ marginRight: "70px" }}
+                  />
+                </Link>
 
-                                <Tooltip title="Próximamente">
-                                    <Image
-                                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/app-store.svg`}
-                                        alt="YouTube"
-                                        width={145}
-                                        height={43}
-                                    />
-                                </Tooltip>
+                <Link
+                  href="https://x.com/PwrTicketMX"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Image
+                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/x-icon.svg`}
+                    alt="X"
+                    width={23}
+                    height={23}
+                    style={{ marginRight: "70px" }}
+                  />
+                </Link>
 
-                            </div>
-                        </Grid>
-                    </Grid>
-                </Grid>
-            </Grid >
-        </footer >
-    );
+                <Link
+                  href="https://www.instagram.com/pwrticket/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Image
+                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/instagram-icon.svg`}
+                    alt="Instagram"
+                    width={23}
+                    height={23}
+                    style={{ marginRight: "70px" }}
+                  />
+                </Link>
+
+                <Tooltip title="Próximamente">
+                  <Image
+                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/youtube-icon.svg`}
+                    alt="YouTube"
+                    width={23}
+                    height={23}
+                  />
+                </Tooltip>
+              </div>
+            </Grid>
+            <Grid size={12}>
+              <div className={styles.downloadContainer}>
+                <Tooltip title="Próximamente">
+                  <Image
+                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/google-play.svg`}
+                    alt="YouTube"
+                    width={145}
+                    height={43}
+                  />
+                </Tooltip>
+
+                <Tooltip title="Próximamente">
+                  <Image
+                    src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/app-store.svg`}
+                    alt="YouTube"
+                    width={145}
+                    height={43}
+                  />
+                </Tooltip>
+              </div>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+    </footer>
+  );
 }

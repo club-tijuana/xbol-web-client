@@ -219,7 +219,7 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
                     bottomRounded={true}
                     height={670}
                 >
-                    <Box mt={20}>
+                    <Box mt={{ xs: 3, sm: 4, md: 5 }}>
                         <Typography variant="h6" color="primary" mb={1} textAlign='right'>
                             {`Folio ${detail?.folio}`}
                         </Typography>
@@ -263,6 +263,7 @@ export default function TicketPageClient({ orderId, eventId, trendingEvents }: T
                                         totalFees={detail?.totalFees}
                                         totalTaxes={detail?.totalTaxes}
                                         total={detail?.total}
+                                        fees={detail?.fees}
                                         selectedSeats={detail
                                             ? detail.selectedSeats.map(s => ({
                                                 seatKey: s,

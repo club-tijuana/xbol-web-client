@@ -1,3 +1,4 @@
+import { FeeItemDTO } from "./fee-item.dto";
 import { MyEventSeatDTO } from "./my-event-seat.dto";
 
 export interface MyEventDetailDTO {
@@ -16,4 +17,5 @@ export interface MyEventDetailDTO {
   currency: string;
   seats: Array<MyEventSeatDTO>;
   selectedSeats: Array<string>;
+  fees: Array<FeeItemDTO>;
 }

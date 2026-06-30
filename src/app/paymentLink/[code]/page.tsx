@@ -1,11 +1,10 @@
 import { CalendarTodayOutlined, LocationOnOutlined } from "@mui/icons-material";
-import { Box, Grid, Paper, Typography } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import { Metadata } from "next";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 
 import TicketSeats from "@/app/account/tickets/order/[orderId]/event/[eventId]/components/TicketSeats/TicketSeats";
-import Payment from "@/app/booking/components/Payment/Payment";
 import Loader from "@/components/Loader/Loader";
 import { formatDate } from "@/helpers/formatDateHelper";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
@@ -13,7 +12,10 @@ import { eventImageOrDefault } from "@/models/event-image";
 import { OrderDTO } from "@/models/order.dto";
 import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
 import { getEventMetadataByPaymentCodeAsync, getOrderToPayAsync } from "@/services/paymentLinkService";
+import { withPublicRedirectBasePath } from "@/utils/routing/basePath";
 import { buildSeoMetadata } from "@/utils/seo/seoBuilder";
+
+import PaymentLinkClient from "./PaymentLinkClient";
 
 interface PageProps {
     params: Promise<{
@@ -47,7 +49,7 @@ export default async function PaymentLinkPage({ params }: PageProps) {
     }
     catch (error) {
         const errorMessage = getErrorMessage(error);
-        redirect(`/?error=${encodeURIComponent(errorMessage)}`);
+        redirect(withPublicRedirectBasePath(`/?error=${encodeURIComponent(errorMessage)}`));
     }
 
     const selectedSeats: BookingSeatRequest[] =
@@ -118,22 +120,13 @@ export default async function PaymentLinkPage({ params }: PageProps) {
                         totalTaxes={orderToPay.totalTaxes}
                         discount={orderToPay.discount}
                         total={orderToPay.total}
+                        fees={orderToPay.fees}
                         seats={orderToPay.itemSeats}
                         selectedSeats={selectedSeats}
                     />
                 </Grid>
                 <Grid size={{ xs: 2, lg: 1 }}>
-                    <Paper elevation={3} className="paperCard">
-                        <Payment
-                            showTotals={false}
-                            paymentLinkCode={code}
-                            subtotal={orderToPay.subTotal}
-                            fees={orderToPay.totalFees}
-                            taxes={orderToPay.totalTaxes}
-                            discount={orderToPay.discount}
-                            total={orderToPay.total}
-                        />
-                    </Paper>
+                    <PaymentLinkClient code={code} order={orderToPay} />
                 </Grid>
             </Grid>
 

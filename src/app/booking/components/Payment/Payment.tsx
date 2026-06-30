@@ -1,296 +1,379 @@
 "use client";
 
-import { Alert, AlertColor, Box, Button, Checkbox, Divider, FormControl, FormControlLabel, Grid, Input, Snackbar, Typography } from "@mui/material";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import Script from "next/script";
+import {
+  Alert,
+  Box,
+  Button,
+  Checkbox,
+  Divider,
+  FormControlLabel,
+  Grid,
+  Snackbar,
+  Typography,
+} from "@mui/material";
 import { useState } from "react";
 
 import Loader from "@/components/Loader/Loader";
+import {
+  buildCheckoutClientContact,
+  isCheckoutClientContactComplete,
+} from "@/helpers/checkoutContact";
 import { formatCurrency } from "@/helpers/formatCurrencyHelper";
-import { getErrorMessage } from "@/helpers/getErrorMessage";
-import { PaymentMethodDTO } from "@/models/payment-method.dto";
-import { payOrderAsync } from "@/services/paymentLinkService";
-import { useAppDispatch } from "@/store/hooks";
-import { setBookPaymentInfo } from "@/store/slices/bookingFlowSlice";
-import { showGeneralMessage } from "@/store/slices/uiSlice";
-import { colors } from "@/theme/colors";
+import { initiateCheckout } from "@/services/evoPaymentService";
+import { initiatePaymentLinkCheckoutAsync } from "@/services/paymentLinkService";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { clearHoldToken } from "@/store/slices/bookingFlowSlice";
+import { withPublicAppBasePath } from "@/utils/routing/basePath";
 
+import { useSnackbar } from "./hooks/useSnackbar";
 import { PaymentProps } from "./Payment.type";
 
-export default function Payment({
-    subtotal,
-    taxes,
-    fees,
-    discount,
-    total,
-    currency,
-    paymentLinkCode,
-    showTotals = true,
-    onPay
-}: PaymentProps) {
-    const router = useRouter();
-    const dispatch = useAppDispatch();
-    const [acceptedTerms, setAcceptedTerms] = useState(false);
-    const [paymentMethod, setPaymentMethod] = useState<PaymentMethodDTO>({
-        ownerName: "",
-        cardNumber: "",
-        expirationMonth: 0,
-        expirationYear: 0
-    });
-
-    const [openSnackbar, setOpenSnackbar] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState("");
-    const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("success");
-    const [sessionId, setSessionId] = useState<number>(0);
-    const [loading, setLoading] = useState<boolean>(false);
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-
-        setPaymentMethod(prev => ({
-            ...prev,
-            [name]: value
-        }));
+declare global {
+  interface Window {
+    Checkout: {
+      configure: (config: { session: { id: string } }) => void;
+      showPaymentPage: () => void;
     };
+  }
+}
 
-    const handlePay = async () => {
-        /* if (!paymentMethod.ownerName) {
-            setSnackbarSeverity("warning");
-            setSnackbarMessage("Es necesario capturar la información de pago");
-            setOpenSnackbar(true);
+export const CHECKOUT_SS_KEY = "evo_hc_booking_v1";
+export const PAYMENT_LINK_SS_KEY = "evo_pl_checkout_v1";
 
-            return;
-        }
+export interface PaymentLinkCheckoutContext {
+  paymentLinkCode: string;
+  orderRefId: string;
+  successIndicator: string;
+}
 
-        if (!window.PaymentSession) {
-            setSnackbarSeverity("error");
-            setSnackbarMessage("No fue posible inicializar el formulario de pago");
-            setOpenSnackbar(true);
+export interface CheckoutContext {
+  localOrderId: number;
+  orderRefId: string;
+  successIndicator: string;
+  sessionId: string;
+  scheduleId: number;
+  bundleId: number;
+  seatKeys: string[];
+  timestamp: number;
+}
 
-            return;
-        }
+const EVO_CHECKOUT_JS =
+  "https://evopaymentsmexico.gateway.mastercard.com/static/checkout/checkout.min.js";
 
-        window.PaymentSession.updateSessionFromForm("card"); */
-        console.log("TOTAL: " + total);
-        await dispatch(setBookPaymentInfo({
-            cardAmount: total
-        }));
+export default function Payment({
+  subtotal,
+  fees,
+  taxes,
+  total,
+  currency,
+  showTotals = true,
+  paymentLinkCode,
+  scheduleId,
+  bundleId,
+}: PaymentProps) {
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [paying, setPaying] = useState(false);
 
-        if (onPay) {
-            onPay();
-        }
-        else if (paymentLinkCode) {
-            try {
-                setLoading(true);
-                const response = await payOrderAsync(paymentLinkCode, { cardAmount: total });
+  const dispatch = useAppDispatch();
+  const snackbar = useSnackbar();
 
-                router.push(`/account/tickets/order/${response}/success`);
-            }
-            catch (error) {
-                dispatch(showGeneralMessage({
-                    message: getErrorMessage(error),
-                    severity: "error"
-                }));
-            }
-            finally {
-                setLoading(false);
-            }
-        }
+  const accountInfo = useAppSelector((store) => store.auth.user);
+  const holdTokenState = useAppSelector(
+    (store) => store.bookingFlow.holdTokenObj,
+  );
+  const selectedSeats = useAppSelector(
+    (store) => store.bookingFlow.selectedSeats,
+  );
+  const clientContact = useAppSelector(
+    (store) => store.bookingFlow.clientContact,
+  );
+  const bookingMode = useAppSelector((store) => store.bookingFlow.bookMode);
+  const renovationType = useAppSelector(
+    (store) => store.bookingFlow.renovationType,
+  );
+  const referenceOrderId = useAppSelector(
+    (store) => store.bookingFlow.referenceOrderId,
+  );
+
+  const handlePay = async () => {
+    if (!acceptedTerms) {
+      snackbar.show(
+        "Es necesario aceptar las condiciones de compra",
+        "warning",
+      );
+      return;
     }
 
-    const configurePaymentSession = () => {
-        if (!window.PaymentSession || !sessionId) {
-            return;
-        }
-
-        window.PaymentSession.configure({
-            session: sessionId,
-            fields: {
-                card: {
-                    number: "#cardNumber",
-                    securityCode: "#securityCode",
-                    expiryMonth: "#expiryMonth",
-                    expiryYear: "#expiryYear",
-                    nameOnCard: "#ownerName"
-                }
-            },
-            callbacks: {
-                initialized: (response: any) => {
-                    console.log(response);
-                },
-                formSessionUpdate: async (response: any) => {
-                    console.log(response);
-
-                    if (response.status === "ok") {
-                        if (onPay) {
-                            await onPay();
-                        }
-                    }
-                }
-            }
+    if (paymentLinkCode) {
+      if (paying) return;
+      setPaying(true);
+      try {
+        const returnUrl = `${window.location.origin}${withPublicAppBasePath(window.location.pathname)}?source=evo`;
+        const result = await initiatePaymentLinkCheckoutAsync(paymentLinkCode, {
+          returnUrl,
+          currency: currency ?? "MXN",
         });
+
+        const ctx: PaymentLinkCheckoutContext = {
+          paymentLinkCode,
+          orderRefId: result.orderRefId,
+          successIndicator: result.successIndicator,
+        };
+        sessionStorage.setItem(PAYMENT_LINK_SS_KEY, JSON.stringify(ctx));
+
+        const script = document.createElement("script");
+        script.src = EVO_CHECKOUT_JS;
+        script.async = false;
+
+        script.onerror = () => {
+          setPaying(false);
+          sessionStorage.removeItem(PAYMENT_LINK_SS_KEY);
+          snackbar.show(
+            "No se pudo cargar la página de pago seguro. Intenta nuevamente.",
+            "error",
+          );
+        };
+
+        script.onload = () => {
+          window.Checkout.configure({ session: { id: result.sessionId } });
+          window.Checkout.showPaymentPage();
+        };
+
+        document.body.appendChild(script);
+      } catch (err: unknown) {
+        setPaying(false);
+        sessionStorage.removeItem(PAYMENT_LINK_SS_KEY);
+        const msg = err instanceof Error ? err.message : "Error al iniciar el pago.";
+        snackbar.show(msg, "error");
+      }
+      return;
     }
 
-    return (
+    if (!selectedSeats || selectedSeats.length === 0) {
+      snackbar.show("No hay asientos seleccionados.", "error");
+      return;
+    }
+
+    const requiresHoldToken =
+      bookingMode !== "renovateSeason" || renovationType === "changeSeats";
+
+    if (!holdTokenState?.token && requiresHoldToken) {
+      snackbar.show(
+        "La reserva de asientos expiró. Por favor vuelve a seleccionar tus asientos.",
+        "warning",
+      );
+      return;
+    }
+
+    if (
+      holdTokenState?.status === "expired" ||
+      holdTokenState?.status === "manualExpired"
+    ) {
+      snackbar.show(
+        "La reserva de asientos expiró. Por favor vuelve a seleccionar tus asientos.",
+        "warning",
+      );
+      return;
+    }
+
+    if (!scheduleId && !bundleId) {
+      snackbar.show(
+        "Error interno: no se encontró el evento. Recarga la página.",
+        "error",
+      );
+      return;
+    }
+
+    /*         if (!bundleId) {
+                    snackbar.show("Error interno: no se encontró la temporada. Recarga la página.", "error");
+                } */
+
+    const checkoutContact = buildCheckoutClientContact(accountInfo, clientContact);
+
+    if (!isCheckoutClientContactComplete(checkoutContact)) {
+      snackbar.show(
+        "Es necesario capturar la información de contacto del cliente.",
+        "warning",
+      );
+      return;
+    }
+
+    if (paying) return;
+    setPaying(true);
+
+    try {
+      const returnUrl = `${window.location.origin}${withPublicAppBasePath(window.location.pathname)}?source=evo`;
+
+      const result = await initiateCheckout({
+        eventScheduleId: scheduleId,
+        bundleId: bundleId,
+        relatedOrderId: bundleId ? referenceOrderId : undefined,
+        holdToken: holdTokenState?.token ?? "",
+        seats: selectedSeats.map((s) => ({
+          seatKey: s.seatKey,
+          priceListItemId: s.priceListItemId,
+        })),
+        clientContact: checkoutContact,
+        returnUrl,
+        currency: currency ?? "MXN",
+      }, accountInfo?.token);
+
+      const ctx: CheckoutContext = {
+        localOrderId: result.localOrderId,
+        orderRefId: result.orderRefId,
+        successIndicator: result.successIndicator,
+        sessionId: result.sessionId,
+        scheduleId: scheduleId ?? 0,
+        bundleId: bundleId ?? 0,
+        seatKeys: selectedSeats.map((s) => s.seatKey),
+        timestamp: Date.now(),
+      };
+      sessionStorage.setItem(CHECKOUT_SS_KEY, JSON.stringify(ctx));
+
+      const script = document.createElement("script");
+      script.src = EVO_CHECKOUT_JS;
+      script.async = false;
+
+      script.onerror = () => {
+        setPaying(false);
+        sessionStorage.removeItem(CHECKOUT_SS_KEY);
+        snackbar.show(
+          "No se pudo cargar la página de pago seguro. Intenta nuevamente.",
+          "error",
+        );
+      };
+
+      script.onload = () => {
+        window.Checkout.configure({ session: { id: result.sessionId } });
+        window.Checkout.showPaymentPage();
+      };
+
+      document.body.appendChild(script);
+    } catch (err: unknown) {
+      setPaying(false);
+      sessionStorage.removeItem(CHECKOUT_SS_KEY);
+      if (requiresHoldToken) {
+        dispatch(clearHoldToken());
+      }
+      const msg =
+        err instanceof Error ? err.message : "Error al iniciar el pago.";
+      snackbar.show(msg, "error");
+    }
+  };
+
+  return (
+    <Box>
+      <Typography variant="h4" color="primary">
+        Datos de pago
+      </Typography>
+
+      <Typography variant="body2" color="text.secondary" mt={1}>
+        Serás redirigido a la página de pago seguro de EVO Payments para
+        completar tu compra.
+      </Typography>
+
+      <Divider sx={{ my: 4 }} />
+
+      {showTotals && (
         <Box>
-            <Script src={`https://evopaymentsmexico.gateway.mastercard.com/form/version/100/merchant/TEST2020ECOMM27/session.js`}
-                strategy="afterInteractive"
-                onLoad={configurePaymentSession} />
-
-            <Typography variant="h4" color="primary">
-                Datos de pago
-            </Typography>
-            <Grid container columns={2} spacing={2} mt={2}>
-                <Grid size={{ xs: 2, sm: 2, md: 1, lg: 1, xl: 1 }}>
-                    <Typography variant="caption" mb={1} color="muted" mt={2}>
-                        Nombre del titular
-                    </Typography>
-                    <FormControl fullWidth variant="filled">
-                        <Input
-                            id="ownerName"
-                            name="ownerName"
-                            type={'text'}
-                            inputProps={{ style: { fontSize: 16 } }}
-                            sx={{
-                                backgroundColor: 'white',
-                                '&:after': { borderBottom: '2px solid var(--color-text-primary)' },
-                            }}
-                            value={paymentMethod.ownerName}
-                            onChange={handleChange}
-                        />
-                    </FormControl>
-                </Grid>
-                <Grid size={{ xs: 2, sm: 2, md: 1, lg: 1, xl: 1 }}>
-                    <Typography variant="caption" mb={1} color="muted" mt={2}>
-                        Numero de tarjeta
-                    </Typography>
-                    <Box id="cardNumber" />
-                </Grid>
-                <Grid size={{ xs: 2, sm: 2, md: 1, lg: 1, xl: 1 }}>
-                    <Typography variant="caption" mb={1} color="muted" mt={2}>
-                        Fecha de venicmiento
-                    </Typography>
-                    <Grid container columns={2} spacing={2}>
-                        <Grid size={1}>
-                            <Box id="expiryMonth" />
-                        </Grid>
-                        <Grid size={1}>
-                            <Box id="expiryYear" />
-                        </Grid>
-                    </Grid>
-                </Grid>
-                <Grid size={{ xs: 2, sm: 2, md: 1, lg: 1, xl: 1 }}>
-                    <Typography variant="caption" mb={1} color="muted" mt={2}>
-                        CVV
-                    </Typography>
-                    <Box id="securityCode" />
-                </Grid>
-                <Grid size={{ xs: 2, sm: 2, md: 1, lg: 1, xl: 1 }} alignContent={"end"}>
-                    <Image
-                        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/assets/icons/payment/payments.svg`}
-                        alt="Payment"
-                        height={26}
-                        width={147}
-                    />
-                </Grid>
+          {subtotal !== undefined && subtotal > 0 && (
+            <Grid container columns={4} spacing={3}>
+              <Grid size={1} offset={2} textAlign="right">
+                <Typography variant="body2">Subtotal</Typography>
+              </Grid>
+              <Grid size={1} textAlign="right">
+                <Typography variant="body1" color="secondary">
+                  {formatCurrency(subtotal, currency)}
+                </Typography>
+              </Grid>
             </Grid>
-
-            <Divider sx={{ my: 4, borderWidth: 1, borderColor: 'var(--color-text-muted)' }} />
-
-            {showTotals &&
-                <Box>
-                    <Grid container columns={4} spacing={3}>
-                        <Grid size={1} offset={2} textAlign="right">
-                            <Typography variant="body2" color="primary">
-                                Subtotal
-                            </Typography>
-                        </Grid>
-                        <Grid size={1} textAlign="right">
-                            <Typography variant="body1" color="secondary">
-                                {formatCurrency(subtotal ?? 0, currency)}
-                            </Typography>
-                        </Grid>
-                        <Grid size={1} offset={2} textAlign="right">
-                            <Typography variant="body2" color="primary">
-                                Comisiones
-                            </Typography>
-                        </Grid>
-                        <Grid size={1} textAlign="right">
-                            <Typography variant="body1" color="secondary">
-                                {formatCurrency(fees ?? 0, currency)}
-                            </Typography>
-                        </Grid>
-                        <Grid size={1} offset={2} textAlign="right">
-                            <Typography variant="body2" color="primary">
-                                Impuestos
-                            </Typography>
-                        </Grid>
-                        <Grid size={1} textAlign="right">
-                            <Typography variant="body1" color="secondary">
-                                {formatCurrency(taxes ?? 0, currency)}
-                            </Typography>
-                        </Grid>
-                        <Grid size={1} offset={2} textAlign="right">
-                            <Typography variant="body2" color="primary">
-                                Descuentos
-                            </Typography>
-                        </Grid>
-                        <Grid size={1} textAlign="right">
-                            <Typography variant="body1" color="secondary">
-                                {formatCurrency(discount ?? 0, currency)}
-                            </Typography>
-                        </Grid>
-                        <Grid size={1} offset={2} textAlign="right">
-                            <Typography variant="body2" color="primary">
-                                Total
-                            </Typography>
-                        </Grid>
-                        <Grid size={1} textAlign="right">
-                            <Typography variant="body1" color="secondary">
-                                {formatCurrency(total ?? 0, currency)}
-                            </Typography>
-                        </Grid>
-                    </Grid>
-
-                    <Divider sx={{ my: 4, borderWidth: 1, borderColor: 'var(--color-text-muted)' }} />
-                </Box>
-            }
-
-
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-                <FormControlLabel
-                    required
-                    control={
-                        <Checkbox
-                            checked={acceptedTerms}
-                            onChange={(e) => setAcceptedTerms(e.target.checked)}
-                        />
-                    }
-                    sx={{ color: colors.text.muted }}
-                    label="Acepto las condiciones de compra"
-                />
-                <Button variant="contained" color="primary" sx={{ px: 5.5, py: 1.3 }} onClick={handlePay} disabled={!acceptedTerms}>
-                    <Typography variant="subtitle1" fontWeight={400} color="neutral">
-                        Pagar
-                    </Typography>
-                </Button>
-            </Box>
-
-            <Snackbar
-                anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                open={openSnackbar}
-                autoHideDuration={5000}>
-                <Alert
-                    onClose={() => setOpenSnackbar(false)}
-                    severity={snackbarSeverity}
-                    variant="filled"
-                    sx={{ width: "100%" }}>
-                    {snackbarMessage}
-                </Alert>
-            </Snackbar>
-
-            <Loader isLoading={loading} />
+          )}
+          {fees !== undefined && fees > 0 && (
+            <Grid container columns={4} spacing={3} mt={1}>
+              <Grid size={1} offset={2} textAlign="right">
+                <Typography variant="body2">Comisiones</Typography>
+              </Grid>
+              <Grid size={1} textAlign="right">
+                <Typography variant="body1" color="secondary">
+                  {formatCurrency(fees, currency)}
+                </Typography>
+              </Grid>
+            </Grid>
+          )}
+          {taxes !== undefined && taxes > 0 && (
+            <Grid container columns={4} spacing={3} mt={1}>
+              <Grid size={1} offset={2} textAlign="right">
+                <Typography variant="body2">Impuestos</Typography>
+              </Grid>
+              <Grid size={1} textAlign="right">
+                <Typography variant="body1" color="secondary">
+                  {formatCurrency(taxes, currency)}
+                </Typography>
+              </Grid>
+            </Grid>
+          )}
+          <Grid container columns={4} spacing={3} mt={1}>
+            <Grid size={1} offset={2} textAlign="right">
+              <Typography variant="body2">Total</Typography>
+            </Grid>
+            <Grid size={1} textAlign="right">
+              <Typography variant="body1" color="secondary">
+                {formatCurrency(total ?? 0, currency)}
+              </Typography>
+            </Grid>
+          </Grid>
+          <Divider sx={{ my: 4 }} />
         </Box>
-    );
+      )}
+
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <FormControlLabel
+          required
+          control={
+            <Checkbox
+              checked={acceptedTerms}
+              onChange={(e) => setAcceptedTerms(e.target.checked)}
+            />
+          }
+          label={
+            <span>
+              Acepto las condiciones de compra{" "}
+              <a
+                href={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/legal/#terminos`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+              >
+                (Ver términos y condiciones)
+              </a>
+            </span>
+          }
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handlePay}
+          disabled={!acceptedTerms || paying}
+        >
+          {paying ? "Procesando..." : paymentLinkCode ? "Confirmar pago" : "Ir a pago seguro"}
+        </Button>
+      </Box>
+
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        open={snackbar.open}
+        autoHideDuration={5000}
+      >
+        <Alert
+          onClose={snackbar.close}
+          severity={snackbar.severity}
+          variant="filled"
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+
+      <Loader isLoading={paying} />
+    </Box>
+  );
 }

@@ -13,11 +13,13 @@ type GeneralMessage = {
 
 interface UIState {
     loginModalOpen: boolean;
+    loginModalLoaded: boolean;
     generalMessage: GeneralMessage;
 }
 
 const initialState: UIState = {
     loginModalOpen: false,
+    loginModalLoaded: false,
     generalMessage: {
         message: undefined,
         severity: "success"
@@ -30,6 +32,7 @@ const uiSlice = createSlice({
     reducers: {
         openLoginModal: (state) => {
             state.loginModalOpen = true;
+            state.loginModalLoaded = true;
         },
         closeLoginModal: (state) => {
             state.loginModalOpen = false;

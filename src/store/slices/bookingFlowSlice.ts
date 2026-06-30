@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { HoldToken } from "@seatsio/seatsio-react";
 
 import { ItemType } from "@/models/enums/item-type.enum";
+import { EvoReference } from "@/models/evo-payments/evo-reference";
 import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
 import { ClientInfoRequest } from "@/models/requests/client-info-request.dto";
 import { PaymentInfoRequest } from "@/models/requests/payment-info-request.dto";
@@ -21,6 +22,7 @@ interface HoldTokenState {
 
 interface BookingFlowState {
     scheduleId?: number;
+    bundleId?: number;
     bookMode?: BookingMode;
     renovationType?: RenovationType;
     holdTokenObj?: HoldTokenState;
@@ -34,6 +36,8 @@ interface BookingFlowState {
     orderLeftSeats?: number;
     originalSeats?: Array<BookingSeatRequest>;
     seatAvailability?: SeatAvailabilityDTO;
+    evoReferences?: EvoReference;
+    blockedSeats?: Array<string>;
 }
 
 const initialState: BookingFlowState = {
@@ -72,6 +76,10 @@ export const expireHoldToken = createAsyncThunk<
             throw new Error("No seats selected");
         }
 
+        if (type === "auto") {
+            return { type };
+        }
+
         const payload: ReleaseSeatsByKeyRequest = {
             eventKey: bookKey,
             seats: seatsLabels,
@@ -106,6 +114,12 @@ const bookingFlowSlice = createSlice({
         },
         setBookKey: (state, action: PayloadAction<string>) => {
             state.bookKey = action.payload;
+        },
+        setEventScheduleId: (state, action: PayloadAction<number>) => {
+            state.scheduleId = action.payload;
+        },
+        setBundleId: (state, action: PayloadAction<number | undefined>) => {
+            state.bundleId = action.payload;
         },
         setBookTicketType: (state, action: PayloadAction<ItemType>) => {
             state.ticketType = action.payload;
@@ -143,6 +157,12 @@ const bookingFlowSlice = createSlice({
         },
         setSeatAvailability: (state, action: PayloadAction<SeatAvailabilityDTO>) => {
             state.seatAvailability = action.payload;
+        },
+        setEvoReferences: (state, action: PayloadAction<EvoReference>) => {
+            state.evoReferences = action.payload;
+        },
+        setBlockedSeats: (state, action: PayloadAction<Array<string>>) => {
+            state.blockedSeats = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -176,6 +196,10 @@ export const {
     setOriginalSeats,
     manualExpireHoldToken,
     clearHoldToken,
-    setSeatAvailability
+    setSeatAvailability,
+    setEventScheduleId,
+    setBundleId,
+    setEvoReferences,
+    setBlockedSeats
 } = bookingFlowSlice.actions;
 export default bookingFlowSlice.reducer;

@@ -7,8 +7,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import AuthIdentifierField from "@/components/AuthIdentifierField/AuthIdentifierField";
+import { publicEnv } from "@/config/env";
 import { defaultAuthPhoneCountryCode, getPhoneAuthCountry, getPhoneAuthIdentifier, isAuthPhoneCountryCode, isPhoneLikeAuthIdentifier, normalizeAuthIdentifier } from "@/helpers/authIdentifier";
-import { registerPhone, sendPhoneLoginCode } from "@/services/authService";
+import { getVerifiedPhoneRegistrationUser } from "@/helpers/phoneRegistrationHandoff";
+import { registerPhone, resolveCurrentPhoneRegistrationUser, sendPhoneLoginCode } from "@/services/authService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { register, setUser } from "@/store/slices/authSlice";
 import { colors } from "@/theme/colors";
@@ -16,6 +18,8 @@ import { colors } from "@/theme/colors";
 interface RegisterFormProps {
     title?: string;
 }
+
+const emailAuthEnabled = publicEnv.NEXT_PUBLIC_ENABLE_EMAIL_AUTH;
 
 export default function RegisterForm({
     title = "Crear cuenta",
@@ -37,6 +41,8 @@ export default function RegisterForm({
     const [verificationCode, setVerificationCode] = useState("");
     const [phoneConfirmation, setPhoneConfirmation] = useState<ConfirmationResult | null>(null);
     const [phoneLoading, setPhoneLoading] = useState(false);
+    const [phoneSessionLoading, setPhoneSessionLoading] = useState(false);
+    const [recoveredPhoneUser, setRecoveredPhoneUser] = useState(currentAuthUser);
     const [showPassword, setShowPassword] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const normalizedPhoneIdentifier = getPhoneAuthIdentifier(identifier, identifierCountryCode);
@@ -46,25 +52,49 @@ export default function RegisterForm({
     const requestIdentifierCountryCode = normalizedIdentifier.startsWith("+")
         ? undefined
         : identifierCountryCode || undefined;
-    const verifiedPhoneUser = currentAuthUser?.onboardingStatus === "unlinked"
-        && currentAuthUser.phoneNumber
-        ? currentAuthUser
-        : null;
-    const matchedVerifiedPhoneUser = isPhoneIdentifier
-        && verifiedPhoneUser?.phoneNumber === normalizedPhoneIdentifier
-        ? verifiedPhoneUser
-        : null;
+    const verifiedPhoneUser = getVerifiedPhoneRegistrationUser(
+        currentAuthUser,
+        normalizedPhoneIdentifier,
+    );
+    const matchedVerifiedPhoneUser = verifiedPhoneUser
+        ?? getVerifiedPhoneRegistrationUser(recoveredPhoneUser, normalizedPhoneIdentifier);
 
     useEffect(() => {
-        if (!verifiedPhoneUser?.phoneNumber) {
+        if (!matchedVerifiedPhoneUser?.phoneNumber) {
             return;
         }
 
-        setIdentifier(verifiedPhoneUser.phoneNumber);
+        setIdentifier(matchedVerifiedPhoneUser.phoneNumber);
         setIdentifierCountryCode(
-            getPhoneAuthCountry(verifiedPhoneUser.phoneNumber) ?? defaultAuthPhoneCountryCode,
+            getPhoneAuthCountry(matchedVerifiedPhoneUser.phoneNumber) ?? defaultAuthPhoneCountryCode,
         );
-    }, [verifiedPhoneUser]);
+    }, [matchedVerifiedPhoneUser]);
+
+    useEffect(() => {
+        if (!normalizedPhoneIdentifier || verifiedPhoneUser) {
+            setRecoveredPhoneUser(null);
+            return;
+        }
+
+        let cancelled = false;
+
+        setPhoneSessionLoading(true);
+        resolveCurrentPhoneRegistrationUser(normalizedPhoneIdentifier)
+            .then((user) => {
+                if (!cancelled) {
+                    setRecoveredPhoneUser(user);
+                }
+            })
+            .finally(() => {
+                if (!cancelled) {
+                    setPhoneSessionLoading(false);
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [normalizedPhoneIdentifier, verifiedPhoneUser]);
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -85,6 +115,11 @@ export default function RegisterForm({
             return;
         }
 
+        if (!emailAuthEnabled && !isPhoneIdentifier) {
+            setErrorMessage("Ingresa un teléfono válido.");
+            return;
+        }
+
         if (isPhoneIdentifier) {
             if (!matchedVerifiedPhoneUser && !phoneConfirmation) {
                 setErrorMessage("Envía el código SMS antes de registrarte.");
@@ -95,7 +130,7 @@ export default function RegisterForm({
             try {
                 const user = await registerPhone(
                     {
-                        identifier: normalizedIdentifier,
+                        identifier: normalizedPhoneIdentifier,
                         identifierCountryCode: requestIdentifierCountryCode,
                         fullName,
                     },
@@ -110,6 +145,10 @@ export default function RegisterForm({
             } finally {
                 setPhoneLoading(false);
             }
+            return;
+        }
+
+        if (!emailAuthEnabled) {
             return;
         }
 
@@ -155,10 +194,12 @@ export default function RegisterForm({
         }
     };
 
-    const isLoading = status === "loading" || phoneLoading;
+    const isLoading = status === "loading" || phoneLoading || phoneSessionLoading;
     const shouldShowDirectPhoneControls = isPhoneIdentifier
-        && !matchedVerifiedPhoneUser;
+        && !matchedVerifiedPhoneUser
+        && !phoneSessionLoading;
     const isRegisterDisabled = isLoading
+        || (!emailAuthEnabled && !isPhoneIdentifier)
         || (isPhoneLikeIdentifier && !isPhoneIdentifier)
         || (isPhoneIdentifier && !matchedVerifiedPhoneUser && (!phoneConfirmation || !verificationCode.trim()));
 
@@ -197,7 +238,7 @@ export default function RegisterForm({
                 />
 
                 <AuthIdentifierField
-                    label="Correo electrónico o teléfono"
+                    label={emailAuthEnabled ? "Correo electrónico o teléfono" : "Teléfono"}
                     value={identifier}
                     countryCode={identifierCountryCode}
                     onCountryCodeChange={(value) => {
@@ -211,12 +252,13 @@ export default function RegisterForm({
                         setVerificationCode("");
                     }}
                     disabled={!!verifiedPhoneUser}
+                    phoneOnly={!emailAuthEnabled}
                     required
                     fullWidth
                     variant="filled"
                 />
 
-                {!isPhoneIdentifier &&
+                {emailAuthEnabled && !isPhoneIdentifier &&
                     <>
                         <TextField
                             label="Contraseña"

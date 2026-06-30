@@ -6,85 +6,92 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { getErrorMessage } from "@/helpers/getErrorMessage";
-import { SeasonItemDTO } from "@/models/season-item.dto";
-import { getSeasonBannerImageUrl } from "@/models/season-item.dto";
-import { getSeasonBanner } from "@/services/seasonService";
+import {
+  BundleItemDTO,
+  getBundleBannerImageUrl,
+} from "@/models/bundle-item.dto";
+import { getBundleBanner } from "@/services/bundleService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setBookMode } from "@/store/slices/bookingFlowSlice";
 import { showGeneralMessage } from "@/store/slices/uiSlice";
 import { colors } from "@/theme/colors";
 
 export default function SeasonBanner() {
-    const dispatch = useAppDispatch();
-    const token = useAppSelector(state => state.auth.user?.token);
-    const router = useRouter();
-    const [seasonBanner, setSeasonBanner] = useState<SeasonItemDTO>();
+  const dispatch = useAppDispatch();
+  const token = useAppSelector((state) => state.auth.user?.token);
+  const router = useRouter();
+  const [bundleBanner, setBundleBanner] = useState<BundleItemDTO>();
 
-    useEffect(() => {
-        if (!token) {
-            return;
+  useEffect(() => {
+    const loadSeason = async () => {
+      try {
+        const response = await getBundleBanner();
+
+        if (response) {
+          setBundleBanner(response);
         }
-
-        const loadSeason = async () => {
-            try {
-                const response = await getSeasonBanner();
-
-                if (response) {
-                    setSeasonBanner(response);
-                }
-            }
-            catch (error) {
-                dispatch(showGeneralMessage({
-                    message: getErrorMessage(error),
-                    severity: "error"
-                }));
-            }
-        };
-
-        loadSeason();
-    }, [token]);
-
-    const handleSeasonClick = () => {
-        if (!seasonBanner) {
-            return;
-        }
-
-        dispatch(setBookMode("season"));
-        router.push(`/booking/season/${seasonBanner.id}`);
+      } catch (error) {
+        dispatch(
+          showGeneralMessage({
+            message: getErrorMessage(error),
+            severity: "error",
+          }),
+        );
+      }
     };
 
-    return (
-        <>
-            {seasonBanner &&
-                <Box>
-                    <Typography
-                        variant="h3"
-                        color={colors.brand.primary}
-                    >
-                        Temporadas
-                    </Typography>
-                    <Grid container columns={{ xs: 1, sm: 1, md: 2, lg: 3, xl: 4 }}>
-                        <Grid size={1}>
-                            <Box mb={9} mt={1} sx={{
-                                position: "relative",
-                                aspectRatio: "16 / 9"
-                            }}>
-                                <Image
-                                    src={getSeasonBannerImageUrl(seasonBanner)}
-                                    alt="Season"
-                                    fill
-                                    style={{
-                                        objectFit: "cover",
-                                        cursor: "pointer",
-                                        borderRadius: 10
-                                    }}
-                                    onClick={handleSeasonClick}
-                                />
-                            </Box>
-                        </Grid>
-                    </Grid>
-                </Box>
-            }
-        </>
-    );
+    loadSeason();
+  }, []);
+
+  const handleSeasonClick = () => {
+    if (!bundleBanner) {
+      return;
+    }
+
+    if (bundleBanner.isRenewal && bundleBanner.relatedOrderId) {
+      router.push(`/season/renovation/${bundleBanner.relatedOrderId}`);
+      return;
+    }
+
+    if (bundleBanner.isGeneralSale) {
+      dispatch(setBookMode("season"));
+      router.push(`/booking/season/${bundleBanner.id}`);
+    }
+  };
+
+  return (
+    <>
+      {bundleBanner && (
+        <Box>
+          <Typography variant="h3" color={colors.brand.primary}>
+            Temporadas
+          </Typography>
+          <Grid container columns={{ xs: 1, sm: 1, md: 2, lg: 3, xl: 4 }}>
+            <Grid size={1}>
+              <Box
+                mb={9}
+                mt={1}
+                sx={{
+                  position: "relative",
+                  aspectRatio: "16 / 9",
+                }}
+              >
+                <Image
+                  src={getBundleBannerImageUrl(bundleBanner)}
+                  alt="Season"
+                  fill
+                  style={{
+                    objectFit: "cover",
+                    cursor: "pointer",
+                    borderRadius: 10,
+                  }}
+                  onClick={handleSeasonClick}
+                />
+              </Box>
+            </Grid>
+          </Grid>
+        </Box>
+      )}
+    </>
+  );
 }

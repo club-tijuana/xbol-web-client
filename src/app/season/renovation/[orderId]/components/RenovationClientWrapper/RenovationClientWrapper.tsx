@@ -6,11 +6,12 @@ import { useEffect, useState } from "react";
 
 import BookingSeasonClient from "@/app/booking/components/BookingSeasonClient/BookingSeasonClient";
 import { getErrorMessage } from "@/helpers/getErrorMessage";
+import { BundleToRenovateDTO } from "@/models/bundle-to-renovate.dto";
 import { BookingSeatRequest } from "@/models/requests/booking-seat-request.dto";
-import { SeasonToRenovateDTO } from "@/models/season-to-renovate.dto";
-import { getOrderToRenovate } from "@/services/orderService";
+import { getBlockedSeatsAsync } from "@/services/bundleService";
+import { getOrderRenovationPrices, getOrderToRenovate } from "@/services/orderService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { resetState as resetStateFlow, setBookHoldToken, setBookMode, setInitialSeats, setOrderLeftSeats, setOriginalSeats, setRenovationType, setSeasonRelatedOrderId, setSeats } from "@/store/slices/bookingFlowSlice";
+import { resetState as resetStateFlow, setBlockedSeats, setBookHoldToken, setBookMode, setInitialSeats, setOrderLeftSeats, setOriginalSeats, setRenovationType, setSeasonRelatedOrderId, setSeats } from "@/store/slices/bookingFlowSlice";
 import { resetState } from "@/store/slices/bookingSlice";
 import { clearGeneralMessage, showGeneralMessage } from "@/store/slices/uiSlice";
 
@@ -24,35 +25,43 @@ export default function RenovationClientWrapper({ orderId }: RenovationClientWra
     const token = useAppSelector(state => state.auth.user?.token);
     const initialSeats = useAppSelector(store => store.bookingFlow.initialSeats);
     const generalMessage = useAppSelector(state => state.ui.generalMessage);
-    const [seasonToRenovate, setSeasonToRenovate] = useState<SeasonToRenovateDTO | null>(null);
+    const [bundleToRenovate, setBundleToRenovate] = useState<BundleToRenovateDTO | null>(null);
 
     useEffect(() => {
         if (!token) {
             return;
         }
 
+        const params = new URLSearchParams(window.location.search);
+        const source = params.get("source");
+        const isFromEvo = source === "evo";
+
         async function loadSeason() {
             try {
                 await dispatch(resetState());
                 await dispatch(resetStateFlow());
 
-                const season = await getOrderToRenovate(orderId);
+                const bundle = await getOrderToRenovate(orderId);
+                const previousSeatPrices = await getOrderRenovationPrices(orderId);
+                const blockedSeats = await getBlockedSeatsAsync(bundle.bundleId)
 
                 await dispatch(setBookMode("renovateSeason"));
                 await dispatch(setRenovationType("sameSeats"));
                 await dispatch(setSeasonRelatedOrderId(orderId));
+                await dispatch(setBlockedSeats(blockedSeats));
                 await dispatch(setBookHoldToken({
                     expiresAt: "",
                     expiresInSeconds: 0,
                     token: ""
                 }));
 
-                if (season.previousSeatPrices) {
-                    const prevSeats: BookingSeatRequest[] = season.previousSeatPrices.map(
+                if (previousSeatPrices.length > 0) {
+                    const prevSeats: BookingSeatRequest[] = previousSeatPrices.map(
                         seat => ({
                             seatKey: seat.externalSeatObjectKey,
                             seatPrice: seat.priceOverride ?? 0,
-                            priceListItemId: seat.priceListItemId ?? 0
+                            priceListItemId: seat.priceListItemId ?? 0,
+                            fees: seat.fees
                         })
                     );
 
@@ -62,9 +71,15 @@ export default function RenovationClientWrapper({ orderId }: RenovationClientWra
                     await dispatch(setOrderLeftSeats(prevSeats.length));
                 }
 
-                setSeasonToRenovate(season);
+                setBundleToRenovate(bundle);
             }
             catch (error) {
+                if (isFromEvo) {
+                    setBundleToRenovate({ relatedOrderId: 0, bundleId: 0 } as BundleToRenovateDTO);
+                    await dispatch(setInitialSeats([]));
+                    return;
+                }
+
                 dispatch(showGeneralMessage({
                     message: getErrorMessage(error),
                     severity: "error"
@@ -79,8 +94,8 @@ export default function RenovationClientWrapper({ orderId }: RenovationClientWra
 
     return (
         <>
-            {(seasonToRenovate && initialSeats) &&
-                <BookingSeasonClient id={seasonToRenovate.seasonId.toString()} isRenovation={true} />
+            {(bundleToRenovate && initialSeats) &&
+                <BookingSeasonClient id={bundleToRenovate.bundleId.toString()} isRenovation={true} />
             }
 
             <Snackbar

@@ -16,112 +16,151 @@ import TicketTabs from "../TicketTabs/TicketTabs";
 const PAGE_SIZE: number = 10;
 
 export default function TicketsClientWrapper() {
-    const generalMessage = useAppSelector(state => state.ui.generalMessage);
-    const token = useAppSelector(state => state.auth.user?.token);
-    const dispatch = useAppDispatch();
+  const generalMessage = useAppSelector(state => state.ui.generalMessage);
+  const token = useAppSelector(state => state.auth.user?.token);
+  const dispatch = useAppDispatch();
 
-    const [myEvents, setMyEvents] = useState<MyEventDTO[]>([]);
-    const [mySeasons, setMySeasons] = useState<MyEventDTO[]>([]);
-    const [currentEventsPage, setCurrentEventsPage] = useState<number>(1);
-    const [currentSeasonPage, setCurrentSeasonPage] = useState<number>(1);
-    const isFetchingRef = useRef(false);
+  const [myEvents, setMyEvents] = useState<MyEventDTO[]>([]);
+  const [mySeasons, setMySeasons] = useState<MyEventDTO[]>([]);
+  const [currentEventsPage, setCurrentEventsPage] = useState<number>(1);
+  const [currentSeasonPage, setCurrentSeasonPage] = useState<number>(1);
+  const [eventsLoaded, setEventsLoaded] = useState(false);
+  const [seasonsLoaded, setSeasonsLoaded] = useState(false);
+  const [eventsError, setEventsError] = useState<string | null>(null);
+  const [seasonsError, setSeasonsError] = useState<string | null>(null);
+  const isFetchingRef = useRef(false);
 
-    useEffect(() => {
-        if (!token) {
-            return;
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
+
+    async function load() {
+      isFetchingRef.current = true;
+
+      try {
+        setEventsError(null);
+        setSeasonsError(null);
+        setCurrentEventsPage(1);
+        setCurrentSeasonPage(1);
+
+        const [eventsResult, seasonsResult] = await Promise.allSettled([
+          getMyEvents({ page: 1, pageSize: PAGE_SIZE, orderType: OrderType.Ticket }),
+          getMyEvents({ page: 1, pageSize: PAGE_SIZE, orderType: OrderType.Bundle }),
+        ]);
+
+        if (eventsResult.status === "fulfilled") {
+          setMyEvents(eventsResult.value?.items ?? []);
+        }
+        else if (eventsResult.status === "rejected") {
+          const message = getErrorMessage(eventsResult.reason);
+          setEventsError(message);
+          dispatch(showGeneralMessage({
+            message,
+            severity: "error"
+          }));
         }
 
-        async function load() {
-            isFetchingRef.current = true;
-
-            try {
-                const events = await getMyEvents({ page: currentEventsPage, pageSize: PAGE_SIZE, orderType: OrderType.Ticket });
-                const seasons = await getMyEvents({ page: currentSeasonPage, pageSize: PAGE_SIZE, orderType: OrderType.SeasonPass });
-
-                setMyEvents(events?.items ?? []);
-                setMySeasons(seasons?.items ?? []);
-            }
-            finally {
-                isFetchingRef.current = false;
-            }
+        if (seasonsResult.status === "fulfilled") {
+          setMySeasons(seasonsResult.value?.items ?? []);
+        }
+        else if (seasonsResult.status === "rejected") {
+          const message = getErrorMessage(seasonsResult.reason);
+          setSeasonsError(message);
+          dispatch(showGeneralMessage({
+            message,
+            severity: "error"
+          }));
         }
 
-        load();
-    }, [token]);
+        setEventsLoaded(true);
+        setSeasonsLoaded(true);
+      }
+      finally {
+        isFetchingRef.current = false;
+      }
+    }
 
-    const loadMoreSeasons = async () => {
-        if (isFetchingRef.current) {
-            return;
-        }
+    load();
+  }, [token, dispatch]);
 
-        isFetchingRef.current = true;
+  const loadMoreSeasons = async () => {
+    if (isFetchingRef.current) {
+      return;
+    }
 
-        try {
-            const response = await getMyEvents({ page: (currentSeasonPage + 1), pageSize: PAGE_SIZE, orderType: OrderType.SeasonPass });
+    isFetchingRef.current = true;
 
-            if (response) {
-                setCurrentSeasonPage(prev => prev + 1);
-                setMySeasons(prev => [...(prev ?? []), ...response.items])
-            }
-        }
-        catch (error) {
-            dispatch(showGeneralMessage({
-                message: getErrorMessage(error),
-                severity: "error"
-            }));
-        }
-        finally {
-            isFetchingRef.current = false;
-        }
-    };
+    try {
+      const response = await getMyEvents({ page: (currentSeasonPage + 1), pageSize: PAGE_SIZE, orderType: OrderType.Bundle });
 
-    const loadMoreEvents = async () => {
-        if (isFetchingRef.current) {
-            return;
-        }
+      if (response) {
+        setCurrentSeasonPage(prev => prev + 1);
+        setMySeasons(prev => [...(prev ?? []), ...response.items])
+      }
+    }
+    catch (error) {
+      dispatch(showGeneralMessage({
+        message: getErrorMessage(error),
+        severity: "error"
+      }));
+    }
+    finally {
+      isFetchingRef.current = false;
+    }
+  };
 
-        isFetchingRef.current = true;
+  const loadMoreEvents = async () => {
+    if (isFetchingRef.current) {
+      return;
+    }
 
-        try {
-            const response = await getMyEvents({ page: (currentEventsPage + 1), pageSize: PAGE_SIZE, orderType: OrderType.Ticket });
+    isFetchingRef.current = true;
 
-            if (response) {
-                setCurrentEventsPage(prev => prev + 1);
-                setMyEvents(prev => [...(prev ?? []), ...response.items])
-            }
-        }
-        catch (error) {
-            dispatch(showGeneralMessage({
-                message: getErrorMessage(error),
-                severity: "error"
-            }));
-        }
-        finally {
-            isFetchingRef.current = false;
-        }
-    };
+    try {
+      const response = await getMyEvents({ page: (currentEventsPage + 1), pageSize: PAGE_SIZE, orderType: OrderType.Ticket });
 
-    return (
-        <Box>
-            <TicketTabs
-                myEvents={myEvents}
-                mySeasons={mySeasons}
-                onEventLoadMore={loadMoreEvents}
-                onSeasonLoadMore={loadMoreSeasons}
-            />
+      if (response) {
+        setCurrentEventsPage(prev => prev + 1);
+        setMyEvents(prev => [...(prev ?? []), ...response.items])
+      }
+    }
+    catch (error) {
+      dispatch(showGeneralMessage({
+        message: getErrorMessage(error),
+        severity: "error"
+      }));
+    }
+    finally {
+      isFetchingRef.current = false;
+    }
+  };
 
-            <Snackbar
-                anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                open={!!generalMessage.message}
-                autoHideDuration={4000}
-                onClose={() => dispatch(clearGeneralMessage())}>
-                <Alert
-                    severity={generalMessage.severity}
-                    variant="filled"
-                    sx={{ width: "100%" }}>
-                    {generalMessage.message}
-                </Alert>
-            </Snackbar>
-        </Box>
-    );
+  return (
+    <Box>
+      <TicketTabs
+        myEvents={myEvents}
+        mySeasons={mySeasons}
+        eventsLoaded={eventsLoaded}
+        seasonsLoaded={seasonsLoaded}
+        eventsError={eventsError}
+        seasonsError={seasonsError}
+        onEventLoadMore={loadMoreEvents}
+        onSeasonLoadMore={loadMoreSeasons}
+      />
+
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        open={!!generalMessage.message}
+        autoHideDuration={4000}
+        onClose={() => dispatch(clearGeneralMessage())}>
+        <Alert
+          severity={generalMessage.severity}
+          variant="filled"
+          sx={{ width: "100%" }}>
+          {generalMessage.message}
+        </Alert>
+      </Snackbar>
+    </Box>
+  );
 }

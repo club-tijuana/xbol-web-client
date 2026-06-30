@@ -3,11 +3,13 @@ import type { NextConfig } from 'next';
 import { publicEnv } from './src/config/env';
 
 const adminImageHost = publicEnv.NEXT_PUBLIC_ADMIN_IMAGE_HOST;
+const storageImageHost = 'storage.googleapis.com';
 
 const nextConfig: NextConfig = {
   basePath: publicEnv.NEXT_PUBLIC_BASE_PATH || '',
   assetPrefix: publicEnv.NEXT_PUBLIC_ASSET_PREFIX || '',
-  skipMiddlewareUrlNormalize: true,
+  skipProxyUrlNormalize: true,
+  skipTrailingSlashRedirect: true,
   trailingSlash: true,
   output: 'standalone',
   reactCompiler: true,
@@ -35,7 +37,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'storage.googleapis.com',
+        hostname: storageImageHost,
         pathname: '/**',
       },
       ...(adminImageHost

@@ -10,6 +10,7 @@ export interface EventCatalogFilters {
   startDate?: string;
   endDate?: string;
   upcoming?: boolean;
+  buyableOnly?: boolean;
   sortBy?: string;
   descending?: boolean;
   page?: number;

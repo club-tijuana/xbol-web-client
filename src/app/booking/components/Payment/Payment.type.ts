@@ -7,5 +7,7 @@ export interface PaymentProps {
     currency?: string;
     paymentLinkCode?: string;
     showTotals?: boolean;
+    scheduleId?: number;
+    bundleId?: number;
     onPay?: () => void;
 }

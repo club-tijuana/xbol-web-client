@@ -1,6 +1,5 @@
 import {
     formatPhoneNumber,
-    formatPhoneNumberIntl,
     parsePhoneNumber,
 } from "react-phone-number-input";
 
@@ -56,6 +55,17 @@ export function getPhoneAuthCountry(value: string): AuthPhoneCountryCode | null 
     return phoneNumber.country as AuthPhoneCountryCode;
 }
 
+export function resolvePhoneAuthCountryCode(
+    value: string,
+    currentCountryCode: string,
+): AuthPhoneCountryCode {
+    return getPhoneAuthCountry(value) ?? (
+        isAuthPhoneCountryCode(currentCountryCode)
+            ? currentCountryCode
+            : defaultAuthPhoneCountryCode
+    );
+}
+
 export function isPhoneAuthIdentifier(
     value: string,
     countryCode?: string,
@@ -73,7 +83,14 @@ export function isPhoneLikeAuthIdentifier(value: string): boolean {
     return digitCount >= 3 && /^[+\d().\-\s]+$/.test(trimmed);
 }
 
-export function shouldShowPhoneCountrySelector(value: string): boolean {
+export function shouldShowPhoneCountrySelector(
+    value: string,
+    forceVisible = false,
+): boolean {
+    if (forceVisible) {
+        return true;
+    }
+
     const trimmed = value.trim();
     return isPhoneLikeAuthIdentifier(trimmed) && !trimmed.startsWith("+");
 }
@@ -87,11 +104,23 @@ export function formatPhoneAuthIdentifier(
         return value;
     }
 
-    if (value.trim().startsWith("+")) {
-        return formatPhoneNumberIntl(normalizedPhone) || normalizedPhone;
+    return formatPhoneNumber(normalizedPhone) || value;
+}
+
+export function normalizePhoneAuthInputValue(
+    value: string,
+    currentCountryCode: string,
+): { countryCode: AuthPhoneCountryCode; value: string } {
+    const countryCode = resolvePhoneAuthCountryCode(value, currentCountryCode);
+    const normalizedPhone = getPhoneAuthIdentifier(value, countryCode);
+    if (!value.trim().startsWith("+") || !normalizedPhone) {
+        return { countryCode, value };
     }
 
-    return formatPhoneNumber(normalizedPhone) || value;
+    return {
+        countryCode,
+        value: formatPhoneNumber(normalizedPhone) || value,
+    };
 }
 
 export function normalizeAuthIdentifier(value: string): string {

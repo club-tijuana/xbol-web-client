@@ -1,9 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import { getErrorMessage } from "@/helpers/getErrorMessage";
-import { EventBookingRequest } from "@/models/requests/event-booking-request.dto";
-import { SeasonBookingRequest } from "@/models/requests/season-booking-request.dto";
-import { eventBookSeats, seasonBookSeats, seasonRenovationSeats } from "@/services/bookingService";
+import { BookSeatsBody } from "@/models/requests/book-seats-body.dto";
+import { seasonRenovationSeats } from "@/services/bookingService";
+import { bookSeats } from "@/services/seatManagementService";
 
 import { RootState } from "..";
 
@@ -16,32 +16,32 @@ const initialState: BookingState = {
     status: "idle"
 };
 
-const getEventBookingRequest = (state: RootState): EventBookingRequest => {
+const getEventBookingRequest = (state: RootState): BookSeatsBody => {
     const flow = state.bookingFlow;
 
     return {
-        eventKey: flow.bookKey!,
-        eventScheduleId: flow.scheduleId!,
         seats: flow.selectedSeats ?? [],
+        holdToken: flow.holdTokenObj?.token ?? "",
+        bundleId: undefined,
+        eventScheduleId: flow.scheduleId!,
         ticketType: flow.ticketType!,
         clientContact: flow.clientContact!,
         paymentInfoRequest: flow.paymentInfo!,
-        holdToken: flow.holdTokenObj?.token ?? "",
         isPaymentLink: false
     };
 };
 
-const getSeasonBookingRequest = (state: RootState): SeasonBookingRequest => {
+const getSeasonBookingRequest = (state: RootState): BookSeatsBody => {
     const flow = state.bookingFlow;
 
     return {
-        seasonKey: flow.bookKey,
-        eventScheduleId: flow.scheduleId!,
         seats: flow.selectedSeats ?? [],
+        holdToken: flow.holdTokenObj?.token ?? "",
+        bundleId: flow.bundleId!,
+        eventScheduleId: undefined,
         ticketType: flow.ticketType!,
         clientContact: flow.clientContact!,
         paymentInfoRequest: flow.paymentInfo!,
-        holdToken: flow.holdTokenObj?.token ?? "",
         referenceOrderId: flow.referenceOrderId!,
         isPaymentLink: false
     }
@@ -54,7 +54,7 @@ export const eventBook = createAsyncThunk(
             const state = thunkAPI.getState() as RootState;
             const request = getEventBookingRequest(state);
 
-            const response = await eventBookSeats(request);
+            const response = await bookSeats(request);
             return response;
         }
         catch (error) {
@@ -72,7 +72,8 @@ export const seasonBook = createAsyncThunk(
             const state = thunkAPI.getState() as RootState;
             const request = getSeasonBookingRequest(state);
 
-            const response = await seasonBookSeats(request);
+            //const response = await seasonBookSeats(request);
+            const response = await bookSeats(request);
             return response;
         }
         catch (error) {

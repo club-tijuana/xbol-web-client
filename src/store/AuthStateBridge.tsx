@@ -2,9 +2,9 @@
 
 import { useEffect } from "react";
 
-import { AuthDto } from "@/models/auth.dto";
+import type { AuthDto } from "@/models/auth.dto";
 import { clearClientAuthentication, hydrateAuthProfile } from "@/services/authService";
-import { logoutFromFirebase, mapFirebaseUser, onClientAuthTokenChanged } from "@/services/firebaseClient";
+import { mapFirebaseUser, onClientAuthTokenChanged } from "@/services/firebaseClient";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { logout, setUser } from "@/store/slices/authSlice";
 

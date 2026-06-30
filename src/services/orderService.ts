@@ -1,6 +1,7 @@
 import { requestAxios } from "@/helpers/axiosHelper";
+import { BundleToRenovateDTO } from "@/models/bundle-to-renovate.dto";
 import { OrderDTO } from "@/models/order.dto";
-import { SeasonToRenovateDTO } from "@/models/season-to-renovate.dto";
+import { SeatDTO } from "@/models/seat.dto";
 import { SeoMetadataDTO } from "@/models/seo-metadata";
 import { store } from "@/store";
 
@@ -15,12 +16,23 @@ export async function getOrderSuccess(orderId: number): Promise<OrderDTO> {
     );
 }
 
-export async function getOrderToRenovate(orderId: number): Promise<SeasonToRenovateDTO> {
+export async function getOrderToRenovate(orderId: number): Promise<BundleToRenovateDTO> {
     const state = store.getState();
 
-    return requestAxios<null, SeasonToRenovateDTO>(
+    return requestAxios<null, BundleToRenovateDTO>(
         "GET",
         `orders/renovate/${orderId}`,
+        undefined,
+        state.auth.user?.token
+    );
+}
+
+export async function getOrderRenovationPrices(orderId: number): Promise<Array<SeatDTO>> {
+    const state = store.getState();
+
+    return requestAxios<null, Array<SeatDTO>>(
+        "GET",
+        `orders/renovate/${orderId}/prices`,
         undefined,
         state.auth.user?.token
     );

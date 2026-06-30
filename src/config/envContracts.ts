@@ -71,6 +71,28 @@ const emptyStringToUndefined = (value: unknown) => {
   return value;
 };
 
+const booleanEnvFlag = () =>
+  z.preprocess(
+    emptyStringToUndefined,
+    z
+      .enum(["true", "false"])
+      .transform((value) => value === "true")
+      .optional()
+      .default(false),
+  );
+
+const siteAccessMode = () =>
+  z.preprocess(
+    emptyStringToUndefined,
+    z.enum(["open", "landing"]).optional().default("open"),
+  );
+
+const siteAccessAllowedCidrs = () =>
+  z.preprocess(
+    emptyStringToUndefined,
+    z.string().optional(),
+  );
+
 const publicEnvShape = {
   NEXT_PUBLIC_API_BASE_URL: requiredString("NEXT_PUBLIC_API_BASE_URL").pipe(
     z.url({
@@ -94,14 +116,8 @@ const publicEnvShape = {
     "NEXT_PUBLIC_FIREBASE_PROJECT_ID",
   ),
   NEXT_PUBLIC_FIREBASE_APP_ID: requiredString("NEXT_PUBLIC_FIREBASE_APP_ID"),
-  NEXT_PUBLIC_FIREBASE_PHONE_AUTH_TESTING: z.preprocess(
-    emptyStringToUndefined,
-    z
-      .enum(["true", "false"])
-      .transform((value) => value === "true")
-      .optional()
-      .default(false),
-  ),
+  NEXT_PUBLIC_FIREBASE_PHONE_AUTH_TESTING: booleanEnvFlag(),
+  NEXT_PUBLIC_ENABLE_EMAIL_AUTH: booleanEnvFlag(),
   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: z.string().optional(),
   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: z.string().optional(),
   NEXT_PUBLIC_BASE_PATH: z.string().optional(),
@@ -135,6 +151,7 @@ export const publicEnvMetadata = {
   ),
   NEXT_PUBLIC_FIREBASE_APP_ID: publicBuildTimeEnv("variable", "environment"),
   NEXT_PUBLIC_FIREBASE_PHONE_AUTH_TESTING: localPublicBuildTimeEnv(),
+  NEXT_PUBLIC_ENABLE_EMAIL_AUTH: localPublicBuildTimeEnv(),
   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: publicBuildTimeEnv(
     "variable",
     "environment",
@@ -194,12 +211,34 @@ const serverEnvShape = {
       .transform((value) => value === "true")
       .optional(),
   ),
+  SITE_ACCESS_MODE: siteAccessMode(),
+  SITE_ACCESS_LANDING_IMAGE_URL: z.preprocess(
+    emptyStringToUndefined,
+    z.url().optional(),
+  ),
+  SITE_ACCESS_LANDING_MOBILE_IMAGE_URL: z.preprocess(
+    emptyStringToUndefined,
+    z.url().optional(),
+  ),
+  SITE_ACCESS_ALLOWED_CIDRS: siteAccessAllowedCidrs(),
+  SITE_ACCESS_CLIENT_IP_HEADER: z.preprocess(
+    emptyStringToUndefined,
+    z.string().trim().min(1).optional().default("x-forwarded-for"),
+  ),
 };
 
 export const serverEnvMetadata = {
   FIREBASE_SERVICE_ACCOUNT_JSON: serverRuntimeEnv("secret", "environment"),
   FIREBASE_SESSION_COOKIE_NAME: serverRuntimeEnv("variable", "repository"),
   FIREBASE_SESSION_COOKIE_SECURE: serverRuntimeEnv("variable", "repository"),
+  SITE_ACCESS_MODE: serverRuntimeEnv("variable", "environment"),
+  SITE_ACCESS_LANDING_IMAGE_URL: serverRuntimeEnv("variable", "environment"),
+  SITE_ACCESS_LANDING_MOBILE_IMAGE_URL: serverRuntimeEnv(
+    "variable",
+    "environment",
+  ),
+  SITE_ACCESS_ALLOWED_CIDRS: serverRuntimeEnv("variable", "environment"),
+  SITE_ACCESS_CLIENT_IP_HEADER: serverRuntimeEnv("variable", "environment"),
 } satisfies Record<keyof typeof serverEnvShape, EnvMetadata>;
 
 export const serverEnvSchema = z.object(serverEnvShape).meta({

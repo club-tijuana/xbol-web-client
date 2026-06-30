@@ -67,7 +67,7 @@ export default function SuccessClient({ orderId }: SuccessClientProps) {
     }, [orderId, token]);
 
     return (
-        <Box mt={20}>
+        <Box mt={{ xs: 3, sm: 4, md: 5 }}>
             {order &&
                 <Grid container columns={12} spacing={2}>
                     <Grid size={{ xs: 12, lg: 5 }} mb={{ xs: 0, lg: 6 }}>
@@ -138,6 +138,7 @@ export default function SuccessClient({ orderId }: SuccessClientProps) {
                                 discount={order.discount}
                                 total={order.total}
                                 currency={"MXN"}
+                                fees={order.fees}
                                 seats={order.itemSeats}
                                 selectedSeats={seatMap}
                                 folio={order.folio}

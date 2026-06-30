@@ -98,6 +98,21 @@ test("public env schema defaults the event image to the checked-in asset", () =>
   assert.equal(env.NEXT_PUBLIC_DEFAULT_EVENT_IMAGE, DEFAULT_EVENT_IMAGE);
 });
 
+test("public env schema keeps email auth disabled by default", () => {
+  const env = publicEnvSchema.parse(requiredPublicEnv);
+
+  assert.equal(env.NEXT_PUBLIC_ENABLE_EMAIL_AUTH, false);
+});
+
+test("public env schema allows explicitly enabling email auth", () => {
+  const env = publicEnvSchema.parse({
+    ...requiredPublicEnv,
+    NEXT_PUBLIC_ENABLE_EMAIL_AUTH: "true",
+  });
+
+  assert.equal(env.NEXT_PUBLIC_ENABLE_EMAIL_AUTH, true);
+});
+
 test("public env schema accepts the deployment override as provided", () => {
   const defaultImage = "event-default-from-deploy.png";
   const env = publicEnvSchema.parse({
@@ -148,6 +163,28 @@ test("event image fallback leaves deployment overrides unchanged", async () => {
     const { eventImageOrDefault } = await importEventImageModule();
 
     assert.equal(eventImageOrDefault(), "/custom-default.png");
+  });
+});
+
+test("hero image fallback prefers the landing image over the default event image", async () => {
+  await withPublicEnv({
+    NEXT_PUBLIC_BASE_PATH: "/client",
+    NEXT_PUBLIC_DEFAULT_EVENT_IMAGE: undefined,
+  }, async () => {
+    const { heroImageOrDefault } = await importEventImageModule();
+
+    assert.equal(
+      heroImageOrDefault("", "https://storage.googleapis.com/example/landing.png"),
+      "https://storage.googleapis.com/example/landing.png",
+    );
+    assert.equal(
+      heroImageOrDefault("https://media.example.test/event.png", "https://storage.googleapis.com/example/landing.png"),
+      "https://media.example.test/event.png",
+    );
+    assert.equal(
+      heroImageOrDefault("", ""),
+      "/client/assets/eventDefault/default.png",
+    );
   });
 });
 
